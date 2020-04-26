@@ -1,0 +1,76 @@
+{
+  "name": "phlame-engine",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "npm run test -- --watch",
+    "test": "vue-cli-service test:unit src/**/*.spec.ts",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^5.2.4",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "@vue/cli-plugin-babel": "~4.3.0",
+    "@vue/cli-plugin-eslint": "~4.3.0",
+    "@vue/cli-plugin-typescript": "~4.3.0",
+    "@vue/cli-plugin-unit-mocha": "~4.3.0",
+    "@vue/cli-service": "~4.3.0",
+    "@vue/eslint-config-airbnb": "^5.0.2",
+    "@vue/eslint-config-typescript": "^5.0.2",
+    "chai": "^4.2.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "typescript": "~3.8.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/airbnb",
+      "@vue/typescript/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {
+      "comma-dangle": [
+        2,
+        "always-multiline"
+      ],
+      "quotes": [
+        2,
+        "double"
+      ]
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s",
+          "**/*.spec.{j,t}s"
+        ],
+        "env": {
+          "mocha": true
+        },
+        "rules": {
+          "import/no-extraneous-dependencies": [
+            "error",
+            {
+              "devDependencies": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
