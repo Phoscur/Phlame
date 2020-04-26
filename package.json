@@ -46,6 +46,13 @@
       "quotes": [
         2,
         "double"
+      ],
+      "no-bitwise": [
+        "error",
+        {
+          "allow": ["~"],
+          "int32Hint": true
+        }
       ]
     },
     "overrides": [
