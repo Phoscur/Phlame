@@ -53,6 +53,12 @@
           "allow": ["~"],
           "int32Hint": true
         }
+      ],
+      "max-len": [
+        "error",
+        {
+          "code": 120
+        }
       ]
     },
     "overrides": [
@@ -70,6 +76,9 @@
             {
               "devDependencies": true
             }
+          ],
+          "no-unused-expressions": [
+            0
           ]
         }
       }

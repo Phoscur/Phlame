@@ -1,5 +1,9 @@
 
-export default class Resource {
+export interface ResourceValue {
+  readonly type: string;
+  readonly amount: number; // int32
+}
+export default class Resource implements ResourceValue {
   static types = ["null"];
 
   readonly type: string;
@@ -16,6 +20,67 @@ export default class Resource {
 
   get prettyAmount(): string {
     return `${this.amount}${this.type}`;
+  }
+
+  /**
+   * Create another resource of the same type
+   */
+  protected create(amount: number) {
+    // Doesn't sound like the best idea considering debugging performance -
+    // would be a nice way to not explicitly redeclare this method in every subclass
+    /* This makes the new object use the old one as prototype (stores old states in the prototype chain)
+    const resource = Object.create(this);
+    Resource.call(resource, this.type, amount);
+    return resource;
+    */
+    return new Resource(this.type, amount);
+  }
+
+  equalOfTypeTo(resource: Resource) {
+    return resource.type === this.type;
+  }
+
+  equals(resource: Resource) {
+    return this.equalOfTypeTo(resource)
+      // Usually we would need an epsilon to do a float comparison, but since we casted to int32, this works
+      && resource.amount === this.amount;
+  }
+
+  isMoreThan(resource: Resource) {
+    if (!this.equalOfTypeTo(resource)) {
+      throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
+    }
+    return this.amount > resource.amount;
+  }
+
+  isLessOrEquals(resource: Resource) {
+    if (!this.equalOfTypeTo(resource)) {
+      throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
+    }
+    return this.amount <= resource.amount;
+  }
+
+  add(resource: Resource) {
+    if (!this.equalOfTypeTo(resource)) {
+      throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
+    }
+    return this.create(this.amount + resource.amount);
+  }
+
+  /**
+   * Substract another resource
+   * Warning! Returns zero if the result would be negative.
+   * @param subtrahend
+   */
+  subtract(subtrahend: Resource) {
+    if (!this.equalOfTypeTo(subtrahend)) {
+      throw new TypeError(`Resource types don't match (${this.type} != ${subtrahend.type})`);
+    }
+    return this.create(this.amount - subtrahend.amount);
+  }
+
+  times(factor: number) {
+    return this.create(this.amount * factor);
   }
 
   toString() {
