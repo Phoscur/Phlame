@@ -59,6 +59,14 @@
         {
           "code": 120
         }
+      ],
+      "arrow-parens": [
+        "error",
+        "always"
+      ],
+      "arrow-body-style": [
+        "error",
+        "always"
       ]
     },
     "overrides": [

@@ -25,7 +25,7 @@ export default class Resource implements ResourceValue {
   /**
    * Create another resource of the same type
    */
-  protected create(amount: number) {
+  protected new(amount: number) {
     // Doesn't sound like the best idea considering debugging performance -
     // would be a nice way to not explicitly redeclare this method in every subclass
     /* This makes the new object use the old one as prototype (stores old states in the prototype chain)
@@ -34,6 +34,10 @@ export default class Resource implements ResourceValue {
     return resource;
     */
     return new Resource(this.type, amount);
+  }
+
+  get zero(): Resource {
+    return this.new(0);
   }
 
   equalOfTypeTo(resource: Resource) {
@@ -46,11 +50,11 @@ export default class Resource implements ResourceValue {
       && resource.amount === this.amount;
   }
 
-  isMoreThan(resource: Resource) {
+  isMoreOrEquals(resource: Resource) {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
-    return this.amount > resource.amount;
+    return this.amount >= resource.amount;
   }
 
   isLessOrEquals(resource: Resource) {
@@ -64,7 +68,7 @@ export default class Resource implements ResourceValue {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
-    return this.create(this.amount + resource.amount);
+    return this.new(this.amount + resource.amount);
   }
 
   /**
@@ -76,11 +80,11 @@ export default class Resource implements ResourceValue {
     if (!this.equalOfTypeTo(subtrahend)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${subtrahend.type})`);
     }
-    return this.create(this.amount - subtrahend.amount);
+    return this.new(this.amount - subtrahend.amount);
   }
 
   times(factor: number) {
-    return this.create(this.amount * factor);
+    return this.new(this.amount * factor);
   }
 
   toString() {
