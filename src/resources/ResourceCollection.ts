@@ -5,6 +5,7 @@ export interface ResourceCollectionEntries {
   [resourceType: string]: Resource;
 }
 const RESOURCE_COLLECTION_TYPE = "ResourceCollection";
+export type Resources = Resource | ResourceCollection;
 export default class ResourceCollection {
   readonly type = RESOURCE_COLLECTION_TYPE;
 
@@ -40,7 +41,7 @@ export default class ResourceCollection {
   }
 
   // This makes TypeScript understand if given object is a ResourceCollection or just a Resource
-  protected isResourceCollection(resource: Resource|ResourceCollection): resource is ResourceCollection {
+  protected isResourceCollection(resource: Resources): resource is ResourceCollection {
     return resource.type === RESOURCE_COLLECTION_TYPE;
   }
 
@@ -49,7 +50,15 @@ export default class ResourceCollection {
   }
 
   get zero(): ResourceCollection {
-    return this.new({});
+    return ResourceCollection.fromArray(this.asArray.map((resource) => {
+      return resource.zero;
+    }));
+  }
+
+  get infinite(): ResourceCollection {
+    return ResourceCollection.fromArray(this.asArray.map((resource) => {
+      return resource.infinite;
+    }));
   }
 
   equals(resourceCollection: ResourceCollection) {
@@ -61,7 +70,7 @@ export default class ResourceCollection {
     }, true);
   }
 
-  isMoreOrEquals(resource: ResourceCollection|Resource) {
+  isMoreOrEquals(resource: Resources) {
     if (!this.isResourceCollection(resource)) {
       const sameType = this.entries[resource.type];
       return !!sameType && sameType.isMoreOrEquals(resource);
@@ -72,7 +81,7 @@ export default class ResourceCollection {
     }, true);
   }
 
-  isLessOrEquals(resource: ResourceCollection|Resource) {
+  isLessOrEquals(resource: Resources) {
     if (!this.isResourceCollection(resource)) {
       const sameType = this.entries[resource.type];
       return !sameType || sameType.isLessOrEquals(resource);
@@ -83,12 +92,20 @@ export default class ResourceCollection {
     }, true);
   }
 
-  add(resource: Resource) {
-    const sameType = this.entries[resource.type];
-    return this.new({
-      ...this.entries,
-      [resource.type]: !sameType ? resource : sameType.add(resource),
-    });
+  add(resource: Resources) {
+    if (!this.isResourceCollection(resource)) {
+      const sameType = this.entries[resource.type];
+      return this.new({
+        ...this.entries,
+        [resource.type]: !sameType ? resource : sameType.add(resource),
+      });
+    }
+    const resources = this.asArray.map((entry) => {
+      return entry.add(resource.entries[entry.type]);
+    }).concat(resource.asArray.filter((res) => {
+      return !this.entries[res.type];
+    }));
+    return ResourceCollection.fromArray(resources);
   }
 
   /**
@@ -96,12 +113,17 @@ export default class ResourceCollection {
    * Warning! Returns zero if the result would be negative.
    * @param resource
    */
-  subtract(resource: Resource) {
-    const sameType = this.entries[resource.type];
-    return this.new({
-      ...this.entries,
-      [resource.type]: !sameType ? resource : sameType.subtract(resource),
-    });
+  subtract(resource: Resources) {
+    if (!this.isResourceCollection(resource)) {
+      const sameType = this.entries[resource.type];
+      return this.new({
+        ...this.entries,
+        [resource.type]: !sameType ? resource : sameType.subtract(resource),
+      });
+    }
+    return ResourceCollection.fromArray(this.asArray.map((entry) => {
+      return entry.subtract(resource.entries[entry.type]);
+    }));
   }
 
   times(factor: number) {

@@ -45,6 +45,7 @@ export default class Resource implements ResourceValue {
     const inf = Object.create(this);
     inf.type = this.type;
     inf.amount = Number.POSITIVE_INFINITY;
+    // TODO we only need this once per type, cache?
     return inf;
   }
 
