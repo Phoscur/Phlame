@@ -40,4 +40,16 @@ describe("Resource ValueObject", () => {
     const { s3, s9 } = examples;
     expect(s3.times(3)).to.be.eql(s9);
   });
+
+  it("is usually int32 but it can be infinite", () => {
+    const {
+      t0, t3, t5, t8,
+    } = examples;
+    expect(t0.isLessOrEquals(t0.infinite)).to.be.true;
+    expect(t0.infinite.isMoreOrEquals(t0)).to.be.true;
+
+    expect(t3.infinite.add(t5)).to.be.eql(t3.infinite);
+    expect(t8.infinite.subtract(t5)).to.be.eql(t3.infinite);
+    expect(t3.infinite.times(3)).to.be.eql(t3.infinite);
+  });
 });

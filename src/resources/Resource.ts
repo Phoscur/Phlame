@@ -8,7 +8,7 @@ export default class Resource implements ResourceValue {
 
   readonly type: string;
 
-  readonly amount: number; // int32
+  readonly amount: number; // int32 or infinite
 
   constructor(type: string, amount: number) {
     // Instead of throwing an error, set resource amount to zero on underflow
@@ -40,6 +40,26 @@ export default class Resource implements ResourceValue {
     return this.new(0);
   }
 
+  get infinite(): Resource {
+    // copy, and bypass in32|0 parsing (would be Infinity|0 = 0)
+    const inf = Object.create(this);
+    inf.type = this.type;
+    inf.amount = Number.POSITIVE_INFINITY;
+    return inf;
+  }
+
+  protected checkInfinity(resource?: Resource): Resource|false {
+    // Need to check for Infinity explicitly, as it's cheated around the constructor
+    // which would cast it to in32, result: 0
+    if (this.amount === Number.POSITIVE_INFINITY) {
+      return this;
+    }
+    if (resource && resource.amount === Number.POSITIVE_INFINITY) {
+      return resource;
+    }
+    return false;
+  }
+
   equalOfTypeTo(resource: Resource) {
     return resource.type === this.type;
   }
@@ -68,7 +88,7 @@ export default class Resource implements ResourceValue {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
-    return this.new(this.amount + resource.amount);
+    return this.checkInfinity(resource) || this.new(this.amount + resource.amount);
   }
 
   /**
@@ -80,11 +100,11 @@ export default class Resource implements ResourceValue {
     if (!this.equalOfTypeTo(subtrahend)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${subtrahend.type})`);
     }
-    return this.new(this.amount - subtrahend.amount);
+    return this.checkInfinity(subtrahend) || this.new(this.amount - subtrahend.amount);
   }
 
   times(factor: number) {
-    return this.new(this.amount * factor);
+    return this.checkInfinity() || this.new(this.amount * factor);
   }
 
   toString() {
