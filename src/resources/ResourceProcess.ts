@@ -17,8 +17,23 @@ export default class ResourceProcess {
     return new ResourceProcess(limit || this.limit, rate || this.rate);
   }
 
-  static newUnlimited(limit: Resource, rate: number) {
-    return new ResourceProcess(limit, rate);
+  get type(): string {
+    return this.limit.type;
+  }
+
+  get negative(): ResourceProcess {
+    return this.new(this.limit, -this.rate);
+  }
+
+  add(resourceProcess: ResourceProcess) {
+    if (!this.equalOfTypeTo(resourceProcess)) {
+      throw new TypeError(`ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`);
+    }
+    return this.new(this.limit.add(resourceProcess.limit), this.rate + resourceProcess.rate);
+  }
+
+  subtract(resourceProcess: ResourceProcess) {
+    return this.add(resourceProcess.negative);
   }
 
   equalOfTypeTo(process: ResourceProcess) {

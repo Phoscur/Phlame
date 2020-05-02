@@ -11,7 +11,7 @@ describe("ResourceProcess ValueObject", () => {
     const resourceProcess = new ResourceProcess(t0, 0);
     const production = "tumbles, 0, 0";
     expect(resourceProcess.toString()).to.eql(`ResourceProcess[${production}]`);
-    const infinite = ResourceProcess.newUnlimited(t0.infinite, 0);
+    const infinite = new ResourceProcess(t0.infinite, 0);
     const infProduction = "tumbles, 0, Infinity";
     expect(infinite.toString()).to.eql(`ResourceProcess[${infProduction}]`);
     const pi = new ResourceProcess(t3, Math.sqrt(Math.PI));
@@ -24,5 +24,9 @@ describe("ResourceProcess ValueObject", () => {
     const t3p = new ResourceProcess(t3, 0);
     const s3p = new ResourceProcess(s3, 0);
     expect(t3p.equals(s3p)).to.be.false;
+  });
+
+  it.skip("should add and subtract resources processes", () => {
+    //
   });
 });
