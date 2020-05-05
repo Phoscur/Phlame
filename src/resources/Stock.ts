@@ -1,19 +1,23 @@
 import ResourceCollection, { Resources } from "./ResourceCollection";
 
-export default class Stock {
-  readonly resources: ResourceCollection;
+export default class Stock<Types> {
+  readonly resources: ResourceCollection<Types>;
 
-  readonly min: ResourceCollection;
+  readonly min: ResourceCollection<Types>;
 
-  readonly max: ResourceCollection;
+  readonly max: ResourceCollection<Types>;
 
-  constructor(initial: ResourceCollection, minCapacity?: ResourceCollection, maxCapacity?: ResourceCollection) {
+  constructor(
+    initial: ResourceCollection<Types>,
+    minCapacity?: ResourceCollection<Types>,
+    maxCapacity?: ResourceCollection<Types>,
+  ) {
     this.resources = initial;
     this.min = minCapacity || initial.zero;
     this.max = maxCapacity || initial.infinite;
   }
 
-  protected new(initial: ResourceCollection) {
+  protected new(initial: ResourceCollection<Types>) {
     return new Stock(initial, this.min, this.max);
   }
 

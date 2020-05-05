@@ -1,21 +1,22 @@
 /* eslint class-methods-use-this: "off" */
 import Resource from "./Resource";
 
-export interface ResourceCollectionEntries {
-  [resourceType: string]: Resource;
+export interface ResourceCollectionEntries<Types> {
+  [resourceType: string]: Resource<keyof Types>;
 }
 const RESOURCE_COLLECTION_TYPE = "ResourceCollection";
-export type Resources = Resource | ResourceCollection;
-export default class ResourceCollection {
+export type Resources = Resource<any> | ResourceCollection<any>;
+export default class ResourceCollection<Types> {
   readonly type = RESOURCE_COLLECTION_TYPE;
 
-  readonly entries: ResourceCollectionEntries = {};
+  readonly entries: ResourceCollectionEntries<Types> = {};
 
-  constructor(entries: ResourceCollectionEntries) {
+  constructor(entries: ResourceCollectionEntries<Types>) {
     this.entries = entries;
   }
 
-  static fromArray(resources: Resource[]): ResourceCollection {
+  // TODO is this possible without any
+  static fromArray(resources: Resource<any>[]): ResourceCollection<any> {
     return new ResourceCollection(resources.reduce((entries, resource) => {
       return {
         ...entries,
@@ -28,7 +29,7 @@ export default class ResourceCollection {
     return Object.keys(this.entries);
   }
 
-  get asArray(): Resource[] {
+  get asArray(): Resource<any>[] {
     return this.types.map((type) => {
       return this.entries[type];
     });
@@ -41,27 +42,27 @@ export default class ResourceCollection {
   }
 
   // This makes TypeScript understand if given object is a ResourceCollection or just a Resource
-  protected isResourceCollection(resource: Resources): resource is ResourceCollection {
+  protected isResourceCollection(resource: Resources): resource is ResourceCollection<Types> {
     return resource.type === RESOURCE_COLLECTION_TYPE;
   }
 
-  protected new(entries: ResourceCollectionEntries) {
+  protected new(entries: ResourceCollectionEntries<Types>) {
     return new ResourceCollection(entries);
   }
 
-  get zero(): ResourceCollection {
+  get zero(): ResourceCollection<Types> {
     return ResourceCollection.fromArray(this.asArray.map((resource) => {
       return resource.zero;
     }));
   }
 
-  get infinite(): ResourceCollection {
+  get infinite(): ResourceCollection<Types> {
     return ResourceCollection.fromArray(this.asArray.map((resource) => {
       return resource.infinite;
     }));
   }
 
-  equals(resourceCollection: ResourceCollection) {
+  equals(resourceCollection: ResourceCollection<Types>) {
     return this.asArray.reduce((equal, resource) => {
       if (!equal) {
         return false;
@@ -70,31 +71,31 @@ export default class ResourceCollection {
     }, true);
   }
 
-  isMoreOrEquals(resource: Resources) {
+  isMoreOrEquals(resource: Resources): boolean {
     if (!this.isResourceCollection(resource)) {
-      const sameType = this.entries[resource.type];
+      const sameType = this.entries[resource.type as string];
       return !!sameType && sameType.isMoreOrEquals(resource);
     }
-    return this.asArray.reduce((isMore, entry) => {
-      const sameType = resource.entries[entry.type];
+    return this.asArray.reduce((isMore: boolean, entry) => {
+      const sameType = resource.entries[entry.type as string];
       return isMore && !!sameType && entry.isMoreOrEquals(sameType);
     }, true);
   }
 
-  isLessOrEquals(resource: Resources) {
+  isLessOrEquals(resource: Resources): boolean {
     if (!this.isResourceCollection(resource)) {
-      const sameType = this.entries[resource.type];
+      const sameType = this.entries[resource.type as string];
       return !sameType || sameType.isLessOrEquals(resource);
     }
-    return this.asArray.reduce((isLessOrEquals, entry) => {
-      const sameType = resource.entries[entry.type];
+    return this.asArray.reduce((isLessOrEquals: boolean, entry) => {
+      const sameType = resource.entries[entry.type as string];
       return isLessOrEquals && (!sameType || entry.isLessOrEquals(sameType));
     }, true);
   }
 
-  add(resource: Resources) {
+  add(resource: Resource<keyof Types>|ResourceCollection<Types>): ResourceCollection<Types> {
     if (!this.isResourceCollection(resource)) {
-      const sameType = this.entries[resource.type];
+      const sameType = this.entries[resource.type as string];
       return this.new({
         ...this.entries,
         [resource.type]: !sameType ? resource : sameType.add(resource),
@@ -113,16 +114,16 @@ export default class ResourceCollection {
    * Warning! Returns zero if the result would be negative.
    * @param resource
    */
-  subtract(resource: Resources) {
+  subtract(resource: Resource<keyof Types>|ResourceCollection<Types>): ResourceCollection<Types> {
     if (!this.isResourceCollection(resource)) {
-      const sameType = this.entries[resource.type];
+      const sameType = this.entries[resource.type as string];
       return this.new({
         ...this.entries,
         [resource.type]: !sameType ? resource : sameType.subtract(resource),
       });
     }
     return ResourceCollection.fromArray(this.asArray.map((entry) => {
-      return entry.subtract(resource.entries[entry.type]);
+      return entry.subtract(resource.entries[entry.type as string]);
     }));
   }
 

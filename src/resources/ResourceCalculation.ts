@@ -1,10 +1,10 @@
 
 import Stock from "./Stock";
 
-export default class ResourceCalculation {
-  stock: Stock;
+export default class ResourceCalculation<Types> {
+  stock: Stock<Types>;
 
-  constructor(stock: Stock) {
+  constructor(stock: Stock<Types>) {
     this.stock = stock;
   }
 
