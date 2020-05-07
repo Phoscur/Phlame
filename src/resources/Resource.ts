@@ -1,27 +1,38 @@
 
+export const NULL = Symbol("null");
+
 export interface ResourceValue<Type> {
   readonly type: Type;
   readonly amount: number; // int32
 }
 
-const ResourceTypes = ["null"];
+const representations = {
+  [NULL]: "nulls",
+};
+
+const ResourceTypes = [NULL];
+
 export default class Resource<Type> implements ResourceValue<Type> {
   static types = ResourceTypes;
+  static representations = representations;
 
   readonly type: Type;
 
   readonly amount: number; // int32 or infinite
 
-  constructor(type: Type, amount: number) {
+  readonly representation: string;
+
+  constructor(type: Type, amount: number, representation = representations[NULL]) {
     // Instead of throwing an error, set resource amount to zero on underflow
     // TODO handle overflow? use BigIntegers?
     this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
     // Default to null type (!~ = not found)
     this.type = /* !~Resource.types.indexOf(type as any) ? Resource.types[0] : */type;
+    this.representation = representation;
   }
 
   get prettyAmount(): string {
-    return `${this.amount}${this.type}`;
+    return `${this.amount}${this.representation}`;
   }
 
   /**

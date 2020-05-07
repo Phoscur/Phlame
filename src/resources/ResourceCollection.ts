@@ -16,7 +16,7 @@ export default class ResourceCollection<Types> {
   }
 
   // TODO is this possible without any
-  static fromArray(resources: Resource<any>[]): ResourceCollection<any> {
+  static fromArray<Types>(resources: Resource<keyof Types>[]): ResourceCollection<Types> {
     return new ResourceCollection(resources.reduce((entries, resource) => {
       return {
         ...entries,

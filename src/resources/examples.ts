@@ -1,16 +1,22 @@
 /* eslint max-classes-per-file: "off" */
 import Resource from "./Resource";
 
+export const TUMBLE = Symbol("tumbles");
+export const SALTY = Symbol("salties");
+
 export enum ResourceTypes {
   Tumble = "tumbles",
   Salty = "salties",
 }
-type Tumble = ResourceTypes.Tumble;
-type Salty = ResourceTypes.Salty;
-export type ResourceType = Tumble | Salty;
+
+const representations = {
+  [TUMBLE]: "tumbles",
+  [SALTY]: "salties",
+};
+export type ResourceType = TUMBLE | SALTY;
+
 // Add new resources to known resource types
-Resource.types.push(ResourceTypes.Tumble);
-Resource.types.push(ResourceTypes.Salty);
+Resource.types.push(TUMBLE, SALTY);
 
 export class TumbleResource extends Resource<Tumble> {
   constructor(amount: number) {
