@@ -1,11 +1,11 @@
 import { expect } from "chai";
 
-import examples, { TumbleResource, TUMBLE_TYPE } from "./examples";
+import examples, { TumbleResource, ResourceTypes } from "./examples";
 
 describe("Resource ValueObject", () => {
   it("should be console printable", () => {
     const resource = new TumbleResource(0);
-    expect(resource.toString()).to.eql(`Resource[0${TUMBLE_TYPE}]`);
+    expect(resource.toString()).to.eql(`Resource[0${ResourceTypes.Tumble}]`);
   });
 
   it("should compare resources", () => {
@@ -13,6 +13,7 @@ describe("Resource ValueObject", () => {
     const t3a = new TumbleResource(3);
     expect(t3.equals(t3a)).to.be.true;
     expect(t3.equals(t5)).to.be.false;
+
     expect(t3.equals(s3)).to.be.false;
 
     expect(() => {

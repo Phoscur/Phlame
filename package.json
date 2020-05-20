@@ -4,7 +4,8 @@
   "scripts": {
     "start": "npm run test -- --watch",
     "test": "vue-cli-service test:unit src/**/*.spec.ts",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "lint-fix": "vue-cli-service lint --fix"
   },
   "dependencies": {},
   "devDependencies": {
@@ -23,7 +24,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
-    "typescript": "~3.8.3"
+    "typescript": "^3.8.3"
   },
   "eslintConfig": {
     "root": true,
@@ -50,7 +51,9 @@
       "no-bitwise": [
         "error",
         {
-          "allow": ["~"],
+          "allow": [
+            "~"
+          ],
           "int32Hint": true
         }
       ],

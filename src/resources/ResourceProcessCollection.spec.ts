@@ -8,7 +8,10 @@ import ResourceProcess from "./ResourceProcess";
 describe("ResourceProcessCollection ValueObject", () => {
   it("should be console printable", () => {
     const { t3, s3 } = examples;
-    const processes = [new ResourceProcess(t3, 0), new ResourceProcess(s3, 1)];
+    const processes = [
+      new ResourceProcess(t3, 0),
+      new ResourceProcess(s3, 1),
+    ];
     const t3s3 = ResourceProcessCollection.fromArray(processes);
     const amount = "3tumbles, 3salties";
     expect(t3s3.toString()).to.eql(`ResourceProcessCollection[${amount}]`);

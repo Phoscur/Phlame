@@ -1,24 +1,38 @@
 /* eslint max-classes-per-file: "off" */
-import Resource from "./Resource";
+import Resource, { BaseResources } from "./Resource";
 
-export const TUMBLE_TYPE = "tumbles";
-Resource.types.push(TUMBLE_TYPE);
-export class TumbleResource extends Resource {
+export enum ResourceTypes {
+  // ...BaseResources,
+  Tumble = "tumbles",
+  Salty = "salties",
+}
+
+export type Types = ResourceTypes | BaseResources;
+
+// Add new resources to known resource types
+const newResourceTypes: Types[] = [
+  ResourceTypes.Tumble,
+  ResourceTypes.Salty,
+];
+Resource.types.push(...newResourceTypes);
+
+export class TumbleResource extends Resource<ResourceTypes.Tumble> {
   constructor(amount: number) {
-    super(TUMBLE_TYPE, amount);
+    super(ResourceTypes.Tumble, amount);
   }
 }
 
-export const SALTY_TYPE = "salties";
-Resource.types.push(SALTY_TYPE);
-export class SaltyResource extends Resource {
+export class SaltyResource extends Resource<ResourceTypes.Salty> {
   constructor(amount: number) {
-    super(SALTY_TYPE, amount);
+    super(ResourceTypes.Salty, amount);
   }
 }
 
-export default {
-  t0: new TumbleResource(0),
+export type ResourceType = TumbleResource | SaltyResource | BaseResources;
+
+const t0 = new TumbleResource(0);
+const examples: {[name: string]: Resource<Types>} = {
+  t0,
   t1: new TumbleResource(1),
   t3: new TumbleResource(3),
   t5: new TumbleResource(5),
@@ -27,3 +41,5 @@ export default {
   s6: new SaltyResource(6),
   s9: new SaltyResource(9),
 };
+
+export default examples;

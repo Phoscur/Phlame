@@ -1,21 +1,29 @@
 
+export type ResourceIdentifier = string; // i wish^^ = symbol;
 export interface ResourceValue {
-  readonly type: string;
+  readonly type: ResourceIdentifier;
   readonly amount: number; // int32
 }
-export default class Resource implements ResourceValue {
-  static types = ["null"];
 
-  readonly type: string;
+export enum BaseResources {
+  Null = "nulls",
+}
+
+export default class Resource<Type extends ResourceIdentifier> implements ResourceValue {
+  static types: ResourceIdentifier[] = [BaseResources.Null];
+
+  static Null = new Resource(BaseResources.Null, 0);
+
+  readonly type: Type;
 
   readonly amount: number; // int32 or infinite
 
-  constructor(type: string, amount: number) {
+  constructor(type: Type, amount: number) {
     // Instead of throwing an error, set resource amount to zero on underflow
     // TODO handle overflow? use BigIntegers?
     this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
     // Default to null type (!~ = not found)
-    this.type = !~Resource.types.indexOf(type) ? Resource.types[0] : type;
+    this.type = /* !~Resource.types.indexOf(type) ? Resource.types[0] : */ type;
   }
 
   get prettyAmount(): string {
@@ -36,11 +44,11 @@ export default class Resource implements ResourceValue {
     return new Resource(this.type, amount);
   }
 
-  get zero(): Resource {
+  get zero(): Resource<Type> {
     return this.new(0);
   }
 
-  get infinite(): Resource {
+  get infinite(): Resource<Type> {
     // copy, and bypass in32|0 parsing (would be Infinity|0 = 0)
     const inf = Object.create(this);
     inf.type = this.type;
@@ -49,7 +57,7 @@ export default class Resource implements ResourceValue {
     return inf;
   }
 
-  protected checkInfinity(resource?: Resource): Resource|false {
+  protected checkInfinity(resource?: Resource<Type>): Resource<Type> | false {
     // Need to check for Infinity explicitly, as it's cheated around the constructor
     // which would cast it to in32, result: 0
     if (this.amount === Number.POSITIVE_INFINITY) {
@@ -61,31 +69,31 @@ export default class Resource implements ResourceValue {
     return false;
   }
 
-  equalOfTypeTo(resource: Resource) {
+  equalOfTypeTo(resource: Resource<Type>) {
     return resource.type === this.type;
   }
 
-  equals(resource: Resource) {
+  equals(resource: Resource<Type>) {
     return this.equalOfTypeTo(resource)
       // Usually we would need an epsilon to do a float comparison, but since we casted to int32, this works
       && resource.amount === this.amount;
   }
 
-  isMoreOrEquals(resource: Resource) {
+  isMoreOrEquals(resource: Resource<Type>) {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.amount >= resource.amount;
   }
 
-  isLessOrEquals(resource: Resource) {
+  isLessOrEquals(resource: Resource<Type>) {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.amount <= resource.amount;
   }
 
-  add(resource: Resource) {
+  add(resource: Resource<Type>) {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
@@ -97,7 +105,7 @@ export default class Resource implements ResourceValue {
    * Warning! Returns zero if the result would be negative.
    * @param subtrahend
    */
-  subtract(subtrahend: Resource) {
+  subtract(subtrahend: Resource<Type>) {
     if (!this.equalOfTypeTo(subtrahend)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${subtrahend.type})`);
     }
