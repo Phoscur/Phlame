@@ -1,9 +1,9 @@
-import Resource from "./Resource";
+import Resource, { ResourceIdentifier } from "./Resource";
 
 // Floating point operations are not save!
 const ZERO_TOLERANCE = 0.0000001;
 
-export default class ResourceProcess<Type> {
+export default class ResourceProcess<Type extends ResourceIdentifier> {
   readonly limit: Resource<Type>;
 
   readonly rate: number;

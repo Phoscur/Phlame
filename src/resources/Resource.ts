@@ -1,38 +1,33 @@
 
-export const NULL = Symbol("null");
-
-export interface ResourceValue<Type> {
-  readonly type: Type;
+export type ResourceIdentifier = string; // i wish^^ = symbol;
+export interface ResourceValue {
+  readonly type: ResourceIdentifier;
   readonly amount: number; // int32
 }
 
-const representations = {
-  [NULL]: "nulls",
-};
+export enum BaseResources {
+  Null = "nulls",
+}
 
-const ResourceTypes = [NULL];
+export default class Resource<Type extends ResourceIdentifier> implements ResourceValue {
+  static types: ResourceIdentifier[] = [BaseResources.Null];
 
-export default class Resource<Type> implements ResourceValue<Type> {
-  static types = ResourceTypes;
-  static representations = representations;
+  static Null = new Resource(BaseResources.Null, 0);
 
   readonly type: Type;
 
   readonly amount: number; // int32 or infinite
 
-  readonly representation: string;
-
-  constructor(type: Type, amount: number, representation = representations[NULL]) {
+  constructor(type: Type, amount: number) {
     // Instead of throwing an error, set resource amount to zero on underflow
     // TODO handle overflow? use BigIntegers?
     this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
     // Default to null type (!~ = not found)
-    this.type = /* !~Resource.types.indexOf(type as any) ? Resource.types[0] : */type;
-    this.representation = representation;
+    this.type = /* !~Resource.types.indexOf(type) ? Resource.types[0] : */ type;
   }
 
   get prettyAmount(): string {
-    return `${this.amount}${this.representation}`;
+    return `${this.amount}${this.type}`;
   }
 
   /**
@@ -62,7 +57,7 @@ export default class Resource<Type> implements ResourceValue<Type> {
     return inf;
   }
 
-  protected checkInfinity(resource?: Resource<Type>): Resource<Type>|false {
+  protected checkInfinity(resource?: Resource<Type>): Resource<Type> | false {
     // Need to check for Infinity explicitly, as it's cheated around the constructor
     // which would cast it to in32, result: 0
     if (this.amount === Number.POSITIVE_INFINITY) {

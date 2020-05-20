@@ -1,11 +1,12 @@
 /* eslint class-methods-use-this: "off" */
+import { ResourceIdentifier } from "./Resource";
 import ResourceProcess from "./ResourceProcess";
 
-export interface ResourceProcessCollectionEntries<Types> {
-  [type: string]: ResourceProcess<keyof Types>;
+export type ResourceProcessCollectionEntries<Types extends ResourceIdentifier> = {
+  [type in Types]?: ResourceProcess<Types>;
 }
 const RESOURCE_PROCESS_COLLECTION_TYPE = "ResourceProcessCollection";
-export default class ResourceProcessCollection<Types> {
+export default class ResourceProcessCollection<Types extends ResourceIdentifier> {
   readonly type = RESOURCE_PROCESS_COLLECTION_TYPE;
 
   readonly entries: ResourceProcessCollectionEntries<Types> = {};
@@ -14,8 +15,9 @@ export default class ResourceProcessCollection<Types> {
     this.entries = entries;
   }
 
-  // TODO is this possible without any
-  static fromArray(resources: ResourceProcess<any>[]): ResourceProcessCollection<any> {
+  static fromArray<Types extends ResourceIdentifier>(
+    resources: ResourceProcess<Types>[],
+  ): ResourceProcessCollection<Types> {
     return new ResourceProcessCollection(resources.reduce((entries, resource) => {
       return {
         ...entries,
@@ -28,10 +30,8 @@ export default class ResourceProcessCollection<Types> {
     return Object.keys(this.entries);
   }
 
-  get asArray(): ResourceProcess<any>[] {
-    return this.types.map((type) => {
-      return this.entries[type];
-    });
+  get asArray(): ResourceProcess<Types>[] {
+    return Object.values(this.entries);
   }
 
   get prettyAmount(): string {
@@ -40,10 +40,14 @@ export default class ResourceProcessCollection<Types> {
     }).join(", ");
   }
 
+  getByType<Type extends Types>(type: Type): ResourceProcess<Types>|undefined {
+    return this.entries[type];
+  }
+
   // This makes TypeScript understand if given object is a ResourceProcessCollection or just a ResourceProcess
   protected isResourceProcessCollection(
-    process: ResourceProcess<any>|ResourceProcessCollection<any>,
-  ): process is ResourceProcessCollection<any> {
+    process: ResourceProcess<Types> | ResourceProcessCollection<Types>,
+  ): process is ResourceProcessCollection<Types> {
     return process.type === RESOURCE_PROCESS_COLLECTION_TYPE;
   }
 
@@ -68,20 +72,25 @@ export default class ResourceProcessCollection<Types> {
       if (!equal) {
         return false;
       }
-      return resource.equals(resourceCollection.entries[resource.type]);
+      const compareResource = resourceCollection.getByType(resource.type);
+      if (!compareResource) {
+        return false;
+      }
+      return resource.equals(compareResource);
     }, true);
   }
 
-  add(resource: ResourceProcess<keyof Types>): ResourceProcessCollection<Types> {
+  add(resource: ResourceProcess<Types>): ResourceProcessCollection<Types> {
     if (!this.isResourceProcessCollection(resource)) {
-      const sameType = this.entries[resource.type as string];
+      const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
         [resource.type]: !sameType ? resource : sameType.add(resource),
       });
     }
     const resources = this.asArray.map((entry) => {
-      return entry.add(resource.entries[entry.type]);
+      const add = resource.getByType(entry.type);
+      return add ? entry.add(add) : entry;
     }).concat(resource.asArray.filter((res) => {
       return !this.entries[res.type];
     }));
@@ -89,20 +98,20 @@ export default class ResourceProcessCollection<Types> {
   }
 
   /**
-   * Substract another resource
-   * Warning! Returns zero if the result would be negative.
+   * Substract another resource process (rate)
    * @param resource
    */
-  subtract(resource: ResourceProcess<keyof Types>): ResourceProcessCollection<Types> {
+  subtract(resource: ResourceProcess<Types>): ResourceProcessCollection<Types> {
     if (!this.isResourceProcessCollection(resource)) {
-      const sameType = this.entries[resource.type as string];
+      const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
         [resource.type]: !sameType ? resource : sameType.subtract(resource),
       });
     }
     return ResourceProcessCollection.fromArray(this.asArray.map((entry) => {
-      return entry.subtract(resource.entries[entry.type]);
+      const subtract = resource.getByType(entry.type);
+      return subtract ? entry.subtract(subtract) : entry;
     }));
   }
 

@@ -23,7 +23,7 @@ describe("ResourceProcess ValueObject", () => {
     const { t3, s3 } = examples;
     const t3p = new ResourceProcess(t3, 0);
     const s3p = new ResourceProcess(s3, 0);
-    expect(t3p.equals(s3p as any)).to.be.false;
+    expect(t3p.equals(s3p)).to.be.false;
   });
 
   it.skip("should add and subtract resources processes", () => {

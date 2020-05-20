@@ -13,7 +13,7 @@ describe("Resource ValueObject", () => {
     const t3a = new TumbleResource(3);
     expect(t3.equals(t3a)).to.be.true;
     expect(t3.equals(t5)).to.be.false;
-    /*
+
     expect(t3.equals(s3)).to.be.false;
 
     expect(() => {
@@ -22,7 +22,6 @@ describe("Resource ValueObject", () => {
     expect(() => {
       t3.isLessOrEquals(s3);
     }).to.throw(TypeError);
-    */
 
     expect(t3.isLessOrEquals(t5)).to.be.true;
     expect(t5.isMoreOrEquals(t3)).to.be.true;
