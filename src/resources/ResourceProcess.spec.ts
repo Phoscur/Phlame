@@ -3,7 +3,7 @@ import { expect } from "chai";
 
 import examples from "./examples";
 
-import ResourceProcess from "./ResourceProcess";
+import ResourceProcess, { TimeUnit } from "./ResourceProcess";
 
 describe("ResourceProcess ValueObject", () => {
   it("should be console printable", () => {
@@ -26,7 +26,60 @@ describe("ResourceProcess ValueObject", () => {
     expect(t3p.equals(s3p)).to.be.false;
   });
 
-  it.skip("should add and subtract resources processes", () => {
-    //
+  it("should predict its end in time units", () => {
+    const timeUnit: TimeUnit = 1;
+    const twoTimeUnits: TimeUnit = 2;
+    const infiniteTime: TimeUnit = Number.POSITIVE_INFINITY;
+    const {
+      t0, t3, t5, t8,
+    } = examples;
+    const t0p = new ResourceProcess(t0, 0);
+    const t3p = new ResourceProcess(t3, 3);
+    const t5p = new ResourceProcess(t5, 2.5);
+    const t8p = new ResourceProcess(t8, 4);
+    expect(t0p.endsIn).to.be.equal(infiniteTime);
+    expect(t3p.endsIn).to.be.equal(timeUnit);
+    expect(t5p.endsIn).to.be.equal(twoTimeUnits);
+    expect(t8p.endsIn).to.be.equal(twoTimeUnits);
+
+    const t8mp = new ResourceProcess(t8, -4);
+    expect(t8mp.endsIn).to.be.equal(twoTimeUnits);
+  });
+
+  it("should produce or consume resources over time", () => {
+    const timeUnit: TimeUnit = 1;
+    const twoTimeUnits: TimeUnit = 2;
+    const {
+      t0, t3, t5, t8,
+    } = examples;
+    const t0p = new ResourceProcess(t0, 0);
+    const t3p = new ResourceProcess(t3, 3);
+    const t5p = new ResourceProcess(t5, 2.5);
+    const t8p = new ResourceProcess(t8, -4);
+    expect(t0p.getResourceFor()).to.be.eql(t0);
+    expect(t0p.getResourceFor(timeUnit)).to.be.eql(t0);
+    expect(t3p.getResourceFor(timeUnit)).to.be.eql(t3);
+    expect(t5p.getResourceFor(twoTimeUnits)).to.be.eql(t5);
+    expect(t8p.getResourceFor(twoTimeUnits)).to.be.eql(t8);
+  });
+
+  it("should add and subtract resources processes", () => {
+    const {
+      t3, t5, t8,
+    } = examples;
+    const t3p = new ResourceProcess(t3, 1);
+    const t5p = new ResourceProcess(t5, 1);
+    const t5p2 = new ResourceProcess(t5, 2);
+    const t8p = new ResourceProcess(t8, 1);
+    const t8p2 = new ResourceProcess(t8, 2);
+    const t8p3 = new ResourceProcess(t8, 3);
+
+    // Keep upper bounds
+    // 3 + 5 = 5
+    expect(t3p.add(t5p)).to.be.eql(t5p2);
+    // 8 - 5 = 8
+    expect(t8p3.subtract(t5p)).to.be.eql(t8p2);
+    // 5 - 8 = 8
+    expect(t5p2.subtract(t8p)).to.be.eql(t5p);
   });
 });

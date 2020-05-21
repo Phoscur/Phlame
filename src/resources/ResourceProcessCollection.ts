@@ -1,9 +1,10 @@
 /* eslint class-methods-use-this: "off" */
 import { ResourceIdentifier } from "./Resource";
-import ResourceProcess from "./ResourceProcess";
+import ResourceProcess, { TimeUnit } from "./ResourceProcess";
+import ResourceCollection from "./ResourceCollection";
 
 export type ResourceProcessCollectionEntries<Types extends ResourceIdentifier> = {
-  [type in Types]?: ResourceProcess<Types>;
+  [Type in Types]?: ResourceProcess<Type>;
 }
 const RESOURCE_PROCESS_COLLECTION_TYPE = "ResourceProcessCollection";
 export default class ResourceProcessCollection<Types extends ResourceIdentifier> {
@@ -35,8 +36,9 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
   }
 
   get prettyAmount(): string {
-    return this.asArray.map((resource) => {
-      return resource.limit.prettyAmount;
+    return this.asArray.map((process) => {
+      const ratePrefix = process.rate >= 0 ? "+" : "";
+      return `${process.limit.prettyAmount}${ratePrefix}${process.rate}`;
     }).join(", ");
   }
 
@@ -80,7 +82,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, true);
   }
 
-  add(resource: ResourceProcess<Types>): ResourceProcessCollection<Types> {
+  add(resource: ResourceProcess<Types> | ResourceProcessCollection<Types>): ResourceProcessCollection<Types> {
     if (!this.isResourceProcessCollection(resource)) {
       const sameType = this.entries[resource.type];
       return this.new({
@@ -101,7 +103,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
    * Substract another resource process (rate)
    * @param resource
    */
-  subtract(resource: ResourceProcess<Types>): ResourceProcessCollection<Types> {
+  subtract(resource: ResourceProcess<Types> | ResourceProcessCollection<Types>): ResourceProcessCollection<Types> {
     if (!this.isResourceProcessCollection(resource)) {
       const sameType = this.entries[resource.type];
       return this.new({
@@ -112,6 +114,49 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     return ResourceProcessCollection.fromArray(this.asArray.map((entry) => {
       const subtract = resource.getByType(entry.type);
       return subtract ? entry.subtract(subtract) : entry;
+    }));
+  }
+
+  get endsNextIn(): TimeUnit {
+    return this.asArray.reduce((minimum, process) => {
+      const { endsIn } = process;
+      return endsIn < minimum ? endsIn : minimum;
+    }, Number.POSITIVE_INFINITY);
+  }
+
+  /**
+   * Calculates resources generated from positive processes during given time
+   * @param timeUnits
+   */
+  getPositiveResourcesFor(timeUnits: TimeUnit): ResourceCollection<Types> {
+    return ResourceCollection.fromArray(this.asArray.map((resourceProcess) => {
+      if (resourceProcess.isNegative) {
+        return resourceProcess.limit.zero;
+      }
+      return resourceProcess.getResourceFor(timeUnits);
+    }));
+  }
+
+  /**
+   * Calculates resources consumed by negative processes during given time
+   * @param timeUnits
+   */
+  getNegativeResourcesFor(timeUnits: TimeUnit): ResourceCollection<Types> {
+    return ResourceCollection.fromArray(this.asArray.map((resourceProcess) => {
+      if (!resourceProcess.isNegative) {
+        return resourceProcess.limit.zero;
+      }
+      return resourceProcess.getResourceFor(timeUnits);
+    }));
+  }
+
+  /**
+   * Get the same resource processes after a given time (with limits adjusted)
+   * @param timeUnits
+   */
+  after(timeUnits: TimeUnit) {
+    return ResourceProcessCollection.fromArray(this.asArray.map((resourceProcess) => {
+      return resourceProcess.after(timeUnits);
     }));
   }
 

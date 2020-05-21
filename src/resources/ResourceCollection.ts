@@ -5,7 +5,7 @@ const RESOURCE_COLLECTION_TYPE = "ResourceCollection";
 export type ResourceArray = Resource<ResourceIdentifier>[];
 
 export type ResourceCollectionEntries<Types extends ResourceIdentifier> = {
-  [type in Types]?: Resource<Types>;
+  [Type in Types]?: Resource<Type>;
 }
 
 // Cannot use <Types extends BaseResources>, because
