@@ -26,13 +26,21 @@ export default class Stock<Types extends ResourceIdentifier> {
     return this.resources.getByType(resource.type) || resource.zero;
   }
 
-  getUpperLimitByType(resource: Resource<Types>): Resource<Types> {
+  /**
+   * Resources which may still fit into until the upper bound it reached
+   * @param resource
+   */
+  getMaxResource(resource: Resource<Types>): Resource<Types> {
     const stocked = this.getByType(resource.type);
     const max = this.max.getByType(resource.type) || resource.infinite;
     return stocked ? max.subtract(stocked) : max;
   }
 
-  getNegativeLimitByType(resource: Resource<Types>): Resource<Types> {
+  /**
+   * Resources which may still be consumed until lower bound it reached
+   * @param resource
+   */
+  getMinResource(resource: Resource<Types>): Resource<Types> {
     const stocked = this.getByType(resource.type);
     const min = this.min.getByType(resource.type) || resource.zero;
     return stocked ? stocked.subtract(min) : min;
@@ -56,8 +64,6 @@ export default class Stock<Types extends ResourceIdentifier> {
   fetch(resources: Resource<Types> | ResourceCollection<Types>) {
     return this.new(this.resources.subtract(resources));
   }
-
-  // storeOrFetch()
 
   resourceLimitToString(resource: Resource<Types>) {
     const min = this.min.getByType(resource.type) || resource.zero;

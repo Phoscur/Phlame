@@ -9,10 +9,10 @@ describe("ResourceProcessCollection ValueObject", () => {
     const { t3, s3 } = examples;
     const processes = [
       new ResourceProcess(t3, 0),
-      new ResourceProcess(s3, 1),
+      new ResourceProcess(s3, -1),
     ];
     const t3s3 = ResourceProcessCollection.fromArray(processes);
-    const amount = "3tumbles+0, 3salties+1";
+    const amount = "3tumbles+0, 3salties-1";
     expect(t3s3.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
     expect(t3s3.types).to.eql([t3.type, s3.type]);
   });
@@ -79,10 +79,13 @@ describe("ResourceProcessCollection ValueObject", () => {
     const t3p = new ResourceProcess(t3, 1);
     const t3p0 = new ResourceProcess(t3, 0);
     const s3p = new ResourceProcess(s3, 3);
+    const s3p0 = new ResourceProcess(s3, 0);
     const s3p6 = new ResourceProcess(s3, 6);
     const s6p = new ResourceProcess(s6, 3);
-    const s3p0 = new ResourceProcess(s3, 0);
     const t00 = ResourceProcessCollection.fromArray([t0p]);
+    const s3c = ResourceProcessCollection.fromArray([s3p]);
+    const t0s3 = ResourceProcessCollection.fromArray([t0p, s3p]);
+    const t0s3n = ResourceProcessCollection.fromArray([t0p, s3p.negative]);
     const t3s3 = ResourceProcessCollection.fromArray([t3p, s3p]);
     const t30s3 = ResourceProcessCollection.fromArray([t3p0, s3p]);
     const t3s3r6 = ResourceProcessCollection.fromArray([t3p, s3p6]);
@@ -93,10 +96,14 @@ describe("ResourceProcessCollection ValueObject", () => {
     expect(t3s3.add(s3p)).to.be.eql(t3s3r6);
     // Adding nothing
     expect(t00.add(t3s3)).to.be.eql(t3s3);
+    expect(t00.add(s3p)).to.be.eql(t0s3);
+    expect(t00.add(s3c)).to.be.eql(t0s3);
     // Subtract rate
     expect(t3s3.subtract(t3p)).to.be.eql(t30s3);
     // If we subtract process, it should return the shortest
     // Should keep the limit
     expect(t3s3.subtract(t3s6)).to.be.eql(t30s30);
+    expect(t00.subtract(s3p)).to.be.eql(t0s3n);
+    expect(t00.subtract(s3c)).to.be.eql(t0s3n);
   });
 });

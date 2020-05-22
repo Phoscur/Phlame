@@ -41,15 +41,25 @@ describe("ResourceCollection ValueObject", () => {
       t0, t3, t8, s3, s6,
     } = examples;
     const t00 = ResourceCollection.fromArray([t0]);
+    const s3c = ResourceCollection.fromArray([s3]);
     const t0s3 = ResourceCollection.fromArray([t0, s3]);
     const t3s3 = ResourceCollection.fromArray([t3, s3]);
     const t3s6 = ResourceCollection.fromArray([t3, s6]);
 
     expect(t3s3.add(s3)).to.be.eql(t3s6);
+
     expect(t00.add(t3s3)).to.be.eql(t3s3);
+    expect(t00.add(s3)).to.be.eql(t0s3);
+    expect(t00.add(s3c)).to.be.eql(t0s3);
+    expect(s3c.add(t0)).to.be.eql(t0s3);
+    expect(t00.subtract(t3s3)).to.be.eql(t00);
+
     expect(t3s3.subtract(t3)).to.be.eql(t0s3);
     // 3 - 8 = 0
     expect(t3s3.subtract(t8)).to.be.eql(t0s3);
+    expect(t3s6.subtract(s3c)).to.be.eql(t3s3);
+    expect(s3c.subtract(t0)).to.be.eql(t0s3);
+    expect(s3c.subtract(t00)).to.be.eql(s3c);
   });
 
   it("should create a product from the amounts and times factor", () => {

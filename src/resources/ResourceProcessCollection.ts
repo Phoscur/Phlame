@@ -108,13 +108,18 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
       const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
-        [resource.type]: !sameType ? resource : sameType.subtract(resource),
+        [resource.type]: !sameType ? resource.negative : sameType.subtract(resource),
       });
     }
-    return ResourceProcessCollection.fromArray(this.asArray.map((entry) => {
+    const resources = this.asArray.map((entry) => {
       const subtract = resource.getByType(entry.type);
       return subtract ? entry.subtract(subtract) : entry;
-    }));
+    }).concat(
+      resource.asArray
+        .filter((res) => { return !this.entries[res.type]; })
+        .map((process) => { return process.negative; }),
+    );
+    return ResourceProcessCollection.fromArray(resources);
   }
 
   get endsNextIn(): TimeUnit {

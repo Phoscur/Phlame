@@ -17,8 +17,8 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
   get stockLimitedProcessCollection() {
     return ResourceProcessCollection.fromArray(this.processes.asArray.map((process) => {
       const limit = process.rate >= 0
-        ? this.stock.getUpperLimitByType(process.limit)
-        : this.stock.getNegativeLimitByType(process.limit);
+        ? this.stock.getMaxResource(process.limit)
+        : this.stock.getMinResource(process.limit);
       return process.newLimit(limit);
     }));
   }
