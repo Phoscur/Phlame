@@ -91,7 +91,7 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
 
   equals(process: ResourceProcess<Type>) {
     return this.equalOfTypeTo(process)
-      && process.limit === this.limit
+      && process.limit.equals(this.limit)
       && Math.abs(process.rate - this.rate) < ZERO_TOLERANCE;
   }
 

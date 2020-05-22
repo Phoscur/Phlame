@@ -9,6 +9,7 @@ describe("ResourceCollection ValueObject", () => {
     const t3s3 = ResourceCollection.fromArray([t3, s3]);
     const amount = "3tumbles, 3salties";
     expect(t3s3.toString()).to.eql(`ResourceCollection[${amount}]`);
+    expect(t3s3.types).to.eql([t3.type, s3.type]);
   });
 
   it("should compare resource collections", () => {
@@ -20,6 +21,7 @@ describe("ResourceCollection ValueObject", () => {
 
     expect(t3s3.equals(t5s3)).to.be.false;
     expect(t5s3.equals(t3s3)).to.be.false;
+    expect(t3s3.equals(t3c)).to.be.false;
 
     expect(t3c.isLessOrEquals(t3)).to.be.true;
     expect(t3c.isLessOrEquals(s3c)).to.be.true;

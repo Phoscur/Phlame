@@ -14,18 +14,31 @@ describe("ResourceProcessCollection ValueObject", () => {
     const t3s3 = ResourceProcessCollection.fromArray(processes);
     const amount = "3tumbles+0, 3salties+1";
     expect(t3s3.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
+    expect(t3s3.types).to.eql([t3.type, s3.type]);
   });
 
   it("should compare resource process collections", () => {
-    const { t3, t5, s3 } = examples;
+    const {
+      t0, t3, t5, s3,
+    } = examples;
+    const t0p = new ResourceProcess(t0, 1);
     const t3p = new ResourceProcess(t3, 1);
     const t5p = new ResourceProcess(t5, 2);
     const s3p = new ResourceProcess(s3, 3);
+    const t0c = ResourceProcessCollection.fromArray([t0p]);
+    const t3c = ResourceProcessCollection.fromArray([t3p]);
     const t3s3 = ResourceProcessCollection.fromArray([t3p, s3p]);
     const t5s3 = ResourceProcessCollection.fromArray([t5p, s3p]);
 
     expect(t3s3.equals(t5s3)).to.be.false;
     expect(t5s3.equals(t3s3)).to.be.false;
+    expect(t3s3.equals(t3c)).to.be.false;
+
+    expect(t3s3.equals(t3s3)).to.be.true;
+    expect(t3c.zero).to.be.eql(t0c);
+    expect(t3c.zero.equals(t0c)).to.be.true;
+    expect(t3c.infinite.equals(t0c)).to.be.false;
+    expect(t3c.infinite.equals(t0c.infinite)).to.be.true;
 
     /*
     How would we compare limit and or rates?

@@ -24,6 +24,7 @@ describe("ResourceProcess ValueObject", () => {
     const t3p = new ResourceProcess(t3, 0);
     const s3p = new ResourceProcess(s3, 0);
     expect(t3p.equals(s3p)).to.be.false;
+    expect(t3p.equals(t3p)).to.be.true;
   });
 
   it("should predict its end in time units", () => {
@@ -65,7 +66,7 @@ describe("ResourceProcess ValueObject", () => {
 
   it("should add and subtract resources processes", () => {
     const {
-      t3, t5, t8,
+      t3, t5, t8, s3,
     } = examples;
     const t3p = new ResourceProcess(t3, 1);
     const t5p = new ResourceProcess(t5, 1);
@@ -73,13 +74,22 @@ describe("ResourceProcess ValueObject", () => {
     const t8p = new ResourceProcess(t8, 1);
     const t8p2 = new ResourceProcess(t8, 2);
     const t8p3 = new ResourceProcess(t8, 3);
+    const s3p = new ResourceProcess(s3, 3);
 
     // Keep upper bounds
     // 3 + 5 = 5
     expect(t3p.add(t5p)).to.be.eql(t5p2);
     // 8 - 5 = 8
     expect(t8p3.subtract(t5p)).to.be.eql(t8p2);
+    expect(t8p3.add(t5p.negative)).to.be.eql(t8p2);
     // 5 - 8 = 8
     expect(t5p2.subtract(t8p)).to.be.eql(t5p);
+
+    expect(() => {
+      t3p.add(s3p);
+    }).to.throw(TypeError);
+    expect(() => {
+      t3p.subtract(s3p);
+    }).to.throw(TypeError);
   });
 });

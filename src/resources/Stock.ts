@@ -22,6 +22,10 @@ export default class Stock<Types extends ResourceIdentifier> {
     return this.resources.getByType(type);
   }
 
+  getResource(resource: Resource<Types>): Resource<Types> {
+    return this.resources.getByType(resource.type) || resource.zero;
+  }
+
   getUpperLimitByType(resource: Resource<Types>): Resource<Types> {
     const stocked = this.getByType(resource.type);
     const max = this.max.getByType(resource.type) || resource.infinite;
