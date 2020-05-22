@@ -4,6 +4,7 @@
   "scripts": {
     "start": "npm run test -- --watch",
     "test": "vue-cli-service test:unit src/**/*.spec.ts",
+    "coverage": "nyc npm run test",
     "lint": "vue-cli-service lint",
     "lint-fix": "vue-cli-service lint --fix"
   },
@@ -24,6 +25,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
+    "nyc": "^15.0.1",
     "typescript": "^3.8.3"
   },
   "eslintConfig": {
