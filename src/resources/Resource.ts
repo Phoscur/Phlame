@@ -23,7 +23,7 @@ export default class Resource<Type extends ResourceIdentifier> implements Resour
     // TODO handle overflow? use BigIntegers?
     this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
     // Default to null type (!~ = not found)
-    this.type = /* !~Resource.types.indexOf(type) ? Resource.types[0] : */ type;
+    this.type = !~Resource.types.indexOf(type) ? Resource.types[0] as Type : type;
   }
 
   get prettyAmount(): string {

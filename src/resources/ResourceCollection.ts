@@ -140,7 +140,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     }));
   }
 
-  times(factor: number) {
+  times(factor: number): ResourceCollection<Types> {
     return ResourceCollection.fromArray(this.asArray.map((resource) => {
       return resource.times(factor);
     }));

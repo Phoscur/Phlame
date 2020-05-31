@@ -1,11 +1,17 @@
 import { expect } from "chai";
 
 import examples, { TumbleResource, ResourceTypes } from "./examples";
+import Resource from "./Resource";
 
 describe("Resource ValueObject", () => {
   it("should be console printable", () => {
     const resource = new TumbleResource(0);
     expect(resource.toString()).to.eql(`Resource[0${ResourceTypes.Tumble}]`);
+  });
+
+  it("should only accept resources by type, else return null", () => {
+    const resource = new Resource("unknown", 0);
+    expect(resource.toString()).to.eql(`Resource[0${Resource.Null.type}]`);
   });
 
   it("is usually int32 but it can be infinite", () => {

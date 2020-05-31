@@ -49,7 +49,7 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
     expect(stock.getMaxResource(s3)).to.be.eql(s3.infinite);
   });
 
-  it("can check (its) limits", () => {
+  it("can check to fit (its) limits", () => {
     const { t0, t3 } = examples;
     const t0c = ResourceCollection.fromArray([t0]);
     const t3c = ResourceCollection.fromArray([t3]);
@@ -61,5 +61,13 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
     expect(invalidStock.isInLimits(t0)).to.be.false;
     expect(stock0.isInLimits(t0)).to.be.true;
     expect(stock0.isInLimits(t3)).to.be.false;
+  });
+
+  it("is fetchable", () => {
+    const { t0, t3, s3 } = examples;
+    const st30 = ResourceCollection.fromArray([t0, s3]);
+    const st3 = ResourceCollection.fromArray([t3, s3]);
+    const multiStock = new Stock(st30);
+    expect(multiStock.isFetchable(st3)).to.be.false;
   });
 });

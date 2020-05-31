@@ -54,7 +54,15 @@ export default class Stock<Types extends ResourceIdentifier> {
     return !resources
       ? this.resources.isMoreOrEquals(this.min) && this.resources.isLessOrEquals(this.max)
       : this.resources.subtract(resources).isMoreOrEquals(this.min)
-      && this.resources.add(resources).isLessOrEquals(this.max);
+      && this.isStorable(resources);
+  }
+
+  isFetchable(resources: Resource<Types> | ResourceCollection<Types>) {
+    return this.resources.isMoreOrEquals(resources);
+  }
+
+  isStorable(resources: Resource<Types> | ResourceCollection<Types>) {
+    return this.resources.add(resources).isLessOrEquals(this.max);
   }
 
   store(resources: Resource<Types> | ResourceCollection<Types>) {
