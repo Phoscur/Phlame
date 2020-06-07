@@ -6,7 +6,8 @@ export interface ResourceValue {
 }
 
 export enum BaseResources {
-  Null = "nulls",
+  Null = "null", // no plural
+  Energy = "energy", // no plural, very special
 }
 
 export default class Resource<Type extends ResourceIdentifier> implements ResourceValue {
