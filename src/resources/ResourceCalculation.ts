@@ -38,7 +38,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     return new ResourceCalculation(stock, processes);
   }
 
-  entriesToString(): string[] {
+  get entries(): string[] {
     return this.processes.asArray.map(({ rate, limit }) => {
       const resource = this.stock.getResource(limit);
       const stockLimits = this.stock.resourceLimitToString(resource);
@@ -48,6 +48,6 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
   }
 
   toString() {
-    return `Processing resources: ${this.entriesToString().join(", ")}`;
+    return `Processing resources: ${this.entries.join(", ")}`;
   }
 }
