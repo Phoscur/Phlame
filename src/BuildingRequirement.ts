@@ -1,6 +1,5 @@
-import { ResourceIdentifier } from "./resources/Resource";
-import ResourceCollection from "./resources/ResourceCollection";
-import Empire from "./Empire";
+import type { ResourceIdentifier } from "./resources/Resource";
+import { EnergyCalculation, ResourceCollection } from "./resources";
 
 export type RequirementType = string;
 /**
@@ -14,24 +13,21 @@ export default class BuildingRequirement<ResourceTypes extends ResourceIdentifie
 
   costs: ResourceCollection<ResourceTypes>;
 
-  empire: Empire<ResourceTypes>;
-
-  constructor(type: RequirementType, costs: ResourceCollection<ResourceTypes>, empire: Empire<ResourceTypes>) {
+  constructor(type: RequirementType, costs: ResourceCollection<ResourceTypes>) {
     this.type = type;
     this.costs = costs;
-    this.empire = empire;
   }
 
   matches(type: RequirementType) {
     return this.type === type;
   }
 
-  get satisfied() {
-    return this.empire.resources.isFetchable(this.upgradeCost);
+  satisfied(factoryResources: EnergyCalculation<ResourceTypes>) {
+    return factoryResources.hasAvailable(this.upgradeCost);
   }
 
-  get satisfiedForDowngrade() {
-    return this.empire.resources.isFetchable(this.downgradeCost);
+  satisfiedForDowngrade(factoryResources: EnergyCalculation<ResourceTypes>) {
+    return factoryResources.hasAvailable(this.downgradeCost);
   }
 
   get upgradeCost() {

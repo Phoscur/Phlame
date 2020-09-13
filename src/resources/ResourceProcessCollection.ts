@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: "off" */
-import { ResourceIdentifier } from "./Resource";
+import type { ResourceIdentifier } from "./Resource";
 import ResourceProcess, { TimeUnit } from "./ResourceProcess";
 import ResourceCollection from "./ResourceCollection";
 
@@ -27,8 +27,8 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, {}));
   }
 
-  get types(): string[] {
-    return Object.keys(this.entries);
+  get types(): Types[] {
+    return Object.keys(this.entries) as Types[];
   }
 
   get asArray(): ResourceProcess<Types>[] {
@@ -44,6 +44,16 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
 
   getByType<Type extends Types>(type: Type): ResourceProcess<Types>|undefined {
     return this.entries[type];
+  }
+
+  map<GenericReturn>(iterator: (resource: ResourceProcess<Types>, type: Types) => GenericReturn): GenericReturn[] {
+    return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
+      const entry: ResourceProcess<Types>|undefined = this.entries[type];
+      if (entry !== undefined) { // could also use/return zero resource
+        entries.push(iterator(entry, type));
+      }
+      return entries;
+    }, []);
   }
 
   // This makes TypeScript understand if given object is a ResourceProcessCollection or just a ResourceProcess

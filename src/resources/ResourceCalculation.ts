@@ -31,6 +31,10 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
   }
 
   calculate(timeUnits: TimeUnit) {
+    // No need to throw here, resources cannot be negative anyways
+    // if (timeUnits > this.validFor + 1) {
+    // throw new Error(`ResourceCalculation out of validity bounds: ${timeUnits} > ${this.validFor}`); }
+
     const addResources = this.processes.getPositiveResourcesFor(timeUnits);
     const removeResources = this.processes.getNegativeResourcesFor(timeUnits);
     const processes = this.processes.after(timeUnits);

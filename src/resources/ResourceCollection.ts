@@ -46,6 +46,16 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     return this.entries[type];
   }
 
+  map<GenericReturn>(iterator: (resource: Resource<Types>, type: Types) => GenericReturn): GenericReturn[] {
+    return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
+      const entry: Resource<Types>|undefined = this.entries[type];
+      if (entry !== undefined) { // could also use/return zero resource
+        entries.push(iterator(entry, type));
+      }
+      return entries;
+    }, []);
+  }
+
   // This makes TypeScript understand if given object is a ResourceCollection or just a Resource
   protected isResourceCollection(
     resource: Resource<Types> | ResourceCollection<Types>,

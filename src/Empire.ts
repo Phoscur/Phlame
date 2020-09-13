@@ -1,6 +1,7 @@
-import { ResourceIdentifier } from "./resources/Resource";
+
+import type { ResourceIdentifier } from "./resources";
+import { Stock } from "./resources";
 import Building from "./Building";
-import Stock from "./resources/Stock";
 
 export default class Empire<Types extends ResourceIdentifier> {
   name = "";
@@ -9,10 +10,20 @@ export default class Empire<Types extends ResourceIdentifier> {
 
   resources: Stock<Types>;
 
+  // energy: EnergyCalculation<Types>;
+
   constructor(name: string, resources: Stock<Types>, buildings: Building[] = []) {
     this.name = name;
     this.buildings = buildings;
     this.resources = resources;
+    /* TODO factory to create resource processes from buildings
+    const prosumers = buildings.map((building) => {
+      return building.consumes();
+    });
+    const producers = buildings.map((building) => {
+      return building.produces();
+    });
+    */
   }
 
   toString() {

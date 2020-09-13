@@ -7,9 +7,7 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
   readonly amount: number; // int32
 
   constructor(type: Type, amount: number) {
-    // Instead of throwing an error, set resource amount to zero on underflow
-    // TODO handle overflow? use BigIntegers?
-    this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
+    this.amount = amount | 0; // int32|0 handling is very fast in v8 - cutting off the floating part of the number
     this.type = type;
   }
 
@@ -58,7 +56,7 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
 
   /**
    * Substract another energy amount
-   * Warning! Returns zero if the result would be negative.
+   * Available energy may be negative in contrast to resources
    * @param subtrahend
    */
   subtract(subtrahend: Energy<Type>) {

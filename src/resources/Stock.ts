@@ -79,13 +79,13 @@ export default class Stock<Types extends ResourceIdentifier> {
     return `${resource.prettyAmount}(${min.amount}, ${max.amount})`;
   }
 
-  limitedAmountsToString(): string[] {
+  get limitedAmounts(): string[] {
     return this.resources.asArray.map((resource) => {
       return this.resourceLimitToString(resource);
     });
   }
 
   toString() {
-    return `Stock[${this.limitedAmountsToString().join(", ")}]`;
+    return `Stock[${this.limitedAmounts.join(", ")}]`;
   }
 }
