@@ -44,7 +44,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
 
   get entries(): string[] {
     return this.processes.asArray.map(({ rate, limit }) => {
-      const resource = this.stock.getResource(limit);
+      const resource = this.stock.has(limit.type);
       const stockLimits = this.stock.resourceLimitToString(resource);
       const ratePrefix = rate > 0 ? "+" : "";
       return `${stockLimits}: ${ratePrefix}${rate}`;

@@ -1,6 +1,5 @@
 import type { ResourceIdentifier } from "./Resource";
 import type { TimeUnit } from "./ResourceProcess";
-import Energy from "./Energy";
 import Prosumer from "./Prosumer";
 import ResourceCalculation from "./ResourceCalculation";
 import ResourceCollection from "./ResourceCollection";
@@ -12,24 +11,30 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
 
   readonly prosumers: Prosumer<Types>[];
 
-  readonly limits: Energy<Types>[];
-
-  constructor(resources: ResourceCalculation<Types>, prosumers: Prosumer<Types>[], limits: Energy<Types>[]) {
+  constructor(resources: ResourceCalculation<Types>, prosumers: Prosumer<Types>[]) {
     this.resources = resources;
     this.prosumers = prosumers;
-    this.limits = limits;
   }
 
   static newStock<ResourceTypes extends ResourceIdentifier>(
     stock: Stock<ResourceTypes>,
     prosumers: Prosumer<ResourceTypes>[],
   ) {
+    const resources = prosumers.map((prosumer) => {
+      return prosumer.processes.resources;
+    });
     return new EnergyCalculation<ResourceTypes>(
-      new ResourceCalculation(stock, ResourceProcessCollection.fromArray([])),
+      new ResourceCalculation(stock, ResourceProcessCollection.reduce(resources)),
       prosumers,
-      [],
     );
   }
+
+  /* get energy(): ResourceProcessCollection<Types> {
+    return new ResourceProcessCollection<Types>({});
+     this.prosumers.map((prosumer) => {
+
+    });
+  } */
 
   get validFor(): TimeUnit {
     return this.resources.validFor;
@@ -43,13 +48,7 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
   calculate(timeUnits: TimeUnit) {
     // TODO Still need to loop around at some point and adjust if !validFor
     const resources = this.resources.calculate(timeUnits);
-    return new EnergyCalculation(resources, this.prosumers, this.limits);
-  }
-
-  get prettyLimits() {
-    return this.limits.map((limit) => {
-      return limit.prettyAmount;
-    });
+    return new EnergyCalculation(resources, this.prosumers);
   }
 
   get prettyProsumers() {
@@ -58,9 +57,24 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
     });
   }
 
+  get energies() {
+    return this.prosumers.map((prosumer) => {
+      return prosumer.prosumes().energies;
+    });
+  }
+
+  get prettyEnergy() {
+    return this.prosumers.map((prosumer) => {
+      return prosumer.prosumes()
+        .prettyEnergies
+        .filter((e) => { return e || e.length; })
+        .join(", ");
+    }).filter((p) => { return p || p.length; });
+  }
+
   toString() {
-    // return `Processing energy&resources: ${this.prettyLimits.join(", ")} - ${this.resources.entries.join(", ")}`;
-    return `${this.resources.stock}`;
+    return `Processing energy&resources: ${this.productionTable.join(", ")}`;
+    // return `${this.resources.stock}`;
   }
 
   /**
@@ -70,8 +84,11 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
    * - 3salties(0, 3): -1
    */
   get productionTable(): string[] {
-    return this.limits.map((limit) => {
-      return limit.prettyAmount;
-    }).concat(...this.prettyProsumers, ...this.resources.entries);
+    /* const processes = this.resources.stockLimitedProcessCollection.map((process) => {
+      return process.toString();
+    });
+    console.log(this.prettyProsumers);
+    return processes.concat(...this.prettyProsumers, ...this.resources.entries); */
+    return this.prettyEnergy.concat(...this.resources.entries);
   }
 }

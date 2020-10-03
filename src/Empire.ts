@@ -6,13 +6,13 @@ import Building from "./Building";
 export default class Empire<Types extends ResourceIdentifier> {
   name = "";
 
-  buildings: Building[] = [];
+  buildings: Building<Types>[] = [];
 
   resources: Stock<Types>;
 
   // energy: EnergyCalculation<Types>;
 
-  constructor(name: string, resources: Stock<Types>, buildings: Building[] = []) {
+  constructor(name: string, resources: Stock<Types>, buildings: Building<Types>[] = []) {
     this.name = name;
     this.buildings = buildings;
     this.resources = resources;

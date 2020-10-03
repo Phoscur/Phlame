@@ -1,11 +1,11 @@
 import { expect } from "chai";
 
-import { energy, EnergyResource, ResourceTypes } from "./examples";
+import { energy, EnergyResource, EnergyTypes } from "./examples";
 
 describe("Energy Resource ValueObject", () => {
   it("should be console printable", () => {
     const { e0 } = energy;
-    expect(e0.toString()).to.eql(`Energy[0${ResourceTypes.Electricity}]`);
+    expect(e0.toString()).to.eql(`Energy[0${EnergyTypes.Electricity}]`);
   });
 
   it("is int32 and immutable, very similar to a Resource but never infinite", () => {

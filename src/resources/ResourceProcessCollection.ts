@@ -42,6 +42,24 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }).join(", ");
   }
 
+  get resources(): ResourceProcessCollection<Types> {
+    return ResourceProcessCollection.fromArray(this.asArray.filter((process) => {
+      return !process.limit.isEnergy;
+    }));
+  }
+
+  get energies(): ResourceProcessCollection<Types> {
+    return ResourceProcessCollection.fromArray(this.asArray.filter((process) => {
+      return process.limit.isEnergy;
+    }));
+  }
+
+  get prettyEnergies(): string[] {
+    return this.energies.asArray.map((process) => {
+      return `${process.limit.amount} ${process.limit.type}`;
+    });
+  }
+
   getByType<Type extends Types>(type: Type): ResourceProcess<Types>|undefined {
     return this.entries[type];
   }
@@ -56,6 +74,17 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, []);
   }
 
+  static reduce<Types extends ResourceIdentifier>(processCollections: ResourceProcessCollection<Types>[]):
+  ResourceProcessCollection<Types> {
+    if (processCollections.length < 2) {
+      return processCollections[0] || ResourceProcessCollection.fromArray([]);
+    }
+    const last = processCollections.pop() as ResourceProcessCollection<Types>; // Just checked it to be not undefined!
+    return processCollections.reduce((reduced, processCollection) => {
+      return reduced.add(processCollection);
+    }, last);
+  }
+
   // This makes TypeScript understand if given object is a ResourceProcessCollection or just a ResourceProcess
   protected isResourceProcessCollection(
     process: ResourceProcess<Types> | ResourceProcessCollection<Types>,
@@ -65,6 +94,12 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
 
   protected new(entries: ResourceProcessCollectionEntries<Types>) {
     return new ResourceProcessCollection(entries);
+  }
+
+  newRateMultiplier(speed: number): ResourceProcessCollection<Types> {
+    return ResourceProcessCollection.fromArray(this.map((process) => {
+      return process.newRate(process.rate * speed);
+    }));
   }
 
   get zero(): ResourceProcessCollection<Types> {

@@ -10,18 +10,18 @@ import Building from "./Building";
 export default class Factory<ResourceTypes extends ResourceIdentifier> {
   name = "";
 
-  buildings: Building[] = [];
+  buildings: Building<ResourceTypes>[] = [];
 
   resources: EnergyCalculation<ResourceTypes>;
 
-  constructor(name: string, resources: Stock<ResourceTypes>, buildings: Building[] = []) {
+  constructor(name: string, resources: Stock<ResourceTypes>, buildings: Building<ResourceTypes>[] = []) {
     this.name = name;
     this.buildings = buildings;
-    /* TODO factory to create resource processes from buildings
+
     const prosumers = buildings.map((building) => {
-      return building.prosumes();
-    }); */
-    this.resources = EnergyCalculation.newStock<ResourceTypes>(resources, []);
+      return building.prosumes(resources);
+    });
+    this.resources = EnergyCalculation.newStock<ResourceTypes>(resources, prosumers);
     // console.log("Factory energy prosumption", this.resources.toString());
   }
 

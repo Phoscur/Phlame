@@ -1,8 +1,19 @@
-
 export type ResourceIdentifier = string; // i wish^^ = symbol;
-export interface ResourceValue {
-  readonly type: ResourceIdentifier;
+export interface ResourceValue<Type extends ResourceIdentifier> {
+  readonly type: Type;
   readonly amount: number; // int32
+}
+// TODO Why are ResourceValue and ComparableResource interface split anyways?
+export interface ComparableResource<Type extends ResourceIdentifier> {
+  readonly type: Type;
+  equalOfTypeTo(resource: ResourceValue<Type>): boolean;
+  // TODO amount is missing - this is typecast patched in a weird way, just reunite Energy into Resource?
+  equals(resource: ResourceValue<Type>): boolean;
+  isMoreOrEquals(resource: ResourceValue<Type>): boolean;
+  isLessOrEquals(resource: ResourceValue<Type>): boolean;
+  add(resource: ResourceValue<Type>): ComparableResource<Type>;
+  subtract(resource: ResourceValue<Type>): ComparableResource<Type>;
+  times(factor: number): ComparableResource<Type>;
 }
 
 export enum BaseResources {
@@ -10,7 +21,8 @@ export enum BaseResources {
   Energy = "energy", // no plural, very special
 }
 
-export default class Resource<Type extends ResourceIdentifier> implements ResourceValue {
+export default class Resource<Type extends ResourceIdentifier>
+implements ResourceValue<Type>, ComparableResource<Type> {
   static types: ResourceIdentifier[] = [BaseResources.Null];
 
   static Null = new Resource(BaseResources.Null, 0);
@@ -45,6 +57,12 @@ export default class Resource<Type extends ResourceIdentifier> implements Resour
     return new Resource(this.type, amount);
   }
 
+  /* eslint-disable-next-line class-methods-use-this */
+  get isEnergy() {
+    // Energy implements this with a lookup by type
+    return false;
+  }
+
   get zero(): Resource<Type> {
     return this.new(0);
   }
@@ -64,37 +82,37 @@ export default class Resource<Type extends ResourceIdentifier> implements Resour
     if (this.amount === Number.POSITIVE_INFINITY) {
       return this;
     }
-    if (resource && resource.amount === Number.POSITIVE_INFINITY) {
+    if (resource && resource?.amount === Number.POSITIVE_INFINITY) {
       return resource;
     }
     return false;
   }
 
-  equalOfTypeTo(resource: Resource<Type>) {
+  equalOfTypeTo(resource: ResourceValue<Type>) {
     return resource.type === this.type;
   }
 
-  equals(resource: Resource<Type>) {
+  equals(resource: Resource<Type>): boolean {
     return this.equalOfTypeTo(resource)
       // Usually we would need an epsilon to do a float comparison, but since we casted to int32, this works
       && resource.amount === this.amount;
   }
 
-  isMoreOrEquals(resource: Resource<Type>) {
+  isMoreOrEquals(resource: Resource<Type>): boolean {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.amount >= resource.amount;
   }
 
-  isLessOrEquals(resource: Resource<Type>) {
+  isLessOrEquals(resource: Resource<Type>): boolean {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.amount <= resource.amount;
   }
 
-  add(resource: Resource<Type>) {
+  add(resource: Resource<Type>): Resource<Type> {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
@@ -106,14 +124,14 @@ export default class Resource<Type extends ResourceIdentifier> implements Resour
    * Warning! Returns zero if the result would be negative.
    * @param subtrahend
    */
-  subtract(subtrahend: Resource<Type>) {
+  subtract(subtrahend: Resource<Type>): Resource<Type> {
     if (!this.equalOfTypeTo(subtrahend)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${subtrahend.type})`);
     }
     return this.checkInfinity(subtrahend) || this.new(this.amount - subtrahend.amount);
   }
 
-  times(factor: number) {
+  times(factor: number): Resource<Type> {
     return this.checkInfinity() || this.new(this.amount * factor);
   }
 

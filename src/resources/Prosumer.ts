@@ -1,5 +1,4 @@
 import Resource, { ResourceIdentifier } from "./Resource";
-import ResourceCollection from "./ResourceCollection";
 import ResourceProcess from "./ResourceProcess";
 import ResourceProcessCollection from "./ResourceProcessCollection";
 
@@ -16,12 +15,15 @@ export default class Prosumer<Types extends ResourceIdentifier> {
 
   readonly processes: ResourceProcessCollection<Types>;
 
+  /**
+   * Prosumer speed 0-100 percent
+   */
   readonly speed: number;
 
-  constructor(type: ProsumerType, processes: ResourceProcessCollection<Types>, speed?: number) {
+  constructor(type: ProsumerType, processes: ResourceProcessCollection<Types>, speed = 100) {
     this.type = type;
     this.processes = processes;
-    const defaultSpeed = (!speed || speed >= 1) ? 1 : speed;
+    const defaultSpeed = speed >= 100 ? 100 : speed;
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }
 
@@ -29,27 +31,33 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return new Prosumer(this.type, this.processes, speed);
   }
 
-  consumes(limit: Resource<Types>) {
-    const rate = this.speed;
-    return new ResourceProcess(limit, rate);
-  }
-
-  produces(limit: Resource<Types>) {
-    const rate = this.speed;
-    return new ResourceProcess(limit, rate);
-  }
-
-  prosumes(limits: ResourceCollection<Types>) {
-    return ResourceProcessCollection.fromArray(limits.map((limit) => {
-      return new ResourceProcess(limit, this.speed); // TODO speed != rate
-    }));
-  }
-
   at(speed: number) {
     return this.new(speed);
   }
 
+  consumes(limit: Resource<Types>) {
+    const process = this.processes.getByType(limit.type);
+    if (!process) {
+      return undefined;
+    }
+    const rate = (this.speed * process.rate) / 100;
+    return new ResourceProcess(limit, rate);
+  }
+
+  produces(limit: Resource<Types>) {
+    const process = this.processes.getByType(limit.type);
+    if (!process) {
+      return undefined;
+    }
+    const rate = (this.speed * process.rate) / 100;
+    return new ResourceProcess(limit, rate);
+  }
+
+  prosumes(): ResourceProcessCollection<Types> {
+    return this.processes.newRateMultiplier(this.speed / 100);
+  }
+
   toString() {
-    return `Prosumer(${this.type}, ${this.speed})`;
+    return `Prosumer(${this.type}, ${this.speed}%, ${this.processes})`;
   }
 }

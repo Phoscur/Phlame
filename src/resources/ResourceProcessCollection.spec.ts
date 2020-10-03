@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import examples from "./examples";
+import examples, { process } from "./examples";
 import ResourceProcess, { TimeUnit } from "./ResourceProcess";
 import ResourceProcessCollection from "./ResourceProcessCollection";
 
@@ -10,11 +10,12 @@ describe("ResourceProcessCollection ValueObject", () => {
     const processes = [
       new ResourceProcess(t3, 0),
       new ResourceProcess(s3, -1),
+      process.ce1,
     ];
-    const t3s3 = ResourceProcessCollection.fromArray(processes);
-    const amount = "3tumbles+0, 3salties-1";
-    expect(t3s3.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
-    expect(t3s3.types).to.eql([t3.type, s3.type]);
+    const t3s3e10 = ResourceProcessCollection.fromArray(processes);
+    const amount = "3tumbles+0, 3salties-1, 10energy-1";
+    expect(t3s3e10.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
+    expect(t3s3e10.types).to.eql([t3.type, s3.type, process.ce1.type]);
   });
 
   it("should compare resource process collections", () => {

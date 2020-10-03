@@ -1,25 +1,25 @@
 import {
-  ResourceIdentifier, Prosumer, ResourceProcessCollection, ResourceProcess, ResourceCollection,
+  ResourceIdentifier, Prosumer, ResourceProcessCollection, ResourceProcess, Stock,
 } from "./resources";
 import BuildingRequirement from "./BuildingRequirement";
 
 export type BuildingType = string | number; // I'd prefer string, but if we want integer unitIDs...
 
-export type levelToProsumptionFunc = (level: number) => number;
+export type LevelToProsumptionFunc = (level: number) => number;
 
 export type ProsumptionEntries<Types extends ResourceIdentifier> = {
-  [Type in Types]?: levelToProsumptionFunc;
+  [Type in Types]?: LevelToProsumptionFunc;
 }
 
 export type ProsumptionLookup<Types extends BuildingType> = {
   [Type in Types]?: ProsumptionEntries<ResourceIdentifier>;
 }
 
-export default class Building {
+export default class Building<ResourceType extends ResourceIdentifier> {
   readonly type: BuildingType;
 
   // Might be nicer to encapsulate configuration in a different way?
-  readonly requirements: BuildingRequirement<ResourceIdentifier>[];
+  readonly requirements: BuildingRequirement<ResourceType>[];
 
   // Wrapping Prosumption lookup currently remains in Building
   readonly prosumption: ProsumptionLookup<BuildingType>;
@@ -30,16 +30,16 @@ export default class Building {
 
   constructor(
     type: BuildingType,
-    requirements: BuildingRequirement<ResourceIdentifier>[],
+    requirements: BuildingRequirement<ResourceType>[],
     prosumption: ProsumptionLookup<BuildingType>,
     level?: number,
-    speed?: number,
+    speed = 100,
   ) {
     this.type = type;
     this.requirements = requirements;
     this.prosumption = prosumption;
     this.level = level || 0;
-    const defaultSpeed = (!speed || speed >= 1) ? 1 : speed;
+    const defaultSpeed = speed >= 100 ? 100 : speed;
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }
 
@@ -59,14 +59,13 @@ export default class Building {
     return this.new(this.level, speed);
   }
 
-  prosumes(limits: ResourceCollection<ResourceIdentifier>): Prosumer<ResourceIdentifier> {
-    const prosumption = this.prosumption[this.type];
-    const processes = limits.map((limit, resourceType) => {
-      if (!prosumption || !prosumption[resourceType]) {
-        return new ResourceProcess(limit, 0);
-      }
-      // undefined is guarded, don't know why typescript won't recognise it - typecasting as an override
-      const rate = (prosumption[resourceType] as levelToProsumptionFunc)(this.level);
+  prosumes(stock: Stock<ResourceType>): Prosumer<ResourceType> {
+    const prosumption = this.prosumption[this.type] || {};
+    const processes = Object.keys(prosumption).map((type) => {
+      const prosumptionFunc = prosumption[type];
+      const rate = prosumptionFunc ? prosumptionFunc(this.level) : 0;
+      // TODO use limits for production (stock.max) and consumption
+      const limit = stock.has(type as ResourceType);
       return new ResourceProcess(limit, rate);
     });
 
@@ -74,6 +73,6 @@ export default class Building {
   }
 
   toString() {
-    return `Building(${this.type}, ${this.level}, ${this.speed})`;
+    return `Building(${this.type}, ${this.level}, ${this.speed}%)`;
   }
 }
