@@ -4,6 +4,7 @@ export interface ResourceValue<Type extends ResourceIdentifier> {
   readonly amount: number; // int32
 }
 // TODO Why are ResourceValue and ComparableResource interface split anyways?
+// TODO Remove code duplicaton in Energy.ts -> Refactor extract AbstractResource class
 export interface ComparableResource<Type extends ResourceIdentifier> {
   readonly type: Type;
   equalOfTypeTo(resource: ResourceValue<Type>): boolean;
@@ -23,7 +24,7 @@ export enum BaseResources {
 
 export default class Resource<Type extends ResourceIdentifier>
 implements ResourceValue<Type>, ComparableResource<Type> {
-  static types: ResourceIdentifier[] = [BaseResources.Null];
+  static types: ResourceIdentifier[] = [BaseResources.Null]; // Types are appended in configuration
 
   static Null = new Resource(BaseResources.Null, 0);
 
@@ -47,6 +48,7 @@ implements ResourceValue<Type>, ComparableResource<Type> {
    * Create another resource of the same type
    */
   protected new(amount: number) {
+    // Anecdote:
     // Doesn't sound like the best idea considering debugging performance -
     // would be a nice way to not explicitly redeclare this method in every subclass
     /* This makes the new object use the old one as prototype (stores old states in the prototype chain)
@@ -117,6 +119,10 @@ implements ResourceValue<Type>, ComparableResource<Type> {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.checkInfinity(resource) || this.new(this.amount + resource.amount);
+  }
+
+  addAmount(amount: number) {
+    return this.checkInfinity() || this.new(this.amount + amount);
   }
 
   /**

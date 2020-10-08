@@ -40,8 +40,17 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     return Number.isFinite(endsIn) ? endsIn | 0 : endsIn;
   }
 
-  newLimit(limit: Resource<Type>|Energy<Type>) {
-    return new ResourceProcess(limit, this.rate);
+  newLimit(limit?: Resource<Type>|Energy<Type>) {
+    return new ResourceProcess(limit || this.limit, this.rate);
+  }
+
+  limitFromRate() {
+    const limit = this.limit.addAmount(this.rate);
+    return this.newLimit(limit);
+  }
+
+  addLimit(resource?: Resource<Type>|Energy<Type>) {
+    return this.newLimit(this.limit.add(resource as Resource<Type> & Energy<Type>));
   }
 
   newRate(rate: number) {

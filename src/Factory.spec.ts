@@ -5,10 +5,10 @@ import Factory from "./Factory";
 
 describe("Factory Entity", () => {
   it("should be console printable", () => {
-    const factory = new Factory("Console", stock, buildings);
+    const factory = new Factory("Console", stock, [buildings[0], buildings[2]]);
     expect(factory.toString()).to.eql(
       "Console (Processing energy&resources: "
-      + "0 energy, "
+      + "50/50 energy, 0/0 heat, "
       + "3tumbles(0, Infinity): 0, "
       + "3salties(0, Infinity): 0, "
       + "15blubbs(0, Infinity): -10"
@@ -26,12 +26,14 @@ describe("Factory Entity", () => {
     // TODO - 10energy Prosumer(A, 1, 1) 89/112 or even -58/112
     expect(factory.toString()).to.eql(
       "Factory (Processing energy&resources: "
-      + "0 energy, "
+      + "40/50 energy, 0/0 heat, "
       + "3tumbles(0, Infinity): 0, "
       + "3salties(0, Infinity): 0, "
-      + "15blubbs(0, Infinity): -10"
+      // + "15blubbs(0, Infinity): -10+10
+      + "15blubbs(0, Infinity): 0"
       + ") ["
       + "Building(12, 1, 100%), "
+      + "Building(3, 1, 100%), "
       + "Building(0, 1, 0%)"
       + "]",
     );

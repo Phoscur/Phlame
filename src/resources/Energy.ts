@@ -94,6 +94,10 @@ implements ResourceValue<Type>, ComparableResource<Type> {
     return this.new(this.amount + resource.amount);
   }
 
+  addAmount(amount: number) {
+    return this.checkInfinity() || this.new(this.amount + amount);
+  }
+
   /**
    * Substract another energy amount
    * Available energy may be negative in contrast to resources

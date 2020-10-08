@@ -13,7 +13,7 @@ describe("ResourceProcessCollection ValueObject", () => {
       process.ce1,
     ];
     const t3s3e10 = ResourceProcessCollection.fromArray(processes);
-    const amount = "3tumbles+0, 3salties-1, 10energy-1";
+    const amount = "3tumbles+0, 3salties-1, 0energy-10";
     expect(t3s3e10.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
     expect(t3s3e10.types).to.eql([t3.type, s3.type, process.ce1.type]);
   });

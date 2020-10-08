@@ -20,16 +20,18 @@ describe("EnergyCalculation (extended ResourceCalculation) ValueObject", () => {
     const stock = new Stock(resources);
     const prosumers: Prosumer<Types>[] = [
       new Prosumer("EnergyProducer", processes.energy),
+      new Prosumer("EnergyProducer", processes.energy),
+      new Prosumer("EnergyProducer", processes.energy),
     ];
     const resourceCalculation = new ResourceCalculation(stock, resourceProcesses);
     const energyCalculation = new EnergyCalculation(resourceCalculation, prosumers);
     expect(energyCalculation.productionTable).to.eql([
-      "10 energy",
+      "150/150 energy",
       "3tumbles(0, Infinity): +1",
       "3salties(0, Infinity): -1",
     ]);
     expect(energyCalculation.toString()).to.eql(
-      "Processing energy&resources: 10 energy, 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1",
+      "Processing energy&resources: 150/150 energy, 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1",
     );
   });
 
@@ -50,28 +52,28 @@ describe("EnergyCalculation (extended ResourceCalculation) ValueObject", () => {
 
     const oneSecondLater = energyCalculation.calculate(timeUnits);
     expect(oneSecondLater.toString()).to.eql(
-      "Processing energy&resources: 10 energy, 4tumbles(0, Infinity): +1, 2salties(0, Infinity): -1",
+      "Processing energy&resources: 50/50 energy, 4tumbles(0, Infinity): +1, 2salties(0, Infinity): -1",
     );
 
     const anotherSecondLater = oneSecondLater.calculate(timeUnits);
     expect(anotherSecondLater.toString()).to.eql(
-      "Processing energy&resources: 10 energy, 5tumbles(0, Infinity): +1, 1salties(0, Infinity): -1",
+      "Processing energy&resources: 50/50 energy, 5tumbles(0, Infinity): +1, 1salties(0, Infinity): -1",
     );
 
     const emptySalties = anotherSecondLater.calculate(timeUnits);
     expect(emptySalties.toString()).to.eql(
-      "Processing energy&resources: 10 energy, 6tumbles(0, Infinity): +1, 0salties(0, Infinity): -1",
+      "Processing energy&resources: 50/50 energy, 6tumbles(0, Infinity): +1, 0salties(0, Infinity): -1",
     );
 
     // Continuing with negative rate wont substract any more, because resources can't be negative
     // At this point we need to recalculate all processes (with adapted rates) especially for energy outage
     const emptySaltiesStill = emptySalties.calculate(timeUnits);
     expect(emptySaltiesStill.toString()).to.eql(
-      "Processing energy&resources: 10 energy, 7tumbles(0, Infinity): +1, 0salties(0, Infinity): -1",
+      "Processing energy&resources: 50/50 energy, 7tumbles(0, Infinity): +1, 0salties(0, Infinity): -1",
     );
   });
 
-  it("should know to calculate remaining time units", () => {
+  it("should calculate remaining time units", () => {
     const { t3, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const resourceProcesses = ResourceProcessCollection.fromArray([

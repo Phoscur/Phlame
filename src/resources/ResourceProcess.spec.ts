@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import examples from "./examples";
+import examples, { process } from "./examples";
 
 import ResourceProcess, { TimeUnit } from "./ResourceProcess";
 
@@ -16,6 +16,8 @@ describe("ResourceProcess ValueObject", () => {
     const pi = new ResourceProcess(t3, Math.sqrt(Math.PI));
     const piProd = "tumbles, 1.7724538509055159, 3";
     expect(pi.toString()).to.eql(`ResourceProcess[${piProd}]`);
+    const energy = "energy, 50, 0";
+    expect(process.pe1.toString()).to.eql(`ResourceProcess[${energy}]`);
   });
 
   it("should compare resource processes", () => {

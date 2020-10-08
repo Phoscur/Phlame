@@ -27,6 +27,22 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, {}));
   }
 
+  /**
+   * Add resource processes together
+   * @param processCollections to be compacted
+   */
+  static reduce<Types extends ResourceIdentifier>(
+    processCollections: ResourceProcessCollection<Types>[],
+  ): ResourceProcessCollection<Types> {
+    if (processCollections.length < 2) {
+      return processCollections[0] || ResourceProcessCollection.fromArray([]);
+    }
+    const last = processCollections.pop() as ResourceProcessCollection<Types>; // Just checked it to be not undefined!
+    return processCollections.reduce((reduced, processCollection) => {
+      return reduced.add(processCollection);
+    }, last);
+  }
+
   get types(): Types[] {
     return Object.keys(this.entries) as Types[];
   }
@@ -74,17 +90,6 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, []);
   }
 
-  static reduce<Types extends ResourceIdentifier>(processCollections: ResourceProcessCollection<Types>[]):
-  ResourceProcessCollection<Types> {
-    if (processCollections.length < 2) {
-      return processCollections[0] || ResourceProcessCollection.fromArray([]);
-    }
-    const last = processCollections.pop() as ResourceProcessCollection<Types>; // Just checked it to be not undefined!
-    return processCollections.reduce((reduced, processCollection) => {
-      return reduced.add(processCollection);
-    }, last);
-  }
-
   // This makes TypeScript understand if given object is a ResourceProcessCollection or just a ResourceProcess
   protected isResourceProcessCollection(
     process: ResourceProcess<Types> | ResourceProcessCollection<Types>,
@@ -100,6 +105,18 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     return ResourceProcessCollection.fromArray(this.map((process) => {
       return process.newRate(process.rate * speed);
     }));
+  }
+
+  addLimits(limits: ResourceProcessCollectionEntries<Types>) {
+    const s = ResourceProcessCollection.fromArray(this.asArray.map((p) => {
+      if (p.isNegative) {
+        return p;
+      }
+      const { type } = p;
+      const limit = limits[type]?.limit;
+      return p.addLimit(limit);
+    }));
+    return s;
   }
 
   get zero(): ResourceProcessCollection<Types> {

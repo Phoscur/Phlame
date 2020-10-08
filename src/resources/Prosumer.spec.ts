@@ -30,6 +30,6 @@ describe("Prosumer ValueObject", () => {
   it("should prosume: consume energy and produce resources", () => {
     const p = new Prosumer("CoalPowerPlant", processes.prosumption, 100);
     expect(p.prosumes()).to.eql(processes.prosumption);
-    expect(p.toString()).to.eql("Prosumer(CoalPowerPlant, 100%, ResourceProcessCollection[10salties-1, 10energy-1])");
+    expect(p.toString()).to.eql("Prosumer(CoalPowerPlant, 100%, ResourceProcessCollection[10salties-1, 0energy-10])");
   });
 });

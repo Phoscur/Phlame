@@ -95,11 +95,13 @@ export default examples;
 export const resources: {[name: string]: ResourceCollection<Types>} = {
   t3s3: ResourceCollection.fromArray([t3, s3]),
 };
+const e0 = new EnergyResource(0);
 export const energy: {[name: string]: Energy<Types>} = {
   em10: new EnergyResource(-10),
-  e0: new EnergyResource(0),
+  e0,
   e10: new EnergyResource(10),
   e100: new EnergyResource(100),
+  eInf: e0.infinite,
   h0: new HeatResource(0),
   h10: new HeatResource(10),
 };
@@ -107,7 +109,7 @@ export const energy: {[name: string]: Energy<Types>} = {
 export const production = {
   [ResourceTypes.Tumble]: (lvl: number) => 30 * lvl * lvl ** 1.1,
   [ResourceTypes.Salty]: (lvl: number) => 20 * lvl * lvl ** 1.1,
-  [EnergyTypes.Electricity]: (lvl: number) => 10 * lvl * lvl ** 1.1,
+  [EnergyTypes.Electricity]: (lvl: number) => 50 * lvl * lvl ** 1.1,
 };
 
 export const consumption = {
@@ -128,11 +130,8 @@ const ps1 = new ResourceProcess(
   1,
 );
 const pe1 = new ResourceProcess(
-  new Energy(
-    EnergyTypes.Electricity,
-    production[EnergyTypes.Electricity](1),
-  ),
-  1,
+  e0, // or energy.eInf?,
+  production[EnergyTypes.Electricity](1),
 );
 const cs1 = new ResourceProcess(
   new Resource(
@@ -142,11 +141,8 @@ const cs1 = new ResourceProcess(
   -1,
 );
 const ce1 = new ResourceProcess(
-  new Energy(
-    EnergyTypes.Electricity,
-    -consumption[EnergyTypes.Electricity](1),
-  ),
-  -1,
+  e0,
+  consumption[EnergyTypes.Electricity](1),
 );
 
 export const process: {[name: string]: ResourceProcess<Types>} = {

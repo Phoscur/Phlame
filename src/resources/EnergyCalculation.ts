@@ -3,6 +3,8 @@ import type { TimeUnit } from "./ResourceProcess";
 import Prosumer from "./Prosumer";
 import ResourceCalculation from "./ResourceCalculation";
 import ResourceCollection from "./ResourceCollection";
+import ResourceProcess from "./ResourceProcess";
+import type { ResourceProcessCollectionEntries } from "./ResourceProcessCollection";
 import ResourceProcessCollection from "./ResourceProcessCollection";
 import Stock from "./Stock";
 
@@ -58,18 +60,30 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
   }
 
   get energies() {
-    return this.prosumers.map((prosumer) => {
+    const energies = this.prosumers.map((prosumer) => {
       return prosumer.prosumes().energies;
     });
+    const limits = energies.reduce((l: ResourceProcessCollectionEntries<Types>, es) => {
+      es.asArray.forEach((energy) => {
+        if (energy.isNegative) {
+          return;
+        }
+        const e = energy.limitFromRate();
+        const limit = l[energy.type] as ResourceProcess<Types>;
+        // eslint-disable-next-line no-param-reassign
+        l[energy.type] = !limit ? e : limit.addLimit(e.limit);
+      });
+      return l;
+    }, {});
+    return ResourceProcessCollection.reduce(energies.map((es) => {
+      return es.addLimits(limits);
+    }));
   }
 
-  get prettyEnergy() {
-    return this.prosumers.map((prosumer) => {
-      return prosumer.prosumes()
-        .prettyEnergies
-        .filter((e) => { return e || e.length; })
-        .join(", ");
-    }).filter((p) => { return p || p.length; });
+  get prettyEnergy(): string[] {
+    return this.energies.map((energy) => {
+      return `${energy.rate}/${energy.limit.amount} ${energy.type}`;
+    });
   }
 
   toString() {
