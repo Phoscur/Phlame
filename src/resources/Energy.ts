@@ -1,4 +1,3 @@
-
 import {
   ResourceIdentifier,
   BaseResources,
@@ -85,7 +84,6 @@ implements ResourceValue<Type>, ComparableResource<Type> {
     }
     return this.amount <= energy.amount;
   }
-
 
   add(resource: Energy<Type>) {
     if (!this.equalOfTypeTo(resource)) {

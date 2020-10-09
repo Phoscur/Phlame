@@ -159,6 +159,6 @@ export const processes: {[name: string]: ResourceProcessCollection<Types>} = {
   rt11s31: ResourceProcessCollection.fromArray([rt11, rs31]),
   rt31s31: ResourceProcessCollection.fromArray([rt31, rs31]),
   rt31s31b11: ResourceProcessCollection.fromArray([rt31, rs31, rb11]),
-  energy: ResourceProcessCollection.fromArray([pe1]),
+  energy: ResourceProcessCollection.fromArray<Types>([pe1]),
   prosumption: ResourceProcessCollection.fromArray<Types>([ps1, pe1, cs1, ce1]),
 };
