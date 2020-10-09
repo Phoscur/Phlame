@@ -1,32 +1,37 @@
 {
   "name": "phlame-engine",
   "version": "0.1.0",
+  "engines": {
+    "node": ">=0.14"
+  },
+  "engineStrict": true,
   "scripts": {
     "start": "npm run test -- --watch",
-    "test": "vue-cli-service test:unit src/**/*.spec.ts",
-    "coverage": "nyc npm run test",
+    "test": "jest",
+    "coverage": "npm run test -- --coverage",
     "lint": "vue-cli-service lint",
     "lint-fix": "vue-cli-service lint --fix"
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/chai": "^4.2.11",
+    "@types/chai": "^4.2.13",
     "@types/mocha": "^5.2.4",
-    "@typescript-eslint/eslint-plugin": "^2.26.0",
-    "@typescript-eslint/parser": "^2.26.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "@vue/cli-plugin-babel": "~4.3.0",
     "@vue/cli-plugin-eslint": "~4.3.0",
     "@vue/cli-plugin-typescript": "~4.3.0",
     "@vue/cli-plugin-unit-mocha": "~4.3.0",
     "@vue/cli-service": "~4.3.0",
-    "@vue/eslint-config-airbnb": "^5.0.2",
-    "@vue/eslint-config-typescript": "^5.0.2",
+    "@vue/eslint-config-airbnb": "^5.1.0",
+    "@vue/eslint-config-typescript": "^5.1.0",
     "chai": "^4.2.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "^6.2.2",
-    "nyc": "^15.0.1",
-    "typescript": "^3.8.3"
+    "jest": "^26.5.2",
+    "ts-jest": "^26.4.1",
+    "typescript": "^3.9.7"
   },
   "eslintConfig": {
     "root": true,
@@ -96,6 +101,19 @@
         }
       }
     ]
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json",
+      "vue"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testURL": "http://localhost/"
   },
   "browserslist": [
     "> 1%",

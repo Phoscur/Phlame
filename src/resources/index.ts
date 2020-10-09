@@ -1,4 +1,3 @@
-
 import Resource from "./Resource";
 import ResourceCalculation from "./ResourceCalculation";
 import ResourceCollection from "./ResourceCollection";

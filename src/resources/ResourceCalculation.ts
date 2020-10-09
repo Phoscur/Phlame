@@ -1,4 +1,3 @@
-
 import { ResourceIdentifier } from "./Resource";
 import { TimeUnit } from "./ResourceProcess";
 import ResourceProcessCollection from "./ResourceProcessCollection";

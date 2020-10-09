@@ -1,4 +1,4 @@
-name: Test with coverage (mocha+nyc)
+name: Test with coverage (jest, instanbul)
 
 on: [push]
 
@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x, 14.x]
+        node-version: [14.x]
     name: Run your tests
     steps:
       - uses: actions/checkout@v1
