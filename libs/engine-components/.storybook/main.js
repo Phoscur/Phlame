@@ -1,7 +1,6 @@
 const rootMain = require("../../../.storybook/main");
 
-// Use the following syntax to add addons!
-// rootMain.addons.push('');
+rootMain.addons.push("@react-theming/storybook-addon");
 rootMain.stories.push(
   ...[
     "../src/lib/**/*.stories.mdx",
