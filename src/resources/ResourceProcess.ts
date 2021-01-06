@@ -1,18 +1,17 @@
 import Resource, { ResourceIdentifier } from "./Resource";
-
-// Floating point operations are not save!
-const ZERO_TOLERANCE = 0.0000001;
+import Energy from "./Energy";
 
 export type TimeUnit = number;
 
 export default class ResourceProcess<Type extends ResourceIdentifier> {
-  readonly limit: Resource<Type>;
+  readonly limit: Resource<Type>|Energy<Type>; // Basically ComparableResource
 
   readonly rate: number;
 
-  constructor(limit: Resource<Type>, rate: number) {
+  constructor(limit: Resource<Type>|Energy<Type>, rate: number) {
     this.limit = limit;
-    this.rate = Math.abs(rate) > ZERO_TOLERANCE ? rate : 0;
+    // we can't have floats, it would be wrong in situations (e.g. skipped through game ticks can produce more than single ticks respectively - 0.7 rate over two ticks is 2 rather than 0)
+    this.rate = Math.round(rate); // nicer than a ceiling int32 cast here?
   }
 
   get type(): Type {
@@ -39,8 +38,17 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     return Number.isFinite(endsIn) ? endsIn | 0 : endsIn;
   }
 
-  newLimit(limit: Resource<Type>) {
+  newLimit(limit: Resource<Type>|Energy<Type>) {
     return new ResourceProcess(limit, this.rate);
+  }
+
+  limitFromRate() {
+    const limit = this.limit.addAmount(this.rate);
+    return this.newLimit(limit);
+  }
+
+  addLimit(resource?: Resource<Type>|Energy<Type>) {
+    return this.newLimit(this.limit.add(resource as Resource<Type> & Energy<Type>));
   }
 
   newRate(rate: number) {
@@ -55,7 +63,9 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     if (!this.equalOfTypeTo(resourceProcess)) {
       throw new TypeError(`ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`);
     }
-    const limit = this.limit.isMoreOrEquals(resourceProcess.limit)
+    // both Resource and Energy are typeguarded ComparableResources
+    const oldLimit = resourceProcess.limit as Resource<Type> & Energy<Type>;
+    const limit = this.limit.isMoreOrEquals(oldLimit)
       ? this.limit
       : resourceProcess.limit;
     return new ResourceProcess(limit, this.rate + resourceProcess.rate);
@@ -72,7 +82,10 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     return this.newRate(this.rate - resourceProcess.rate);
   }
 
-  getResourceFor(timeUnits: TimeUnit = 1): Resource<Type> {
+  getResourceFor(timeUnits: TimeUnit = 1): Resource<Type>|Energy<Type> {
+    if (~Energy.types.indexOf(this.limit.type)) {
+      return new Energy(this.limit.type, Math.abs(this.rate) * timeUnits);
+    }
     return new Resource(this.limit.type, Math.abs(this.rate) * timeUnits);
   }
 
@@ -81,7 +94,8 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
    * @param timeUnits
    */
   after(timeUnits: TimeUnit): ResourceProcess<Type> {
-    const limit = this.limit.subtract(this.getResourceFor(timeUnits));
+    const output = this.getResourceFor(timeUnits) as Resource<Type> & Energy<Type>;
+    const limit = this.limit.subtract(output);
     return new ResourceProcess(limit, this.rate);
   }
 
@@ -90,9 +104,11 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
   }
 
   equals(process: ResourceProcess<Type>) {
+    // both Resource and Energy are typeguarded ComparableResources
+    const limit = process.limit as Resource<Type> & Energy<Type>;
     return this.equalOfTypeTo(process)
-      && process.limit.equals(this.limit)
-      && Math.abs(process.rate - this.rate) < ZERO_TOLERANCE;
+      && this.limit.equals(limit)
+      && process.rate === this.rate;
   }
 
   toString() {

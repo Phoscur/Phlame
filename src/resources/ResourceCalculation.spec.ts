@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import examples from "./examples";
+import examples, { process } from "./examples";
 import ResourceCollection from "./ResourceCollection";
 import Stock from "./Stock";
 import ResourceCalculation from "./ResourceCalculation";
@@ -14,12 +14,13 @@ describe("ResourceCalculation (ResourceCollection with limits) ValueObject", () 
     const processes = ResourceProcessCollection.fromArray([
       new ResourceProcess(t3, 1),
       new ResourceProcess(s3, -1),
+      process.pe1, // this doesn't actually work, that's what EnergyCalculation is for, but it's still printable
     ]);
     const stock = new Stock(resources);
     const resourceCalculation = new ResourceCalculation(stock, processes);
 
     expect(resourceCalculation.toString()).to.eql(
-      "Processing resources: 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1",
+      "Processing resources: 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1, 0energy(0, Infinity): +50",
     );
   });
 

@@ -1,45 +1,51 @@
-import { ResourceIdentifier } from "./resources/Resource";
-import ResourceCollection from "./resources/ResourceCollection";
-import Empire from "./Empire";
+import type { ResourceIdentifier } from "./resources/Resource";
+import { EnergyCalculation, ResourceCollection } from "./resources";
 
-export type RequirementType = string;
+export type RequirementTypes = number | string;
+export interface Dependency<RequirementType extends RequirementTypes> {
+  type: RequirementType;
+  level: number;
+}
 /**
  * BuildingRequirement to up- or downgrade something
  * also stores the costs for the action
  */
-export default class BuildingRequirement<ResourceTypes extends ResourceIdentifier> {
-  static DEFAULT_DOWNGRADECOST_DIVISOR = 2;
+export default class BuildingRequirement<RequirementType extends RequirementTypes, ResourceTypes extends ResourceIdentifier> {
+  static DOWNGRADECOST_DIVISOR = 2;
 
-  type: RequirementType;
+  readonly type: RequirementType;
 
-  costs: ResourceCollection<ResourceTypes>;
+  readonly costs: ResourceCollection<ResourceTypes>;
 
-  empire: Empire<ResourceTypes>;
+  readonly costFactor: number;
 
-  constructor(type: RequirementType, costs: ResourceCollection<ResourceTypes>, empire: Empire<ResourceTypes>) {
+  readonly dependencies: Dependency<RequirementType>[];
+
+  constructor(type: RequirementType, costs: ResourceCollection<ResourceTypes>, factor: number, dependencies: Dependency<RequirementType>[]) {
     this.type = type;
     this.costs = costs;
-    this.empire = empire;
+    this.costFactor = factor;
+    this.dependencies = dependencies;
   }
 
   matches(type: RequirementType) {
     return this.type === type;
   }
 
-  get satisfied() {
-    return this.empire.resources.isFetchable(this.upgradeCost);
+  isSatisfied(level: number, factoryResources: EnergyCalculation<ResourceTypes>) {
+    return factoryResources.hasAvailable(this.getUpgradeCost(level));
   }
 
-  get satisfiedForDowngrade() {
-    return this.empire.resources.isFetchable(this.downgradeCost);
+  isSatisfiedForDowngrade(level: number, factoryResources: EnergyCalculation<ResourceTypes>) {
+    return factoryResources.hasAvailable(this.getDowngradeCost(level));
   }
 
-  get upgradeCost() {
-    return this.costs;
+  getUpgradeCost(level: number) {
+    return this.costs.times(this.costFactor ** level);
   }
 
-  get downgradeCost() {
-    return this.costs.times(1 / BuildingRequirement.DEFAULT_DOWNGRADECOST_DIVISOR);
+  getDowngradeCost(level: number) {
+    return this.costs.times(1 / BuildingRequirement.DOWNGRADECOST_DIVISOR).times(this.costFactor ** level);
   }
 
   toString() {
