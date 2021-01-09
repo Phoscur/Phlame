@@ -195,7 +195,7 @@ describe("Factory Entity", () => {
     expect(factory.resources.resources.processes.getByType(tumbleProcess.type)).to.eql(tumbleProcess);
     expect(factory.resources.resources.processes.getByType(blubbProcess.type)).to.eql(blubbProcess);
     // under energy & even more under energy after blubber drop
-    expect(factory.resources.productionTable).to.eql([
+    expect(factory.resources.productionEntries).to.eql([
       "-13/50 energy",
       "0/0 heat",
       "Degraded to 78%", //
@@ -220,7 +220,7 @@ describe("Factory Entity", () => {
     );
     expect(factory.resources.validFor).to.be.eql(15);
     const f15 = factory.tick(15);
-    expect(f15.resources.productionTable).to.eql([
+    expect(f15.resources.productionEntries).to.eql([
       "-13/50 energy",
       "0/0 heat",
       "Degraded to 78%", //
@@ -230,7 +230,7 @@ describe("Factory Entity", () => {
     ]);
     expect(f15.resources.validFor).to.be.eql(0);
     const ff = f15.tick();
-    expect(ff.resources.productionTable).to.eql([
+    expect(ff.resources.productionEntries).to.eql([
       "0/0 energy",
       "0/0 heat",
       // "Degraded to 0%",
@@ -246,7 +246,7 @@ describe("Factory Entity", () => {
     // this feels a bit redundant with the test above, but it should be more common
     const stock = new Stock<ResourceTypes>(ResourceCollection.fromArray([new TumbleResource(10), new SaltyResource(0), new BlubbResource(40)]));
     const factory = new Factory("Underblubbling", stock, underBlubberBuildings);
-    expect(factory.resources.productionTable).to.eql([
+    expect(factory.resources.productionEntries).to.eql([
       "171/234 energy",
       "0/0 heat",
       "40blubbs(0, Infinity): -33",
@@ -255,7 +255,7 @@ describe("Factory Entity", () => {
     ]);
     expect(factory.resources.validFor).to.be.eql(1);
     const f2 = factory.tick(2);
-    expect(f2.resources.productionTable).to.eql([
+    expect(f2.resources.productionEntries).to.eql([
       "-43/20 energy",
       "0/0 heat",
       "Degraded to 28%",

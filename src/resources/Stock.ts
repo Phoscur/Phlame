@@ -99,9 +99,14 @@ export default class Stock<Types extends ResourceIdentifier> {
   }
 
   resourceLimitToString(resource: ResourceLike<Types>) {
+    const [min, max] = this.getResourceLimits(resource);
+    return `${resource.prettyAmount}(${min}, ${max})`;
+  }
+
+  getResourceLimits(resource: ResourceLike<Types>) {
     const min = this.min.getByType(resource.type) || resource.zero;
     const max = this.max.getByType(resource.type) || resource.infinite;
-    return `${resource.prettyAmount}(${min.amount}, ${max.amount})`;
+    return [min.amount, max.amount];
   }
 
   get limitedAmounts(): string[] {

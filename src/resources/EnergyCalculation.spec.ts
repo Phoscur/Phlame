@@ -26,10 +26,15 @@ describe("EnergyCalculation (extended ResourceCalculation) ValueObject", () => {
     ]);
     const resourceCalculation = new ResourceCalculation(stock, resourceProcesses);
     const energyCalculation = new EnergyCalculation(resourceCalculation, prosumers);
-    expect(energyCalculation.productionTable).to.eql([
+    expect(energyCalculation.productionEntries).to.eql([
       "150/150 energy",
       "3tumbles(0, Infinity): +1",
       "3salties(0, Infinity): -1",
+    ]);
+    expect(energyCalculation.productionTable).to.eql([
+      ["energy", 150, 150],
+      ["tumbles", 1, 3, 0, Infinity],
+      ["salties", -1, 3, 0, Infinity],
     ]);
     expect(energyCalculation.prettyProsumers).to.eql([
       "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])", "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])", "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])",

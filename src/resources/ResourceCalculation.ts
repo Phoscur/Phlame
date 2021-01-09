@@ -51,6 +51,14 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     });
   }
 
+  get table() {
+    return this.processes.asArray.map(({ rate, limit }) => {
+      const resource = this.stock.has(limit.type);
+      const limits = this.stock.getResourceLimits(resource);
+      return [resource.type, rate, resource.amount, ...limits];
+    });
+  }
+
   toString() {
     return `Processing resources: ${this.entries.join(", ")}`;
   }

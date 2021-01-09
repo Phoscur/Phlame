@@ -96,25 +96,27 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
   }
 
   toString() {
-    return `Processing energy&resources: ${this.productionTable.join(", ")}`;
+    return `Processing energy&resources: ${this.productionEntries.join(", ")}`;
   }
 
   /**
    * Should return entries like this:
-   * - 10energy Prosumer(A, 1, 1) 89/112 or even -58
+   * - 89/112 energy
    * - 3tumbles(0, 5): +2
    * - 3salties(0, 3): -1
    */
-  get productionTable(): string[] {
-    /* const processes = this.resources.stockLimitedProcessCollection.map((process) => {
-      return process.toString();
-    });
-    console.log(this.prettyProsumers);
-    return processes.concat(...this.prettyProsumers, ...this.resources.entries); */
+  get productionEntries(): string[] {
     const energies = this.prettyEnergy;
     if (this.balanceFactor < 1) {
       energies.push(`Degraded to ${Math.round(this.balanceFactor*100)}%`);
     }
     return energies.concat(...this.resources.entries);
+  }
+
+  get productionTable() {
+    return [
+      ...this.energies.map((energy: ResourceProcess<Types>) => [energy.type, energy.rate, energy.limit.amount]),
+      ...this.resources.table,
+    ];
   }
 }
