@@ -68,4 +68,14 @@ describe("ResourceCollection ValueObject", () => {
     const s9c = ResourceCollection.fromArray([s9]);
     expect(s3c.times(3)).to.be.eql(s9c);
   });
+
+  it("can be mapped generically, with a filter on undefined builtin", () => {
+    const { t0, s3 } = examples;
+    const t0c = ResourceCollection.fromArray([t0]);
+    const t0s3c = ResourceCollection.fromArray([t0, s3]);
+    expect(t0c.map((r) => r.amount)).to.be.eql([0]);
+    expect(t0s3c.map((r) => r.amount)).to.be.eql([0, 3]);
+    expect(t0c.map((r) => r.amount || undefined)).to.be.eql([]);
+    expect(t0s3c.map((r) => r.amount || undefined)).to.be.eql([3]);
+  });
 });

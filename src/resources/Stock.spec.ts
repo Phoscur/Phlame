@@ -29,7 +29,7 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
     const stock0 = new Stock(ResourceCollection.fromArray([t0]));
     expect(stock.fetch(t3)).to.eql(stock2);
     expect(stock2.store(t3)).to.eql(stock);
-    expect(stock0.getResource(s3)).to.be.eql(s3.zero);
+    expect(stock0.has(s3.type)).to.be.eql(s3.zero);
   });
 
   it("has limits", () => {

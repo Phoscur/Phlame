@@ -50,6 +50,7 @@ describe("Resource ValueObject", () => {
       t0, t3, t5, t8, s3,
     } = examples;
     expect(t3.add(t5)).to.be.eql(t8);
+    expect(t3.addAmount(5)).to.be.eql(t8);
     expect(t3.add(t5.infinite)).to.be.eql(t3.infinite);
     expect(t8.subtract(t5)).to.be.eql(t3);
     // 5 - 8 = 0
