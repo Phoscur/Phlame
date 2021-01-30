@@ -4,10 +4,10 @@ import Building, { BuildingIdentifier } from "./Building";
 import ProsumerCollection from "./resources/ProsumerCollection";
 
 /**
- * Factory has its own resource and energy mangement,
- * could even model a whole planet
+ * Economy is the sum of production and consumption of resources and energy
+ * for a set of building prosumers
  */
-export default class Factory<BuildingType extends BuildingIdentifier, ResourceTypes extends ResourceIdentifier> {
+export default class Economy<BuildingType extends BuildingIdentifier, ResourceTypes extends ResourceIdentifier> {
 
   readonly name: string;
 
@@ -34,32 +34,35 @@ export default class Factory<BuildingType extends BuildingIdentifier, ResourceTy
   }
 
   protected new(resources: Stock<ResourceTypes>, buildings: Building<BuildingType, ResourceTypes>[]) {
-    return new Factory(this.name, resources, buildings);
+    return new Economy(this.name, resources, buildings);
   }
 
   /**
-   * Adjust consumption of exhausted resources
+   * Adjust consumption of exhausted resources:
+   * Halt buildings
    */
-  recalculationStrategy(stock: Stock<ResourceTypes>, buildings: Building<BuildingType, ResourceTypes>[]): Building<BuildingType, ResourceTypes>[] {
+  recalculationStrategy(stock: Stock<ResourceTypes>, factor: number, buildings: Building<BuildingType, ResourceTypes>[]): Building<BuildingType, ResourceTypes>[] {
     const prosumers = new ProsumerCollection<ResourceTypes>(buildings.map((b) => b.prosumes(stock)));
-    const nextTickWithdrawal = prosumers.reduced.getNegativeResourcesFor(1);
+    if (factor < 1) {
+
+    }
+    const prosumption = factor < 1
+      ? prosumers.rebalancedResources(factor)
+      : prosumers.reduced;
+    const nextTickWithdrawal = prosumption.getNegativeResourcesFor(1);
     if (!stock.isFetchable(nextTickWithdrawal)) {
       const missing = stock.getUnfetchable(nextTickWithdrawal);
       return buildings.map((building) => {
         const halt = missing.asArray.some((resource) => building.prosumes(stock).consumes(resource));
         if (halt) {
+          // console.warn(`Halting ${building}`);
           // halt building production if its prosumption includes consumption which can't be fulfilled
           return building.disabled;
         }
         return building;
       });
     }
-    return buildings.map((building) => {
-      // const prosumer = building.prosumes(resources);
-      // if (prosumer.consumes())
-      // console.log("disabling building", building.toString(), prosumer.toString());
-      return building.disabled;
-    });
+    return buildings;
   }
 
   upgrade(buildingType: BuildingIdentifier) {
@@ -86,7 +89,7 @@ export default class Factory<BuildingType extends BuildingIdentifier, ResourceTy
       const advanceCycles = resources.validFor;
       cycles -= advanceCycles;
       resources = resources.calculate(advanceCycles);
-      buildings = this.recalculationStrategy(resources.stock, buildings);
+      buildings = this.recalculationStrategy(resources.stock, resources.balanceFactor, buildings);
       resources = this.getResourceCalculation(resources.stock, buildings);
       if (!resources.validFor) {
         throw new Error("Invalid resource (re)calculation");

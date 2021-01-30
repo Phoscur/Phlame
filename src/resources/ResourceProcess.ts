@@ -63,12 +63,22 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     if (!this.equalOfTypeTo(resourceProcess)) {
       throw new TypeError(`ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`);
     }
-    // both Resource and Energy are typeguarded ComparableResources
+    // both Resource and Energy are typeguarded ComparableResources TODO fix remove typecast
     const oldLimit = resourceProcess.limit as Resource<Type> & Energy<Type>;
-    const limit = this.limit.isMoreOrEquals(oldLimit)
-      ? this.limit
-      : resourceProcess.limit;
-    return new ResourceProcess(limit, this.rate + resourceProcess.rate);
+    const rate = this.rate + resourceProcess.rate;
+    const addedLimits = this.limit.add(oldLimit);
+    const limit =
+      rate > 0
+      // upper limit for positive rate, keeps infinity
+      ? this.limit.isMoreOrEquals(oldLimit)
+        ? this.limit
+        : resourceProcess.limit
+      // lowest limit for negative rate, overwrites infinity
+      : !this.limit.isInfinite && !resourceProcess.limit.isInfinite
+        ? addedLimits // add, else take non infinite
+        : !oldLimit.isInfinite && oldLimit || this.limit;
+      ;
+    return new ResourceProcess(limit, rate);
   }
 
   /**

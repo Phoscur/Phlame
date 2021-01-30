@@ -20,10 +20,9 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
     if (!prosumers.isUnbalanced) {
       this.resources = resources;
     } else {
-      //console.log("prosumers are unbalanced - deficit should be applied -", this.balanceFactor);
+      // apply deficit multiplier on imbalanced production
       this.resources = new ResourceCalculation(
         resources.stock,
-        // TODO apply multiplier on production
         prosumers.rebalancedResources(this.balanceFactor),
       );
     }

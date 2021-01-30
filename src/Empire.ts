@@ -16,14 +16,6 @@ export default class Empire<BuildingType extends BuildingIdentifier, ResourceTyp
     this.name = name;
     this.buildings = buildings;
     this.resources = resources;
-    /* TODO factory to create resource processes from buildings
-    const prosumers = buildings.map((building) => {
-      return building.consumes();
-    });
-    const producers = buildings.map((building) => {
-      return building.produces();
-    });
-    */
   }
 
   toString() {

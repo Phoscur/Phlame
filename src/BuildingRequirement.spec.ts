@@ -4,7 +4,7 @@ import examples, { Types } from "./resources/examples";
 import BuildingRequirement from "./BuildingRequirement";
 import ResourceCollection from "./resources/ResourceCollection";
 import Stock from "./resources/Stock";
-import Factory from "./Factory";
+import Economy from "./Economy";
 
 describe("BuildingRequirement", () => {
   it("should be console printable", () => {
@@ -20,7 +20,7 @@ describe("BuildingRequirement", () => {
     const { t3, s3 } = examples;
     const ress = ResourceCollection.fromArray([t3, s3]);
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const factory = new Factory("Fact2", stock);
+    const factory = new Economy("Fact2", stock);
     const type = "B";
     const level = 1;
     const b = new BuildingRequirement(type, ress, 1, []);
@@ -37,7 +37,7 @@ describe("BuildingRequirement", () => {
     const { t0, t3, s3 } = examples;
     const ress = ResourceCollection.fromArray([t3, s3]);
     const stock0 = new Stock<Types>(ResourceCollection.fromArray([t0, s3]));
-    const factory = new Factory("Fact3", stock0);
+    const factory = new Economy("Fact3", stock0);
     const level = 1;
     const b = new BuildingRequirement("B", ress, 2, []);
 

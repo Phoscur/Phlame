@@ -78,6 +78,10 @@ implements ResourceValue<Type>, ComparableResource<Type> {
     return inf;
   }
 
+  get isInfinite(): boolean {
+    return this.amount === Number.POSITIVE_INFINITY;
+  }
+
   protected checkInfinity(resource?: Resource<Type>): Resource<Type> | false {
     // Need to check for Infinity explicitly, as it's cheated around the constructor
     // which would cast it to in32, result: 0

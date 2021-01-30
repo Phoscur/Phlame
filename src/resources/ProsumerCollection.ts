@@ -11,11 +11,17 @@ export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier
     this.prosumers = prosumers;
   }
 
+  /**
+   * All non-energy resource processes combined in one collection
+   */
   get resources(): ResourceProcessCollection<ResourceTypes> {
     const processes = this.prosumers.map((p) => p.resources);
     return ResourceProcessCollection.reduce(processes);
   }
 
+  /**
+   * All resource processes combined in one collection
+   */
   get reduced(): ResourceProcessCollection<ResourceTypes> {
     return ResourceProcessCollection.reduce(this.prosumers.map((p) => {
       return p.prosumes;
