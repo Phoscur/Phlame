@@ -42,7 +42,17 @@ describe("Factory Entity", () => {
       + "]",
     );
     expect(factory.resources.validFor).to.be.eql(Infinity);
-    // TODO a factory with default buildings
+    // TODO! a factory with minimal default buildings
+    // TODO storage limits 22, 23, 24
+    // TODO buildings for build speed upgrades 14, 15
+    // TODO building space and expansion 33
+    // TODO lab 31
+    // TODO And/Or (Building|Tech)Requirement
+    // TODO hangar 21 able to produce other units like ships 202, 203 with cargo capacity
+    // and misc
+    // TODO tech lab requirement 113 <= 31L1
+    // TODO tech for build requirements energy 12 <= 3L5, 113L3
+    // TODO lab network for tech speed up and tech share (with outsourcing cost)?
   });
 
   it("can upgrade buildings, in time", () => {
