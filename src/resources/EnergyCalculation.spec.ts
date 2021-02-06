@@ -37,7 +37,9 @@ describe("EnergyCalculation (extended ResourceCalculation) ValueObject", () => {
       ["salties", -1, 3, 0, Infinity],
     ]);
     expect(energyCalculation.prettyProsumers).to.eql([
-      "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])", "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])", "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])",
+      "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])",
+      "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])",
+      "Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])",
     ]);
     expect(energyCalculation.toString()).to.eql(
       "Processing energy&resources: 150/150 energy, 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1",

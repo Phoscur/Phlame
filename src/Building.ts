@@ -14,17 +14,26 @@ export type LevelToProsumptionFunc = (level: number) => number;
 
 export type ProsumptionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: LevelToProsumptionFunc;
-}
+};
 
-export type ProsumptionLookup<Types extends BuildingIdentifier, ResourceTypes extends ResourceIdentifier> = {
+export type ProsumptionLookup<
+  Types extends BuildingIdentifier,
+  ResourceTypes extends ResourceIdentifier
+> = {
   [Type in Types]?: ProsumptionEntries<ResourceTypes>;
-}
+};
 
-export type RequirementLookup<Types extends BuildingIdentifier, ResourceTypes extends ResourceIdentifier> = {
+export type RequirementLookup<
+  Types extends BuildingIdentifier,
+  ResourceTypes extends ResourceIdentifier
+> = {
   [Type in Types]?: BuildingRequirement<Types, ResourceTypes>;
-}
+};
 
-export default class Building<BuildingType extends BuildingIdentifier, ResourceType extends ResourceIdentifier> {
+export default class Building<
+  BuildingType extends BuildingIdentifier,
+  ResourceType extends ResourceIdentifier
+> {
   static BUILD_TIME_DIVISOR = 2500 / 60;
   readonly type: BuildingType;
 
@@ -72,17 +81,18 @@ export default class Building<BuildingType extends BuildingIdentifier, ResourceT
   }
 
   get upgradeTime() {
-    return Math.floor(this.upgradeCost
-      .map((resource) => resource.amount)
-      .reduce((sum, amount) => sum + amount, 0)
-      / Building.BUILD_TIME_DIVISOR);
+    return Math.floor(
+      this.upgradeCost.map((resource) => resource.amount).reduce((sum, amount) => sum + amount, 0) /
+        Building.BUILD_TIME_DIVISOR,
+    );
   }
 
   get downgradeTime() {
-    return Math.floor(this.downgradeCost
-      .map((resource) => resource.amount)
-      .reduce((sum, amount) => sum + amount, 0)
-      / Building.BUILD_TIME_DIVISOR);
+    return Math.floor(
+      this.downgradeCost
+        .map((resource) => resource.amount)
+        .reduce((sum, amount) => sum + amount, 0) / Building.BUILD_TIME_DIVISOR,
+    );
   }
 
   get upgraded() {
@@ -110,7 +120,7 @@ export default class Building<BuildingType extends BuildingIdentifier, ResourceT
       const stocked = stock.has(type as ResourceType);
       // limit production for an optionally maximal stock
       // also for energy a zero resource resource can be created implicitly
-      const max = stock.max.getByType(type as ResourceType) as Resource<ResourceType> || stocked;
+      const max = (stock.max.getByType(type as ResourceType) as Resource<ResourceType>) || stocked;
       return new ResourceProcess(rate > 0 ? max : stocked, rate);
     });
 

@@ -37,9 +37,7 @@ describe("ResourceCollection ValueObject", () => {
   });
 
   it("should add and subtract resources", () => {
-    const {
-      t0, t3, t8, s3, s6,
-    } = examples;
+    const { t0, t3, t8, s3, s6 } = examples;
     const t00 = ResourceCollection.fromArray([t0]);
     const s3c = ResourceCollection.fromArray([s3]);
     const t0s3 = ResourceCollection.fromArray([t0, s3]);

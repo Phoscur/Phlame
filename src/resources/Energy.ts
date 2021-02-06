@@ -1,15 +1,10 @@
-import {
-  ResourceIdentifier,
-  BaseResources,
-  ResourceValue,
-  ComparableResource,
-} from "./Resource";
+import { ResourceIdentifier, BaseResources, ResourceValue, ComparableResource } from "./Resource";
 
 const MAX_VALUE = Number.POSITIVE_INFINITY; // if we want Number.MAX_VALUE here instead we need more checks getting closer to it
 
 // TODO wouldn't typing be easier/nicer with energy inheriting from Resource? do we even need this file, it duplicates Resource?
 export default class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
-implements ResourceValue<Type>, ComparableResource<Type> {
+  implements ResourceValue<Type>, ComparableResource<Type> {
   static types: ResourceIdentifier[] = [BaseResources.Null];
 
   static MAX_VALUE = MAX_VALUE;
@@ -71,9 +66,11 @@ implements ResourceValue<Type>, ComparableResource<Type> {
   }
 
   equals(energy: Energy<Type>): boolean {
-    return this.equalOfTypeTo(energy)
+    return (
+      this.equalOfTypeTo(energy) &&
       // Usually we would need an epsilon to do a float comparison, but since we casted to int32, this works
-      && energy.amount === this.amount;
+      energy.amount === this.amount
+    );
   }
 
   isMoreOrEquals(energy: Energy<Type>): boolean {

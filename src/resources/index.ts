@@ -1,11 +1,5 @@
-export {
-  default as Resource,
-} from "./Resource";
-export type {
-  ResourceIdentifier,
-  ResourceValue,
-  BaseResources,
-} from "./Resource";
+export { default as Resource } from "./Resource";
+export type { ResourceIdentifier, ResourceValue, BaseResources } from "./Resource";
 // export { default as ResourceCalculation } from "./ResourceCalculation";
 export { default as ResourceCollection } from "./ResourceCollection";
 export { default as ResourceProcess } from "./ResourceProcess";

@@ -1,5 +1,5 @@
 import type { ResourceIdentifier } from "./Resource";
-import type { TimeUnit } from "./ResourceProcess";;
+import type { TimeUnit } from "./ResourceProcess";
 import ResourceCalculation from "./ResourceCalculation";
 import ResourceCollection from "./ResourceCollection";
 import ResourceProcess from "./ResourceProcess";
@@ -83,9 +83,11 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
       });
       return l;
     }, {});
-    return ResourceProcessCollection.reduce(energies.map((es) => {
-      return es.addLimits(limits);
-    }));
+    return ResourceProcessCollection.reduce(
+      energies.map((es) => {
+        return es.addLimits(limits);
+      }),
+    );
   }
 
   get prettyEnergy(): string[] {
@@ -107,14 +109,18 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
   get productionEntries(): string[] {
     const energies = this.prettyEnergy;
     if (this.balanceFactor < 1) {
-      energies.push(`Degraded to ${Math.round(this.balanceFactor*100)}%`);
+      energies.push(`Degraded to ${Math.round(this.balanceFactor * 100)}%`);
     }
     return energies.concat(...this.resources.entries);
   }
 
   get productionTable() {
     return [
-      ...this.energies.map((energy: ResourceProcess<Types>) => [energy.type, energy.rate, energy.limit.amount]),
+      ...this.energies.map((energy: ResourceProcess<Types>) => [
+        energy.type,
+        energy.rate,
+        energy.limit.amount,
+      ]),
       ...this.resources.table,
     ];
   }

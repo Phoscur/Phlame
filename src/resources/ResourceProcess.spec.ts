@@ -32,9 +32,7 @@ describe("ResourceProcess ValueObject", () => {
     const timeUnit: TimeUnit = 1;
     const twoTimeUnits: TimeUnit = 2;
     const infiniteTime: TimeUnit = Number.POSITIVE_INFINITY;
-    const {
-      t0, t3, t5, t8,
-    } = examples;
+    const { t0, t3, t5, t8 } = examples;
     const t0p = new ResourceProcess(t0, 0);
     const t3p = new ResourceProcess(t3, 3);
     const t3p0 = new ResourceProcess(t3, 0);
@@ -54,9 +52,7 @@ describe("ResourceProcess ValueObject", () => {
     const zero: TimeUnit = 0;
     const timeUnit: TimeUnit = 1;
     const twoTimeUnits: TimeUnit = 2;
-    const {
-      t0, t3, t5, t6, t8,
-    } = examples;
+    const { t0, t3, t5, t6, t8 } = examples;
     const t0p = new ResourceProcess(t0, 0);
     const t3p = new ResourceProcess(t3, 3);
     const t5p = new ResourceProcess(t5, 2.5);
@@ -71,9 +67,7 @@ describe("ResourceProcess ValueObject", () => {
   });
 
   it("should add and subtract resources processes", () => {
-    const {
-      t3, t5, t8, s3,
-    } = examples;
+    const { t3, t5, t8, s3 } = examples;
     const t3p = new ResourceProcess(t3, 1);
     const t5p = new ResourceProcess(t5, 1);
     const t5p2 = new ResourceProcess(t5, 2);

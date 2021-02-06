@@ -1,4 +1,3 @@
-
 import type { ResourceIdentifier } from "./resources";
 import { Stock } from "./resources";
 

@@ -37,7 +37,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return this.new(speed);
   }
 
-  consumes(limit: Resource<Types>|Energy<Types>) {
+  consumes(limit: Resource<Types> | Energy<Types>) {
     const process = this.processes.getByType(limit.type);
     if (!process || process.rate >= 0) {
       return undefined;
@@ -46,7 +46,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return new ResourceProcess(limit, rate);
   }
 
-  produces(limit: Resource<Types>|Energy<Types>) {
+  produces(limit: Resource<Types> | Energy<Types>) {
     const process = this.processes.getByType(limit.type);
     if (!process || process.rate <= 0) {
       return undefined;

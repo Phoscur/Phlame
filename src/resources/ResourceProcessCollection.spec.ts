@@ -7,11 +7,7 @@ import ResourceProcessCollection from "./ResourceProcessCollection";
 describe("ResourceProcessCollection ValueObject", () => {
   it("should be console printable", () => {
     const { t3, s3 } = examples;
-    const processes = [
-      new ResourceProcess(t3, 0),
-      new ResourceProcess(s3, -1),
-      process.ce1,
-    ];
+    const processes = [new ResourceProcess(t3, 0), new ResourceProcess(s3, -1), process.ce1];
     const t3s3e10 = ResourceProcessCollection.fromArray(processes);
     const amount = "3tumbles+0, 3salties-1, 0energy-10";
     expect(t3s3e10.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
@@ -19,9 +15,7 @@ describe("ResourceProcessCollection ValueObject", () => {
   });
 
   it("should compare resource process collections", () => {
-    const {
-      t0, t3, t5, s3,
-    } = examples;
+    const { t0, t3, t5, s3 } = examples;
     const t0p = new ResourceProcess(t0, 1);
     const t3p = new ResourceProcess(t3, 1);
     const t5p = new ResourceProcess(t5, 2);
@@ -58,9 +52,7 @@ describe("ResourceProcessCollection ValueObject", () => {
   it("should predict its end in time units", () => {
     const timeUnit: TimeUnit = 1;
     const twoTimeUnits: TimeUnit = 2;
-    const {
-      t0, t3, t5, t8, s3,
-    } = examples;
+    const { t0, t3, t5, t8, s3 } = examples;
     const t0p = new ResourceProcess(t0, -0);
     const t3p = new ResourceProcess(t3, 3);
     const t5p = new ResourceProcess(t5, 2.5); // 3
@@ -85,9 +77,7 @@ describe("ResourceProcessCollection ValueObject", () => {
   });
 
   it("should add and subtract resources processes", () => {
-    const {
-      t0, t3, s3, s6,
-    } = examples;
+    const { t0, t3, s3, s6 } = examples;
     const t0p = new ResourceProcess(t0, 0);
     const t3p = new ResourceProcess(t3, 1);
     const t3p0 = new ResourceProcess(t3, 0);

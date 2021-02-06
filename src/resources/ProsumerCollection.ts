@@ -1,10 +1,8 @@
-
 import { ResourceIdentifier } from "./Resource";
 import Prosumer from "./Prosumer";
 import ResourceProcessCollection from "./ResourceProcessCollection";
 
 export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier> {
-
   readonly prosumers: Prosumer<ResourceTypes>[];
 
   constructor(prosumers: Prosumer<ResourceTypes>[]) {
@@ -23,31 +21,41 @@ export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier
    * All resource processes combined in one collection
    */
   get reduced(): ResourceProcessCollection<ResourceTypes> {
-    return ResourceProcessCollection.reduce(this.prosumers.map((p) => {
-      return p.prosumes;
-    }));
+    return ResourceProcessCollection.reduce(
+      this.prosumers.map((p) => {
+        return p.prosumes;
+      }),
+    );
   }
 
   get reducedProduction(): ResourceProcessCollection<ResourceTypes> {
-    return ResourceProcessCollection.reduce(this.prosumers.map((p) => {
-      return ResourceProcessCollection.fromArray(p.prosumes.map((process) => {
-        if (process.isNegative) {
-          return undefined;
-        }
-        return process;
-      }));
-    }));
+    return ResourceProcessCollection.reduce(
+      this.prosumers.map((p) => {
+        return ResourceProcessCollection.fromArray(
+          p.prosumes.map((process) => {
+            if (process.isNegative) {
+              return undefined;
+            }
+            return process;
+          }),
+        );
+      }),
+    );
   }
 
   get reducedConsumption(): ResourceProcessCollection<ResourceTypes> {
-    return ResourceProcessCollection.reduce(this.prosumers.map((p) => {
-      return ResourceProcessCollection.fromArray(p.prosumes.map((process) => {
-        if (!process.isNegative) {
-          return undefined;
-        }
-        return process;
-      }));
-    }));
+    return ResourceProcessCollection.reduce(
+      this.prosumers.map((p) => {
+        return ResourceProcessCollection.fromArray(
+          p.prosumes.map((process) => {
+            if (!process.isNegative) {
+              return undefined;
+            }
+            return process;
+          }),
+        );
+      }),
+    );
   }
 
   get isUnbalanced(): boolean {
@@ -72,15 +80,20 @@ export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier
     }, 1);
   }
 
-  map<GenericReturn>(mappingFunction: (prosumer: Prosumer<ResourceTypes>) => GenericReturn): GenericReturn[] {
-    return this.prosumers.reduce<GenericReturn[]>((entries: GenericReturn[], prosumer: Prosumer<ResourceTypes>) => {
-      const result = mappingFunction(prosumer);
-      if (typeof result === "undefined") {
+  map<GenericReturn>(
+    mappingFunction: (prosumer: Prosumer<ResourceTypes>) => GenericReturn,
+  ): GenericReturn[] {
+    return this.prosumers.reduce<GenericReturn[]>(
+      (entries: GenericReturn[], prosumer: Prosumer<ResourceTypes>) => {
+        const result = mappingFunction(prosumer);
+        if (typeof result === "undefined") {
+          return entries;
+        }
+        entries.push(result);
         return entries;
-      }
-      entries.push(result);
-      return entries;
-    }, []);
+      },
+      [],
+    );
   }
 
   rebalancedResources(factor: number): ResourceProcessCollection<ResourceTypes> {

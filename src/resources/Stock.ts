@@ -19,7 +19,7 @@ export default class Stock<Types extends ResourceIdentifier> {
     this.min = minCapacity || initial.zero;
   }
 
-  getByType<Type extends Types>(type: Type): ResourceLike<Types>|undefined {
+  getByType<Type extends Types>(type: Type): ResourceLike<Types> | undefined {
     return this.resources.getByType(type);
   }
 
@@ -54,8 +54,7 @@ export default class Stock<Types extends ResourceIdentifier> {
   isInLimits(resources?: Resource<Types> | ResourceCollection<Types>) {
     return !resources
       ? this.resources.isMoreOrEquals(this.min) && this.resources.isLessOrEquals(this.max)
-      : this.resources.subtract(resources).isMoreOrEquals(this.min)
-      && this.isStorable(resources);
+      : this.resources.subtract(resources).isMoreOrEquals(this.min) && this.isStorable(resources);
   }
 
   isFetchable(resources: Resource<Types> | ResourceCollection<Types>) {
@@ -68,22 +67,22 @@ export default class Stock<Types extends ResourceIdentifier> {
     return resources.type === ResourceCollection.TYPE;
   }
 
-  protected isResource(
-    resource: ResourcesLike<Types>,
-  ): resource is ResourceCollection<Types> {
+  protected isResource(resource: ResourcesLike<Types>): resource is ResourceCollection<Types> {
     return !this.isResourceCollection(resource) && !resource.isEnergy;
   }
 
   getUnfetchable(resources: ResourceCollection<Types>) {
-    return ResourceCollection.fromArray<Types>(resources.map((resource) => {
-      if (!this.isResource(resource)) {
-        return undefined;
-      }
-      if (this.isFetchable(resource)) {
-        return undefined;
-      }
-      return resource;
-    }));
+    return ResourceCollection.fromArray<Types>(
+      resources.map((resource) => {
+        if (!this.isResource(resource)) {
+          return undefined;
+        }
+        if (this.isFetchable(resource)) {
+          return undefined;
+        }
+        return resource;
+      }),
+    );
   }
 
   isStorable(resources: Resource<Types> | ResourceCollection<Types>) {

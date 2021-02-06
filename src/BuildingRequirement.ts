@@ -10,7 +10,10 @@ export interface Dependency<RequirementType extends RequirementTypes> {
  * BuildingRequirement to up- or downgrade something
  * also stores the costs for the action
  */
-export default class BuildingRequirement<RequirementType extends RequirementTypes, ResourceTypes extends ResourceIdentifier> {
+export default class BuildingRequirement<
+  RequirementType extends RequirementTypes,
+  ResourceTypes extends ResourceIdentifier
+> {
   static DOWNGRADECOST_DIVISOR = 2;
 
   readonly type: RequirementType;
@@ -21,7 +24,12 @@ export default class BuildingRequirement<RequirementType extends RequirementType
 
   readonly dependencies: Dependency<RequirementType>[];
 
-  constructor(type: RequirementType, costs: ResourceCollection<ResourceTypes>, factor: number, dependencies: Dependency<RequirementType>[]) {
+  constructor(
+    type: RequirementType,
+    costs: ResourceCollection<ResourceTypes>,
+    factor: number,
+    dependencies: Dependency<RequirementType>[],
+  ) {
     this.type = type;
     this.costs = costs;
     this.costFactor = factor;
@@ -45,7 +53,9 @@ export default class BuildingRequirement<RequirementType extends RequirementType
   }
 
   getDowngradeCost(level: number) {
-    return this.costs.times(1 / BuildingRequirement.DOWNGRADECOST_DIVISOR).times(this.costFactor ** level);
+    return this.costs
+      .times(1 / BuildingRequirement.DOWNGRADECOST_DIVISOR)
+      .times(this.costFactor ** level);
   }
 
   toString() {

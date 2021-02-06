@@ -6,9 +6,7 @@ import Stock from "./Stock";
 
 describe("Stock (ResourceCollection with limits) ValueObject", () => {
   it("should be console printable", () => {
-    const {
-      t1, t3, t8, s3,
-    } = examples;
+    const { t1, t3, t8, s3 } = examples;
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
     const stocks = "3tumbles(0, Infinity), 3salties(0, Infinity)";
     expect(stock.toString()).to.eql(`Stock[${stocks}]`);

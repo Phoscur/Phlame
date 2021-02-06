@@ -11,7 +11,9 @@ describe("Empire Entity", () => {
     const { t3, s3 } = examples;
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
     const empire = new Empire("Empire", stock);
-    expect(empire.toString()).to.eql("Empire (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) []");
+    expect(empire.toString()).to.eql(
+      "Empire (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) []",
+    );
   });
 
   it("should have resources and buildings", () => {
@@ -19,6 +21,8 @@ describe("Empire Entity", () => {
     const buildings: Building<BuildingIdentifier, Types>[] = [];
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
     const empire = new Empire("AllFresh", stock, buildings);
-    expect(empire.toString()).to.eql("AllFresh (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) []");
+    expect(empire.toString()).to.eql(
+      "AllFresh (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) []",
+    );
   });
 });

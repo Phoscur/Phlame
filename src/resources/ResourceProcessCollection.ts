@@ -4,10 +4,9 @@ import Resource from "./Resource";
 import ResourceProcess, { TimeUnit } from "./ResourceProcess";
 import ResourceCollection from "./ResourceCollection";
 
-
 export type ResourceProcessCollectionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: ResourceProcess<Type>;
-}
+};
 const RESOURCE_PROCESS_COLLECTION_TYPE = "ResourceProcessCollection";
 export default class ResourceProcessCollection<Types extends ResourceIdentifier> {
   readonly type = RESOURCE_PROCESS_COLLECTION_TYPE;
@@ -21,12 +20,14 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
   static fromArray<Types extends ResourceIdentifier>(
     resources: ResourceProcess<Types>[],
   ): ResourceProcessCollection<Types> {
-    return new ResourceProcessCollection(resources.reduce((entries, resource) => {
-      return {
-        ...entries,
-        [resource.type]: resource,
-      };
-    }, {}));
+    return new ResourceProcessCollection(
+      resources.reduce((entries, resource) => {
+        return {
+          ...entries,
+          [resource.type]: resource,
+        };
+      }, {}),
+    );
   }
 
   /**
@@ -54,22 +55,28 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
   }
 
   get prettyAmount(): string {
-    return this.asArray.map((process) => {
-      const ratePrefix = process.rate >= 0 ? "+" : "";
-      return `${process.limit.prettyAmount}${ratePrefix}${process.rate}`;
-    }).join(", ");
+    return this.asArray
+      .map((process) => {
+        const ratePrefix = process.rate >= 0 ? "+" : "";
+        return `${process.limit.prettyAmount}${ratePrefix}${process.rate}`;
+      })
+      .join(", ");
   }
 
   get resources(): ResourceProcessCollection<Types> {
-    return ResourceProcessCollection.fromArray(this.asArray.filter((process) => {
-      return !process.limit.isEnergy;
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.asArray.filter((process) => {
+        return !process.limit.isEnergy;
+      }),
+    );
   }
 
   get energies(): ResourceProcessCollection<Types> {
-    return ResourceProcessCollection.fromArray(this.asArray.filter((process) => {
-      return process.limit.isEnergy;
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.asArray.filter((process) => {
+        return process.limit.isEnergy;
+      }),
+    );
   }
 
   get prettyEnergies(): string[] {
@@ -78,7 +85,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     });
   }
 
-  getByType<Type extends Types>(type: Type): ResourceProcess<Type>|undefined {
+  getByType<Type extends Types>(type: Type): ResourceProcess<Type> | undefined {
     return this.entries[type];
   }
 
@@ -90,7 +97,9 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     return this.getByType(type) || new ResourceProcess(this.newResource(type, 0), 0);
   }
 
-  map<GenericReturn>(mappingFunction: (resource: ResourceProcess<Types>, type: Types) => GenericReturn | undefined): GenericReturn[] {
+  map<GenericReturn>(
+    mappingFunction: (resource: ResourceProcess<Types>, type: Types) => GenericReturn | undefined,
+  ): GenericReturn[] {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
       const entry = this.entries[type] as ResourceProcess<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
@@ -114,33 +123,41 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
   }
 
   newRateMultiplier(speed: number): ResourceProcessCollection<Types> {
-    return ResourceProcessCollection.fromArray(this.map((process) => {
-      return process.newRate(process.rate * speed);
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.map((process) => {
+        return process.newRate(process.rate * speed);
+      }),
+    );
   }
 
   addLimits(limits: ResourceProcessCollectionEntries<Types>) {
-    const s = ResourceProcessCollection.fromArray(this.asArray.map((p) => {
-      if (p.isNegative) {
-        return p;
-      }
-      const { type } = p;
-      const limit = limits[type]?.limit;
-      return p.addLimit(limit);
-    }));
+    const s = ResourceProcessCollection.fromArray(
+      this.asArray.map((p) => {
+        if (p.isNegative) {
+          return p;
+        }
+        const { type } = p;
+        const limit = limits[type]?.limit;
+        return p.addLimit(limit);
+      }),
+    );
     return s;
   }
 
   get zero(): ResourceProcessCollection<Types> {
-    return ResourceProcessCollection.fromArray(this.asArray.map((resourceProcess) => {
-      return new ResourceProcess(resourceProcess.limit.zero, resourceProcess.rate);
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.asArray.map((resourceProcess) => {
+        return new ResourceProcess(resourceProcess.limit.zero, resourceProcess.rate);
+      }),
+    );
   }
 
   get infinite(): ResourceProcessCollection<Types> {
-    return ResourceProcessCollection.fromArray(this.asArray.map((resourceProcess) => {
-      return new ResourceProcess(resourceProcess.limit.infinite, resourceProcess.rate);
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.asArray.map((resourceProcess) => {
+        return new ResourceProcess(resourceProcess.limit.infinite, resourceProcess.rate);
+      }),
+    );
   }
 
   get isEmpty(): boolean {
@@ -174,7 +191,9 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, true);
   }
 
-  add(resource: ResourceProcess<Types> | ResourceProcessCollection<Types>): ResourceProcessCollection<Types> {
+  add(
+    resource: ResourceProcess<Types> | ResourceProcessCollection<Types>,
+  ): ResourceProcessCollection<Types> {
     if (!this.isResourceProcessCollection(resource)) {
       const sameType = this.entries[resource.type];
       return this.new({
@@ -182,12 +201,16 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
         [resource.type]: !sameType ? resource : sameType.add(resource),
       });
     }
-    const resources = this.asArray.map((entry) => {
-      const add = resource.getByType(entry.type);
-      return add ? entry.add(add) : entry;
-    }).concat(resource.asArray.filter((res) => {
-      return !this.entries[res.type];
-    }));
+    const resources = this.asArray
+      .map((entry) => {
+        const add = resource.getByType(entry.type);
+        return add ? entry.add(add) : entry;
+      })
+      .concat(
+        resource.asArray.filter((res) => {
+          return !this.entries[res.type];
+        }),
+      );
     return ResourceProcessCollection.fromArray(resources);
   }
 
@@ -195,7 +218,9 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
    * Substract another resource process (rate)
    * @param resource
    */
-  subtract(resource: ResourceProcess<Types> | ResourceProcessCollection<Types>): ResourceProcessCollection<Types> {
+  subtract(
+    resource: ResourceProcess<Types> | ResourceProcessCollection<Types>,
+  ): ResourceProcessCollection<Types> {
     if (!this.isResourceProcessCollection(resource)) {
       const sameType = this.entries[resource.type];
       return this.new({
@@ -203,14 +228,20 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
         [resource.type]: !sameType ? resource.negative : sameType.subtract(resource),
       });
     }
-    const resources = this.asArray.map((entry) => {
-      const subtract = resource.getByType(entry.type);
-      return subtract ? entry.subtract(subtract) : entry;
-    }).concat(
-      resource.asArray
-        .filter((res) => { return !this.entries[res.type]; })
-        .map((process) => { return process.negative; }),
-    );
+    const resources = this.asArray
+      .map((entry) => {
+        const subtract = resource.getByType(entry.type);
+        return subtract ? entry.subtract(subtract) : entry;
+      })
+      .concat(
+        resource.asArray
+          .filter((res) => {
+            return !this.entries[res.type];
+          })
+          .map((process) => {
+            return process.negative;
+          }),
+      );
     return ResourceProcessCollection.fromArray(resources);
   }
 
@@ -219,12 +250,14 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
    * @param timeUnits
    */
   getPositiveResourcesFor(timeUnits: TimeUnit): ResourceCollection<Types> {
-    return ResourceCollection.fromArray(this.asArray.map((resourceProcess) => {
-      if (resourceProcess.isNegative) {
-        return resourceProcess.limit.zero;
-      }
-      return resourceProcess.getResourceFor(timeUnits);
-    }));
+    return ResourceCollection.fromArray(
+      this.asArray.map((resourceProcess) => {
+        if (resourceProcess.isNegative) {
+          return resourceProcess.limit.zero;
+        }
+        return resourceProcess.getResourceFor(timeUnits);
+      }),
+    );
   }
 
   /**
@@ -232,12 +265,14 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
    * @param timeUnits
    */
   getNegativeResourcesFor(timeUnits: TimeUnit): ResourceCollection<Types> {
-    return ResourceCollection.fromArray(this.asArray.map((resourceProcess) => {
-      if (!resourceProcess.isNegative) {
-        return resourceProcess.limit.zero;
-      }
-      return resourceProcess.getResourceFor(timeUnits);
-    }));
+    return ResourceCollection.fromArray(
+      this.asArray.map((resourceProcess) => {
+        if (!resourceProcess.isNegative) {
+          return resourceProcess.limit.zero;
+        }
+        return resourceProcess.getResourceFor(timeUnits);
+      }),
+    );
   }
 
   /**
@@ -245,9 +280,11 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
    * @param timeUnits
    */
   after(timeUnits: TimeUnit) {
-    return ResourceProcessCollection.fromArray(this.asArray.map((resourceProcess) => {
-      return resourceProcess.after(timeUnits);
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.asArray.map((resourceProcess) => {
+        return resourceProcess.after(timeUnits);
+      }),
+    );
   }
 
   toString() {

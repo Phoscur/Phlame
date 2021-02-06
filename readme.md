@@ -41,6 +41,7 @@ For naming additional Entities and/or ValueObjects:
 - Planet, SolarSystem
 - Phlame(Entity|Value|Environment)
 - Universe and PhlameBlock to collect all state
+- Ephemeris (trajectory of HeavenlyBodies over time)
 
 ### P2P Game networking
 - servers should be able to interact, peer to peer?

@@ -14,12 +14,15 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
   }
 
   get stockLimitedProcessCollection() {
-    return ResourceProcessCollection.fromArray(this.processes.asArray.map((process) => {
-      const limit = process.rate >= 0
-        ? this.stock.getMaxResource(process.limit)
-        : this.stock.getMinResource(process.limit);
-      return process.newLimit(limit);
-    }));
+    return ResourceProcessCollection.fromArray(
+      this.processes.asArray.map((process) => {
+        const limit =
+          process.rate >= 0
+            ? this.stock.getMaxResource(process.limit)
+            : this.stock.getMinResource(process.limit);
+        return process.newLimit(limit);
+      }),
+    );
   }
 
   get validFor(): TimeUnit {

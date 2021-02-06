@@ -1,9 +1,11 @@
-
 import type { ResourceIdentifier } from "./resources";
 import { Stock } from "./resources";
 import Building, { BuildingIdentifier } from "./Building";
 
-export default class Empire<BuildingType extends BuildingIdentifier, ResourceTypes extends ResourceIdentifier> {
+export default class Empire<
+  BuildingType extends BuildingIdentifier,
+  ResourceTypes extends ResourceIdentifier
+> {
   name = "";
 
   buildings: Building<BuildingType, ResourceTypes>[] = [];
@@ -12,7 +14,11 @@ export default class Empire<BuildingType extends BuildingIdentifier, ResourceTyp
 
   // energy: EnergyCalculation<Types>;
 
-  constructor(name: string, resources: Stock<ResourceTypes>, buildings: Building<BuildingType, ResourceTypes>[] = []) {
+  constructor(
+    name: string,
+    resources: Stock<ResourceTypes>,
+    buildings: Building<BuildingType, ResourceTypes>[] = [],
+  ) {
     this.name = name;
     this.buildings = buildings;
     this.resources = resources;

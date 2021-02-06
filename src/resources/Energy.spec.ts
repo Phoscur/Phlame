@@ -17,10 +17,7 @@ describe("Energy Resource ValueObject", () => {
   });
 
   it("should compare energy amounts", () => {
-    const {
-      em10, e0, e10,
-      h0,
-    } = energy;
+    const { em10, e0, e10, h0 } = energy;
     const e10a = new EnergyResource(10);
     expect(e10.equals(e10a)).to.be.true;
     expect(e0.equals(e10)).to.be.false;
@@ -40,10 +37,7 @@ describe("Energy Resource ValueObject", () => {
   });
 
   it("should add and subtract energy amounts", () => {
-    const {
-      em10, e0, e10,
-      h0, h10,
-    } = energy;
+    const { em10, e0, e10, h0, h10 } = energy;
     expect(e0.add(e10)).to.be.eql(e10);
     expect(e0.infinite.add(e10)).to.be.eql(e0.infinite);
     expect(e0.add(e0.infinite)).to.be.eql(e0.infinite);

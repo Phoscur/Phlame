@@ -3,14 +3,16 @@ import Resource, { ResourceIdentifier } from "./Resource";
 import Energy from "./Energy";
 
 const RESOURCE_COLLECTION_TYPE = "ResourceCollection";
-export type ResourceArray = (Resource<ResourceIdentifier>|Energy<ResourceIdentifier>)[];
+export type ResourceArray = (Resource<ResourceIdentifier> | Energy<ResourceIdentifier>)[];
 
 export type ResourceCollectionEntries<Types extends ResourceIdentifier> = {
-  [Type in Types]?: Resource<Type>|Energy<Type>;
-}
+  [Type in Types]?: Resource<Type> | Energy<Type>;
+};
 
 export type ResourceLike<Types extends ResourceIdentifier> = Resource<Types> | Energy<Types>;
-export type ResourcesLike<Types extends ResourceIdentifier> = ResourceLike<Types> | ResourceCollection<Types>;
+export type ResourcesLike<Types extends ResourceIdentifier> =
+  | ResourceLike<Types>
+  | ResourceCollection<Types>;
 
 // Cannot use <Types extends BaseResources>, because
 // TypeScript enums are finite/closed: https://github.com/microsoft/TypeScript/issues/17592#issuecomment-528993663
@@ -24,13 +26,17 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     this.entries = entries;
   }
 
-  static fromArray<Types extends ResourceIdentifier>(resources: ResourceArray): ResourceCollection<Types> {
-    return new ResourceCollection<Types>(resources.reduce((entries, resource) => {
-      return {
-        ...entries,
-        [resource.type]: resource,
-      };
-    }, {}));
+  static fromArray<Types extends ResourceIdentifier>(
+    resources: ResourceArray,
+  ): ResourceCollection<Types> {
+    return new ResourceCollection<Types>(
+      resources.reduce((entries, resource) => {
+        return {
+          ...entries,
+          [resource.type]: resource,
+        };
+      }, {}),
+    );
   }
 
   get types(): Types[] {
@@ -42,9 +48,11 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   get prettyAmount(): string {
-    return this.asArray.map((resource) => {
-      return resource.prettyAmount;
-    }).join(", ");
+    return this.asArray
+      .map((resource) => {
+        return resource.prettyAmount;
+      })
+      .join(", ");
   }
 
   protected createByType<Type extends Types>(type: Type, amount = 0): ResourceLike<Type> {
@@ -54,17 +62,19 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     return new Resource(type, amount);
   }
 
-  getByType<Type extends Types>(type: Type): ResourceLike<Type>|undefined {
+  getByType<Type extends Types>(type: Type): ResourceLike<Type> | undefined {
     return this.entries[type];
   }
 
-  get<Type extends Types>(type: Type): Resource<Type>|Energy<Type> {
+  get<Type extends Types>(type: Type): Resource<Type> | Energy<Type> {
     return this.getByType(type) || this.createByType(type);
   }
 
-  map<GenericReturn>(mappingFunction: (resource: ResourceLike<Types>, type: Types) => GenericReturn|undefined): GenericReturn[] {
+  map<GenericReturn>(
+    mappingFunction: (resource: ResourceLike<Types>, type: Types) => GenericReturn | undefined,
+  ): GenericReturn[] {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
-      const entry = this.entries[type] as Resource<Types>|Energy<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
+      const entry = this.entries[type] as Resource<Types> | Energy<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
       if (typeof result === "undefined") {
         return entries;
@@ -86,15 +96,19 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   get zero(): ResourceCollection<Types> {
-    return ResourceCollection.fromArray(this.asArray.map((resource) => {
-      return resource.zero;
-    }));
+    return ResourceCollection.fromArray(
+      this.asArray.map((resource) => {
+        return resource.zero;
+      }),
+    );
   }
 
   get infinite(): ResourceCollection<Types> {
-    return ResourceCollection.fromArray(this.asArray.map((resource) => {
-      return resource.infinite;
-    }));
+    return ResourceCollection.fromArray(
+      this.asArray.map((resource) => {
+        return resource.infinite;
+      }),
+    );
   }
 
   equals(resourceCollection: ResourceCollection<Types>) {
@@ -117,7 +131,9 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     }
     return this.asArray.reduce((isMore: boolean, entry) => {
       const sameType = resource.getByType(entry.type);
-      return isMore && !!sameType && entry.isMoreOrEquals(sameType as Resource<Types> & Energy<Types>);
+      return (
+        isMore && !!sameType && entry.isMoreOrEquals(sameType as Resource<Types> & Energy<Types>)
+      );
     }, true);
   }
 
@@ -128,7 +144,10 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     }
     return this.asArray.reduce((isLessOrEquals: boolean, entry) => {
       const sameType = resource.getByType(entry.type);
-      return isLessOrEquals && (!sameType || entry.isLessOrEquals(sameType as Resource<Types> & Energy<Types>));
+      return (
+        isLessOrEquals &&
+        (!sameType || entry.isLessOrEquals(sameType as Resource<Types> & Energy<Types>))
+      );
     }, true);
   }
 
@@ -137,15 +156,21 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
       const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
-        [resource.type]: !sameType ? resource : sameType.add(resource as Resource<Types> & Energy<Types>),
+        [resource.type]: !sameType
+          ? resource
+          : sameType.add(resource as Resource<Types> & Energy<Types>),
       });
     }
-    const resources = this.asArray.map((entry) => {
-      const add = resource.getByType(entry.type);
-      return add ? entry.add(add as Resource<Types> & Energy<Types>) : entry;
-    }).concat(resource.asArray.filter((res) => {
-      return !this.entries[res.type];
-    }));
+    const resources = this.asArray
+      .map((entry) => {
+        const add = resource.getByType(entry.type);
+        return add ? entry.add(add as Resource<Types> & Energy<Types>) : entry;
+      })
+      .concat(
+        resource.asArray.filter((res) => {
+          return !this.entries[res.type];
+        }),
+      );
     return ResourceCollection.fromArray(resources);
   }
 
@@ -159,19 +184,25 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
       const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
-        [resource.type]: !sameType ? resource : sameType.subtract(resource as Resource<Types> & Energy<Types>),
+        [resource.type]: !sameType
+          ? resource
+          : sameType.subtract(resource as Resource<Types> & Energy<Types>),
       });
     }
-    return ResourceCollection.fromArray(this.asArray.map((entry) => {
-      const subtract = resource.getByType(entry.type);
-      return subtract ? entry.subtract(subtract as Resource<Types> & Energy<Types>) : entry;
-    }));
+    return ResourceCollection.fromArray(
+      this.asArray.map((entry) => {
+        const subtract = resource.getByType(entry.type);
+        return subtract ? entry.subtract(subtract as Resource<Types> & Energy<Types>) : entry;
+      }),
+    );
   }
 
   times(factor: number): ResourceCollection<Types> {
-    return ResourceCollection.fromArray(this.asArray.map((resource) => {
-      return resource.times(factor);
-    }));
+    return ResourceCollection.fromArray(
+      this.asArray.map((resource) => {
+        return resource.times(factor);
+      }),
+    );
   }
 
   toString() {

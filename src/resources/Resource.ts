@@ -23,7 +23,7 @@ export enum BaseResources {
 }
 
 export default class Resource<Type extends ResourceIdentifier>
-implements ResourceValue<Type>, ComparableResource<Type> {
+  implements ResourceValue<Type>, ComparableResource<Type> {
   static types: ResourceIdentifier[] = [BaseResources.Null]; // Types are appended in configuration
 
   static Null = new Resource(BaseResources.Null, 0);
@@ -37,7 +37,7 @@ implements ResourceValue<Type>, ComparableResource<Type> {
     // TODO handle overflow? use BigIntegers?
     this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
     // Default to null type (!~ = not found)
-    this.type = !~Resource.types.indexOf(type) ? Resource.types[0] as Type : type;
+    this.type = !~Resource.types.indexOf(type) ? (Resource.types[0] as Type) : type;
   }
 
   get prettyAmount(): string {
@@ -99,9 +99,11 @@ implements ResourceValue<Type>, ComparableResource<Type> {
   }
 
   equals(resource: Resource<Type>): boolean {
-    return this.equalOfTypeTo(resource)
+    return (
+      this.equalOfTypeTo(resource) &&
       // Usually we would need an epsilon to do a float comparison, but since we casted to int32, this works
-      && resource.amount === this.amount;
+      resource.amount === this.amount
+    );
   }
 
   isMoreOrEquals(resource: Resource<Type>): boolean {
