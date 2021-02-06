@@ -28,14 +28,14 @@ export default class Economy<
     this.resources = this.getResourceCalculation(resources, buildings);
   }
 
-  get stock() {
+  get stock(): Stock<ResourceTypes> {
     return this.resources.stock;
   }
 
   getResourceCalculation(
     resources: Stock<ResourceTypes>,
     buildings: Building<BuildingType, ResourceTypes>[],
-  ) {
+  ): EnergyCalculation<ResourceTypes> {
     const prosumers = new ProsumerCollection(
       buildings.map((building) => {
         return building.prosumes(resources);
@@ -47,7 +47,7 @@ export default class Economy<
   protected new(
     resources: Stock<ResourceTypes>,
     buildings: Building<BuildingType, ResourceTypes>[],
-  ) {
+  ): Economy<BuildingType, ResourceTypes> {
     return new Economy(this.name, resources, buildings);
   }
 
@@ -84,7 +84,7 @@ export default class Economy<
     return buildings;
   }
 
-  upgrade(buildingType: BuildingIdentifier) {
+  upgrade(buildingType: BuildingIdentifier): Economy<BuildingType, ResourceTypes> {
     return this.new(
       this.resources.stock,
       this.buildings.map((building: Building<BuildingType, ResourceTypes>) => {
@@ -96,7 +96,7 @@ export default class Economy<
     );
   }
 
-  downgrade(buildingType: BuildingIdentifier) {
+  downgrade(buildingType: BuildingIdentifier): Economy<BuildingType, ResourceTypes> {
     return this.new(
       this.resources.stock,
       this.buildings.map((building: Building<BuildingType, ResourceTypes>) => {
@@ -108,7 +108,7 @@ export default class Economy<
     );
   }
 
-  tick(cycles = 1) {
+  tick(cycles = 1): Economy<BuildingType, ResourceTypes> {
     let { resources, buildings } = this;
     while (resources.validFor < cycles) {
       const advanceCycles = resources.validFor;
@@ -125,7 +125,7 @@ export default class Economy<
     return this.new(resources.stock, buildings);
   }
 
-  toString() {
+  toString(): string {
     return `${this.name} (${this.resources}) [${this.buildings.join(", ")}]`;
   }
 }

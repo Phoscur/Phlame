@@ -22,11 +22,11 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     return new ResourceProcess(this.limit, -this.rate);
   }
 
-  get isNegative() {
+  get isNegative(): boolean {
     return this.rate < 0;
   }
 
-  get isZero() {
+  get isZero(): boolean {
     return this.rate === 0;
   }
 
@@ -38,20 +38,20 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     return Number.isFinite(endsIn) ? endsIn | 0 : endsIn;
   }
 
-  newLimit(limit: Resource<Type> | Energy<Type>) {
+  newLimit(limit: Resource<Type> | Energy<Type>): ResourceProcess<Type> {
     return new ResourceProcess(limit, this.rate);
   }
 
-  limitFromRate() {
+  limitFromRate(): ResourceProcess<Type> {
     const limit = this.limit.addAmount(this.rate);
     return this.newLimit(limit);
   }
 
-  addLimit(resource?: Resource<Type> | Energy<Type>) {
+  addLimit(resource?: Resource<Type> | Energy<Type>): ResourceProcess<Type> {
     return this.newLimit(this.limit.add(resource as Resource<Type> & Energy<Type>));
   }
 
-  newRate(rate: number) {
+  newRate(rate: number): ResourceProcess<Type> {
     return new ResourceProcess(this.limit, rate);
   }
 
@@ -59,7 +59,7 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
    * Add rates and keep upper limits
    * @param resourceProcess
    */
-  add(resourceProcess: ResourceProcess<Type>) {
+  add(resourceProcess: ResourceProcess<Type>): ResourceProcess<Type> {
     if (!this.equalOfTypeTo(resourceProcess)) {
       throw new TypeError(
         `ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`,
@@ -86,7 +86,7 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
    * Subtract rates and keep the limit
    * @param resourceProcess
    */
-  subtract(resourceProcess: ResourceProcess<Type>) {
+  subtract(resourceProcess: ResourceProcess<Type>): ResourceProcess<Type> {
     if (!this.equalOfTypeTo(resourceProcess)) {
       throw new TypeError(
         `ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`,
@@ -112,17 +112,17 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
     return new ResourceProcess(limit, this.rate);
   }
 
-  equalOfTypeTo(process: ResourceProcess<Type>) {
+  equalOfTypeTo(process: ResourceProcess<Type>): boolean {
     return process.limit.equalOfTypeTo(this.limit);
   }
 
-  equals(process: ResourceProcess<Type>) {
+  equals(process: ResourceProcess<Type>): boolean {
     // both Resource and Energy are typeguarded ComparableResources
     const limit = process.limit as Resource<Type> & Energy<Type>;
     return this.equalOfTypeTo(process) && this.limit.equals(limit) && process.rate === this.rate;
   }
 
-  toString() {
+  toString(): string {
     return `ResourceProcess[${this.limit.type}, ${this.rate}, ${this.limit.amount}]`;
   }
 }

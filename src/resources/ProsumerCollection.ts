@@ -102,7 +102,7 @@ export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier
     return production.add(this.reducedConsumption.resources);
   }
 
-  toString() {
+  toString(): string {
     return `ProsumerCollection[${this.prosumers.join(", ")}]`;
   }
 }

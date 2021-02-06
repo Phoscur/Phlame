@@ -31,7 +31,7 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
   static newStock<ResourceTypes extends ResourceIdentifier>(
     stock: Stock<ResourceTypes>,
     prosumers: ProsumerCollection<ResourceTypes>,
-  ) {
+  ): EnergyCalculation<ResourceTypes> {
     return new EnergyCalculation<ResourceTypes>(
       new ResourceCalculation(stock, prosumers.resources),
       prosumers,
@@ -51,23 +51,23 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
     return this.prosumers.balanceFactor ** EnergyCalculation.REBALANCING_EXPONENT;
   }
 
-  hasAvailable(resources: ResourceCollection<Types>) {
+  hasAvailable(resources: ResourceCollection<Types>): boolean {
     // TODO check for energy seperately?
     return this.resources.stock.isFetchable(resources);
   }
 
-  calculate(timeUnits: TimeUnit) {
+  calculate(timeUnits: TimeUnit): EnergyCalculation<Types> {
     const resources = this.resources.calculate(timeUnits);
     return new EnergyCalculation(resources, this.prosumers);
   }
 
-  get prettyProsumers() {
+  get prettyProsumers(): string[] {
     return this.prosumers.map((prosumer) => {
       return prosumer.toString();
     });
   }
 
-  get energies() {
+  get energies(): ResourceProcessCollection<Types> {
     const energies = this.prosumers.map((prosumer) => {
       return prosumer.prosumes.energies;
     });
@@ -96,7 +96,7 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
     });
   }
 
-  toString() {
+  toString(): string {
     return `Processing energy&resources: ${this.productionEntries.join(", ")}`;
   }
 
@@ -114,7 +114,7 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
     return energies.concat(...this.resources.entries);
   }
 
-  get productionTable() {
+  get productionTable(): (number | Types)[][] {
     return [
       ...this.energies.map((energy: ResourceProcess<Types>) => [
         energy.type,

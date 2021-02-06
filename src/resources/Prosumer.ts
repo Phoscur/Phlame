@@ -1,4 +1,3 @@
-import { process } from "./examples";
 import Energy from "./Energy";
 import Resource, { ResourceIdentifier } from "./Resource";
 import ResourceProcess from "./ResourceProcess";
@@ -29,15 +28,15 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }
 
-  protected new(speed?: number) {
+  protected new(speed?: number): Prosumer<Types> {
     return new Prosumer(this.type, this.processes, speed);
   }
 
-  at(speed: number) {
+  at(speed: number): Prosumer<Types> {
     return this.new(speed);
   }
 
-  consumes(limit: Resource<Types> | Energy<Types>) {
+  consumes(limit: Resource<Types> | Energy<Types>): ResourceProcess<Types> | undefined {
     const process = this.processes.getByType(limit.type);
     if (!process || process.rate >= 0) {
       return undefined;
@@ -46,7 +45,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return new ResourceProcess(limit, rate);
   }
 
-  produces(limit: Resource<Types> | Energy<Types>) {
+  produces(limit: Resource<Types> | Energy<Types>): ResourceProcess<Types> | undefined {
     const process = this.processes.getByType(limit.type);
     if (!process || process.rate <= 0) {
       return undefined;
@@ -63,7 +62,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return this.processes.resources.newRateMultiplier(this.speed / 100);
   }
 
-  toString() {
+  toString(): string {
     return `Prosumer(${this.type}, ${this.speed}%, ${this.prosumes})`;
   }
 }

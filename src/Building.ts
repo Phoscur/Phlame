@@ -5,8 +5,10 @@ import {
   ResourceProcessCollection,
   Prosumer,
   Stock,
+  ResourceCollection,
 } from "./resources";
 import BuildingRequirement from "./BuildingRequirement";
+import type { TimeUnit } from "./resources/ResourceProcess";
 
 export type BuildingIdentifier = number | string;
 
@@ -60,11 +62,11 @@ export default class Building<
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }
 
-  protected new(level?: number, speed?: number) {
+  protected new(level?: number, speed?: number): Building<BuildingType, ResourceType> {
     return new Building(this.type, this.requirements, this.prosumption, level, speed);
   }
 
-  get upgradeCost() {
+  get upgradeCost(): ResourceCollection<ResourceType> {
     const requirement = this.requirements[this.type];
     if (!requirement) {
       throw new Error(`Unknown building requirement, BuildingType: ${this.type}`);
@@ -72,7 +74,7 @@ export default class Building<
     return requirement.getUpgradeCost(this.level + 1);
   }
 
-  get downgradeCost() {
+  get downgradeCost(): ResourceCollection<ResourceType> {
     const requirement = this.requirements[this.type];
     if (!requirement) {
       throw new Error(`Unknown building requirement, BuildingType: ${this.type}`);
@@ -80,14 +82,14 @@ export default class Building<
     return requirement.getDowngradeCost(this.level + 1);
   }
 
-  get upgradeTime() {
+  get upgradeTime(): TimeUnit {
     return Math.floor(
       this.upgradeCost.map((resource) => resource.amount).reduce((sum, amount) => sum + amount, 0) /
         Building.BUILD_TIME_DIVISOR,
     );
   }
 
-  get downgradeTime() {
+  get downgradeTime(): TimeUnit {
     return Math.floor(
       this.downgradeCost
         .map((resource) => resource.amount)
@@ -95,19 +97,19 @@ export default class Building<
     );
   }
 
-  get upgraded() {
+  get upgraded(): Building<BuildingType, ResourceType> {
     return this.new(this.level + 1, this.speed);
   }
 
-  get downgraded() {
+  get downgraded(): Building<BuildingType, ResourceType> {
     return this.new(this.level - 1, this.speed);
   }
 
-  at(speed: number) {
+  at(speed: number): Building<BuildingType, ResourceType> {
     return this.new(this.level, speed);
   }
 
-  get disabled() {
+  get disabled(): Building<BuildingType, ResourceType> {
     return this.at(0);
   }
 
@@ -127,7 +129,7 @@ export default class Building<
     return new Prosumer(this.type, ResourceProcessCollection.fromArray(processes), this.speed);
   }
 
-  toString() {
+  toString(): string {
     return `Building(${this.type}, ${this.level}, ${this.speed}%)`;
   }
 }

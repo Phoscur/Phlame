@@ -89,7 +89,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     return this.entries[type];
   }
 
-  protected newResource(type: Types, amount: number) {
+  protected newResource(type: Types, amount: number): Resource<Types> {
     return new Resource(type, amount);
   }
 
@@ -118,7 +118,9 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     return process.type === RESOURCE_PROCESS_COLLECTION_TYPE;
   }
 
-  protected new(entries: ResourceProcessCollectionEntries<Types>) {
+  protected new(
+    entries: ResourceProcessCollectionEntries<Types>,
+  ): ResourceProcessCollection<Types> {
     return new ResourceProcessCollection(entries);
   }
 
@@ -130,7 +132,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     );
   }
 
-  addLimits(limits: ResourceProcessCollectionEntries<Types>) {
+  addLimits(limits: ResourceProcessCollectionEntries<Types>): ResourceProcessCollection<Types> {
     const s = ResourceProcessCollection.fromArray(
       this.asArray.map((p) => {
         if (p.isNegative) {
@@ -178,8 +180,8 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     }, Number.POSITIVE_INFINITY);
   }
 
-  equals(resourceCollection: ResourceProcessCollection<Types>) {
-    return this.asArray.reduce((equal, resource) => {
+  equals(resourceCollection: ResourceProcessCollection<Types>): boolean {
+    return this.asArray.reduce((equal: boolean, resource) => {
       if (!equal) {
         return false;
       }
@@ -279,7 +281,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
    * Get the same resource processes after a given time (with limits adjusted)
    * @param timeUnits
    */
-  after(timeUnits: TimeUnit) {
+  after(timeUnits: TimeUnit): ResourceProcessCollection<Types> {
     return ResourceProcessCollection.fromArray(
       this.asArray.map((resourceProcess) => {
         return resourceProcess.after(timeUnits);
@@ -287,7 +289,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     );
   }
 
-  toString() {
+  toString(): string {
     return `ResourceProcessCollection[${this.prettyAmount}]`;
   }
 }

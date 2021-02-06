@@ -25,11 +25,11 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
   /**
    * Create another resource of the same type
    */
-  protected new(amount: number) {
+  protected new(amount: number): Energy<Type> {
     return new Energy(this.type, amount);
   }
 
-  get isEnergy() {
+  get isEnergy(): boolean {
     return !!~Energy.types.indexOf(this.type);
   }
 
@@ -61,7 +61,7 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
     return false;
   }
 
-  equalOfTypeTo(energy: ResourceValue<Type>) {
+  equalOfTypeTo(energy: ResourceValue<Type>): boolean {
     return energy.type === this.type;
   }
 
@@ -87,14 +87,14 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
     return this.amount <= energy.amount;
   }
 
-  add(resource: Energy<Type>) {
+  add(resource: Energy<Type>): Energy<Type> {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Energy types don't match (${this.type} != ${resource.type})`);
     }
     return this.checkInfinity(resource) || this.new(this.amount + resource.amount);
   }
 
-  addAmount(amount: number) {
+  addAmount(amount: number): Energy<Type> {
     return this.checkInfinity() || this.new(this.amount + amount);
   }
 
@@ -103,7 +103,7 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
    * Available energy may be negative in contrast to resources
    * @param subtrahend
    */
-  subtract(subtrahend: Energy<Type>) {
+  subtract(subtrahend: Energy<Type>): Energy<Type> {
     if (!this.equalOfTypeTo(subtrahend)) {
       throw new TypeError(`Energy types don't match (${this.type} != ${subtrahend.type})`);
     }
@@ -114,7 +114,7 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
     return this.new(this.amount * factor);
   }
 
-  toString() {
+  toString(): string {
     return `Energy[${this.prettyAmount}]`;
   }
 }

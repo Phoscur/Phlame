@@ -13,7 +13,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     this.stock = stock;
   }
 
-  get stockLimitedProcessCollection() {
+  get stockLimitedProcessCollection(): ResourceProcessCollection<Types> {
     return ResourceProcessCollection.fromArray(
       this.processes.asArray.map((process) => {
         const limit =
@@ -33,7 +33,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     return processLimit > stockLimit ? stockLimit : processLimit;
   }
 
-  calculate(timeUnits: TimeUnit) {
+  calculate(timeUnits: TimeUnit): ResourceCalculation<Types> {
     // No need to throw here, resources cannot be negative anyways
     // if (timeUnits > this.validFor + 1) {
     // throw new Error(`ResourceCalculation out of validity bounds: ${timeUnits} > ${this.validFor}`); }
@@ -54,7 +54,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     });
   }
 
-  get table() {
+  get table(): [Types, number, number, ...number[]][] {
     return this.processes.asArray.map(({ rate, limit }) => {
       const resource = this.stock.has(limit.type);
       const limits = this.stock.getResourceLimits(resource);
@@ -62,7 +62,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     });
   }
 
-  toString() {
+  toString(): string {
     return `Processing resources: ${this.entries.join(", ")}`;
   }
 }

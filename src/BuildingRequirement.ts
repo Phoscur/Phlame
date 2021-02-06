@@ -36,29 +36,32 @@ export default class BuildingRequirement<
     this.dependencies = dependencies;
   }
 
-  matches(type: RequirementType) {
+  matches(type: RequirementType): boolean {
     return this.type === type;
   }
 
-  isSatisfied(level: number, factoryResources: EnergyCalculation<ResourceTypes>) {
+  isSatisfied(level: number, factoryResources: EnergyCalculation<ResourceTypes>): boolean {
     return factoryResources.hasAvailable(this.getUpgradeCost(level));
   }
 
-  isSatisfiedForDowngrade(level: number, factoryResources: EnergyCalculation<ResourceTypes>) {
+  isSatisfiedForDowngrade(
+    level: number,
+    factoryResources: EnergyCalculation<ResourceTypes>,
+  ): boolean {
     return factoryResources.hasAvailable(this.getDowngradeCost(level));
   }
 
-  getUpgradeCost(level: number) {
+  getUpgradeCost(level: number): ResourceCollection<ResourceTypes> {
     return this.costs.times(this.costFactor ** level);
   }
 
-  getDowngradeCost(level: number) {
+  getDowngradeCost(level: number): ResourceCollection<ResourceTypes> {
     return this.costs
       .times(1 / BuildingRequirement.DOWNGRADECOST_DIVISOR)
       .times(this.costFactor ** level);
   }
 
-  toString() {
+  toString(): string {
     return `BuildingRequirement(${this.type})`;
   }
 }

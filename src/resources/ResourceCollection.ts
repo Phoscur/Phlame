@@ -91,7 +91,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     return resource.type === RESOURCE_COLLECTION_TYPE;
   }
 
-  protected new(entries: ResourceCollectionEntries<Types>) {
+  protected new(entries: ResourceCollectionEntries<Types>): ResourceCollection<Types> {
     return new ResourceCollection(entries);
   }
 
@@ -111,8 +111,8 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     );
   }
 
-  equals(resourceCollection: ResourceCollection<Types>) {
-    return this.asArray.reduce((equal, resource) => {
+  equals(resourceCollection: ResourceCollection<Types>): boolean {
+    return this.asArray.reduce((equal: boolean, resource: Resource<Types>): boolean => {
       if (!equal) {
         return false;
       }
@@ -205,7 +205,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     );
   }
 
-  toString() {
+  toString(): string {
     return `ResourceCollection[${this.prettyAmount}]`;
   }
 }

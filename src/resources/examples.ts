@@ -108,14 +108,14 @@ export const energy: { [name: string]: Energy<Types> } = {
 };
 
 export const production = {
-  [ResourceTypes.Tumble]: (lvl: number) => 30 * lvl * lvl ** 1.1,
-  [ResourceTypes.Salty]: (lvl: number) => 20 * lvl * lvl ** 1.1,
-  [EnergyTypes.Electricity]: (lvl: number) => 50 * lvl * lvl ** 1.1,
+  [ResourceTypes.Tumble]: (lvl: number): number => 30 * lvl * lvl ** 1.1,
+  [ResourceTypes.Salty]: (lvl: number): number => 20 * lvl * lvl ** 1.1,
+  [EnergyTypes.Electricity]: (lvl: number): number => 50 * lvl * lvl ** 1.1,
 };
 
 export const consumption = {
-  [ResourceTypes.Salty]: (lvl: number) => -10 * lvl * lvl ** 1.1,
-  [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+  [ResourceTypes.Salty]: (lvl: number): number => -10 * lvl * lvl ** 1.1,
+  [EnergyTypes.Electricity]: (lvl: number): number => -10 * lvl * lvl ** 1.1,
 };
 
 const rt11 = new ResourceProcess(t1, 1);

@@ -47,17 +47,17 @@ export default class Stock<Types extends ResourceIdentifier> {
     return stocked ? stocked.subtract(min as Resource<Types> & Energy<Types>) : min;
   }
 
-  protected new(initial: ResourceCollection<Types>) {
+  protected new(initial: ResourceCollection<Types>): Stock<Types> {
     return new Stock(initial, this.max, this.min);
   }
 
-  isInLimits(resources?: Resource<Types> | ResourceCollection<Types>) {
+  isInLimits(resources?: Resource<Types> | ResourceCollection<Types>): boolean {
     return !resources
       ? this.resources.isMoreOrEquals(this.min) && this.resources.isLessOrEquals(this.max)
       : this.resources.subtract(resources).isMoreOrEquals(this.min) && this.isStorable(resources);
   }
 
-  isFetchable(resources: Resource<Types> | ResourceCollection<Types>) {
+  isFetchable(resources: Resource<Types> | ResourceCollection<Types>): boolean {
     return this.resources.isMoreOrEquals(resources);
   }
 
@@ -71,7 +71,7 @@ export default class Stock<Types extends ResourceIdentifier> {
     return !this.isResourceCollection(resource) && !resource.isEnergy;
   }
 
-  getUnfetchable(resources: ResourceCollection<Types>) {
+  getUnfetchable(resources: ResourceCollection<Types>): ResourceCollection<Types> {
     return ResourceCollection.fromArray<Types>(
       resources.map((resource) => {
         if (!this.isResource(resource)) {
@@ -85,24 +85,24 @@ export default class Stock<Types extends ResourceIdentifier> {
     );
   }
 
-  isStorable(resources: Resource<Types> | ResourceCollection<Types>) {
+  isStorable(resources: Resource<Types> | ResourceCollection<Types>): boolean {
     return this.resources.add(resources).isLessOrEquals(this.max);
   }
 
-  store(resources: Resource<Types> | ResourceCollection<Types>) {
+  store(resources: Resource<Types> | ResourceCollection<Types>): Stock<Types> {
     return this.new(this.resources.add(resources));
   }
 
-  fetch(resources: Resource<Types> | ResourceCollection<Types>) {
+  fetch(resources: Resource<Types> | ResourceCollection<Types>): Stock<Types> {
     return this.new(this.resources.subtract(resources));
   }
 
-  resourceLimitToString(resource: ResourceLike<Types>) {
+  resourceLimitToString(resource: ResourceLike<Types>): string {
     const [min, max] = this.getResourceLimits(resource);
     return `${resource.prettyAmount}(${min}, ${max})`;
   }
 
-  getResourceLimits(resource: ResourceLike<Types>) {
+  getResourceLimits(resource: ResourceLike<Types>): [number, number] {
     const min = this.min.getByType(resource.type) || resource.zero;
     const max = this.max.getByType(resource.type) || resource.infinite;
     return [min.amount, max.amount];
@@ -114,7 +114,7 @@ export default class Stock<Types extends ResourceIdentifier> {
     });
   }
 
-  toString() {
+  toString(): string {
     return `Stock[${this.limitedAmounts.join(", ")}]`;
   }
 }

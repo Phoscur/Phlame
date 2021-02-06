@@ -125,19 +125,19 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
 };
 export const prosumption: ProsumptionLookup<BuildingIdentifier, ResourceLike> = {
   0: {
-    [ResourceTypes.Tumble]: () => {
+    [ResourceTypes.Tumble]: (): number => {
       return 0;
     },
-    [ResourceTypes.Salty]: () => {
+    [ResourceTypes.Salty]: (): number => {
       return 0;
     },
-    [ResourceTypes.Blubber]: () => {
+    [ResourceTypes.Blubber]: (): number => {
       return 0;
     },
-    [EnergyTypes.Electricity]: () => {
+    [EnergyTypes.Electricity]: (): number => {
       return 0;
     },
-    [EnergyTypes.Heat]: () => {
+    [EnergyTypes.Heat]: (): number => {
       return 0;
     },
   },
@@ -151,21 +151,21 @@ export const prosumption: ProsumptionLookup<BuildingIdentifier, ResourceLike> = 
   },
   3: {
     // TODO actually [ResourceTypes.Blubber]: (lvl, planet) => 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28),
-    [ResourceTypes.Blubber]: (lvl: number) => {
+    [ResourceTypes.Blubber]: (lvl: number): number => {
       return 10 * lvl * lvl ** 1.1;
     },
-    [EnergyTypes.Electricity]: (lvl: number) => {
+    [EnergyTypes.Electricity]: (lvl: number): number => {
       return -10 * lvl * lvl ** 1.1;
     },
   },
   4: {
-    [EnergyTypes.Electricity]: (lvl: number) => 20 * lvl * lvl ** 1.1,
+    [EnergyTypes.Electricity]: (lvl: number): number => 20 * lvl * lvl ** 1.1,
   },
   12: {
-    [ResourceTypes.Blubber]: (lvl: number) => {
+    [ResourceTypes.Blubber]: (lvl: number): number => {
       return -10 * lvl * lvl ** 1.1;
     },
-    [EnergyTypes.Electricity]: (lvl: number) => {
+    [EnergyTypes.Electricity]: (lvl: number): number => {
       return 50 * lvl * lvl ** 1.1;
     },
   },

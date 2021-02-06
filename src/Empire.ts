@@ -24,7 +24,7 @@ export default class Empire<
     this.resources = resources;
   }
 
-  toString() {
+  toString(): string {
     return `${this.name} (${this.resources}) [${this.buildings.join(", ")}]`;
   }
 }

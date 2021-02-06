@@ -47,7 +47,7 @@ export default class Resource<Type extends ResourceIdentifier>
   /**
    * Create another resource of the same type
    */
-  protected new(amount: number) {
+  protected new(amount: number): Resource<Type> {
     // Anecdote:
     // Doesn't sound like the best idea considering debugging performance -
     // would be a nice way to not explicitly redeclare this method in every subclass
@@ -60,7 +60,7 @@ export default class Resource<Type extends ResourceIdentifier>
   }
 
   /* eslint-disable-next-line class-methods-use-this */
-  get isEnergy() {
+  get isEnergy(): boolean {
     // Energy implements this with a lookup by type
     return false;
   }
@@ -94,7 +94,7 @@ export default class Resource<Type extends ResourceIdentifier>
     return false;
   }
 
-  equalOfTypeTo(resource: ResourceValue<Type>) {
+  equalOfTypeTo(resource: ResourceValue<Type>): boolean {
     return resource.type === this.type;
   }
 
@@ -127,7 +127,7 @@ export default class Resource<Type extends ResourceIdentifier>
     return this.checkInfinity(resource) || this.new(this.amount + resource.amount);
   }
 
-  addAmount(amount: number) {
+  addAmount(amount: number): Resource<Type> {
     return this.checkInfinity() || this.new(this.amount + amount);
   }
 
@@ -147,7 +147,7 @@ export default class Resource<Type extends ResourceIdentifier>
     return this.checkInfinity() || this.new(this.amount * factor);
   }
 
-  toString() {
+  toString(): string {
     return `Resource[${this.prettyAmount}]`;
   }
 }
