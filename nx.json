@@ -1,0 +1,25 @@
+{
+  "implicitDependencies": {
+    "workspace.json": "*",
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "tsconfig.base.json": "*",
+    "tslint.json": "*",
+    ".eslintrc.json": "*",
+    "nx.json": "*"
+  },
+  "affected": { "defaultBase": "master" },
+  "npmScope": "phlame",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+    }
+  },
+  "projects": {
+    "engine": { "tags": [] },
+    "console": { "tags": [] },
+    "playground": { "tags": [] },
+    "playground-e2e": { "tags": [], "implicitDependencies": ["playground"] },
+    "server": { "tags": [] }
+  }
+}
