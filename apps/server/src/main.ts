@@ -125,10 +125,10 @@ app.use("/graphql", async (req, res) => {
   }
 });
 
-const PORT = 4000;
+const HTTP_PORT = 4000;
 
-const httpServer = app.listen(PORT, () => {
-  console.log(`GraphQL Server listening on port ${PORT}.`);
+const httpServer = app.listen(HTTP_PORT, () => {
+  console.log(`🚀 GraphQL Server listening on port ${HTTP_PORT}.`);
 });
 
 const wsServer = new WSServer({
@@ -188,7 +188,10 @@ registerSocketIOGraphQLServer({
   }),
 });
 
-socketIoHttpServer.listen(4001);
+const SOCKET_IO_PORT = 4001
+socketIoHttpServer.listen(SOCKET_IO_PORT, () => {
+  console.log(`🚀 GraphQL Socket.IO Server listening on port ${SOCKET_IO_PORT}.`);
+});
 
 process.once("SIGINT", () => {
   clearInterval(shuffleGreetingsInterval);
