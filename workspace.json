@@ -142,7 +142,7 @@
               "apps/playground/src/styles.scss"
             ],
             "scripts": [],
-            "webpackConfig": "@nrwl/react/plugins/webpack"
+            "webpackConfig": "apps/playground/webpack.config.js"
           },
           "configurations": {
             "production": {

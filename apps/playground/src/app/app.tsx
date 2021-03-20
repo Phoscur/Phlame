@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import styles from './app.module.scss';
+import styles from "./app.module.scss";
 
-import { ReactComponent as Logo } from './logo.svg';
-import star from './star.svg';
+import { ReactComponent as Logo } from "./logo.svg";
+import star from "./star.svg";
 
 export function App() {
   return (
@@ -11,6 +11,12 @@ export function App() {
       <header className="flex">
         <Logo width="75" height="75" />
         <h1>Welcome to playground!</h1>
+        <p>
+          Edit <code>src/App.tsx</code> and save to reload.
+        </p>
+        <a className="App-link" href="/__dev__/graphiql">
+          Visit GraphiQL
+        </a>
       </header>
       <main>
         <h2>Resources &amp; Tools</h2>
@@ -21,7 +27,7 @@ export function App() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {' '}
+            {" "}
             If you like Nx, please give it a star:
             <div className="github-star-badge">
               <img src={star} className="material-icons" alt="" />
