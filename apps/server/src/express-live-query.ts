@@ -24,7 +24,7 @@ export function createContext(liveQueryStore) {
   const greetings = ["Hello", "Hi", "Ay", "Sup"];
   const shuffleGreetingsInterval = setInterval(() => {
     const firstElement = greetings.pop();
-    greetings.unshift(firstElement!);
+    greetings.unshift(firstElement);
     liveQueryStore.invalidate("Query.greetings");
   }, 1000);
 
@@ -144,7 +144,6 @@ export async function addGraphqlWSServer(app, context) {
     path: "/graphql",
   });
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const graphqlWs = useServer(
     {
       execute: context.liveQueryStore.execute,

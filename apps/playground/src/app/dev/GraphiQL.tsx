@@ -34,6 +34,8 @@ const wsClient = createClient({
 
 const httpMultipartFetcher = async (
   graphQLParams: FetcherParams,
+  // any is a given here from FetcherResult
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const abortController = new AbortController();
 
@@ -42,8 +44,9 @@ const httpMultipartFetcher = async (
 
   const documentNode = getOperationAST(parsedDocument, operationName);
   if (
-    documentNode!.operation === "subscription" ||
-    isLiveQueryOperationDefinitionNode(documentNode!)
+    documentNode &&
+    (documentNode.operation === "subscription" ||
+      isLiveQueryOperationDefinitionNode(documentNode))
   ) {
     const searchParams: Record<string, string> = {
       operationName: graphQLParams.operationName,
@@ -87,6 +90,7 @@ const httpMultipartFetcher = async (
 
 async function* multiResponseParser(
   iterator: AsyncIterableIterator<{
+    // eslint-disable-next-line @typescript-eslint/ban-types
     body: object | string;
     json: boolean;
   }>,
@@ -100,6 +104,7 @@ async function* multiResponseParser(
 }
 
 const wsFetcher = (graphQLParams: FetcherParams) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   makeAsyncIterableIteratorFromSink<any>((sink) =>
     wsClient.subscribe(graphQLParams, sink),
   );
