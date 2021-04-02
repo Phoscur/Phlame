@@ -5,6 +5,7 @@
   "scripts": {
     "nx": "nx",
     "start": "nx serve",
+    "dev": "nx run-many --target=serve --projects=playground,server --parallel",
     "build": "nx build",
     "test": "nx test",
     "lint": "nx workspace-lint && nx lint",
