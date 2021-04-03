@@ -1,6 +1,15 @@
-
-
 # NxPhlame
+
+## Easter POC:
+
+- @live/@stream query resources, console & react component consumers
+- build & tech queues @defer?
+  -> idle game
+
+Questions:
+
+- Is GraphQL the one and only API interface now?
+- Do we want @live if it is not really planned as a spec
 
 This project was generated using [Nx](https://nx.dev).
 
@@ -78,8 +87,6 @@ Run `nx dep-graph` to see a diagram of the dependencies of your projects.
 ## Further help
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-
 
 ## ☁ Nx Cloud
 

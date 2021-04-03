@@ -12,14 +12,32 @@
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e",
+          "build-storybook"
+        ]
+      }
     }
   },
   "projects": {
     "engine": { "tags": [] },
     "console": { "tags": [] },
-    "playground": { "tags": [] },
-    "playground-e2e": { "tags": [], "implicitDependencies": ["playground"] },
-    "server": { "tags": [] }
+    "playground": { "tags": ["frontend"] },
+    "playground-e2e": {
+      "tags": ["frontend"],
+      "implicitDependencies": ["playground"]
+    },
+    "server": { "tags": [] },
+    "app": { "tags": ["frontend"] },
+    "app-e2e": { "tags": ["frontend"], "implicitDependencies": ["app"] },
+    "engine-components": { "tags": ["frontend"] },
+    "engine-components-e2e": {
+      "tags": [],
+      "implicitDependencies": ["engine-components"]
+    }
   }
 }
