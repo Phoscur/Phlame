@@ -11,6 +11,14 @@ Questions:
 - Is GraphQL the one and only API interface now?
 - Do we want @live if it is not really planned as a spec
 
+## Development server
+
+Run `nx serve [app]` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+
+Run `npm run dev` to start all three dev servers: app, server & playground.
+Run `npm run dev-e2e` to start cypress & the app server.
+Run `npm run dev-components-e2e` to start cypress with storybook server.
+
 This project was generated using [Nx](https://nx.dev).
 
 <p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
@@ -55,10 +63,6 @@ Run `nx g @nrwl/react:lib my-lib` to generate a library.
 > You can also use any of the plugins above to generate libraries as well.
 
 Libraries are shareable across libraries and applications. They can be imported from `@phlame/mylib`.
-
-## Development server
-
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
