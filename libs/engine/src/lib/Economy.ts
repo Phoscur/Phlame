@@ -63,8 +63,6 @@ export default class Economy<
     const prosumers = new ProsumerCollection<ResourceTypes>(
       buildings.map((b) => b.prosumes(stock)),
     );
-    if (factor < 1) {
-    }
     const prosumption = factor < 1 ? prosumers.rebalancedResources(factor) : prosumers.reduced;
     const nextTickWithdrawal = prosumption.getNegativeResourcesFor(1);
     if (!stock.isFetchable(nextTickWithdrawal)) {
