@@ -1,7 +1,7 @@
 {
   "name": "phlame",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "AGPLv3",
   "scripts": {
     "nx": "nx",
     "start": "nx serve",

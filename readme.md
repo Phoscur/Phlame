@@ -21,6 +21,8 @@ Questions:
   - favor urql over relay as a client
 - Do we want @live if it is not really planned as a spec -> use websockets without socket.io
 
+- do we really want (just) React?
+
 ## Development server
 
 Run `nx serve [app]` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
