@@ -75,7 +75,7 @@ const t3 = new TumbleResource(3);
 const s0 = new SaltyResource(0);
 const s3 = new SaltyResource(3);
 const b1 = new BlubbResource(1);
-const examples: { [name: string]: Resource<Types> } = {
+export const examples: { [name: string]: Resource<Types> } = {
   t0,
   t1,
   t3,
