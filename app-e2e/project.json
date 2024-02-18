@@ -1,0 +1,18 @@
+{
+  "name": "app-e2e",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "app-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "app-e2e/cypress.config.ts",
+        "testingType": "e2e",
+        "devServerTarget": "app:serve"
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["app"]
+}
