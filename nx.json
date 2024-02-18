@@ -1,43 +1,33 @@
 {
-  "implicitDependencies": {
-    "workspace.json": "*",
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
-    "tsconfig.base.json": "*",
-    "tslint.json": "*",
-    ".eslintrc.json": "*",
-    "nx.json": "*"
+  "extends": "nx/presets/npm.json",
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "affected": {
+    "defaultBase": "master"
   },
-  "affected": { "defaultBase": "master" },
-  "npmScope": "phlame",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
+  "plugins": [
+    {
+      "plugin": "@nx/vite/plugin",
       "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e",
-          "build-storybook"
-        ]
+        "buildTargetName": "build",
+        "previewTargetName": "preview",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
       }
     }
-  },
-  "projects": {
-    "engine": { "tags": [] },
-    "console": { "tags": [] },
-    "playground": { "tags": ["frontend"] },
-    "playground-e2e": {
-      "tags": ["frontend"],
-      "implicitDependencies": ["playground"]
-    },
-    "server": { "tags": [] },
-    "app": { "tags": ["frontend"] },
-    "app-e2e": { "tags": ["frontend"], "implicitDependencies": ["app"] },
-    "engine-components": { "tags": ["frontend"] },
-    "engine-components-e2e": {
-      "tags": [],
-      "implicitDependencies": ["engine-components"]
+  ],
+  "generators": {
+    "@nx/web:application": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "vitest",
+      "e2eTestRunner": "cypress"
     }
   }
 }
