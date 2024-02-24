@@ -1,13 +1,13 @@
 {
   "name": "phlame",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "AGPLv3",
   "scripts": {
     "nx": "nx",
-    "start": "nx serve",
+    "start": "nx serve app",
     "dev": "nx run-many --target=serve --projects=server,app --parallel",
     "dev-e2e": "nx e2e app-e2e --watch",
-    "cypress": "cd apps/app-e2e && cypress open",
+    "cypress": "cd app-e2e && cypress open",
     "build": "nx build",
     "test": "nx test",
     "lint": "nx workspace-lint && nx lint",
@@ -16,6 +16,7 @@
   "private": true,
   "resolutions": {},
   "devDependencies": {
+    "@nx/cypress": "^18.0.5",
     "@nx/eslint": "18.0.4",
     "@nx/eslint-plugin": "18.0.4",
     "@nx/js": "18.0.4",
@@ -29,6 +30,7 @@
     "@typescript-eslint/parser": "^6.13.2",
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
+    "cypress": "^13.6.6",
     "eslint": "~8.48.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-cypress": "^2.13.4",
@@ -40,6 +42,5 @@
     "vite": "~5.0.0",
     "vite-plugin-dts": "~2.3.0",
     "vitest": "^1.0.4"
-  },
-  "dependencies": {}
+  }
 }
