@@ -123,10 +123,14 @@ export default class Building<
       // limit production for an optionally maximal stock
       // also for energy a zero resource resource can be created implicitly
       const max = (stock.max.getByType(type as ResourceType) as Resource<ResourceType>) || stocked;
-      return new ResourceProcess(rate > 0 ? max : stocked, rate);
+      return new ResourceProcess<ResourceType>(rate > 0 ? max : stocked, rate);
     });
 
-    return new Prosumer(this.type, ResourceProcessCollection.fromArray(processes), this.speed);
+    return new Prosumer<ResourceType>(
+      this.type,
+      ResourceProcessCollection.fromArray<ResourceType>(processes),
+      this.speed,
+    );
   }
 
   toString(): string {
