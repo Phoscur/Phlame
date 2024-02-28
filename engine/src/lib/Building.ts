@@ -9,8 +9,9 @@ import {
 } from "./resources";
 import BuildingRequirement from "./BuildingRequirement";
 import type { TimeUnit } from "./resources/ResourceProcess";
+import type { ProsumerIdentifier } from "./resources/Prosumer";
 
-export type BuildingIdentifier = number | string;
+export type BuildingIdentifier = ProsumerIdentifier;
 
 export type LevelToProsumptionFunc = (level: number) => number;
 

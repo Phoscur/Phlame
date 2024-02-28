@@ -3,16 +3,17 @@ import Resource, { ResourceIdentifier } from "./Resource";
 import ResourceProcess from "./ResourceProcess";
 import ResourceProcessCollection from "./ResourceProcessCollection";
 
-export type ProsumerType = string | number; // I'd prefer string, but if we want integer unitIDs...
+export type ProsumerIdentifier = string | number; // I prefer string, if we want numbers for efficiency reasons it should also work
 
 /**
  * Prosumer is a
  * Consumer most of the time,
  * sometimes the opposite: Producer
  * or even both
+ * It has a speed applied to the rate of underlying ResourceProcesses
  */
 export default class Prosumer<Types extends ResourceIdentifier> {
-  readonly type: ProsumerType;
+  readonly type: ProsumerIdentifier;
 
   readonly processes: ResourceProcessCollection<Types>;
 
@@ -21,7 +22,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
    */
   readonly speed: number;
 
-  constructor(type: ProsumerType, processes: ResourceProcessCollection<Types>, speed = 100) {
+  constructor(type: ProsumerIdentifier, processes: ResourceProcessCollection<Types>, speed = 100) {
     this.type = type;
     this.processes = processes;
     const defaultSpeed = speed >= 100 ? 100 : speed;

@@ -2,9 +2,16 @@ import { ResourceIdentifier, BaseResources, ResourceValue, ComparableResource } 
 
 const MAX_VALUE = Number.POSITIVE_INFINITY; // if we want Number.MAX_VALUE here instead we need more checks getting closer to it
 
-// TODO wouldn't typing be easier/nicer with energy inheriting from Resource? do we even need this file, it duplicates Resource?
+// TODO? wouldn't typing be easier/nicer with energy inheriting from Resource? do we even need this file, it duplicates Resource?
+// refactor extract AbstractResource
+/**
+ * Energy
+ * like Resource, however substraction allows for negative amounts for edge cases
+ * also Limits in ResourceProcesses work differently than for Resource
+ */
 export default class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
-  implements ResourceValue<Type>, ComparableResource<Type> {
+  implements ComparableResource<Type>
+{
   static types: ResourceIdentifier[] = [BaseResources.Null];
 
   static MAX_VALUE = MAX_VALUE;
@@ -101,7 +108,6 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
   /**
    * Substract another energy amount
    * Available energy may be negative in contrast to resources
-   * @param subtrahend
    */
   subtract(subtrahend: Energy<Type>): Energy<Type> {
     if (!this.equalOfTypeTo(subtrahend)) {

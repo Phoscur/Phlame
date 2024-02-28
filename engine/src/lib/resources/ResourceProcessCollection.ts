@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: "off" */
-import type { ResourceIdentifier } from "./Resource";
+import type { ComparableResource, ResourceIdentifier } from "./Resource";
 import Resource from "./Resource";
 import ResourceProcess, { TimeUnit } from "./ResourceProcess";
 import ResourceCollection from "./ResourceCollection";
@@ -7,6 +7,7 @@ import ResourceCollection from "./ResourceCollection";
 export type ResourceProcessCollectionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: ResourceProcess<Type>;
 };
+
 const RESOURCE_PROCESS_COLLECTION_TYPE = "ResourceProcessCollection";
 export default class ResourceProcessCollection<Types extends ResourceIdentifier> {
   readonly type = RESOURCE_PROCESS_COLLECTION_TYPE;
@@ -134,12 +135,12 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
 
   addLimits(limits: ResourceProcessCollectionEntries<Types>): ResourceProcessCollection<Types> {
     const s = ResourceProcessCollection.fromArray(
-      this.asArray.map((p) => {
+      this.map((p, type) => {
         if (p.isNegative) {
           return p;
         }
-        const { type } = p;
-        const limit = limits[type]?.limit;
+
+        const limit = limits[type]?.limit as ComparableResource<Types>;
         return p.addLimit(limit);
       }),
     );
