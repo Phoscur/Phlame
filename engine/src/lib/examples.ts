@@ -5,46 +5,49 @@ import examples, {
   SaltyResource,
   BlubbResource,
 } from "./resources/examples";
-export type ResourceLike = ResourceTypes | EnergyTypes;
-export type { ResourceTypes, EnergyTypes } from "./resources/examples";
+export type Resources = ResourceTypes | EnergyTypes;
 import { Stock, ResourceCollection } from "./resources";
 import Empire from "./Empire";
-import Building, { BuildingIdentifier, ProsumptionLookup, RequirementLookup } from "./Building";
+import Building, {
+  BuildingIdentifier as BuildingID,
+  ProsumptionLookup,
+  RequirementLookup,
+} from "./Building";
 import BuildingRequirement from "./BuildingRequirement";
 
-export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> = {
+export const requirements: RequirementLookup<BuildingID, Resources> = {
   // tumble mine
-  1: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  1: new BuildingRequirement<BuildingID, Resources>(
     1,
-    ResourceCollection.fromArray<ResourceLike>([new TumbleResource(60), new SaltyResource(15)]),
+    ResourceCollection.fromArray<Resources>([new TumbleResource(60), new SaltyResource(15)]),
     1.5,
     [],
   ),
   // salty mine
-  2: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  2: new BuildingRequirement<BuildingID, Resources>(
     2,
-    ResourceCollection.fromArray<ResourceLike>([new TumbleResource(48), new SaltyResource(24)]),
+    ResourceCollection.fromArray<Resources>([new TumbleResource(48), new SaltyResource(24)]),
     1.6,
     [],
   ),
   // blubber mine
-  3: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  3: new BuildingRequirement<BuildingID, Resources>(
     3,
-    ResourceCollection.fromArray<ResourceLike>([new TumbleResource(225), new SaltyResource(75)]),
+    ResourceCollection.fromArray<Resources>([new TumbleResource(225), new SaltyResource(75)]),
     1.5,
     [],
   ),
   // power
-  4: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  4: new BuildingRequirement<BuildingID, Resources>(
     4,
-    ResourceCollection.fromArray<ResourceLike>([new TumbleResource(75), new SaltyResource(30)]),
+    ResourceCollection.fromArray<Resources>([new TumbleResource(75), new SaltyResource(30)]),
     1.5,
     [],
   ),
   // power based on blubber
-  12: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  12: new BuildingRequirement<BuildingID, Resources>(
     12,
-    ResourceCollection.fromArray<ResourceLike>([new TumbleResource(48), new SaltyResource(24)]),
+    ResourceCollection.fromArray<Resources>([new TumbleResource(48), new SaltyResource(24)]),
     1.8,
     [
       {
@@ -58,9 +61,9 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
     ],
   ),
   // build buildings faster! TODO we need to add the time reducing factors
-  14: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  14: new BuildingRequirement<BuildingID, Resources>(
     14, // robots factor=1/(1+level)
-    ResourceCollection.fromArray<ResourceLike>([
+    ResourceCollection.fromArray<Resources>([
       new TumbleResource(400),
       new SaltyResource(120),
       new BlubbResource(200),
@@ -68,9 +71,9 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
     2,
     [],
   ), // FASTER
-  15: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  15: new BuildingRequirement<BuildingID, Resources>(
     15, // nanites factor=1/2^level
-    ResourceCollection.fromArray<ResourceLike>([
+    ResourceCollection.fromArray<Resources>([
       new TumbleResource(1000000),
       new SaltyResource(500000),
       new BlubbResource(100000),
@@ -88,9 +91,9 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
     ],
   ),
   // lab
-  31: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  31: new BuildingRequirement<BuildingID, Resources>(
     31,
-    ResourceCollection.fromArray<ResourceLike>([
+    ResourceCollection.fromArray<Resources>([
       new TumbleResource(200),
       new SaltyResource(400),
       new BlubbResource(200),
@@ -99,9 +102,9 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
     [],
   ),
   // tech (above 100)
-  109: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  109: new BuildingRequirement<BuildingID, Resources>(
     113, // computer
-    ResourceCollection.fromArray<ResourceLike>([new SaltyResource(800), new BlubbResource(400)]),
+    ResourceCollection.fromArray<Resources>([new SaltyResource(800), new BlubbResource(400)]),
     2,
     [
       {
@@ -110,9 +113,9 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
       },
     ],
   ),
-  113: new BuildingRequirement<BuildingIdentifier, ResourceLike>(
+  113: new BuildingRequirement<BuildingID, Resources>(
     113, // energy
-    ResourceCollection.fromArray<ResourceLike>([new SaltyResource(800), new BlubbResource(400)]),
+    ResourceCollection.fromArray<Resources>([new SaltyResource(800), new BlubbResource(400)]),
     2,
     [
       {
@@ -123,7 +126,7 @@ export const requirements: RequirementLookup<BuildingIdentifier, ResourceLike> =
   ),
   // TODO add the remaining buildings and tech aswell as fleet (with ids above 200)
 };
-export const prosumption: ProsumptionLookup<BuildingIdentifier, ResourceLike> = {
+export const prosumption: ProsumptionLookup<BuildingID, Resources> = {
   0: {
     [ResourceTypes.Tumble]: (): number => {
       return 0;
@@ -170,28 +173,16 @@ export const prosumption: ProsumptionLookup<BuildingIdentifier, ResourceLike> = 
     },
   },
 };
-const b = new Building<BuildingIdentifier, ResourceLike>(12, requirements, prosumption, 1, 100);
-const bUpgraded = new Building<BuildingIdentifier, ResourceLike>(
-  12,
-  requirements,
-  prosumption,
-  2,
-  100,
-);
-const b0 = new Building<BuildingIdentifier, ResourceLike>(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0
-const b3 = new Building<BuildingIdentifier, ResourceLike>(3, requirements, prosumption, 1, 100);
-const b1 = new Building<BuildingIdentifier, ResourceLike>(1, requirements, prosumption, 2, 100);
-const b2 = new Building<BuildingIdentifier, ResourceLike>(2, requirements, prosumption, 1, 100);
-const b4 = new Building<BuildingIdentifier, ResourceLike>(4, requirements, prosumption, 1, 100);
-export const buildings: Building<BuildingIdentifier, ResourceLike>[] = [b, b3, b0, b2];
-export const overconsumingBuildings: Building<BuildingIdentifier, ResourceLike>[] = [
-  b,
-  b1,
-  b2,
-  b3,
-  b0,
-];
-export const underBlubberBuildings: Building<BuildingIdentifier, ResourceLike>[] = [
+const b = new Building<BuildingID, Resources>(12, requirements, prosumption, 1, 100);
+const bUpgraded = new Building<BuildingID, Resources>(12, requirements, prosumption, 2, 100);
+const b0 = new Building<BuildingID, Resources>(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0
+const b3 = new Building<BuildingID, Resources>(3, requirements, prosumption, 1, 100);
+const b1 = new Building<BuildingID, Resources>(1, requirements, prosumption, 2, 100);
+const b2 = new Building<BuildingID, Resources>(2, requirements, prosumption, 1, 100);
+const b4 = new Building<BuildingID, Resources>(4, requirements, prosumption, 1, 100);
+export const buildings: Building<BuildingID, Resources>[] = [b, b3, b0, b2];
+export const overconsumingBuildings: Building<BuildingID, Resources>[] = [b, b1, b2, b3, b0];
+export const underBlubberBuildings: Building<BuildingID, Resources>[] = [
   bUpgraded,
   b1,
   b2,
@@ -199,11 +190,7 @@ export const underBlubberBuildings: Building<BuildingIdentifier, ResourceLike>[]
   b0,
   b4,
 ];
-export const defaultBuildings: Building<BuildingIdentifier, ResourceLike>[] = [
-  b1.downgraded,
-  b2,
-  b4,
-];
+export const defaultBuildings: Building<BuildingID, Resources>[] = [b1.downgraded, b2, b4];
 const { t3, s3, b15 } = examples;
 export const resourceCollection = ResourceCollection.fromArray<ResourceTypes>([t3, s3, b15]);
 export const emptyResourceCollection = ResourceCollection.fromArray<ResourceTypes>([

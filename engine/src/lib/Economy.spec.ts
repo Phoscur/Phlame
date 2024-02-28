@@ -3,11 +3,10 @@ import {
   buildings,
   overconsumingBuildings,
   underBlubberBuildings,
-  ResourceTypes,
 } from "./examples";
 import Economy from "./Economy";
 import { ResourceCollection, ResourceProcess, Stock } from "./resources";
-import { TumbleResource, BlubbResource, SaltyResource } from "./resources/examples";
+import { TumbleResource, BlubbResource, SaltyResource, ResourceTypes } from "./resources/examples";
 
 describe("Factory Entity", () => {
   it("should be console printable", () => {
