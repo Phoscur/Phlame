@@ -1,9 +1,9 @@
 import { TimeUnit } from "./resources";
-import Entity from "./Entity.interface";
-//interface ValueObject {}
-type ValueObject = {
-  [property: string]: number | string;
-};
+
+export type ID = string | number;
+export interface Entity {
+  id: ID;
+}
 
 export enum ActionTypes {
   CREATE = "create",
@@ -15,6 +15,6 @@ export default interface Action<Type extends ActionTypes> {
   consequence: {
     at: TimeUnit; // ticks
     type: Type; // event trigger
-    payload: ValueObject;
+    payload: Record<string | number | symbol, any>;
   };
 }
