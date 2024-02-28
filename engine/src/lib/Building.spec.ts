@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import { stock, requirements, prosumption, ResourceLike } from "./examples";
 import Building, { BuildingIdentifier } from "./Building";
 import { ResourceCollection } from "./resources";

@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import examples, { TumbleResource, ResourceTypes } from "./examples";
 import Resource from "./Resource";
 

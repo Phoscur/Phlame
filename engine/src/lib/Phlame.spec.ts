@@ -1,5 +1,4 @@
 import Action, { ActionTypes } from "./Action";
-import { expect } from "chai";
 
 import examples, { Types } from "./resources/examples";
 import { stock, buildings } from "./examples";

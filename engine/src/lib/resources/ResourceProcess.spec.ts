@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import examples, { energy, process } from "./examples";
 
 import ResourceProcess, { TimeUnit } from "./ResourceProcess";
