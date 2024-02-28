@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import examples, { Types } from "./resources/examples";
 import BuildingRequirement from "./BuildingRequirement";
 import ResourceCollection from "./resources/ResourceCollection";

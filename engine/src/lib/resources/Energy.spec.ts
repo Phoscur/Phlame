@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import { energy, EnergyResource, EnergyTypes } from "./examples";
 
 describe("Energy Resource ValueObject", () => {

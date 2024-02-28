@@ -1,6 +1,4 @@
 import { EnergyResource } from "./examples";
-import { expect } from "chai";
-
 import Prosumer from "./Prosumer";
 import ProsumerCollection from "./ProsumerCollection";
 import ResourceProcess from "./ResourceProcess";

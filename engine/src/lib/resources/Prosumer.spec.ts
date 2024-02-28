@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import examples, { energy, process, processes } from "./examples";
 import Prosumer from "./Prosumer";
 

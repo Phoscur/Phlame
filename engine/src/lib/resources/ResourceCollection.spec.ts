@@ -1,5 +1,3 @@
-import { expect } from "chai";
-
 import examples from "./examples";
 import ResourceCollection from "./ResourceCollection";
 
