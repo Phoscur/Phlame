@@ -9,9 +9,10 @@
     "dev-e2e": "nx e2e app-e2e --watch",
     "cypress": "cd app-e2e && cypress open",
     "build": "nx build",
-    "test": "nx test",
-    "lint": "nx workspace-lint && nx lint",
-    "e2e": "nx e2e"
+    "test": "nx run-many -t test --parallel --output-style stream",
+    "ci": "nx run-many -t test -p app engine --parallel --verbose --coverage --nx-bail",
+    "lint": "nx report && nx run-many -t lint",
+    "e2e": "nx run-many -t e2e"
   },
   "private": true,
   "resolutions": {},
