@@ -1,12 +1,12 @@
-import type { ResourceIdentifier } from "./Resource";
-import type { TimeUnit } from "./ResourceProcess";
-import ResourceCalculation from "./ResourceCalculation";
-import ResourceCollection from "./ResourceCollection";
-import ResourceProcess from "./ResourceProcess";
-import type { ResourceProcessCollectionEntries } from "./ResourceProcessCollection";
-import ResourceProcessCollection from "./ResourceProcessCollection";
-import Stock from "./Stock";
-import ProsumerCollection from "./ProsumerCollection";
+import type { ResourceIdentifier } from './Resource';
+import type { TimeUnit } from './ResourceProcess';
+import ResourceCalculation from './ResourceCalculation';
+import ResourceCollection from './ResourceCollection';
+import ResourceProcess from './ResourceProcess';
+import type { ResourceProcessCollectionEntries } from './ResourceProcessCollection';
+import ResourceProcessCollection from './ResourceProcessCollection';
+import Stock from './Stock';
+import ProsumerCollection from './ProsumerCollection';
 
 export default class EnergyCalculation<Types extends ResourceIdentifier> {
   static REBALANCING_EXPONENT = 1.1;
@@ -97,7 +97,7 @@ export default class EnergyCalculation<Types extends ResourceIdentifier> {
   }
 
   toString(): string {
-    return `Processing energy&resources: ${this.productionEntries.join(", ")}`;
+    return `Processing energy&resources: ${this.productionEntries.join(', ')}`;
   }
 
   /**

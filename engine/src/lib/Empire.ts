@@ -1,12 +1,12 @@
-import type { ResourceIdentifier } from "./resources";
-import { Stock } from "./resources";
-import Building, { BuildingIdentifier } from "./Building";
+import type { ResourceIdentifier } from './resources';
+import { Stock } from './resources';
+import Building, { BuildingIdentifier } from './Building';
 
 export default class Empire<
   BuildingType extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier
+  ResourceTypes extends ResourceIdentifier,
 > {
-  name = "";
+  name = '';
 
   buildings: Building<BuildingType, ResourceTypes>[] = [];
 
@@ -25,6 +25,6 @@ export default class Empire<
   }
 
   toString(): string {
-    return `${this.name} (${this.resources}) [${this.buildings.join(", ")}]`;
+    return `${this.name} (${this.resources}) [${this.buildings.join(', ')}]`;
   }
 }

@@ -4,16 +4,16 @@ import examples, {
   TumbleResource,
   SaltyResource,
   BlubbResource,
-} from "./resources/examples";
+} from './resources/examples';
 export type Resources = ResourceTypes | EnergyTypes;
-import { Stock, ResourceCollection } from "./resources";
-import Empire from "./Empire";
+import { Stock, ResourceCollection } from './resources';
+import Empire from './Empire';
 import Building, {
   BuildingIdentifier as BuildingID,
   ProsumptionLookup,
   RequirementLookup,
-} from "./Building";
-import BuildingRequirement from "./BuildingRequirement";
+} from './Building';
+import BuildingRequirement from './BuildingRequirement';
 
 export const requirements: RequirementLookup<BuildingID, Resources> = {
   // tumble mine
@@ -201,6 +201,6 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
 export const stock = new Stock<ResourceTypes>(resourceCollection);
 export const emptyStock = new Stock<ResourceTypes>(emptyResourceCollection);
 
-const empire = new Empire("Phlameland", stock, buildings);
+const empire = new Empire('Phlameland', stock, buildings);
 
 export default empire;

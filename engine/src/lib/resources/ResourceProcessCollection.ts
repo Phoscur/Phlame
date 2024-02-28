@@ -1,14 +1,14 @@
 /* eslint class-methods-use-this: "off" */
-import type { ComparableResource, ResourceIdentifier } from "./Resource";
-import Resource from "./Resource";
-import ResourceProcess, { TimeUnit } from "./ResourceProcess";
-import ResourceCollection from "./ResourceCollection";
+import type { ComparableResource, ResourceIdentifier } from './Resource';
+import Resource from './Resource';
+import ResourceProcess, { TimeUnit } from './ResourceProcess';
+import ResourceCollection from './ResourceCollection';
 
 export type ResourceProcessCollectionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: ResourceProcess<Type>;
 };
 
-const RESOURCE_PROCESS_COLLECTION_TYPE = "ResourceProcessCollection";
+const RESOURCE_PROCESS_COLLECTION_TYPE = 'ResourceProcessCollection';
 export default class ResourceProcessCollection<Types extends ResourceIdentifier> {
   readonly type = RESOURCE_PROCESS_COLLECTION_TYPE;
 
@@ -58,10 +58,10 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
   get prettyAmount(): string {
     return this.asArray
       .map((process) => {
-        const ratePrefix = process.rate >= 0 ? "+" : "";
+        const ratePrefix = process.rate >= 0 ? '+' : '';
         return `${process.limit.prettyAmount}${ratePrefix}${process.rate}`;
       })
-      .join(", ");
+      .join(', ');
   }
 
   get resources(): ResourceProcessCollection<Types> {
@@ -104,7 +104,7 @@ export default class ResourceProcessCollection<Types extends ResourceIdentifier>
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
       const entry = this.entries[type] as ResourceProcess<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
-      if (typeof result === "undefined") {
+      if (typeof result === 'undefined') {
         return entries;
       }
       entries.push(result);

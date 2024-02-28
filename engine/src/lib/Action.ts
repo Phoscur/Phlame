@@ -1,4 +1,4 @@
-import { TimeUnit } from "./resources";
+import { TimeUnit } from './resources';
 
 export type ID = string | number;
 export interface Entity {
@@ -6,8 +6,8 @@ export interface Entity {
 }
 
 export enum ActionTypes {
-  CREATE = "create",
-  UPDATE = "update",
+  CREATE = 'create',
+  UPDATE = 'update',
 }
 export default interface Action<Type extends ActionTypes> {
   type: Type;

@@ -1,4 +1,4 @@
-import { ResourceIdentifier, BaseResources, ResourceValue, ComparableResource } from "./Resource";
+import { ResourceIdentifier, BaseResources, ResourceValue, ComparableResource } from './Resource';
 
 const MAX_VALUE = Number.POSITIVE_INFINITY; // if we want Number.MAX_VALUE here instead we need more checks getting closer to it
 

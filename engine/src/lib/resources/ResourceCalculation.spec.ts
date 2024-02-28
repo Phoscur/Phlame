@@ -1,12 +1,12 @@
-import examples, { process } from "./examples";
-import ResourceCollection from "./ResourceCollection";
-import Stock from "./Stock";
-import ResourceCalculation from "./ResourceCalculation";
-import ResourceProcess, { TimeUnit } from "./ResourceProcess";
-import ResourceProcessCollection from "./ResourceProcessCollection";
+import examples, { process } from './examples';
+import ResourceCollection from './ResourceCollection';
+import Stock from './Stock';
+import ResourceCalculation from './ResourceCalculation';
+import ResourceProcess, { TimeUnit } from './ResourceProcess';
+import ResourceProcessCollection from './ResourceProcessCollection';
 
-describe("ResourceCalculation (ResourceCollection with limits) ValueObject", () => {
-  it("should be console printable", () => {
+describe('ResourceCalculation (ResourceCollection with limits) ValueObject', () => {
+  it('should be console printable', () => {
     const { t3, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const processes = ResourceProcessCollection.fromArray([
@@ -18,11 +18,11 @@ describe("ResourceCalculation (ResourceCollection with limits) ValueObject", () 
     const resourceCalculation = new ResourceCalculation(stock, processes);
 
     expect(resourceCalculation.toString()).to.eql(
-      "Processing resources: 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1, 0energy(0, Infinity): +50",
+      'Processing resources: 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1, 0energy(0, Infinity): +50',
     );
   });
 
-  it("should calculate with time units", () => {
+  it('should calculate with time units', () => {
     const { t3, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const processes = ResourceProcessCollection.fromArray([
@@ -35,27 +35,27 @@ describe("ResourceCalculation (ResourceCollection with limits) ValueObject", () 
 
     const oneSecondLater = resourceCalculation.calculate(timeUnits);
     expect(oneSecondLater.toString()).to.eql(
-      "Processing resources: 4tumbles(0, Infinity): +1, 2salties(0, Infinity): -1",
+      'Processing resources: 4tumbles(0, Infinity): +1, 2salties(0, Infinity): -1',
     );
 
     const anotherSecondLater = oneSecondLater.calculate(timeUnits);
     expect(anotherSecondLater.toString()).to.eql(
-      "Processing resources: 5tumbles(0, Infinity): +1, 1salties(0, Infinity): -1",
+      'Processing resources: 5tumbles(0, Infinity): +1, 1salties(0, Infinity): -1',
     );
 
     const emptySalties = anotherSecondLater.calculate(timeUnits);
     expect(emptySalties.toString()).to.eql(
-      "Processing resources: 6tumbles(0, Infinity): +1, 0salties(0, Infinity): -1",
+      'Processing resources: 6tumbles(0, Infinity): +1, 0salties(0, Infinity): -1',
     );
 
     // Continuing with negative rate wont substract any more, because resources can't be negative
     const emptySaltiesStill = emptySalties.calculate(timeUnits);
     expect(emptySaltiesStill.toString()).to.eql(
-      "Processing resources: 7tumbles(0, Infinity): +1, 0salties(0, Infinity): -1",
+      'Processing resources: 7tumbles(0, Infinity): +1, 0salties(0, Infinity): -1',
     );
   });
 
-  it("should know to calculate remaining time units", () => {
+  it('should know to calculate remaining time units', () => {
     const { t3, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const processes = ResourceProcessCollection.fromArray([
@@ -68,7 +68,7 @@ describe("ResourceCalculation (ResourceCollection with limits) ValueObject", () 
     expect(resourceCalculation.validFor).to.be.equal(timeUnits);
   });
 
-  it("should know how many time units can be calculated within the current limits", () => {
+  it('should know how many time units can be calculated within the current limits', () => {
     const { t3, t5, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const processes = ResourceProcessCollection.fromArray([
@@ -83,7 +83,7 @@ describe("ResourceCalculation (ResourceCollection with limits) ValueObject", () 
     expect(limitedResourceCalculation.validFor).to.be.equal(limitedTimeUnits);
   });
 
-  it("should know when it is over limits", () => {
+  it('should know when it is over limits', () => {
     const { t3, t5, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const processes = ResourceProcessCollection.fromArray([

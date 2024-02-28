@@ -1,7 +1,7 @@
-import { ResourceIdentifier } from "./Resource";
-import { TimeUnit } from "./ResourceProcess";
-import ResourceProcessCollection from "./ResourceProcessCollection";
-import Stock from "./Stock";
+import { ResourceIdentifier } from './Resource';
+import { TimeUnit } from './ResourceProcess';
+import ResourceProcessCollection from './ResourceProcessCollection';
+import Stock from './Stock';
 
 export default class ResourceCalculation<Types extends ResourceIdentifier> {
   readonly processes: ResourceProcessCollection<Types>;
@@ -49,7 +49,7 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
     return this.processes.asArray.map(({ rate, limit }) => {
       const resource = this.stock.has(limit.type);
       const stockLimits = this.stock.resourceLimitToString(resource);
-      const ratePrefix = rate > 0 ? "+" : "";
+      const ratePrefix = rate > 0 ? '+' : '';
       return `${stockLimits}: ${ratePrefix}${rate}`;
     });
   }
@@ -63,6 +63,6 @@ export default class ResourceCalculation<Types extends ResourceIdentifier> {
   }
 
   toString(): string {
-    return `Processing resources: ${this.entries.join(", ")}`;
+    return `Processing resources: ${this.entries.join(', ')}`;
   }
 }

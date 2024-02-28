@@ -1,7 +1,7 @@
-import Resource, { ComparableResource, ResourceIdentifier } from "./Resource";
-import Energy from "./Energy";
+import Resource, { ComparableResource, ResourceIdentifier } from './Resource';
+import Energy from './Energy';
 
-const RESOURCE_COLLECTION_TYPE = "ResourceCollection";
+const RESOURCE_COLLECTION_TYPE = 'ResourceCollection';
 export type ResourceArray = ComparableResource<ResourceIdentifier>[];
 
 export type ResourceCollectionEntries<Types extends ResourceIdentifier> = {
@@ -50,7 +50,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
       .map((resource) => {
         return resource.prettyAmount;
       })
-      .join(", ");
+      .join(', ');
   }
 
   protected createByType<Type extends Types>(type: Type, amount = 0): ComparableResource<Type> {
@@ -77,7 +77,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
       const entry = this.entries[type] as ComparableResource<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
-      if (typeof result === "undefined") {
+      if (typeof result === 'undefined') {
         return entries;
       }
       entries.push(result);

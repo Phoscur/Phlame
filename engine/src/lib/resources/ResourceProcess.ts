@@ -1,5 +1,5 @@
-import Resource, { ComparableResource, ResourceIdentifier } from "./Resource";
-import Energy from "./Energy";
+import Resource, { ComparableResource, ResourceIdentifier } from './Resource';
+import Energy from './Energy';
 
 export type TimeUnit = number;
 
@@ -61,7 +61,9 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
    */
   add(resourceProcess: ResourceProcess<Type>): ResourceProcess<Type> {
     if (!this.equalOfTypeTo(resourceProcess)) {
-      throw new TypeError(`ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`);
+      throw new TypeError(
+        `ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`,
+      );
     }
     // both Resource and Energy are typeguarded ComparableResources TODO fix remove typecast
     const oldLimit = resourceProcess.limit as Resource<Type> & Energy<Type>;
@@ -86,7 +88,9 @@ export default class ResourceProcess<Type extends ResourceIdentifier> {
    */
   subtract(resourceProcess: ResourceProcess<Type>): ResourceProcess<Type> {
     if (!this.equalOfTypeTo(resourceProcess)) {
-      throw new TypeError(`ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`);
+      throw new TypeError(
+        `ResourceProcess types don't match (${this.type} != ${resourceProcess.type})`,
+      );
     }
     return this.newRate(this.rate - resourceProcess.rate);
   }

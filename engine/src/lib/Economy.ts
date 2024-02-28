@@ -1,7 +1,7 @@
-import type { ResourceIdentifier } from "./resources";
-import { EnergyCalculation, Stock } from "./resources";
-import Building, { BuildingIdentifier } from "./Building";
-import ProsumerCollection from "./resources/ProsumerCollection";
+import type { ResourceIdentifier } from './resources';
+import { EnergyCalculation, Stock } from './resources';
+import Building, { BuildingIdentifier } from './Building';
+import ProsumerCollection from './resources/ProsumerCollection';
 
 /**
  * Economy is the sum of production and consumption of resources and energy
@@ -9,7 +9,7 @@ import ProsumerCollection from "./resources/ProsumerCollection";
  */
 export default class Economy<
   BuildingType extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier
+  ResourceTypes extends ResourceIdentifier,
 > {
   readonly name: string;
 
@@ -60,7 +60,9 @@ export default class Economy<
     factor: number,
     buildings: Building<BuildingType, ResourceTypes>[],
   ): Building<BuildingType, ResourceTypes>[] {
-    const prosumers = new ProsumerCollection<ResourceTypes>(buildings.map((b) => b.prosumes(stock)));
+    const prosumers = new ProsumerCollection<ResourceTypes>(
+      buildings.map((b) => b.prosumes(stock)),
+    );
     const prosumption = factor < 1 ? prosumers.rebalancedResources(factor) : prosumers.reduced;
     const nextTickWithdrawal = prosumption.getNegativeResourcesFor(1);
     // if (stock.isFetchable(nextTickWithdrawal)) {
@@ -111,7 +113,7 @@ export default class Economy<
       buildings = this.recalculationStrategy(resources.stock, resources.balanceFactor, buildings);
       resources = this.getResourceCalculation(resources.stock, buildings);
       if (!resources.validFor) {
-        throw new Error("Invalid resource (re)calculation");
+        throw new Error('Invalid resource (re)calculation');
       }
     }
 
@@ -120,6 +122,6 @@ export default class Economy<
   }
 
   toString(): string {
-    return `${this.name} (${this.resources}) [${this.buildings.join(", ")}]`;
+    return `${this.name} (${this.resources}) [${this.buildings.join(', ')}]`;
   }
 }

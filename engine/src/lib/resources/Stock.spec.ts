@@ -1,12 +1,12 @@
-import examples, { Types } from "./examples";
-import ResourceCollection from "./ResourceCollection";
-import Stock from "./Stock";
+import examples, { Types } from './examples';
+import ResourceCollection from './ResourceCollection';
+import Stock from './Stock';
 
-describe("Stock (ResourceCollection with limits) ValueObject", () => {
-  it("should be console printable", () => {
+describe('Stock (ResourceCollection with limits) ValueObject', () => {
+  it('should be console printable', () => {
     const { t1, t3, t8, s3 } = examples;
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const stocks = "3tumbles(0, Infinity), 3salties(0, Infinity)";
+    const stocks = '3tumbles(0, Infinity), 3salties(0, Infinity)';
     expect(stock.toString()).to.eql(`Stock[${stocks}]`);
 
     const stockWithLimits = new Stock<Types>(
@@ -14,11 +14,11 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
       ResourceCollection.fromArray([t8]),
       ResourceCollection.fromArray([t1]),
     );
-    const stocksLimited = "3tumbles(1, 8), 3salties(0, Infinity)";
+    const stocksLimited = '3tumbles(1, 8), 3salties(0, Infinity)';
     expect(stockWithLimits.toString()).to.eql(`Stock[${stocksLimited}]`);
   });
 
-  it("can fetch and store", () => {
+  it('can fetch and store', () => {
     const { t0, t3, s3 } = examples;
     const stock = new Stock(ResourceCollection.fromArray([t3, s3]));
     const stock2 = new Stock(ResourceCollection.fromArray([t0, s3]));
@@ -28,7 +28,7 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
     expect(stock0.has(s3.type)).to.be.eql(s3.zero);
   });
 
-  it("has limits", () => {
+  it('has limits', () => {
     const { t0, t3, s3 } = examples;
     const t0c = ResourceCollection.fromArray([t0]);
     const t3c = ResourceCollection.fromArray([t3]);
@@ -45,7 +45,7 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
     expect(stock.getMaxResource(s3)).to.be.eql(s3.infinite);
   });
 
-  it("can check to fit (its) limits", () => {
+  it('can check to fit (its) limits', () => {
     const { t0, t3 } = examples;
     const t0c = ResourceCollection.fromArray([t0]);
     const t3c = ResourceCollection.fromArray([t3]);
@@ -59,7 +59,7 @@ describe("Stock (ResourceCollection with limits) ValueObject", () => {
     expect(stock0.isInLimits(t3)).to.be.false;
   });
 
-  it("is fetchable", () => {
+  it('is fetchable', () => {
     const { t0, t3, s3 } = examples;
     const st30 = ResourceCollection.fromArray([t0, s3]);
     const st3 = ResourceCollection.fromArray([t3, s3]);

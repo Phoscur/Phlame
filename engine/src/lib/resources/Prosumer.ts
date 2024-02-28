@@ -1,6 +1,6 @@
-import { ComparableResource, ResourceIdentifier } from "./Resource";
-import ResourceProcess from "./ResourceProcess";
-import ResourceProcessCollection from "./ResourceProcessCollection";
+import { ComparableResource, ResourceIdentifier } from './Resource';
+import ResourceProcess from './ResourceProcess';
+import ResourceProcessCollection from './ResourceProcessCollection';
 
 export type ProsumerIdentifier = string | number; // I prefer string, if we want numbers for efficiency reasons it should also work
 

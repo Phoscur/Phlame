@@ -1,5 +1,5 @@
-import { ComparableResource, ResourceIdentifier } from "./Resource";
-import ResourceCollection, { ResourcesLike } from "./ResourceCollection";
+import { ComparableResource, ResourceIdentifier } from './Resource';
+import ResourceCollection, { ResourcesLike } from './ResourceCollection';
 
 export default class Stock<Types extends ResourceIdentifier> {
   readonly resources: ResourceCollection<Types>;
@@ -114,6 +114,6 @@ export default class Stock<Types extends ResourceIdentifier> {
   }
 
   toString(): string {
-    return `Stock[${this.limitedAmounts.join(", ")}]`;
+    return `Stock[${this.limitedAmounts.join(', ')}]`;
   }
 }
