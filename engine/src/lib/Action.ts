@@ -15,6 +15,6 @@ export default interface Action<Type extends ActionTypes> {
   consequence: {
     at: TimeUnit; // ticks
     type: Type; // event trigger
-    payload: Record<string | number | symbol, any>;
+    payload: Record<string | number | symbol, unknown>;
   };
 }
