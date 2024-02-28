@@ -1,12 +1,12 @@
 import type { TimeUnit, ResourceIdentifier } from "./resources";
 import type { BuildingIdentifier } from "./Building";
-import Action, { ActionTypes } from "./Action";
+import Action, { ActionTypes, Entity, ID } from "./Action";
 import Building from "./Building";
 import { Stock } from "./resources";
-import Entity, { ID } from "./Entity.interface";
 
 export default class Phlame<Types extends ResourceIdentifier, UnitTypes extends BuildingIdentifier>
-  implements Entity {
+  implements Entity
+{
   constructor(
     public readonly id: ID,
     private resources: Stock<Types>,
