@@ -1,5 +1,4 @@
-import Energy from "./Energy";
-import Resource, { ResourceIdentifier } from "./Resource";
+import { ComparableResource, ResourceIdentifier } from "./Resource";
 import ResourceProcess from "./ResourceProcess";
 import ResourceProcessCollection from "./ResourceProcessCollection";
 
@@ -37,7 +36,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return this.new(speed);
   }
 
-  consumes(limit: Resource<Types> | Energy<Types>): ResourceProcess<Types> | undefined {
+  consumes(limit: ComparableResource<Types>): ResourceProcess<Types> | undefined {
     const process = this.processes.getByType(limit.type);
     if (!process || process.rate >= 0) {
       return undefined;
@@ -46,7 +45,7 @@ export default class Prosumer<Types extends ResourceIdentifier> {
     return new ResourceProcess(limit, rate);
   }
 
-  produces(limit: Resource<Types> | Energy<Types>): ResourceProcess<Types> | undefined {
+  produces(limit: ComparableResource<Types>): ResourceProcess<Types> | undefined {
     const process = this.processes.getByType(limit.type);
     if (!process || process.rate <= 0) {
       return undefined;
