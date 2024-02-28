@@ -60,26 +60,22 @@ export default class Economy<
     factor: number,
     buildings: Building<BuildingType, ResourceTypes>[],
   ): Building<BuildingType, ResourceTypes>[] {
-    const prosumers = new ProsumerCollection<ResourceTypes>(
-      buildings.map((b) => b.prosumes(stock)),
-    );
+    const prosumers = new ProsumerCollection<ResourceTypes>(buildings.map((b) => b.prosumes(stock)));
     const prosumption = factor < 1 ? prosumers.rebalancedResources(factor) : prosumers.reduced;
     const nextTickWithdrawal = prosumption.getNegativeResourcesFor(1);
-    if (!stock.isFetchable(nextTickWithdrawal)) {
-      const missing = stock.getUnfetchable(nextTickWithdrawal);
-      return buildings.map((building) => {
-        const halt = missing.asArray.some((resource) =>
-          building.prosumes(stock).consumes(resource),
-        );
-        if (halt) {
-          // console.warn(`Halting ${building}`);
-          // halt building production if its prosumption includes consumption which can't be fulfilled
-          return building.disabled;
-        }
-        return building;
-      });
-    }
-    return buildings;
+    // if (stock.isFetchable(nextTickWithdrawal)) {
+    //   return buildings; // TODO how to cover this with a test?
+    // }
+    const missing = stock.getUnfetchable(nextTickWithdrawal);
+    return buildings.map((building) => {
+      const halt = missing.asArray.some((resource) => building.prosumes(stock).consumes(resource));
+      if (halt) {
+        // console.warn(`Halting ${building}`);
+        // halt building production if its prosumption includes consumption which can't be fulfilled
+        return building.disabled;
+      }
+      return building;
+    });
   }
 
   upgrade(buildingType: BuildingIdentifier): Economy<BuildingType, ResourceTypes> {
