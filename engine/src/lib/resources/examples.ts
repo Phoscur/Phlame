@@ -69,42 +69,42 @@ export class HeatResource extends Energy<EnergyTypes.Heat> {
 export type ResourceType = TumbleResource | SaltyResource | BaseResources;
 export type EnergyType = EnergyResource;
 
-const t0 = new TumbleResource(0);
-const t1 = new TumbleResource(1);
-const t3 = new TumbleResource(3);
-const s0 = new SaltyResource(0);
-const s3 = new SaltyResource(3);
-const b1 = new BlubbResource(1);
-export const examples: { [name: string]: Resource<Types> } = {
+const t0: Resource<Types> = new TumbleResource(0);
+const t1: Resource<Types> = new TumbleResource(1);
+const t3: Resource<Types> = new TumbleResource(3);
+const s0: Resource<Types> = new SaltyResource(0);
+const s3: Resource<Types> = new SaltyResource(3);
+const b1: Resource<Types> = new BlubbResource(1);
+export const examples = {
   t0,
   t1,
   t3,
-  t5: new TumbleResource(5),
-  t6: new TumbleResource(6),
-  t8: new TumbleResource(8),
+  t5: new TumbleResource(5) as Resource<Types>,
+  t6: new TumbleResource(6) as Resource<Types>,
+  t8: new TumbleResource(8) as Resource<Types>,
   s0,
   s3,
-  s6: new SaltyResource(6),
-  s9: new SaltyResource(9),
-  s10: new SaltyResource(10),
+  s6: new SaltyResource(6) as Resource<Types>,
+  s9: new SaltyResource(9) as Resource<Types>,
+  s10: new SaltyResource(10) as Resource<Types>,
   b1,
-  b15: new BlubbResource(15),
+  b15: new BlubbResource(15) as Resource<Types>,
 };
 
 export default examples;
 
-export const resources: { [name: string]: ResourceCollection<Types> } = {
-  t3s3: ResourceCollection.fromArray([t3, s3]),
+export const resources = {
+  t3s3: ResourceCollection.fromArray<Types>([t3, s3]),
 };
-const e0 = new EnergyResource(0);
-export const energy: { [name: string]: Energy<Types> } = {
-  em10: new EnergyResource(-10),
+const e0: Energy<Types> = new EnergyResource(0);
+export const energy = {
+  em10: new EnergyResource(-10) as Energy<Types>,
   e0,
-  e10: new EnergyResource(10),
-  e100: new EnergyResource(100),
+  e10: new EnergyResource(10) as Energy<Types>,
+  e100: new EnergyResource(100) as Energy<Types>,
   eInf: e0.infinite,
-  h0: new HeatResource(0),
-  h10: new HeatResource(10),
+  h0: new HeatResource(0) as Energy<Types>,
+  h10: new HeatResource(10) as Energy<Types>,
 };
 
 export const production = {
@@ -118,25 +118,25 @@ export const consumption = {
   [EnergyTypes.Electricity]: (lvl: number): number => -10 * lvl * lvl ** 1.1,
 };
 
-const rt11 = new ResourceProcess(t1, 1);
-const rt31 = new ResourceProcess(t3, 1);
-const rs31 = new ResourceProcess(s3, 1);
-const rb11 = new ResourceProcess(b1, 1);
+const rt11 = new ResourceProcess<Types>(t1, 1);
+const rt31 = new ResourceProcess<Types>(t3, 1);
+const rs31 = new ResourceProcess<Types>(s3, 1);
+const rb11 = new ResourceProcess<Types>(b1, 1);
 
-const ps1 = new ResourceProcess(
+const ps1 = new ResourceProcess<Types>(
   new Resource(ResourceTypes.Salty, production[ResourceTypes.Salty](1)),
   1,
 );
-const pe1 = new ResourceProcess(
+const pe1 = new ResourceProcess<Types>(
   e0, // or energy.eInf?,
   production[EnergyTypes.Electricity](1),
 );
-const pt1 = new ResourceProcess(t0, production[ResourceTypes.Tumble](1));
+const pt1 = new ResourceProcess<Types>(t0, production[ResourceTypes.Tumble](1));
 const saltyConsumption10 = new SaltyResource(-consumption[ResourceTypes.Salty](1));
-const cs1 = new ResourceProcess(saltyConsumption10, -1);
-const ce1 = new ResourceProcess(e0, consumption[EnergyTypes.Electricity](1));
+const cs1 = new ResourceProcess<Types>(saltyConsumption10, -1);
+const ce1 = new ResourceProcess<Types>(e0, consumption[EnergyTypes.Electricity](1));
 
-export const process: { [name: string]: ResourceProcess<Types> } = {
+export const process = {
   rt11,
   rt31,
   rs31,
@@ -151,10 +151,10 @@ export const process: { [name: string]: ResourceProcess<Types> } = {
 // salty up, energy up, salty down
 const proRes = [ps1, pe1, cs1];
 
-export const processes: { [name: string]: ResourceProcessCollection<Types> } = {
-  rt11s31: ResourceProcessCollection.fromArray([rt11, rs31]),
-  rt31s31: ResourceProcessCollection.fromArray([rt31, rs31]),
-  rt31s31b11: ResourceProcessCollection.fromArray([rt31, rs31, rb11]),
+export const processes = {
+  rt11s31: ResourceProcessCollection.fromArray<Types>([rt11, rs31]),
+  rt31s31: ResourceProcessCollection.fromArray<Types>([rt31, rs31]),
+  rt31s31b11: ResourceProcessCollection.fromArray<Types>([rt31, rs31, rb11]),
   tumbles: ResourceProcessCollection.fromArray<Types>([ce1, pt1]),
   energy: ResourceProcessCollection.fromArray<Types>([pe1]),
   prosumption: ResourceProcessCollection.fromArray<Types>(proRes),
