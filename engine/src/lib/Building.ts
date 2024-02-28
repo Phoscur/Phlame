@@ -6,10 +6,10 @@ import {
   Prosumer,
   Stock,
   ResourceCollection,
-} from "./resources";
-import BuildingRequirement from "./BuildingRequirement";
-import type { TimeUnit } from "./resources/ResourceProcess";
-import type { ProsumerIdentifier } from "./resources/Prosumer";
+} from './resources';
+import BuildingRequirement from './BuildingRequirement';
+import type { TimeUnit } from './resources/ResourceProcess';
+import type { ProsumerIdentifier } from './resources/Prosumer';
 
 export type BuildingIdentifier = ProsumerIdentifier;
 
@@ -21,21 +21,21 @@ export type ProsumptionEntries<Types extends ResourceIdentifier> = {
 
 export type ProsumptionLookup<
   Types extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier
+  ResourceTypes extends ResourceIdentifier,
 > = {
   [Type in Types]?: ProsumptionEntries<ResourceTypes>;
 };
 
 export type RequirementLookup<
   Types extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier
+  ResourceTypes extends ResourceIdentifier,
 > = {
   [Type in Types]?: BuildingRequirement<Types, ResourceTypes>;
 };
 
 export default class Building<
   BuildingType extends BuildingIdentifier,
-  ResourceType extends ResourceIdentifier
+  ResourceType extends ResourceIdentifier,
 > {
   static BUILD_TIME_DIVISOR = 2500 / 60;
   readonly type: BuildingType;

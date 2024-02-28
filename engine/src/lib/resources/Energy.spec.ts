@@ -1,12 +1,12 @@
-import { energy, EnergyResource, EnergyTypes } from "./examples";
+import { energy, EnergyResource, EnergyTypes } from './examples';
 
-describe("Energy Resource ValueObject", () => {
-  it("should be console printable", () => {
+describe('Energy Resource ValueObject', () => {
+  it('should be console printable', () => {
     const { e0 } = energy;
     expect(e0.toString()).to.eql(`Energy[0${EnergyTypes.Electricity}]`);
   });
 
-  it("is int32 and immutable, very similar to a Resource but never infinite", () => {
+  it('is int32 and immutable, very similar to a Resource but never infinite', () => {
     const { e0, e10 } = energy;
 
     expect(e0.add(e10)).to.be.eql(e10);
@@ -14,7 +14,7 @@ describe("Energy Resource ValueObject", () => {
     expect(e10.infinite.times(3)).to.be.eql(e10.zero);
   });
 
-  it("should compare energy amounts", () => {
+  it('should compare energy amounts', () => {
     const { em10, e0, e10, h0 } = energy;
     const e10a = new EnergyResource(10);
     expect(e10.equals(e10a)).to.be.true;
@@ -34,7 +34,7 @@ describe("Energy Resource ValueObject", () => {
     expect(e10.isMoreOrEquals(e0)).to.be.true;
   });
 
-  it("should add and subtract energy amounts", () => {
+  it('should add and subtract energy amounts', () => {
     const { em10, e0, e10, h0, h10 } = energy;
     expect(e0.add(e10)).to.be.eql(e10);
     expect(e0.infinite.add(e10)).to.be.eql(e0.infinite);

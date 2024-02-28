@@ -1,24 +1,24 @@
-import examples, { energy, process } from "./examples";
+import examples, { energy, process } from './examples';
 
-import ResourceProcess, { TimeUnit } from "./ResourceProcess";
+import ResourceProcess, { TimeUnit } from './ResourceProcess';
 
-describe("ResourceProcess ValueObject", () => {
-  it("should be console printable", () => {
+describe('ResourceProcess ValueObject', () => {
+  it('should be console printable', () => {
     const { t0, t3 } = examples;
     const resourceProcess = new ResourceProcess(t0, 0);
-    const production = "tumbles, 0, 0";
+    const production = 'tumbles, 0, 0';
     expect(resourceProcess.toString()).to.eql(`ResourceProcess[${production}]`);
     const infinite = new ResourceProcess(t0.infinite, 0);
-    const infProduction = "tumbles, 0, Infinity";
+    const infProduction = 'tumbles, 0, Infinity';
     expect(infinite.toString()).to.eql(`ResourceProcess[${infProduction}]`);
     const pi = new ResourceProcess(t3, Math.sqrt(Math.PI));
-    const piProd = "tumbles, 2, 3";
+    const piProd = 'tumbles, 2, 3';
     expect(pi.toString()).to.eql(`ResourceProcess[${piProd}]`);
-    const energy = "energy, 50, 0";
+    const energy = 'energy, 50, 0';
     expect(process.pe1.toString()).to.eql(`ResourceProcess[${energy}]`);
   });
 
-  it("should compare resource processes", () => {
+  it('should compare resource processes', () => {
     const { t3, s3 } = examples;
     const t3p = new ResourceProcess(t3, 0);
     const s3p = new ResourceProcess(s3, 0);
@@ -26,7 +26,7 @@ describe("ResourceProcess ValueObject", () => {
     expect(t3p.equals(t3p)).to.be.true;
   });
 
-  it("should predict its end in time units", () => {
+  it('should predict its end in time units', () => {
     const timeUnit: TimeUnit = 1;
     const twoTimeUnits: TimeUnit = 2;
     const infiniteTime: TimeUnit = Number.POSITIVE_INFINITY;
@@ -46,7 +46,7 @@ describe("ResourceProcess ValueObject", () => {
     expect(t8mp.endsIn).to.be.equal(twoTimeUnits);
   });
 
-  it("should produce or consume resources over time", () => {
+  it('should produce or consume resources over time', () => {
     const zero: TimeUnit = 0;
     const timeUnit: TimeUnit = 1;
     const twoTimeUnits: TimeUnit = 2;
@@ -64,7 +64,7 @@ describe("ResourceProcess ValueObject", () => {
     expect(t8p.getResourceFor(twoTimeUnits)).to.be.eql(t8);
   });
 
-  it("should add and subtract resources processes", () => {
+  it('should add and subtract resources processes', () => {
     const { t3, t5, t8, s3 } = examples;
     const t3p = new ResourceProcess(t3, 1);
     const t5p = new ResourceProcess(t5, 1);

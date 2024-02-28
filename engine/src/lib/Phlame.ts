@@ -1,8 +1,8 @@
-import type { TimeUnit, ResourceIdentifier } from "./resources";
-import type { BuildingIdentifier } from "./Building";
-import Action, { ActionTypes, Entity, ID } from "./Action";
-import Building from "./Building";
-import { Stock } from "./resources";
+import type { TimeUnit, ResourceIdentifier } from './resources';
+import type { BuildingIdentifier } from './Building';
+import Action, { ActionTypes, Entity, ID } from './Action';
+import Building from './Building';
+import { Stock } from './resources';
 
 export default class Phlame<Types extends ResourceIdentifier, UnitTypes extends BuildingIdentifier>
   implements Entity
@@ -27,6 +27,6 @@ export default class Phlame<Types extends ResourceIdentifier, UnitTypes extends 
 
   toString(): string {
     // [${this.time}]
-    return `${this.id} (${this.resources}) ${this.buildings.join(", ")}`;
+    return `${this.id} (${this.resources}) ${this.buildings.join(', ')}`;
   }
 }

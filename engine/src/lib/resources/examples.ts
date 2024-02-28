@@ -6,19 +6,19 @@ import {
   ResourceCollection,
   ResourceProcess,
   ResourceProcessCollection,
-} from ".";
+} from '.';
 
 // Let's invent some example replacement resource and energy types
 export enum ResourceTypes {
   // ...BaseResources,
-  Tumble = "tumbles",
-  Salty = "salties",
-  Blubber = "blubbs",
+  Tumble = 'tumbles',
+  Salty = 'salties',
+  Blubber = 'blubbs',
 }
 
 export enum EnergyTypes {
-  Electricity = "energy",
-  Heat = "heat",
+  Electricity = 'energy',
+  Heat = 'heat',
 }
 
 export type Types = ResourceTypes | EnergyTypes | BaseResources;

@@ -1,6 +1,6 @@
-import { ResourceIdentifier } from "./Resource";
-import Prosumer from "./Prosumer";
-import ResourceProcessCollection from "./ResourceProcessCollection";
+import { ResourceIdentifier } from './Resource';
+import Prosumer from './Prosumer';
+import ResourceProcessCollection from './ResourceProcessCollection';
 
 export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier> {
   readonly prosumers: Prosumer<ResourceTypes>[];
@@ -86,7 +86,7 @@ export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier
     return this.prosumers.reduce<GenericReturn[]>(
       (entries: GenericReturn[], prosumer: Prosumer<ResourceTypes>) => {
         const result = mappingFunction(prosumer);
-        if (typeof result === "undefined") {
+        if (typeof result === 'undefined') {
           return entries;
         }
         entries.push(result);
@@ -103,6 +103,6 @@ export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier
   }
 
   toString(): string {
-    return `ProsumerCollection[${this.prosumers.join(", ")}]`;
+    return `ProsumerCollection[${this.prosumers.join(', ')}]`;
   }
 }

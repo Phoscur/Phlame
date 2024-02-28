@@ -1,18 +1,18 @@
-import examples, { energy, process } from "./examples";
-import ResourceProcess, { TimeUnit } from "./ResourceProcess";
-import ResourceProcessCollection from "./ResourceProcessCollection";
+import examples, { energy, process } from './examples';
+import ResourceProcess, { TimeUnit } from './ResourceProcess';
+import ResourceProcessCollection from './ResourceProcessCollection';
 
-describe("ResourceProcessCollection ValueObject", () => {
-  it("should be console printable", () => {
+describe('ResourceProcessCollection ValueObject', () => {
+  it('should be console printable', () => {
     const { t3, s3 } = examples;
     const processes = [new ResourceProcess(t3, 0), new ResourceProcess(s3, -1), process.ce1];
     const t3s3e10 = ResourceProcessCollection.fromArray(processes);
-    const amount = "3tumbles+0, 3salties-1, 0energy-10";
+    const amount = '3tumbles+0, 3salties-1, 0energy-10';
     expect(t3s3e10.toString()).to.eql(`ResourceProcessCollection[${amount}]`);
     expect(t3s3e10.types).to.eql([t3.type, s3.type, process.ce1.type]);
   });
 
-  it("should compare resource process collections", () => {
+  it('should compare resource process collections', () => {
     const { t0, t3, t5, s3 } = examples;
     const t0p = new ResourceProcess(t0, 1);
     const t3p = new ResourceProcess(t3, 1);
@@ -39,7 +39,7 @@ describe("ResourceProcessCollection ValueObject", () => {
     expect(t3c.get(t3.type)).to.eql(t3p);
     expect(t3c.get(s3.type)).to.eql(s0p0);
 
-    expect(t0e0c.prettyEnergies).to.be.eql(["0 energy"]);
+    expect(t0e0c.prettyEnergies).to.be.eql(['0 energy']);
     /*
     How would we compare limit and or rates?
     expect(t3c.isLessOrEquals(t3)).to.be.true;
@@ -47,7 +47,7 @@ describe("ResourceProcessCollection ValueObject", () => {
     */
   });
 
-  it("should predict its end in time units", () => {
+  it('should predict its end in time units', () => {
     const timeUnit: TimeUnit = 1;
     const twoTimeUnits: TimeUnit = 2;
     const { t0, t3, t5, t8, s3 } = examples;
@@ -74,7 +74,7 @@ describe("ResourceProcessCollection ValueObject", () => {
     expect(t52s3.endsNextIn).to.be.equal(twoTimeUnits);
   });
 
-  it("should add and subtract resources processes", () => {
+  it('should add and subtract resources processes', () => {
     const { t0, t3, s3, s6 } = examples;
     const t0p = new ResourceProcess(t0, 0);
     const t3p = new ResourceProcess(t3, 1);
@@ -108,7 +108,7 @@ describe("ResourceProcessCollection ValueObject", () => {
     expect(t00.subtract(s3c)).to.be.eql(t0s3n);
   });
 
-  it("can be mapped generically, with a filter on undefined builtin", () => {
+  it('can be mapped generically, with a filter on undefined builtin', () => {
     const { t0, s3 } = examples;
     const t0p = new ResourceProcess(t0, 0);
     const s3p = new ResourceProcess(s3, 3);

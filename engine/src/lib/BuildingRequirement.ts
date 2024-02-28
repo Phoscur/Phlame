@@ -1,5 +1,5 @@
-import type { ResourceIdentifier } from "./resources/Resource";
-import { EnergyCalculation, ResourceCollection } from "./resources";
+import type { ResourceIdentifier } from './resources/Resource';
+import { EnergyCalculation, ResourceCollection } from './resources';
 
 export type RequirementTypes = number | string;
 export interface Dependency<RequirementType extends RequirementTypes> {
@@ -12,7 +12,7 @@ export interface Dependency<RequirementType extends RequirementTypes> {
  */
 export default class BuildingRequirement<
   RequirementType extends RequirementTypes,
-  ResourceTypes extends ResourceIdentifier
+  ResourceTypes extends ResourceIdentifier,
 > {
   static DOWNGRADECOST_DIVISOR = 2;
 

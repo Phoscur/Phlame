@@ -21,8 +21,8 @@ export interface ComparableResource<Type extends ResourceIdentifier> extends Res
 }
 
 export enum BaseResources {
-  Null = "null", // no plural
-  Energy = "energy", // no plural, very special
+  Null = 'null', // no plural
+  Energy = 'energy', // no plural, very special
 }
 /**
  * Resource

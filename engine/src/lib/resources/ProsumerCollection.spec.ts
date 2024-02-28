@@ -1,24 +1,24 @@
-import { EnergyResource } from "./examples";
-import Prosumer from "./Prosumer";
-import ProsumerCollection from "./ProsumerCollection";
-import ResourceProcess from "./ResourceProcess";
-import ResourceProcessCollection from "./ResourceProcessCollection";
+import { EnergyResource } from './examples';
+import Prosumer from './Prosumer';
+import ProsumerCollection from './ProsumerCollection';
+import ResourceProcess from './ResourceProcess';
+import ResourceProcessCollection from './ResourceProcessCollection';
 
-describe("ProsumerCollection ValueObject", () => {
-  it("should be console printable", () => {
+describe('ProsumerCollection ValueObject', () => {
+  it('should be console printable', () => {
     const collection = new ProsumerCollection([
       new Prosumer(1, ResourceProcessCollection.fromArray([])),
       new Prosumer(2, ResourceProcessCollection.fromArray([])),
     ]);
     expect(collection.toString()).to.be.eql(
-      "ProsumerCollection[" +
-        "Prosumer(1, 100%, ResourceProcessCollection[]), " +
-        "Prosumer(2, 100%, ResourceProcessCollection[])" +
-        "]",
+      'ProsumerCollection[' +
+        'Prosumer(1, 100%, ResourceProcessCollection[]), ' +
+        'Prosumer(2, 100%, ResourceProcessCollection[])' +
+        ']',
     );
   });
 
-  it("should return reduced/summed up prosumer resource processes", () => {
+  it('should return reduced/summed up prosumer resource processes', () => {
     const collection = new ProsumerCollection([
       new Prosumer(
         4,
@@ -39,7 +39,7 @@ describe("ProsumerCollection ValueObject", () => {
     expect(collection.reduced).to.eql(reduced);
   });
 
-  it("should map/filter", () => {
+  it('should map/filter', () => {
     const collection = new ProsumerCollection([
       new Prosumer(1, ResourceProcessCollection.fromArray([])),
       new Prosumer(2, ResourceProcessCollection.fromArray([])),
