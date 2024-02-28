@@ -2,28 +2,38 @@ export type ResourceIdentifier = string; // i wish^^ = symbol;
 export interface ResourceValue<Type extends ResourceIdentifier> {
   readonly type: Type;
   readonly amount: number; // int32
+  readonly prettyAmount: string;
 }
-// TODO Why are ResourceValue and ComparableResource interface split anyways? To keep the Value part simple..?
-// TODO Remove code duplicaton in Energy.ts -> Refactor extract AbstractResource class
-export interface ComparableResource<Type extends ResourceIdentifier> {
-  readonly type: Type;
+// TODO? Remove code duplicaton in Energy.ts -> Refactor extract AbstractResource class (only substract is different at this point)
+export interface ComparableResource<Type extends ResourceIdentifier> extends ResourceValue<Type> {
   equalOfTypeTo(resource: ResourceValue<Type>): boolean;
-  // TODO amount is missing - this is typecast patched in a weird way, just reunite Energy into Resource?
   equals(resource: ResourceValue<Type>): boolean;
   isMoreOrEquals(resource: ResourceValue<Type>): boolean;
   isLessOrEquals(resource: ResourceValue<Type>): boolean;
-  add(resource: ResourceValue<Type>): ComparableResource<Type>;
-  subtract(resource: ResourceValue<Type>): ComparableResource<Type>;
+  add(resource: ComparableResource<Type>): ComparableResource<Type>;
+  addAmount(amount: number): ComparableResource<Type>;
+  subtract(resource: ComparableResource<Type>): ComparableResource<Type>;
   times(factor: number): ComparableResource<Type>;
+  readonly infinite: ComparableResource<Type>;
+  readonly zero: ComparableResource<Type>;
+  readonly isInfinite: boolean;
+  readonly isEnergy: boolean;
 }
 
 export enum BaseResources {
   Null = "null", // no plural
   Energy = "energy", // no plural, very special
 }
-
-export default class Resource<Type extends ResourceIdentifier>
-  implements ResourceValue<Type>, ComparableResource<Type> {
+/**
+ * Resource
+ * An integer amount of a certain type
+ * The amount may not be negative but infinite
+ * I still wish for https://github.com/tc39/proposal-operator-overloading to make this class beautiful
+ * because it mainly implements simple operations
+ * - addition/substraction/multiplication
+ * - comparison
+ */
+export default class Resource<Type extends ResourceIdentifier> implements ComparableResource<Type> {
   static types: ResourceIdentifier[] = [BaseResources.Null]; // Types are appended in configuration
 
   static Null = new Resource(BaseResources.Null, 0);
@@ -82,7 +92,7 @@ export default class Resource<Type extends ResourceIdentifier>
     return this.amount === Number.POSITIVE_INFINITY;
   }
 
-  protected checkInfinity(resource?: Resource<Type>): Resource<Type> | false {
+  protected checkInfinity(resource?: ComparableResource<Type>): ComparableResource<Type> | false {
     // Need to check for Infinity explicitly, as it's cheated around the constructor
     // which would cast it to in32, result: 0
     if (this.amount === Number.POSITIVE_INFINITY) {
@@ -98,7 +108,7 @@ export default class Resource<Type extends ResourceIdentifier>
     return resource.type === this.type;
   }
 
-  equals(resource: Resource<Type>): boolean {
+  equals(resource: ComparableResource<Type>): boolean {
     return (
       this.equalOfTypeTo(resource) &&
       // Usually we would need an epsilon to do a float comparison, but since we casted to int32, this works
@@ -106,44 +116,43 @@ export default class Resource<Type extends ResourceIdentifier>
     );
   }
 
-  isMoreOrEquals(resource: Resource<Type>): boolean {
+  isMoreOrEquals(resource: ComparableResource<Type>): boolean {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.amount >= resource.amount;
   }
 
-  isLessOrEquals(resource: Resource<Type>): boolean {
+  isLessOrEquals(resource: ComparableResource<Type>): boolean {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.amount <= resource.amount;
   }
 
-  add(resource: Resource<Type>): Resource<Type> {
+  add(resource: ComparableResource<Type>): ComparableResource<Type> {
     if (!this.equalOfTypeTo(resource)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${resource.type})`);
     }
     return this.checkInfinity(resource) || this.new(this.amount + resource.amount);
   }
 
-  addAmount(amount: number): Resource<Type> {
+  addAmount(amount: number): ComparableResource<Type> {
     return this.checkInfinity() || this.new(this.amount + amount);
   }
 
   /**
    * Substract another resource
    * Warning! Returns zero if the result would be negative.
-   * @param subtrahend
    */
-  subtract(subtrahend: Resource<Type>): Resource<Type> {
+  subtract(subtrahend: ComparableResource<Type>): ComparableResource<Type> {
     if (!this.equalOfTypeTo(subtrahend)) {
       throw new TypeError(`Resource types don't match (${this.type} != ${subtrahend.type})`);
     }
     return this.checkInfinity(subtrahend) || this.new(this.amount - subtrahend.amount);
   }
 
-  times(factor: number): Resource<Type> {
+  times(factor: number): ComparableResource<Type> {
     return this.checkInfinity() || this.new(this.amount * factor);
   }
 
