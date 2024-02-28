@@ -13,6 +13,17 @@
         "tsConfig": "engine/tsconfig.lib.json",
         "assets": ["engine/*.md"]
       }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "options": {
+        "config": "engine/vite.config.ts"
+      },
+      "configurations": {
+        "watch": {
+          "watch": true
+        }
+      }
     }
   },
   "tags": []

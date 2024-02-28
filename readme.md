@@ -1,5 +1,11 @@
 # NxPhlame
 
+- Run `npm start` to serve the app
+- Run `npm run cypress` to open Cypress for e2e tests
+- Run `npm run test-engine` to develop the engine library with unit tests
+
+Note Nx v18: Running `vitest` in watchmode through `nx` seems not to work for now, also `npm run dev-e2e` should run a dev-server whilst executing Cypress but after starting vite nothing else happens
+
 ## Easter POC 2024:
 
 - htmx tailwind gui (no react - rather vanjs - and likely no graphql)

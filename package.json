@@ -7,6 +7,8 @@
     "start": "nx serve app",
     "dev": "nx run-many --target=serve --projects=server,app --parallel",
     "dev-e2e": "nx e2e app-e2e --watch",
+    "test-engine": "cd engine && npm test",
+    "tsc-engine": "cd engine && npm run tsc",
     "cypress": "cd app-e2e && cypress open",
     "build": "nx build",
     "test": "nx run-many -t test --parallel --output-style stream",

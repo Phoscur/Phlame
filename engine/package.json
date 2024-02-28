@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {},
   "scripts": {
-    "tsc": "tsc --noEmit -p tsconfig.lib.json"
+    "tsc": "tsc --noEmit -p tsconfig.lib.json",
+    "test": "vitest --watch"
   }
 }
