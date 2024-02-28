@@ -1,6 +1,5 @@
-import Resource, { ResourceIdentifier } from "./Resource";
-import Energy from "./Energy";
-import ResourceCollection, { ResourceLike, ResourcesLike } from "./ResourceCollection";
+import { ComparableResource, ResourceIdentifier } from "./Resource";
+import ResourceCollection, { ResourcesLike } from "./ResourceCollection";
 
 export default class Stock<Types extends ResourceIdentifier> {
   readonly resources: ResourceCollection<Types>;
@@ -19,11 +18,11 @@ export default class Stock<Types extends ResourceIdentifier> {
     this.min = minCapacity || initial.zero;
   }
 
-  getByType<Type extends Types>(type: Type): ResourceLike<Types> | undefined {
+  getByType<Type extends Types>(type: Type): ComparableResource<Types> | undefined {
     return this.resources.getByType(type);
   }
 
-  has<Type extends Types>(type: Type): ResourceLike<Types> {
+  has<Type extends Types>(type: Type): ComparableResource<Types> {
     return this.resources.get(type);
   }
 
@@ -31,33 +30,33 @@ export default class Stock<Types extends ResourceIdentifier> {
    * Resources which may still fit into until the upper bound it reached
    * @param resource
    */
-  getMaxResource(resource: ResourceLike<Types>): ResourceLike<Types> {
+  getMaxResource(resource: ComparableResource<Types>): ComparableResource<Types> {
     const stocked = this.getByType(resource.type);
     const max = this.max.getByType(resource.type) || resource.infinite;
-    return stocked ? max.subtract(stocked as Resource<Types> & Energy<Types>) : max;
+    return stocked ? max.subtract(stocked) : max;
   }
 
   /**
    * Resources which may still be consumed until lower bound it reached
    * @param resource
    */
-  getMinResource(resource: ResourceLike<Types>): ResourceLike<Types> {
+  getMinResource(resource: ComparableResource<Types>): ComparableResource<Types> {
     const stocked = this.getByType(resource.type);
     const min = this.min.getByType(resource.type) || resource.zero;
-    return stocked ? stocked.subtract(min as Resource<Types> & Energy<Types>) : min;
+    return stocked ? stocked.subtract(min) : min;
   }
 
   protected new(initial: ResourceCollection<Types>): Stock<Types> {
     return new Stock(initial, this.max, this.min);
   }
 
-  isInLimits(resources?: Resource<Types> | ResourceCollection<Types>): boolean {
+  isInLimits(resources?: ResourcesLike<Types>): boolean {
     return !resources
       ? this.resources.isMoreOrEquals(this.min) && this.resources.isLessOrEquals(this.max)
       : this.resources.subtract(resources).isMoreOrEquals(this.min) && this.isStorable(resources);
   }
 
-  isFetchable(resources: Resource<Types> | ResourceCollection<Types>): boolean {
+  isFetchable(resources: ResourcesLike<Types>): boolean {
     return this.resources.isMoreOrEquals(resources);
   }
 
@@ -85,24 +84,24 @@ export default class Stock<Types extends ResourceIdentifier> {
     );
   }
 
-  isStorable(resources: Resource<Types> | ResourceCollection<Types>): boolean {
+  isStorable(resources: ResourcesLike<Types>): boolean {
     return this.resources.add(resources).isLessOrEquals(this.max);
   }
 
-  store(resources: Resource<Types> | ResourceCollection<Types>): Stock<Types> {
+  store(resources: ResourcesLike<Types>): Stock<Types> {
     return this.new(this.resources.add(resources));
   }
 
-  fetch(resources: Resource<Types> | ResourceCollection<Types>): Stock<Types> {
+  fetch(resources: ResourcesLike<Types>): Stock<Types> {
     return this.new(this.resources.subtract(resources));
   }
 
-  resourceLimitToString(resource: ResourceLike<Types>): string {
+  resourceLimitToString(resource: ComparableResource<Types>): string {
     const [min, max] = this.getResourceLimits(resource);
     return `${resource.prettyAmount}(${min}, ${max})`;
   }
 
-  getResourceLimits(resource: ResourceLike<Types>): [number, number] {
+  getResourceLimits(resource: ComparableResource<Types>): [number, number] {
     const min = this.min.getByType(resource.type) || resource.zero;
     const max = this.max.getByType(resource.type) || resource.infinite;
     return [min.amount, max.amount];

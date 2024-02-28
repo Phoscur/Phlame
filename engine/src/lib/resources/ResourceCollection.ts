@@ -8,7 +8,9 @@ export type ResourceCollectionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: ComparableResource<Type>;
 };
 
-export type ResourcesLike<Types extends ResourceIdentifier> = ComparableResource<Types> | ResourceCollection<Types>;
+export type ResourcesLike<Types extends ResourceIdentifier> =
+  | ComparableResource<Types>
+  | ResourceCollection<Types>;
 
 // Cannot use <Types extends BaseResources>, because
 // TypeScript enums are finite/closed: https://github.com/microsoft/TypeScript/issues/17592#issuecomment-528993663
@@ -22,7 +24,9 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     this.entries = entries;
   }
 
-  static fromArray<Types extends ResourceIdentifier>(resources: ResourceArray): ResourceCollection<Types> {
+  static fromArray<Types extends ResourceIdentifier>(
+    resources: ResourceArray,
+  ): ResourceCollection<Types> {
     return new ResourceCollection<Types>(
       resources.reduce((entries, resource) => {
         return {
@@ -37,7 +41,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     return Object.keys(this.entries) as Types[];
   }
 
-  get asArray(): Resource<Types>[] {
+  get asArray(): ComparableResource<Types>[] {
     return Object.values(this.entries);
   }
 
@@ -65,10 +69,13 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   map<GenericReturn>(
-    mappingFunction: (resource: ComparableResource<Types>, type: Types) => GenericReturn | undefined,
+    mappingFunction: (
+      resource: ComparableResource<Types>,
+      type: Types,
+    ) => GenericReturn | undefined,
   ): GenericReturn[] {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
-      const entry = this.entries[type] as Resource<Types> | Energy<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
+      const entry = this.entries[type] as ComparableResource<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
       if (typeof result === "undefined") {
         return entries;
@@ -79,7 +86,9 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   // This makes TypeScript understand if given object is a ResourceCollection or just a Resource
-  protected isResourceCollection(resource: ResourcesLike<Types>): resource is ResourceCollection<Types> {
+  protected isResourceCollection(
+    resource: ResourcesLike<Types>,
+  ): resource is ResourceCollection<Types> {
     return resource.type === RESOURCE_COLLECTION_TYPE;
   }
 
@@ -104,7 +113,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   equals(resourceCollection: ResourceCollection<Types>): boolean {
-    return this.asArray.reduce((equal: boolean, resource: Resource<Types>): boolean => {
+    return this.asArray.reduce((equal: boolean, resource: ComparableResource<Types>): boolean => {
       if (!equal) {
         return false;
       }
@@ -112,7 +121,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
       if (!compareResource) {
         return false;
       }
-      return resource.equals(compareResource as Resource<Types> & Energy<Types>);
+      return resource.equals(compareResource);
     }, true);
   }
 
@@ -130,11 +139,11 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   isLessOrEquals(resource: ResourcesLike<Types>): boolean {
     if (!this.isResourceCollection(resource)) {
       const sameType = this.getByType(resource.type);
-      return !sameType || sameType.isLessOrEquals(resource as Resource<Types> & Energy<Types>);
+      return !sameType || sameType.isLessOrEquals(resource);
     }
     return this.asArray.reduce((isLessOrEquals: boolean, entry) => {
       const sameType = resource.getByType(entry.type);
-      return isLessOrEquals && (!sameType || entry.isLessOrEquals(sameType as Resource<Types> & Energy<Types>));
+      return isLessOrEquals && (!sameType || entry.isLessOrEquals(sameType));
     }, true);
   }
 
@@ -143,13 +152,13 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
       const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
-        [resource.type]: !sameType ? resource : sameType.add(resource as Resource<Types> & Energy<Types>),
+        [resource.type]: !sameType ? resource : sameType.add(resource),
       });
     }
     const resources = this.asArray
       .map((entry) => {
         const add = resource.getByType(entry.type);
-        return add ? entry.add(add as Resource<Types> & Energy<Types>) : entry;
+        return add ? entry.add(add) : entry;
       })
       .concat(
         resource.asArray.filter((res) => {
@@ -169,13 +178,13 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
       const sameType = this.entries[resource.type];
       return this.new({
         ...this.entries,
-        [resource.type]: !sameType ? resource : sameType.subtract(resource as Resource<Types> & Energy<Types>),
+        [resource.type]: !sameType ? resource : sameType.subtract(resource),
       });
     }
     return ResourceCollection.fromArray(
       this.asArray.map((entry) => {
         const subtract = resource.getByType(entry.type);
-        return subtract ? entry.subtract(subtract as Resource<Types> & Energy<Types>) : entry;
+        return subtract ? entry.subtract(subtract) : entry;
       }),
     );
   }
