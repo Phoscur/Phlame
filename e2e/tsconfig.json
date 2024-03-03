@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
     "outDir": "../dist/out-tsc",
@@ -12,9 +12,9 @@
     "**/*.js",
     "cypress.config.ts",
     "**/*.cy.ts",
-
+    "**/*.cy.tsx",
     "**/*.cy.js",
-
+    "**/*.cy.jsx",
     "**/*.d.ts"
   ]
 }
