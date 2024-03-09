@@ -49,5 +49,8 @@
   },
   "nx": {
     "includedScripts": []
+  },
+  "dependencies": {
+    "htmx.org": "^1.9.10"
   }
 }
