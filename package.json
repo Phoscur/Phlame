@@ -2,6 +2,7 @@
   "name": "phlame",
   "version": "0.0.1",
   "license": "AGPLv3",
+  "type": "module",
   "scripts": {
     "start": "nx serve",
     "test-engine": "cd engine && npm test",
