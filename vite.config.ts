@@ -1,6 +1,7 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import devServer from '@hono/vite-dev-server';
 
 export default defineConfig({
   root: __dirname,
@@ -16,7 +17,22 @@ export default defineConfig({
     host: 'localhost',
   },
 
-  plugins: [nxViteTsPaths()],
+  plugins: [
+    nxViteTsPaths(),
+    devServer({
+      entry: 'src/server.ts',
+      exclude: [
+        /.*\.tsx?($|\?)/,
+        /.*\.(s?css|less)($|\?)/,
+        /.*\.(svg|png)($|\?)/,
+        /^\/@.+$/,
+        /^\/favicon\.ico$/,
+        /^\/(public|assets|static)\/.+/,
+        /^\/node_modules\/.*/,
+      ],
+      injectClientScript: true,
+    }),
+  ],
 
   // Uncomment this if you are using workers.
   // worker: {

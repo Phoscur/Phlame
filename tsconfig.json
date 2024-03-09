@@ -17,6 +17,7 @@
       "@phlame/engine": ["engine/src/index.ts"]
     },
     "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "allowJs": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
