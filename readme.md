@@ -1,6 +1,7 @@
 # NxPhlame
 
-- Run `npm start` to serve the app
+- Run `npm start` to develop the app or `npx vite`
+- RUN `npm run build && NODE_ENV=production npm run preview` to run the server with `tsx` TODO add a rollup config for the [server build](https://blog.devgenius.io/full-stack-development-with-vite-and-hono-1b8c26f48956)
 - Run `npm run cypress` to open Cypress for e2e tests
 - Run `npm run test-engine` to develop the engine library with unit tests
 
