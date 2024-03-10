@@ -17,7 +17,7 @@ export class AppElement extends HTMLElement {
         </div>
 
         <!--  HERO  -->
-        <div id="hero" class="rounded">
+        <div id="hero" class="rounded" hx-get="/sum" hx-swap="outerHTML">
           <div class="text-container">
             <h2>
               <svg
