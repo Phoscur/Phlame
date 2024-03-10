@@ -1,4 +1,5 @@
 import './app.element.css';
+import { BubblesIcon, CrystallineIcon, MetallicIcon } from './icons.svg';
 
 export class AppElement extends HTMLElement {
   public static observedAttributes = [];
@@ -10,10 +11,14 @@ export class AppElement extends HTMLElement {
       <div class="container">
         <!--  WELCOME  -->
         <div id="welcome">
+          ${MetallicIcon()}
+          ${CrystallineIcon()}
+          ${BubblesIcon()}
           <h1>
             <span> Hello there, </span>
             Welcome ${title} 👋
           </h1>
+          
         </div>
 
         <!--  HERO  -->
