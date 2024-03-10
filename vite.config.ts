@@ -13,6 +13,7 @@ export default defineConfig({
   },
 
   preview: {
+    // this is still pretty useless, as it's missing a (mockup or hono) server
     port: 4300,
     host: 'localhost',
   },
