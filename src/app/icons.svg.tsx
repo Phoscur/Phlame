@@ -1,6 +1,7 @@
 export const MetallicIcon = () => (
   <>
     <svg
+      class="w-32"
       viewBox="0 0 90 90"
       width="90"
       height="90"

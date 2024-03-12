@@ -1,6 +1,7 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import tailwindcss from '@tailwindcss/vite';
 import devServer from '@hono/vite-dev-server';
 
 export default defineConfig({
@@ -20,6 +21,7 @@ export default defineConfig({
 
   plugins: [
     nxViteTsPaths(),
+    tailwindcss(),
     devServer({
       entry: 'src/server.ts',
       exclude: [
