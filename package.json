@@ -4,7 +4,7 @@
   "license": "AGPLv3",
   "type": "module",
   "scripts": {
-    "start": "nx serve",
+    "start": "vite",
     "test-engine": "cd engine && npm test",
     "tsc-engine": "cd engine && npm run tsc",
     "build": "nx run-many -t build",
@@ -12,6 +12,7 @@
     "ci": "nx run-many -t test -p phlame engine --parallel --verbose --coverage --nx-bail",
     "lint": "nx report && nx run-many -t lint",
     "e2e": "nx e2e e2e",
+    "serve": "nx serve",
     "preview": "tsx src/server",
     "cypress": "cd e2e && cypress open"
   },

@@ -1,7 +1,7 @@
+// generated via https://app.haikei.app/ "Low Poly Grid"
 export const MetallicIcon = () => (
   <>
     <svg
-      class="w-32"
       viewBox="0 0 90 90"
       width="90"
       height="90"
@@ -98,6 +98,8 @@ export const MetallicIcon = () => (
     </svg>
   </>
 );
+
+// generated via https://app.haikei.app/ "Low Poly Grid"
 export const CrystallineIcon = () => (
   <>
     <svg
@@ -153,6 +155,8 @@ export const CrystallineIcon = () => (
     </svg>
   </>
 );
+
+// generated via https://app.haikei.app/ "Circle Scatter"
 export const BubblesIcon = () => (
   <>
     <svg
