@@ -33,3 +33,5 @@ export function useTranslations(lang: keyof typeof ui): I18n {
     return ((ui[lang] || ui[defaultLang]) as TranslationIndex)[key];
   };
 }
+
+// inspired by https://docs.astro.build/en/recipes/i18n/
