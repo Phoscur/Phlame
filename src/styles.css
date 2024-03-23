@@ -16,6 +16,13 @@
   --breakpoint-6xl: 5120px; /* 5K */
   --breakpoint-7xl: 7680px; /* 8K */
 
+  --color-m-s: var(--color-metallic-stroke);
+  --color-m-f1: var(--color-metallic-fill1);
+  --color-c-s: var(--color-crystalline-stroke);
+  --color-c-f1: var(--color-crystalline-fill1);
+  --color-b-f1: var(--color-bubbles-fill);
+  --color-b-f2: var(--color-blue-950);
+
   /* colors used in icons */
   --color-metallic-stroke: #a8a29e;
   --color-metallic-fill1: #4c4c4c;
@@ -28,19 +35,12 @@
   --color-crystalline-stroke: #4b5563;
   --color-crystalline-fill1: #9393a1;
   --color-crystalline-fill2: #868698;
-  --color-crystalline-fill3: #6b6c87;
-  --color-crystalline-fill4: #515375;
-  --color-crystalline-fill5: #78798f;
+  --color-crystalline-fill3: #78798f;
+  --color-crystalline-fill4: #6b6c87;
+  --color-crystalline-fill5: #515375;
   --color-crystalline-fill6: #172554;
 
   --color-bubbles-fill: #3b82f6;
-
-  --color-m-s: var(--color-metallic-stroke);
-  --color-m-f1: var(--color-metallic-fill1);
-  --color-c-s: var(--color-crystalline-stroke);
-  --color-c-f1: var(--color-crystalline-fill1);
-  --color-b-f1: var(--color-bubbles-fill);
-  --color-b-f2: var(--color-blue-950);
 
   --color-bg: var(--color-slate-900);
   --color-primary: var(--color-slate-500);
