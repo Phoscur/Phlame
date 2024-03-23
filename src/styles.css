@@ -3,13 +3,43 @@
 @theme {
   --font-family-display: 'Satoshi', 'sans-serif';
 
+  /* wow beautiful tailwind 4 test colors */
+  --color-neon-pink: oklch(71.7% 0.25 360);
+  --color-neon-lime: oklch(91.5% 0.258 129);
+  --color-neon-cyan: oklch(91.3% 0.139 195.8);
+
   --breakpoint-3xl: 1920px; /* 1080p */
   --breakpoint-4xl: 2560px; /* 1440p */
   --breakpoint-5xl: 3840px; /* UHD (almost 4K) */
   --breakpoint-6xl: 5120px; /* 5K */
   --breakpoint-7xl: 7680px; /* 8K */
 
-  --color-neon-pink: oklch(71.7% 0.25 360);
-  --color-neon-lime: oklch(91.5% 0.258 129);
-  --color-neon-cyan: oklch(91.3% 0.139 195.8);
+  /* colors used in icons */
+  --color-metallic-stroke: #a8a29e;
+  --color-metallic-fill1: #4c4c4c;
+  --color-metallic-fill2: #41403f;
+  --color-metallic-fill3: #363433;
+  --color-metallic-fill4: #262322;
+  --color-metallic-fill5: #2b2927;
+  --color-metallic-fill6: #211e1c;
+
+  --color-crystalline-stroke: #4b5563;
+  --color-crystalline-fill1: #9393a1;
+  --color-crystalline-fill2: #868698;
+  --color-crystalline-fill3: #6b6c87;
+  --color-crystalline-fill4: #515375;
+  --color-crystalline-fill5: #78798f;
+  --color-crystalline-fill6: #172554;
+
+  --color-bubbles-fill: #3b82f6;
+
+  --color-m-s: var(--color-metallic-stroke);
+  --color-m-f1: var(--color-metallic-fill1);
+  --color-c-s: var(--color-crystalline-stroke);
+  --color-c-f1: var(--color-crystalline-fill1);
+  --color-b-f1: var(--color-bubbles-fill);
+  --color-b-f2: var(--color-blue-950);
+
+  --color-bg: var(--color-slate-900);
+  --color-primary: var(--color-slate-500);
 }
