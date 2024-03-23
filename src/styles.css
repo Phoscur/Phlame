@@ -3,7 +3,11 @@
 @theme {
   --font-family-display: 'Satoshi', 'sans-serif';
 
-  --breakpoint-3xl: 1920px;
+  --breakpoint-3xl: 1920px; /* 1080p */
+  --breakpoint-4xl: 2560px; /* 1440p */
+  --breakpoint-5xl: 3840px; /* UHD (almost 4K) */
+  --breakpoint-6xl: 5120px; /* 5K */
+  --breakpoint-7xl: 7680px; /* 8K */
 
   --color-neon-pink: oklch(71.7% 0.25 360);
   --color-neon-lime: oklch(91.5% 0.258 129);
