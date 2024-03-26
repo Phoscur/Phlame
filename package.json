@@ -14,7 +14,7 @@
     "e2e": "nx e2e e2e",
     "serve": "nx serve",
     "preview": "tsx src/server",
-    "cypress": "cd e2e && cypress open"
+    "cypress": "cypress open"
   },
   "private": true,
   "resolutions": {},
