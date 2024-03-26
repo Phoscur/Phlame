@@ -16,6 +16,9 @@
   --breakpoint-6xl: 5120px; /* 5K */
   --breakpoint-7xl: 7680px; /* 8K */
 
+  --color-bg: var(--color-slate-950);
+  --font-color: var(--color-gray-300);
+
   --color-m-s: var(--color-metallic-stroke);
   --color-m-f1: var(--color-metallic-fill1);
   --color-c-s: var(--color-crystalline-stroke);
@@ -41,9 +44,6 @@
   --color-crystalline-fill6: #172554;
 
   --color-bubbles-fill: #3b82f6;
-
-  --color-bg: var(--color-slate-900);
-  --color-primary: var(--color-slate-500);
   /* }
 =========================================================================
 @import 'tailwindcss/theme' inlined:

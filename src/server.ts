@@ -5,13 +5,17 @@ import { readFile } from 'node:fs/promises';
 
 const isProd = process.env['NODE_ENV'] === 'production';
 const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
-const html = await readFile(isProd ? `${distFolder}/index.html` : 'index.html', 'utf8');
+const html = async () => await readFile(isProd ? `${distFolder}/index.html` : 'index.html', 'utf8');
 
 const app = new Hono()
   .use('/assets/*', serveStatic({ root: isProd ? `${distFolder}/` : './' })) // path must end with '/'
-  .get('/sum', (c) => c.html('<h1>Sum sum</h1>'))
-  .get('/*', (c) => c.html(html));
-
+  .get('/sum', (c) => c.html('<h1>Sum sum</h1>'));
+if (isProd) {
+  const index = await html();
+  app.get('/*', (c) => c.html(index));
+} else {
+  app.get('/*', async (c) => c.html(await html()));
+}
 export default app;
 
 if (isProd) {
