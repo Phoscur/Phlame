@@ -98,10 +98,9 @@ export const MetallicIcon = () => (
   </>
 );
 
-// generated via https://app.haikei.app/ "Low Poly Grid"
 export const CrystallineIcon = () => (
   <>
-    <svg
+    <svg // generated via https://app.haikei.app/ "Low Poly Grid"
       viewBox="0 0 90 90"
       width="90"
       height="90"
@@ -110,46 +109,46 @@ export const CrystallineIcon = () => (
       version="1.1"
     >
       <g stroke-width="0.3" stroke-linejoin="bevel">
-        <path d="M47.5 19.5L51.5 0L38 0Z" fill="#868698" stroke="#4b5563"></path>
-        <path d="M38 0L24 6.5L47.5 19.5Z" fill="#515375" stroke="#4b5563"></path>
-        <path d="M38 0L18.5 0L24 6.5Z" fill="#868698" stroke="#4b5563"></path>
-        <path d="M90 0L63.5 -12.5L51.5 0Z" fill="#6b6c87" stroke="#4b5563"></path>
-        <path d="M51.5 0L63.5 -12.5L38 0Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M38 0L63.5 -12.5L18.5 0Z" fill="#a1a1aa" stroke="#4b5563"></path>
-        <path d="M18.5 0L0 17L24 6.5Z" fill="#6b6c87" stroke="#4b5563"></path>
-        <path d="M24 6.5L0 55.5L47.5 19.5Z" fill="#868698" stroke="#4b5563"></path>
-        <path d="M0 -2L0 0L18.5 0Z" fill="#515375" stroke="#4b5563"></path>
-        <path d="M18.5 0L0 0L0 17Z" fill="#78798f" stroke="#4b5563"></path>
-        <path d="M47.5 19.5L90 16L51.5 0Z" fill="#43476d" stroke="#4b5563"></path>
-        <path d="M47.5 19.5L90 16.5L90 16Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M-8.5 -10L0 -2L18.5 0Z" fill="#78798f" stroke="#4b5563"></path>
-        <path d="M90 16L90 0L51.5 0Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M90 0L90 -0.5L63.5 -12.5Z" fill="#9393a1" stroke="#4b5563"></path>
-        <path d="M0 0L-8.5 12.5L0 17Z" fill="#27305c" stroke="#4b5563"></path>
-        <path d="M-10 7.5L-8.5 12.5L0 0Z" fill="#363b65" stroke="#4b5563"></path>
-        <path d="M0 -2L-10 7.5L0 0Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M63.5 -12.5L-8.5 -10L18.5 0Z" fill="#a1a1aa" stroke="#4b5563"></path>
-        <path d="M0 -2L-8.5 -10L-10 7.5Z" fill="#78798f" stroke="#4b5563"></path>
-        <path d="M0 90L0 55.5L-8.5 12.5Z" fill="#a1a1aa" stroke="#4b5563"></path>
-        <path d="M-8.5 12.5L0 55.5L0 17Z" fill="#5e5f7e" stroke="#4b5563"></path>
-        <path d="M0 17L0 55.5L24 6.5Z" fill="#868698" stroke="#4b5563"></path>
-        <path d="M47.5 19.5L96.5 74.5L90 16.5Z" fill="#6b6c87" stroke="#4b5563"></path>
-        <path d="M90 90L96.5 74.5L47.5 19.5Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M90 16.5L96.5 74.5L90 16Z" fill="#515375" stroke="#4b5563"></path>
-        <path d="M90 16L96.5 74.5L90 0Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M90 0L96.5 74.5L90 -0.5Z" fill="#9393a1" stroke="#4b5563"></path>
-        <path d="M0 90L3.5 90L0 55.5Z" fill="#6b6c87" stroke="#4b5563"></path>
-        <path d="M17.5 102L90 90L47.5 19.5Z" fill="#27305c" stroke="#4b5563"></path>
-        <path d="M-10 7.5L0 90L-8.5 12.5Z" fill="#78798f" stroke="#4b5563"></path>
-        <path d="M17.5 102L47.5 19.5L0 55.5Z" fill="#363b65" stroke="#4b5563"></path>
-        <path d="M90 90L94 90L96.5 74.5Z" fill="#9393a1" stroke="#4b5563"></path>
-        <path d="M94 90L94.5 90L96.5 74.5Z" fill="#43476d" stroke="#4b5563"></path>
-        <path d="M0 90L0 94.5L3.5 90Z" fill="#172554" stroke="#4b5563"></path>
-        <path d="M3.5 90L17.5 102L0 55.5Z" fill="#6b6c87" stroke="#4b5563"></path>
-        <path d="M90 90L17.5 102L94 90Z" fill="#9393a1" stroke="#4b5563"></path>
-        <path d="M94 90L17.5 102L94.5 90Z" fill="#43476d" stroke="#4b5563"></path>
-        <path d="M-10 7.5L0 94.5L0 90Z" fill="#868698" stroke="#4b5563"></path>
-        <path d="M0 94.5L17.5 102L3.5 90Z" fill="#9393a1" stroke="#4b5563"></path>
+        <path d="M47.5 19.5L51.5 0L38 0Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M38 0L24 6.5L47.5 19.5Z" fill="#991b1b" stroke="currentColor"></path>
+        <path d="M38 0L18.5 0L24 6.5Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M90 0L63.5 -12.5L51.5 0Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M51.5 0L63.5 -12.5L38 0Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M38 0L63.5 -12.5L18.5 0Z" fill="#f87171" stroke="currentColor"></path>
+        <path d="M18.5 0L0 17L24 6.5Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M24 6.5L0 55.5L47.5 19.5Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M0 -2L0 0L18.5 0Z" fill="#991b1b" stroke="currentColor"></path>
+        <path d="M18.5 0L0 0L0 17Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M47.5 19.5L90 16L51.5 0Z" fill="#991b1b" stroke="currentColor"></path>
+        <path d="M47.5 19.5L90 16.5L90 16Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M-8.5 -10L0 -2L18.5 0Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M90 16L90 0L51.5 0Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M90 0L90 -0.5L63.5 -12.5Z" fill="#fef2f2" stroke="currentColor"></path>
+        <path d="M0 0L-8.5 12.5L0 17Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M-10 7.5L-8.5 12.5L0 0Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M0 -2L-10 7.5L0 0Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M63.5 -12.5L-8.5 -10L18.5 0Z" fill="#f87171" stroke="currentColor"></path>
+        <path d="M0 -2L-8.5 -10L-10 7.5Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M0 90L0 55.5L-8.5 12.5Z" fill="#f87171" stroke="currentColor"></path>
+        <path d="M-8.5 12.5L0 55.5L0 17Z" fill="#5e5f7e" stroke="currentColor"></path>
+        <path d="M0 17L0 55.5L24 6.5Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M47.5 19.5L96.5 74.5L90 16.5Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M90 90L96.5 74.5L47.5 19.5Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M90 16.5L96.5 74.5L90 16Z" fill="#991b1b" stroke="currentColor"></path>
+        <path d="M90 16L96.5 74.5L90 0Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M90 0L96.5 74.5L90 -0.5Z" fill="#fef2f2" stroke="currentColor"></path>
+        <path d="M0 90L3.5 90L0 55.5Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M17.5 102L90 90L47.5 19.5Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M-10 7.5L0 90L-8.5 12.5Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M17.5 102L47.5 19.5L0 55.5Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M90 90L94 90L96.5 74.5Z" fill="#fef2f2" stroke="currentColor"></path>
+        <path d="M94 90L94.5 90L96.5 74.5Z" fill="#991b1b" stroke="currentColor"></path>
+        <path d="M0 90L0 94.5L3.5 90Z" fill="#450a0a" stroke="currentColor"></path>
+        <path d="M3.5 90L17.5 102L0 55.5Z" fill="#dc2626" stroke="currentColor"></path>
+        <path d="M90 90L17.5 102L94 90Z" fill="#fef2f2" stroke="currentColor"></path>
+        <path d="M94 90L17.5 102L94.5 90Z" fill="#991b1b" stroke="currentColor"></path>
+        <path d="M-10 7.5L0 94.5L0 90Z" fill="#7f1d1d" stroke="currentColor"></path>
+        <path d="M0 94.5L17.5 102L3.5 90Z" fill="#fef2f2" stroke="currentColor"></path>
       </g>
     </svg>
   </>
