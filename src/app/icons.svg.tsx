@@ -154,10 +154,9 @@ export const CrystallineIcon = () => (
   </>
 );
 
-// generated via https://app.haikei.app/ "Circle Scatter"
 export const BubblesIcon = () => (
   <>
-    <svg
+    <svg // generated via https://app.haikei.app/ "Circle Scatter"
       viewBox="0 0 90 90"
       width="90"
       height="90"
@@ -165,7 +164,7 @@ export const BubblesIcon = () => (
       xmlns:xlink="http://www.w3.org/1999/xlink"
       version="1.1"
     >
-      <g fill="#3b82f6">
+      <g fill="currentColor">
         <circle r="19" cx="51" cy="67"></circle>
         <circle r="8" cx="47" cy="10"></circle>
         <circle r="15" cx="12" cy="45"></circle>
