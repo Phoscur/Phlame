@@ -1,9 +1,16 @@
-export const MetallicIcon = () => (
+import { PropsWithChildren } from 'hono/jsx';
+
+type Icon = {
+  className?: string;
+};
+
+export const MetallicIcon = ({ className }: PropsWithChildren<Icon> = { className: '' }) => (
   <>
     <svg // generated via https://app.haikei.app/ "Low Poly Grid"
       viewBox="0 0 90 90"
       width="90"
       height="90"
+      class={className}
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       version="1.1"
@@ -98,12 +105,13 @@ export const MetallicIcon = () => (
   </>
 );
 
-export const CrystallineIcon = () => (
+export const CrystallineIcon = ({ className }: PropsWithChildren<Icon> = { className: '' }) => (
   <>
     <svg // generated via https://app.haikei.app/ "Low Poly Grid"
       viewBox="0 0 90 90"
       width="90"
       height="90"
+      class={className}
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       version="1.1"
@@ -154,12 +162,13 @@ export const CrystallineIcon = () => (
   </>
 );
 
-export const BubblesIcon = () => (
+export const BubblesIcon = ({ className }: PropsWithChildren<Icon> = { className: '' }) => (
   <>
     <svg // generated via https://app.haikei.app/ "Circle Scatter"
       viewBox="0 0 90 90"
       width="90"
       height="90"
+      class={className}
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       version="1.1"
