@@ -9,7 +9,7 @@ Note Nx v18: Running `vitest` in watchmode through `nx` seems not to work for no
 
 ## Hono JSX
 
-Don't think just because there are `.tsx` files in this repo, that we have React! No it's very plain TypeScript, Hono, Custom WebComponents and HTMX - but JSX tooling is great (e.g. syntax highlighting) - maybe we only need the static parts. And I haven't even added VanJS yet!
+Don't think just because there are `.tsx` files in this repo, that we have React! No it's very plain TypeScript, Hono, Custom WebComponents and HTMX - but JSX tooling is great (e.g. syntax highlighting) - maybe we only need the static parts (only functional components). And I haven't even added VanJS yet!
 
 ## Easter POC 2024:
 
@@ -17,6 +17,12 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 - service worker?
 - build & tech queues
   -> idle game
+
+### POC (Tailwind 4) Learnings:
+
+- the new alpha is nice and simplistic, but not beginner friendly, as it's ecosystem and dark mode are not ready
+- when first using a new generated utility class, live reload does not catch it and one needs to manually refresh again
+- do we need `nx`? I'm not sure if it's really a help, it's been quite annoying (neither serving cypress nor vite correctly)
 
 ## Easter POC 2021:
 
