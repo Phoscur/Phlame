@@ -68,7 +68,7 @@ const template = (t: I18n) => (
           {t('resource.crystalline')} - 9999
         </li>
         <li class="bg-liquid-dark text-liquid">
-          <BubblesIcon /> {t('resource.bubbles')} - 1000
+          <BubblesIcon /> {t('resource.liquid')} - 1000
         </li>
       </ul>
     </div>
