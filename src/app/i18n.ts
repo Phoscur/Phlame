@@ -11,7 +11,7 @@ export const ui = {
     'nav.planet': 'Planet',
     'resource.metallic': 'Metals',
     'resource.crystalline': 'Crystals',
-    'resource.bubbles': 'Bubbles',
+    'resource.liquid': 'Liquids',
   },
   de: {
     'nav.home': 'Übersicht',
