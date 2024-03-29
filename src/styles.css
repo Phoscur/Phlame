@@ -17,26 +17,11 @@
   --breakpoint-7xl: 7680px; /* 8K */
 
   --color-bg: var(--color-slate-950);
-  --font-color: var(--color-gray-300);
-
-  --color-m-f2: var(--color-metallic-fill2);
-  --color-m-f3: var(--color-metallic-fill3);
-  --color-m-f4: var(--color-metallic-fill4);
-  --color-m-f5: var(--color-metallic-fill5);
-  --color-m-f6: var(--color-metallic-fill6);
-  --color-m-f7: var(--color-metallic-fill7);
+  /* default font-color: var(--color-gray-300); */
 
   /* colors used in icons */
-  --color-m-s: var(--color-gray-400);
-  --color-m-f1: var(--color-gray-700);
-  --color-metallic-stroke: var(--color-gray-400);
-  --color-metallic-fill1: #4c4c4c;
-  --color-metallic-fill2: #41403f;
-  --color-metallic-fill3: #363433;
-  --color-metallic-fill4: #262322;
-  --color-metallic-fill5: #2b2927;
-  --color-metallic-fill6: #211e1c;
-  --color-metallic-fill7: #1c1917;
+  --color-metallic: var(--color-gray-400);
+  --color-metallic-dark: var(--color-gray-700);
 
   /* this is actually neutral but named grey instead - don't need so many greys (yet) */
   --color-gray-50: #fafafa;
@@ -51,14 +36,8 @@
   --color-gray-900: #171717;
   --color-gray-950: #0a0a0a;
 
-  --color-c-s: var(--color-red-700);
-  --color-c-f1: var(--color-red-950);
-  --color-crystalline-stroke: #450a0a; /* vs #b1aaa0 */
-  --color-crystalline-fill1: #9393a1;
-  --color-crystalline-fill2: #868698;
-  --color-crystalline-fill3: #78798f;
-  --color-crystalline-fill4: #6b6c87;
-  --color-crystalline-fill5: #515375;
+  --color-crystalline: var(--color-red-700);
+  --color-crystalline-dark: var(--color-red-950);
 
   --color-red-50: #fef2f2;
   --color-red-100: #fee2e2;
@@ -72,8 +51,8 @@
   --color-red-900: #7f1d1d;
   --color-red-950: #450a0a;
 
-  --color-b-s: var(--color-blue-500);
-  --color-b-f2: var(--color-blue-950);
+  --color-liquid: var(--color-blue-500);
+  --color-liquid-dark: var(--color-blue-950);
 
   --color-blue-50: #eff6ff;
   --color-blue-100: #dbeafe;
