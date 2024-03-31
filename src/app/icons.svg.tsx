@@ -183,3 +183,31 @@ export const BubblesIcon = ({ className }: PropsWithChildren<Icon> = { className
     </svg>
   </>
 );
+export const EnergyIcon = ({ className }: PropsWithChildren<Icon> = { className: '' }) => (
+  <>
+    <svg // generated via https://app.haikei.app/ "Layered Peaks"
+      id="visual"
+      viewBox="0 0 90 90"
+      width="90"
+      height="90"
+      class={className}
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      version="1.1"
+    >
+      <rect x="0" y="0" width="90" height="90" fill="currentColor"></rect>
+      <path
+        d="M0 56L10 57L20 61L30 53L40 52L50 60L60 61L70 56L80 63L90 66L90 91L80 91L70 91L60 91L50 91L40 91L30 91L20 91L10 91L0 91Z"
+        fill="#ea580c"
+      ></path>
+      <path
+        d="M0 76L10 74L20 66L30 64L40 70L50 62L60 66L70 66L80 70L90 69L90 91L80 91L70 91L60 91L50 91L40 91L30 91L20 91L10 91L0 91Z"
+        fill="#f79400"
+      ></path>
+      <path
+        d="M0 76L10 79L20 74L30 72L40 75L50 79L60 74L70 72L80 73L90 82L90 91L80 91L70 91L60 91L50 91L40 91L30 91L20 91L10 91L0 91Z"
+        fill="#facc15"
+      ></path>
+    </svg>
+  </>
+);

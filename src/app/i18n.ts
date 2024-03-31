@@ -12,6 +12,7 @@ export const ui = {
     'resource.metallic': 'Metals',
     'resource.crystalline': 'Crystals',
     'resource.liquid': 'Liquids',
+    'resource.energy': 'Energy',
   },
   de: {
     'nav.home': 'Übersicht',

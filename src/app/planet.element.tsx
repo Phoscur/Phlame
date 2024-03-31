@@ -1,6 +1,6 @@
 import { raw } from 'hono/html';
 import { I18n, defaultLang, useTranslations } from './i18n';
-import { BubblesIcon, CrystallineIcon, MetallicIcon } from './icons.svg';
+import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
 
 const template = (t: I18n) => (
   <>
@@ -56,6 +56,15 @@ const template = (t: I18n) => (
               1000
             </span>
           </span>
+          <span class="ml-2">
+            <span
+              class="bg-orange-950 text-orange-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-orange-500 hover:bg-orange-800"
+            >
+              <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-orange-950 " />
+              1000
+            </span>
+          </span>
         </div>
       </div>
       <br class="mb-[200px]" />
@@ -69,6 +78,9 @@ const template = (t: I18n) => (
         </li>
         <li class="bg-liquid-dark text-liquid">
           <BubblesIcon /> {t('resource.liquid')} - 1000
+        </li>
+        <li class="bg-energy-dark text-energy">
+          <EnergyIcon className="text-energy-dark" /> {t('resource.energy')} - 1000
         </li>
       </ul>
     </div>
