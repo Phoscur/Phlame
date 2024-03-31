@@ -62,7 +62,7 @@ const template = (t: I18n) => (
               shadow-sm ring-1 ring-inset ring-orange-500 hover:bg-orange-800"
             >
               <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-orange-950 " />
-              1000
+              10/10
             </span>
           </span>
         </div>
