@@ -2,7 +2,7 @@ import { raw } from 'hono/html';
 import { I18n, defaultLang, useTranslations } from './i18n';
 import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
 
-const template = (t: I18n) => (
+export const planetToJSX = (t: I18n) => (
   <>
     <div class="bg-gray-800 p-4 rounded-lg bg-cover bg-[url('/dall-e-planet.png')]">
       <div class="flex justify-between">
@@ -92,9 +92,7 @@ export class PlanetElement extends HTMLElement {
 
   connectedCallback() {
     const t = useTranslations(defaultLang);
-    const html = template(t);
+    const html = planetToJSX(t);
     this.innerHTML = raw(html);
   }
 }
-
-customElements.define('ph-planet', PlanetElement);
