@@ -46,4 +46,3 @@ export class AppElement extends HTMLElement {
       `;
   }
 }
-customElements.define('app-root', AppElement);
