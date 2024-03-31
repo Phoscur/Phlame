@@ -66,6 +66,21 @@
   --color-blue-900: #1e3a8a;
   --color-blue-950: #172554;
 
+  --color-energy: var(--color-orange-600);
+  --color-energy-dark: var(--color-orange-900);
+
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
+  --color-orange-950: #431407;
+
   /* }
 =========================================================================
 @import 'tailwindcss/theme' inlined:
@@ -101,18 +116,7 @@
   --color-slate-800: #1e293b;
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
-  /* Removed: gray, neutral, zinc, stone */
-  --color-orange-50: #fff7ed;
-  --color-orange-100: #ffedd5;
-  --color-orange-200: #fed7aa;
-  --color-orange-300: #fdba74;
-  --color-orange-400: #fb923c;
-  --color-orange-500: #f97316;
-  --color-orange-600: #ea580c;
-  --color-orange-700: #c2410c;
-  --color-orange-800: #9a3412;
-  --color-orange-900: #7c2d12;
-  --color-orange-950: #431407;
+  /* Removed: gray, neutral=gray, zinc, stone */
   /* Removed: amber */
   --color-yellow-50: #fefce8;
   --color-yellow-100: #fef9c3;

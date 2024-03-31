@@ -1,6 +1,6 @@
 import './app.element.css';
 import { defaultLang, useTranslations } from './i18n';
-import { BubblesIcon, CrystallineIcon, MetallicIcon } from './icons.svg';
+import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
 
 export class AppElement extends HTMLElement {
   public static observedAttributes = [];
@@ -11,15 +11,18 @@ export class AppElement extends HTMLElement {
     this.innerHTML = `
     <div class="wrapper">
       <div class="container">
-        <div id="welcome" class="h-16 mb-16 mx-auto grid grid-flow-col gap-8 auto-cols-max">
-          <div class="w-16 border-solid border-2 border-sky-500 text-metallic">
+        <div id="welcome" class="h-16 mb-16 mx-auto grid grid-flow-col gap-4 auto-cols-max">
+          <div class="border-solid border-2 border-sky-500 text-metallic">
             ${MetallicIcon()}
           </div>
-          <div class="w-16 border-solid border-2 border-sky-500 text-crystalline-dark">
+          <div class="border-solid border-2 border-sky-500 text-crystalline-dark">
             ${CrystallineIcon()}
           </div>
-          <div class="w-16 border-solid border-2 border-sky-500 text-liquid">
+          <div class="border-solid border-2 border-sky-500 text-liquid">
             ${BubblesIcon()}
+          </div>
+          <div class="border-solid border-2 border-sky-500 text-energy-dark">
+            ${EnergyIcon()}
           </div>
           <h2 class="text-xl" hx-get="/sum" hx-swap="outerHTML">
             <span> Hello there, </span>
