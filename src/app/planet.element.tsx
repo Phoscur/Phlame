@@ -32,7 +32,7 @@ const template = (t: I18n) => (
           <span class="">
             <span
               class="bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-gray-800 hover:bg-gray-600"
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
             >
               <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
               1000
@@ -41,7 +41,7 @@ const template = (t: I18n) => (
           <span class="ml-2">
             <span
               class="bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-red-800 hover:bg-red-800"
+              shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800"
             >
               <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
               1000
@@ -50,7 +50,7 @@ const template = (t: I18n) => (
           <span class="ml-2">
             <span
               class="bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-400"
+              shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
             >
               <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
               1000
