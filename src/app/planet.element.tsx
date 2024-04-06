@@ -1,6 +1,14 @@
 import { raw } from 'hono/html';
 import { I18n, defaultLang, useTranslations } from './i18n';
-import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
+import {
+  BubblesIcon,
+  CrystallineIcon,
+  EnergyIcon,
+  MetallicIcon,
+  MineIcon,
+  PowerPlantFusionIcon,
+  PowerPlantSolarIcon,
+} from './icons.svg';
 
 export const planetToJSX = (t: I18n) => (
   <>
@@ -69,18 +77,26 @@ export const planetToJSX = (t: I18n) => (
       </div>
       <br class="mb-[200px]" />
       <ul>
-        <li class="bg-metallic-dark text-metallic">
-          <MetallicIcon /> {t('resource.metallic')} - 1000
+        <li class="bg-metallic-dark text-metallic flex flex-columns">
+          <MetallicIcon />
+          <MineIcon />
+          {t('resource.metallic')} - 1000
         </li>
-        <li class="bg-crystalline-dark text-crystalline">
+        <li class="bg-crystalline-dark text-crystalline flex flex-columns">
           <CrystallineIcon className="text-crystalline-dark" />
+          <MineIcon />
           {t('resource.crystalline')} - 9999
         </li>
-        <li class="bg-liquid-dark text-liquid">
-          <BubblesIcon /> {t('resource.liquid')} - 1000
+        <li class="bg-liquid-dark text-liquid flex flex-columns">
+          <BubblesIcon />
+          <MineIcon />
+          {t('resource.liquid')} - 1000
         </li>
-        <li class="bg-energy-dark text-energy">
-          <EnergyIcon className="text-energy-dark" /> {t('resource.energy')} - 1000
+        <li class="bg-energy-dark text-energy flex flex-columns">
+          <EnergyIcon className="text-energy-dark" />
+          <PowerPlantSolarIcon />
+          <PowerPlantFusionIcon />
+          {t('resource.energy')} - 1000
         </li>
       </ul>
     </div>
