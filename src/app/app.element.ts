@@ -1,6 +1,14 @@
 import './app.element.css';
 import { defaultLang, useTranslations } from './i18n';
-import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
+import {
+  BubblesIcon,
+  CrystallineIcon,
+  EnergyIcon,
+  MetallicIcon,
+  MineIcon,
+  PowerPlantFusionIcon,
+  PowerPlantSolarIcon,
+} from './icons.svg';
 
 export class AppElement extends HTMLElement {
   public static observedAttributes = [];
@@ -24,12 +32,20 @@ export class AppElement extends HTMLElement {
           <div class="border-solid border-2 border-sky-500 text-energy-dark">
             ${EnergyIcon()}
           </div>
-          <h2 class="text-xl" hx-get="/sum" hx-swap="outerHTML">
-            <span> Hello there, </span>
-            Welcome ${title} 👋 ${t('nav.home')} ${t('nav.planet')}
-          </h2>
-          
+          <div>
+            ${MineIcon()}
+          </div>
+          <div>
+            ${PowerPlantSolarIcon()}
+          </div>
+          <div>
+            ${PowerPlantFusionIcon()}
+          </div>
         </div>
+        <h2 class="text-xl" hx-get="/sum" hx-swap="outerHTML">
+          <span> Hello there, </span>
+          Welcome ${title} 👋 ${t('nav.home')} ${t('nav.planet')}
+        </h2>
       </div>
     </div>
     <div class="container mx-auto py-8">
