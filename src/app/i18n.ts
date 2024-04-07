@@ -13,6 +13,13 @@ export const ui = {
     'resource.crystalline': 'Crystals',
     'resource.liquid': 'Liquids',
     'resource.energy': 'Energy',
+    'building.level': 'Level',
+    'building.action.build': 'Build',
+    'building.action.upgrade': 'Upgrade',
+    'building.action.downgrade': 'Downgrade',
+    'building.action.destroy': 'Destroy',
+    'building.plant': 'Plant',
+    'building.mine': 'Mine',
   },
   de: {
     'nav.home': 'Übersicht',
