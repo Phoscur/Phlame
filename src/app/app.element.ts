@@ -18,6 +18,9 @@ export class AppElement extends HTMLElement {
     const t = useTranslations(defaultLang);
     this.innerHTML = `
     <div class="wrapper">
+      <div class="flex flex-row-reverse">
+        <app-clock />
+      </div>
       <div class="container">
         <div id="welcome" class="h-8 mb-16 mx-auto grid grid-flow-col gap-4 auto-cols-max">
           <div class="border-solid border-2 border-sky-500 text-metallic">
