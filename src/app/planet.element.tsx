@@ -94,8 +94,8 @@ export const planetToJSX = (t: I18n) => (
         </li>
         <li class="bg-energy-dark text-energy flex flex-columns">
           <EnergyIcon className="text-energy-dark" />
-          <PowerPlantSolarIcon />
-          <PowerPlantFusionIcon />
+          <PowerPlantSolarIcon className="text-energy-primary" />
+          <PowerPlantFusionIcon className="text-energy-primary" />
           {t('resource.energy')} - 1000
         </li>
       </ul>
