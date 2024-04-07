@@ -80,23 +80,59 @@ export const planetToJSX = (t: I18n) => (
         <li class="bg-metallic-dark text-metallic flex flex-columns">
           <MetallicIcon />
           <MineIcon />
-          {t('resource.metallic')} - 1000
+          {t('resource.metallic')} - {t('building.level')} 2
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('building.action.upgrade')}
+          </button>
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('building.action.downgrade')}
+          </button>
         </li>
         <li class="bg-crystalline-dark text-crystalline flex flex-columns">
           <CrystallineIcon className="text-crystalline-dark" />
           <MineIcon />
-          {t('resource.crystalline')} - 9999
+          {t('resource.crystalline')} - {t('building.level')} 1
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('building.action.upgrade')}
+          </button>
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('building.action.destroy')}
+          </button>
         </li>
         <li class="bg-liquid-dark text-liquid flex flex-columns">
           <BubblesIcon />
           <MineIcon />
           {t('resource.liquid')} - 1000
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('building.action.build')}
+          </button>
         </li>
         <li class="bg-energy-dark text-energy flex flex-columns">
           <EnergyIcon className="text-energy-dark" />
           <PowerPlantSolarIcon className="text-energy-primary" />
           <PowerPlantFusionIcon className="text-energy-primary" />
           {t('resource.energy')} - 1000
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('building.action.build')}
+          </button>
         </li>
       </ul>
     </div>
