@@ -8,6 +8,7 @@ import {
   MineIcon,
   PowerPlantFusionIcon,
   PowerPlantSolarIcon,
+  SiloIcon,
 } from './icons.svg';
 
 export class AppElement extends HTMLElement {
@@ -37,6 +38,9 @@ export class AppElement extends HTMLElement {
           </div>
           <div>
             ${MineIcon()}
+          </div>
+          <div>
+            ${SiloIcon()}
           </div>
           <div>
             ${PowerPlantSolarIcon()}
