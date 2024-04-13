@@ -8,6 +8,7 @@ import {
   MineIcon,
   PowerPlantFusionIcon,
   PowerPlantSolarIcon,
+  SiloIcon,
 } from './icons.svg';
 
 export const planetToJSX = (t: I18n) => (
@@ -80,6 +81,7 @@ export const planetToJSX = (t: I18n) => (
         <li class="bg-metallic-dark text-metallic flex flex-columns">
           <MetallicIcon />
           <MineIcon />
+          <SiloIcon />
           {t('resource.metallic')} - {t('building.level')} 2
           <button
             class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
@@ -97,6 +99,7 @@ export const planetToJSX = (t: I18n) => (
         <li class="bg-crystalline-dark text-crystalline flex flex-columns">
           <CrystallineIcon className="text-crystalline-dark" />
           <MineIcon />
+          <SiloIcon />
           {t('resource.crystalline')} - {t('building.level')} 1
           <button
             class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
@@ -114,6 +117,7 @@ export const planetToJSX = (t: I18n) => (
         <li class="bg-liquid-dark text-liquid flex flex-columns">
           <BubblesIcon />
           <MineIcon />
+          <SiloIcon />
           {t('resource.liquid')} - 1000
           <button
             class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
