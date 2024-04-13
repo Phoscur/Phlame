@@ -24,6 +24,13 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 - when first using a new generated utility class, live reload does not catch it and one needs to manually refresh again
 - do we need `nx`? I'm not sure if it's really a help, it's been quite annoying (neither serving cypress nor vite correctly)
 
+#### Wishlist
+
+- Drop Nx (what do we actually need it for? or do we want Analog/Angular?)
+- Component Tests, Playground for different Resource ReCalculation Strategies
+- Check out SolidJS or/while staying true to vanilla?
+- Check out Signals (Draft Polyfill)
+
 ## Easter POC 2021:
 
 - @live/@stream query resources, console & react component consumers
@@ -32,16 +39,9 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 
 ### Game Model:
 
-- Resources: Iron, Silicon, Hydrogen/Water, Electricity, (Lithium, Heat)
+- Resources: Metals: Iron, Crystalline: Silicon, Liquid Hydrogen/Water, Energy: Electricity, (additional Crystalline: Lithium, Energy: Heat)
 - Buildings:
   Mines and Silos for Resources,
   Research for Technology,
   Buildings to build faster,
   Fusion as alternative Energy
-
-## Development server
-
-Run `npm run dev` to start all three dev servers: app, server & playground.
-Run `npm run dev-e2e` to start cypress & the app server.
-
-This project was generated using [Nx](https://nx.dev).
