@@ -19,8 +19,8 @@ const resourcesSingular = {
   'resource.liquid.singular': 'Liquid',
 } as const;
 
-export type ResourceEntries = keyof typeof resources;
-export type ResourceSingularEntries = keyof typeof resourcesSingular;
+export type ResourceEntry = keyof typeof resources;
+type ResourceSingularEntry = keyof typeof resourcesSingular;
 
 const buildings = {
   'building.missing': 'Missing',
@@ -29,84 +29,81 @@ const buildings = {
   'building.silo': 'Silo',
 } as const;
 
-export type BuildingEntries = keyof typeof buildings;
+export type BuildingEntry = keyof typeof buildings;
 
-export const ui = {
+const basic = {
   en: {
     'nav.home': 'Home',
     'nav.planet': 'Planet',
     ...resources,
     ...resourcesSingular,
+    ...buildings,
     'building.level': 'Level',
     'building.action.build': 'Build',
     'building.action.upgrade': 'Upgrade',
     'building.action.downgrade': 'Downgrade',
     'building.action.destroy': 'Destroy',
-    ...buildings,
   },
   de: {
     'nav.home': 'Übersicht',
   },
 } as const;
 
-export type TranslationIndex = (typeof ui)[typeof defaultLang];
-export type TranslationEntries = keyof TranslationIndex;
+type BasicIndex = (typeof basic)[typeof defaultLang];
+type BasicEntry = keyof BasicIndex;
+export type SlottedTranslate = (index: BasicIndex, ...args: BasicEntry[]) => string;
 
-//type Extends<T, U extends T> = U; // type narrowing, thanks to https://stackoverflow.com/questions/53637125/typescript-extract-and-create-union-as-a-subset-of-a-union
-//type SlottableEntries = Extends<TranslationEntries, BuildingEntries | ResourceEntries>;
-
-export const sui = {
+const composite = {
   en: {
-    'resource.amount': (
-      ui: TranslationIndex,
-      resource: ResourceEntries, // = 'resource.unknown',
-      amount: number, // = 0,
-    ) =>
+    'resource.amount': (t: BasicIndex, resource: ResourceEntry, amount = 0) =>
       amount === 1
-        ? `1 ${ui[(resource + '.singular') as ResourceSingularEntries]}`
-        : `${amount} ${ui[resource]}`,
-    'building.action.research': (
-      ui: TranslationIndex,
-      building: BuildingEntries, // = 'building.missing',
-    ) => `Research ${ui[building]}`,
+        ? `1 ${t[(resource + '.singular') as ResourceSingularEntry]}`
+        : `${amount} ${t[resource || 'resource.unknown']}`,
+    'building.action.research': (t: BasicIndex, building: BuildingEntry) =>
+      `Research ${t[building || 'building.missing']}`,
   },
   de: {},
 } as const;
 
-export type EntriesSlotsIndex = (typeof sui)[typeof defaultLang];
-export type EntriesWithSlots = keyof EntriesSlotsIndex;
-export type SlottedTranslation = (
-  ui: TranslationIndex,
-  ...args: (ResourceEntries | BuildingEntries)[]
-) => string;
+type EntriesSlotsIndex = (typeof composite)[typeof defaultLang];
+type EntryWithSlots = keyof EntriesSlotsIndex;
+
+export const index = {
+  en: {
+    ...basic.en,
+    ...composite.en,
+  },
+  de: {
+    ...basic.de,
+    ...composite.de,
+  },
+} as const;
+
+export type TranslationIndex = (typeof index)[typeof defaultLang];
+export type Entry = keyof TranslationIndex;
 
 export function getLangFromUrl(url: URL) {
   const [, lang] = url.pathname.split('/');
-  if (lang in ui) return lang as keyof typeof ui;
+  if (lang in basic) return lang as keyof typeof basic;
   return defaultLang;
 }
+
 type Tail<T extends any[]> = T extends [any, ...infer R] ? R : never;
 
-export type I18n = (key: TranslationEntries) => string;
-export type I18nWithSlots = <Key extends EntriesWithSlots>(
+export type I18n = <Key extends Entry>(
   key: Key,
-  ...slots: Key extends keyof EntriesSlotsIndex ? Tail<Parameters<EntriesSlotsIndex[Key]>> : never
+  ...slots: Key extends EntryWithSlots ? Tail<Parameters<EntriesSlotsIndex[Key]>> : []
 ) => string;
 
-export function useTranslations(lang: keyof typeof ui): I18n {
-  return function t(key) {
-    const translations = (ui[lang] || ui[defaultLang]) as TranslationIndex;
+export function useTranslations(lang: keyof typeof basic): I18n {
+  return function t(key, ...slots) {
+    const translations = (index[lang] || index[defaultLang]) as TranslationIndex;
     const f = translations[key];
-    return f;
-  };
-}
-
-export function useSlottedTranslations(lang: keyof typeof ui): I18nWithSlots {
-  return function st(key, ...slots) {
-    const translations = (ui[lang] || ui[defaultLang]) as TranslationIndex;
-    const composableTranslations = (sui[lang] || sui[defaultLang]) as EntriesSlotsIndex;
-    const f = composableTranslations[key] as SlottedTranslation;
-    return f(translations, ...(slots as Tail<Parameters<typeof f>>));
+    if (typeof f === 'string') {
+      return f;
+    }
+    // we only use types for autocompletion and compile time checking, there are no runtime checks if given slots actually match
+    return (f as SlottedTranslate)(translations, ...(slots as Tail<Parameters<SlottedTranslate>>));
   };
 }
 
