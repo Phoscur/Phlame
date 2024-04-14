@@ -1,5 +1,5 @@
 import { raw } from 'hono/html';
-import { I18n, defaultLang, useTranslations } from './i18n';
+import { I18n, I18nWithSlots, defaultLang, useSlottedTranslations, useTranslations } from './i18n';
 import {
   BubblesIcon,
   CrystallineIcon,
@@ -11,7 +11,7 @@ import {
   SiloIcon,
 } from './icons.svg';
 
-export const planetToJSX = (t: I18n) => (
+export const planetToJSX = (t: I18n, st: I18nWithSlots) => (
   <>
     <div class="bg-gray-800 p-4 rounded-lg bg-cover bg-[url('/dall-e-planet.png')]">
       <div class="flex justify-between">
@@ -125,6 +125,14 @@ export const planetToJSX = (t: I18n) => (
           >
             {t('building.action.build')}
           </button>
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {st('building.action.research', 'building.plant')}
+            <span>{st('resource.amount', 'resource.metallic', 3)}</span>
+            <span>{st('resource.amount', 'resource.liquid', 1)}</span>
+          </button>
         </li>
         <li class="bg-energy-dark text-energy flex flex-columns">
           <EnergyIcon className="text-energy-dark" />
@@ -148,7 +156,8 @@ export class PlanetElement extends HTMLElement {
 
   connectedCallback() {
     const t = useTranslations(defaultLang);
-    const html = planetToJSX(t);
+    const st = useSlottedTranslations(defaultLang);
+    const html = planetToJSX(t, st);
     this.innerHTML = raw(html);
   }
 }
