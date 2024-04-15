@@ -14,7 +14,7 @@ export const resourceMetallicToJSX = (t: I18n, amount: number, rate: number) => 
               shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500 tracking-tight"
     >
       <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
-      <span class="resource-amount">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
     </span>
   </>
 );
@@ -25,7 +25,7 @@ export const resourceCrystallineToJSX = (t: I18n, amount: number, rate: number) 
               shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800 tracking-wide"
     >
       <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
-      <span class="resource-amount">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
     </span>
   </>
 );
@@ -36,7 +36,7 @@ export const resourceBubblesToJSX = (t: I18n, amount: number, rate: number) => (
               shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
     >
       <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
-      <span class="resource-amount">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
     </span>
   </>
 );
@@ -60,7 +60,7 @@ export const resourcesToJSX = (t: I18n) => (
         <ph-resource type="iron" amount="30" rate="111" max="1000" />
       </span>
       <span class="ml-2">
-        <ph-resource type="silicon" amount="30" rate="-1111" />
+        <ph-resource type="silicon" amount="30" rate="-111" min="-1000" />
       </span>
       <span class="ml-2">
         <ph-resource type="hydrogen" amount="30" rate="99e+999" max="Infinity" />
@@ -87,12 +87,15 @@ export class ResourceElement extends HTMLElement {
 
   connectedCallback() {
     const t = useTranslations(defaultLang);
+
     let amount = Number(this.attributes.getNamedItem('amount')?.value);
     const rate = Number(this.attributes.getNamedItem('rate')?.value);
     const min = Number(this.attributes.getNamedItem('min')?.value) || 0;
     const max = Number(this.attributes.getNamedItem('max')?.value) || Infinity;
     const kind = (this.attributes.getNamedItem('type')?.value || 'iron') as Resource;
+
     this.render(t, kind, amount, rate);
+
     this.intervalId = window.setInterval(() => {
       amount += rate;
       if (amount >= max) {
