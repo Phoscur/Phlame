@@ -1,5 +1,6 @@
 import { AppElement } from './app.element';
 
+customElements.define('app-root', AppElement);
 describe('AppElement', () => {
   let app: AppElement;
 
@@ -14,6 +15,6 @@ describe('AppElement', () => {
   it('should have a greeting', () => {
     app.connectedCallback();
 
-    expect(app.querySelector('h1')!.innerHTML).toContain('Welcome app');
+    expect(app.querySelector('h1')!.innerHTML).toContain('Home');
   });
 });
