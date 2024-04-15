@@ -1,0 +1,47 @@
+@property --percent {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+@property --temp {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+@property --v1 {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+@property --v2 {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+
+.percent {
+  font: 800 40px monospace;
+  padding: 1ch;
+  display: grid;
+  transition: --percent 1s;
+  --temp: calc(var(--percent) * 100);
+  --v1: max(var(--temp) - 0.5, 0);
+  --v2: max((var(--temp) - var(--v1)) * 100 - 0.5, 0);
+  counter-reset: v1 var(--v1) v2 var(--v2);
+}
+.percent::before {
+  content: counter(v1) '.' counter(v2, decimal-leading-zero) '%';
+}
+
+/*
+const genNumber = () => {
+  document.querySelector("div").style.setProperty("--percent", Math.random());
+};
+
+setInterval(genNumber, 2000);
+setTimeout(genNumber);
+*/
+
+/*
+example from https://css-tricks.com/animating-number-counters/
+*/

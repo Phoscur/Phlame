@@ -20,7 +20,8 @@ export class AppElement extends HTMLElement {
     this.innerHTML = `
     <div class="wrapper">
       <div class="flex flex-row-reverse">
-        <app-clock />
+        <app-clock></app-clock>
+        <app-percent></app-percent>
       </div>
       <div class="container">
         <div id="welcome" class="h-8 mb-16 mx-auto grid grid-flow-col gap-4 auto-cols-max">
