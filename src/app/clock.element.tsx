@@ -1,5 +1,6 @@
 import { raw } from 'hono/html';
 import './clock.element.css';
+import './percent.element.css';
 
 export function runClock(node: HTMLElement) {
   const setProperty = (name: string, delay: number) => node.style.setProperty(name, `${delay}s`);
@@ -34,3 +35,21 @@ export class ClockElement extends HTMLElement {
 }
 
 // inspired by https://dev.to/madsstoumann/clocks-countdowns-timing-in-css-and-javascript-554n
+
+export const Percent = () => (
+  <>
+    <span class="percent"></span>
+  </>
+);
+
+export class PercentElement extends HTMLElement {
+  public static observedAttributes = [];
+
+  connectedCallback() {
+    const html = Percent();
+    this.innerHTML = raw(html);
+
+    const percent = this.getElementsByClassName('percent')[0] as HTMLElement;
+    percent.style.setProperty('--percent', `${Math.random()}`);
+  }
+}
