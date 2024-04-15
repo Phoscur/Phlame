@@ -2,36 +2,41 @@ import { raw } from 'hono/html';
 import { I18n, defaultLang, useTranslations } from './i18n';
 import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
 
+function abbreviateAmount(t: I18n, amount: number): string {
+  // TODO shorten amount in kilos: e.g.: k, m, K, M
+  return `${amount}`;
+}
+
 export const resourceMetallicToJSX = (t: I18n, amount: number, rate: number) => (
   <>
     <span
-      class="bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+      class="w-20 bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500 tracking-tight"
     >
       <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
-      {amount}
+      <span class="resource-amount">{abbreviateAmount(t, amount)}</span>
     </span>
   </>
 );
 export const resourceCrystallineToJSX = (t: I18n, amount: number, rate: number) => (
   <>
     <span
-      class="bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800"
+      class="w-20 bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800 tracking-wide"
     >
       <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
-      {amount}
+      <span class="resource-amount">{abbreviateAmount(t, amount)}</span>
     </span>
   </>
 );
 export const resourceBubblesToJSX = (t: I18n, amount: number, rate: number) => (
   <>
     <span
-      class="bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+      class="w-20 bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
               shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
     >
       <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
-      {amount}
+      <span class="resource-amount">{abbreviateAmount(t, amount)}</span>
     </span>
   </>
 );
@@ -43,7 +48,7 @@ export const resourceEnergyToJSX = (t: I18n, amount: number, total: number) => (
               shadow-sm ring-1 ring-inset ring-orange-500 hover:bg-orange-800"
     >
       <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-orange-950" />
-      {amount}/{total}
+      <span class="energy-amount">{amount}</span>/<span class="energy-total">{total}</span>
     </span>
   </>
 );
@@ -52,13 +57,13 @@ export const resourcesToJSX = (t: I18n) => (
   <>
     <div class="flex">
       <span class="">
-        <ph-resource type="iron" amount="30" rate="1" />
+        <ph-resource type="iron" amount="30" rate="111" max="1000" />
       </span>
       <span class="ml-2">
-        <ph-resource type="silicon" amount="30" rate="-1" />
+        <ph-resource type="silicon" amount="30" rate="-1111" />
       </span>
       <span class="ml-2">
-        <ph-resource type="hydrogen" amount="30" rate="0" />
+        <ph-resource type="hydrogen" amount="30" rate="99e+999" max="Infinity" />
       </span>
       <span class="ml-2">
         <ph-energy type="energy" amount="150" total="150" />
@@ -78,17 +83,33 @@ type Resource = keyof typeof resourceRenderMap;
 
 export class ResourceElement extends HTMLElement {
   public static observedAttributes = ['type', 'amount', 'rate', 'min', 'max'];
+  private intervalId: number | undefined;
 
   connectedCallback() {
     const t = useTranslations(defaultLang);
     let amount = Number(this.attributes.getNamedItem('amount')?.value);
     const rate = Number(this.attributes.getNamedItem('rate')?.value);
+    const min = Number(this.attributes.getNamedItem('min')?.value) || 0;
+    const max = Number(this.attributes.getNamedItem('max')?.value) || Infinity;
     const kind = (this.attributes.getNamedItem('type')?.value || 'iron') as Resource;
     this.render(t, kind, amount, rate);
-    setInterval(() => {
+    this.intervalId = window.setInterval(() => {
       amount += rate;
-      this.render(t, kind, amount, rate);
-    }, 100);
+      if (amount >= max) {
+        amount = max;
+        window.clearInterval(this.intervalId);
+      }
+      if (amount <= min) {
+        amount = min;
+        window.clearInterval(this.intervalId);
+      }
+      this.getElementsByClassName('resource-amount')[0].innerHTML = abbreviateAmount(t, amount);
+      // avoid expensive this.render(t, kind, amount, rate);
+    }, 1000);
+  }
+
+  disconnectedCallback() {
+    window.clearInterval(this.intervalId);
   }
 
   render(t: I18n, kind: Resource, amount: number, rate: number) {
