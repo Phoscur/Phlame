@@ -56,8 +56,10 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.8.2",
+    "@joist/di": "^3.1.2",
     "hono": "^4.0.10",
     "html-element": "^2.3.1",
-    "htmx.org": "^1.9.10"
+    "htmx.org": "^1.9.10",
+    "signal-polyfill": "^0.1.0"
   }
 }
