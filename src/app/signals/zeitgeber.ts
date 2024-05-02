@@ -1,4 +1,5 @@
 import { Signal } from 'signal-polyfill';
+import { effect } from './effect';
 
 type TimeoutQueueFunction = (callback: () => void, ms: number) => number;
 
@@ -13,14 +14,23 @@ export class Zeitgeber {
   };
   private timeoutId?: number;
 
+  /**
+   * Trigger an effect on signal change
+   */
+  public effect = effect;
+  /**
+   * Derive a Computed time or tick change-aware Signal
+   */
+  public compute = Signal.Computed;
+
   constructor(
     private currentTick = 0,
     public readonly msPerTick = 1000,
     public readonly msPerIteration = 1000,
     public readonly timeSource = () => Date.now(),
     private currentTime = timeSource(),
-    private setTimeout: TimeoutQueueFunction = global.setTimeout,
-    private clearTimeout = global.clearTimeout,
+    private setTimeout: TimeoutQueueFunction = window.setTimeout.bind(window),
+    private clearTimeout: (tid: number) => void = window.clearTimeout.bind(window),
   ) {
     this.zeitgeist = {
       tick: new Signal.State(currentTick),
@@ -40,6 +50,14 @@ export class Zeitgeber {
     return this.currentTime;
   }
 
+  get next(): number {
+    return this.time + this.msPerTick;
+  }
+
+  get running() {
+    return !!this.timeoutId;
+  }
+
   private timeloop() {
     const now = this.timeSource();
     const diff = now - this.currentTime;
@@ -57,6 +75,8 @@ export class Zeitgeber {
   }
 
   stop() {
-    this.clearTimeout(this.timeoutId);
+    if (this.timeoutId) {
+      this.clearTimeout(this.timeoutId);
+    }
   }
 }
