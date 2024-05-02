@@ -20,7 +20,12 @@ export class AppElement extends HTMLElement {
     this.innerHTML = `
     <div class="wrapper">
       <div class="flex flex-row-reverse">
-        <app-clock></app-clock>
+        <debug-ctx>
+          <ph-tick></ph-tick>
+        </debug-ctx>
+        <debug-ctx>
+          <app-clock></app-clock>
+        </debug-ctx>
         <app-percent></app-percent>
       </div>
       <div class="container">

@@ -29,7 +29,13 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 - Drop Nx (what do we actually need it for? or do we want Analog/Angular?)
 - Component Tests, Playground for different Resource ReCalculation Strategies
 - Check out SolidJS or/while staying true to vanilla?
-- Check out Signals (Draft Polyfill)
+- Check out Signals (Draft Polyfill) - use them with `@joist/di` as Zeitgeber emitting time units / game ticks
+- JS Decorators, JS private accessor properties (seem to be a bit too new and clashing with bundlers)
+- Drop typescript (build for app, what about the engine?)
+- Try Bun again
+
+- Zeitleiste (draggable Zeitgeber Tick/Time Debugger)
+- e2e tests with Playwright
 
 ## Easter POC 2021:
 

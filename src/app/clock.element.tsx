@@ -1,10 +1,13 @@
 import { raw } from 'hono/html';
+import { injectable, inject } from '@joist/di';
 import './clock.element.css';
 import './percent.element.css';
+import './tick.element.css';
+import { Debug } from './debug.element';
+import { Zeitgeber } from './signals/zeitgeber';
 
-export function runClock(node: HTMLElement) {
+export function runClock(node: HTMLElement, time: Date) {
   const setProperty = (name: string, delay: number) => node.style.setProperty(name, `${delay}s`);
-  const time = new Date();
   const hours = time.getHours() * 3600;
   const minutes = time.getMinutes() * 60;
   const seconds = time.getSeconds();
@@ -24,13 +27,18 @@ export const Clock = () => (
   </>
 );
 
+@injectable
 export class ClockElement extends HTMLElement {
   public static observedAttributes = [];
+  #logger = inject(Debug);
+  #zeit = inject(Zeitgeber);
 
   connectedCallback() {
     const html = Clock();
     this.innerHTML = raw(html);
-    runClock(this);
+    const time = this.#zeit().time;
+    runClock(this, new Date(time));
+    this.#logger().log('tick', time);
   }
 }
 
@@ -51,5 +59,38 @@ export class PercentElement extends HTMLElement {
 
     const percent = this.getElementsByClassName('percent')[0] as HTMLElement;
     percent.style.setProperty('--percent', `${Math.random()}`);
+  }
+}
+
+export const Tick = () => (
+  <>
+    <span class="tick"></span>
+  </>
+);
+
+@injectable
+export class TickElement extends HTMLElement {
+  public static observedAttributes = [];
+  #logger = inject(Debug);
+  zeit = inject(Zeitgeber);
+
+  connectedCallback() {
+    const html = Tick();
+    this.innerHTML = raw(html);
+
+    const zeit = this.zeit();
+    const logger = this.#logger();
+
+    zeit.effect(() => {
+      const content = this.getElementsByClassName('tick')[0] as HTMLElement;
+      content.style.setProperty('--tick', `${zeit.tick}`);
+      logger.log('TICK', zeit.tick);
+    });
+
+    setTimeout(() => {
+      if (!zeit.running) {
+        zeit.start();
+      }
+    }, 1000);
   }
 }
