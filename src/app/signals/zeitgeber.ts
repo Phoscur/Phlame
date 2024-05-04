@@ -27,7 +27,7 @@ export class Zeitgeber {
   constructor(
     private currentTick = 0,
     public readonly msPerTick = 10000,
-    public readonly msPerIteration = 1000,
+    public readonly msPerIteration = 334,
     public readonly timeSource = () => Date.now(),
     private currentTime = timeSource(),
     private setTimeout: TimeoutQueueFunction = window.setTimeout.bind(window),
@@ -40,26 +40,44 @@ export class Zeitgeber {
     };
   }
 
+  /**
+   * Current Game Tick (Signal)
+   */
   get tick(): number {
     return this.zeitgeist.tick.get();
   }
 
+  /**
+   * Current Game Time at Tick (Signal)
+   */
   get time(): number {
     return this.zeitgeist.time.get();
   }
 
+  /**
+   * Current Iteration Time (Signal)
+   */
   get iteration(): number {
     return this.zeitgeist.iteration.get();
   }
 
+  /**
+   * Current Game Time at Tick (bypassing Signals)
+   */
   get now() {
     return this.currentTime;
   }
 
+  /**
+   * Game Time at next Tick (using time Signal)
+   */
   get next(): number {
     return this.time + this.msPerTick;
   }
 
+  /**
+   * Percentage of time passed until next Tick (using iteration time Signal)
+   */
   get passed(): number {
     return (this.iteration - this.currentTime) / this.msPerTick;
   }
