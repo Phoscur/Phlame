@@ -71,7 +71,7 @@ export class PercentElement extends HTMLElement {
       percent.style.setProperty('--percent', newValue);
     }
     if (name === 'speedms') {
-      percent.style.setProperty('transition', `--percent ${newValue}ms`);
+      percent.style.setProperty('transition', `--percent ${newValue}ms linear`);
     }
   }
 }
@@ -91,14 +91,14 @@ export const Tick = () => (
 export class TickElement extends HTMLElement {
   public static observedAttributes = [];
   #logger = inject(Debug);
-  zeit = inject(Zeitgeber);
+  #zeit = inject(Zeitgeber);
 
   connectedCallback() {
+    const zeit = this.#zeit();
+    const logger = this.#logger();
+
     const html = Tick();
     this.innerHTML = raw(html);
-
-    const zeit = this.zeit();
-    const logger = this.#logger();
 
     const content = this.getElementsByClassName('tick')[0] as HTMLElement;
     const percent = this.getElementsByTagName('app-percent')[0] as PercentElement;
@@ -117,6 +117,7 @@ export class TickElement extends HTMLElement {
       logger.log('TICK', zeit.tick);
     });
 
+    // TODO refactor extract ZEIT START
     setTimeout(() => {
       if (!zeit.running) {
         zeit.start();
