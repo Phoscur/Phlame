@@ -2,7 +2,6 @@ import { raw } from 'hono/html';
 import { injectable, inject } from '@joist/di';
 import './clock.element.css';
 import './percent.element.css';
-import './tick.element.css';
 import { Debug } from './debug.element';
 import { Zeitgeber } from './signals/zeitgeber';
 
@@ -46,25 +45,45 @@ export class ClockElement extends HTMLElement {
 
 export const Percent = () => (
   <>
-    <span class="percent"></span>
+    <span class="percent grid font-bold text-4xl p-4" style="transition: --percent 250ms"></span>
   </>
 );
 
 export class PercentElement extends HTMLElement {
-  public static observedAttributes = [];
+  public static observedAttributes = ['value', 'speedms'];
 
   connectedCallback() {
     const html = Percent();
     this.innerHTML = raw(html);
 
+    const value = this.attributes.getNamedItem('value')?.value || `${Math.random()}`;
+
     const percent = this.getElementsByClassName('percent')[0] as HTMLElement;
-    percent.style.setProperty('--percent', `${Math.random()}`);
+    percent.style.setProperty('--percent', value);
+  }
+
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    const percent = this.getElementsByClassName('percent')[0] as HTMLElement;
+    if (!percent) {
+      return;
+    }
+    if (name === 'value') {
+      percent.style.setProperty('--percent', newValue);
+    }
+    if (name === 'speedms') {
+      percent.style.setProperty('transition', `--percent ${newValue}ms`);
+    }
   }
 }
 
 export const Tick = () => (
   <>
-    <span class="tick"></span>
+    <div class="flex flex-row">
+      <span class="tick grid font-bold text-4xl p-4" style="transition: --tick 1s">
+        [-1]
+      </span>
+      <app-percent value="0.99" speedms="250"></app-percent>
+    </div>
   </>
 );
 
@@ -83,8 +102,15 @@ export class TickElement extends HTMLElement {
 
     zeit.effect(() => {
       const content = this.getElementsByClassName('tick')[0] as HTMLElement;
+      const percent = this.getElementsByTagName('app-percent')[0] as PercentElement;
+      const passed = zeit.passed;
+      //percent.setAttribute('value', `${passed <= 0.01 ? 0.1 : passed}`); // rather show 10 than 0
+      percent.setAttribute('value', `${passed}`);
+      percent.setAttribute('speedms', `${zeit.msPerIteration}`);
       content.style.setProperty('--tick', `${zeit.tick}`);
-      logger.log('TICK', zeit.tick);
+      content.style.setProperty('transition', `--tick ${zeit.msPerIteration}ms`);
+      content.innerHTML = `[${zeit.tick}]`;
+      logger.log('TICK', zeit.tick, zeit.iteration, passed);
     });
 
     setTimeout(() => {
