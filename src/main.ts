@@ -2,7 +2,7 @@ import htmx from 'htmx.org';
 import { AppElement } from './app/app.element';
 import { DebugCtx } from './app/debug.element';
 import { PlanetElement } from './app/planet.element';
-import { ClockElement, PercentElement, TickElement } from './app/clock.element';
+import { ClockElement, PercentElement, TickElement } from './app/tick';
 import { EnergyElement, ResourceElement, ResourcesElement } from './app/resources.element';
 
 customElements.define('debug-ctx', DebugCtx);
