@@ -61,7 +61,7 @@ export class Zeitgeber {
   }
 
   get passed(): number {
-    return (this.timeSource() - this.currentTime) / this.msPerTick;
+    return (this.iteration - this.currentTime) / this.msPerTick;
   }
 
   get running() {

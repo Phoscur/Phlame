@@ -100,17 +100,21 @@ export class TickElement extends HTMLElement {
     const zeit = this.zeit();
     const logger = this.#logger();
 
+    const content = this.getElementsByClassName('tick')[0] as HTMLElement;
+    const percent = this.getElementsByTagName('app-percent')[0] as PercentElement;
+    percent.setAttribute('speedms', `${zeit.msPerIteration}`);
+    content.style.setProperty('transition', `--tick ${zeit.msPerIteration}ms`);
+
     zeit.effect(() => {
-      const content = this.getElementsByClassName('tick')[0] as HTMLElement;
-      const percent = this.getElementsByTagName('app-percent')[0] as PercentElement;
       const passed = zeit.passed;
       //percent.setAttribute('value', `${passed <= 0.01 ? 0.1 : passed}`); // rather show 10 than 0
       percent.setAttribute('value', `${passed}`);
-      percent.setAttribute('speedms', `${zeit.msPerIteration}`);
+      //logger.log('ITER', zeit.iteration);
+    });
+    zeit.effect(() => {
       content.style.setProperty('--tick', `${zeit.tick}`);
-      content.style.setProperty('transition', `--tick ${zeit.msPerIteration}ms`);
       content.innerHTML = `[${zeit.tick}]`;
-      logger.log('TICK', zeit.tick, zeit.iteration, passed);
+      logger.log('TICK', zeit.tick);
     });
 
     setTimeout(() => {
