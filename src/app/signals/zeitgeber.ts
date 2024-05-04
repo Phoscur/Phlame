@@ -11,6 +11,7 @@ export class Zeitgeber {
   private zeitgeist: {
     tick: Signal.State<number>;
     time: Signal.State<number>;
+    iteration: Signal.State<number>;
   };
   private timeoutId?: number;
 
@@ -25,7 +26,7 @@ export class Zeitgeber {
 
   constructor(
     private currentTick = 0,
-    public readonly msPerTick = 1000,
+    public readonly msPerTick = 10000,
     public readonly msPerIteration = 1000,
     public readonly timeSource = () => Date.now(),
     private currentTime = timeSource(),
@@ -35,6 +36,7 @@ export class Zeitgeber {
     this.zeitgeist = {
       tick: new Signal.State(currentTick),
       time: new Signal.State(currentTime),
+      iteration: new Signal.State(currentTime),
     };
   }
 
@@ -46,6 +48,10 @@ export class Zeitgeber {
     return this.zeitgeist.time.get();
   }
 
+  get iteration(): number {
+    return this.zeitgeist.iteration.get();
+  }
+
   get now() {
     return this.currentTime;
   }
@@ -54,12 +60,17 @@ export class Zeitgeber {
     return this.time + this.msPerTick;
   }
 
+  get passed(): number {
+    return (this.timeSource() - this.currentTime) / this.msPerTick;
+  }
+
   get running() {
     return !!this.timeoutId;
   }
 
   private timeloop() {
     const now = this.timeSource();
+    this.zeitgeist.iteration.set(now);
     const diff = now - this.currentTime;
     const ticks = Math.floor(diff / this.msPerTick);
     this.currentTime += ticks * this.msPerTick;
