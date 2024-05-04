@@ -28,16 +28,3 @@
 .percent::before {
   content: counter(v1, decimal-leading-zero) '.' counter(v2, decimal-leading-zero) '%';
 }
-
-/*
-const genNumber = () => {
-  document.querySelector("div").style.setProperty("--percent", Math.random());
-};
-
-setInterval(genNumber, 2000);
-setTimeout(genNumber);
-*/
-
-/*
-example from https://css-tricks.com/animating-number-counters/
-*/
