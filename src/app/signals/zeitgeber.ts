@@ -99,7 +99,16 @@ export class Zeitgeber {
     this.timeoutId = this.setTimeout(() => this.timeloop(), this.msPerIteration);
   }
 
-  start() {
+  start(time?: number, tick?: number) {
+    if (typeof time !== 'undefined') {
+      this.currentTime = time;
+      this.zeitgeist.iteration.set(time);
+      this.zeitgeist.time.set(time);
+    }
+    if (typeof tick !== 'undefined') {
+      this.currentTick = tick;
+      this.zeitgeist.tick.set(tick);
+    }
     this.timeloop();
   }
 

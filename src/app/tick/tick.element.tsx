@@ -17,7 +17,7 @@ export const Tick = () => (
 
 @injectable
 export class TickElement extends HTMLElement {
-  public static observedAttributes = [];
+  static observedAttributes = [];
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
 
@@ -44,12 +44,5 @@ export class TickElement extends HTMLElement {
       content.innerHTML = `[${zeit.tick}]`;
       logger.log('TICK', zeit.tick);
     });
-
-    // TODO refactor extract ZEIT START
-    setTimeout(() => {
-      if (!zeit.running) {
-        zeit.start();
-      }
-    }, 1000);
   }
 }
