@@ -16,16 +16,15 @@ export class AppElement extends HTMLElement {
 
   connectedCallback() {
     const title = 'Phlame';
+    const tick = 42069;
     const t = useTranslations(defaultLang);
     this.innerHTML = `
+    <debug-ctx>
+    <zeit-ctx time="${Date.now()}" tick="${tick}">
     <div class="wrapper">
       <div class="flex flex-row-reverse">
-        <debug-ctx>
-          <ph-tick></ph-tick>
-        </debug-ctx>
-        <debug-ctx>
-          <app-clock></app-clock>
-        </debug-ctx>
+        <ph-tick></ph-tick>
+        <app-clock></app-clock>
       </div>
       <div class="container">
         <div id="welcome" class="h-8 mb-16 mx-auto grid grid-flow-col gap-4 auto-cols-max">
@@ -60,16 +59,18 @@ export class AppElement extends HTMLElement {
       </div>
     </div>
     <div class="container mx-auto py-8">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold">${t('nav.home')}</h1>
-        </div>
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold">${t('nav.home')}</h1>
+      </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class=""><ph-planet /></div>
-            <div class=""><ph-planet /></div>
-            <div class=""><ph-planet /></div>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class=""><ph-planet /></div>
+        <div class=""><ph-planet /></div>
+        <div class=""><ph-planet /></div>
+      </div>
     </div>
-      `;
+    </zeit-ctx>
+    </debug-ctx>
+    `;
   }
 }
