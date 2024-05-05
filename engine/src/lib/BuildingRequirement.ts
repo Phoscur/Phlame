@@ -16,31 +16,19 @@ export default class BuildingRequirement<
 > {
   static DOWNGRADECOST_DIVISOR = 2;
 
-  readonly type: RequirementType;
-
-  readonly costs: ResourceCollection<ResourceTypes>;
-
-  readonly costFactor: number;
-
-  readonly dependencies: Dependency<RequirementType>[];
-
   constructor(
-    type: RequirementType,
-    costs: ResourceCollection<ResourceTypes>,
-    factor: number,
-    dependencies: Dependency<RequirementType>[],
-  ) {
-    this.type = type;
-    this.costs = costs;
-    this.costFactor = factor;
-    this.dependencies = dependencies;
-  }
+    readonly type: RequirementType,
+    readonly costs: ResourceCollection<ResourceTypes>,
+    readonly costFactor: number,
+    readonly dependencies: Dependency<RequirementType>[],
+  ) {}
 
   matches(type: RequirementType): boolean {
     return this.type === type;
   }
 
   isSatisfied(level: number, factoryResources: EnergyCalculation<ResourceTypes>): boolean {
+    // TODO check dependencies
     return factoryResources.hasAvailable(this.getUpgradeCost(level));
   }
 

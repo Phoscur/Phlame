@@ -38,27 +38,15 @@ export default class Building<
   ResourceType extends ResourceIdentifier,
 > {
   static BUILD_TIME_DIVISOR = 2500 / 60;
-  readonly type: BuildingType;
-
-  // For now we have the full lookup here, might be nicer to encapsulate in a different way?
-  readonly requirements: RequirementLookup<BuildingType, ResourceType>;
-  readonly prosumption: ProsumptionLookup<BuildingType, ResourceType>;
-
-  readonly level: number;
-
-  readonly speed: number;
 
   constructor(
-    type: BuildingType,
-    requirements: RequirementLookup<BuildingType, ResourceType>,
-    prosumption: ProsumptionLookup<BuildingType, ResourceType>,
-    level?: number,
-    speed = 100,
+    readonly type: BuildingType,
+    // TODO! For now we have the full lookup here, might be nicer to encapsulate in a different way?
+    readonly requirements: RequirementLookup<BuildingType, ResourceType>,
+    readonly prosumption: ProsumptionLookup<BuildingType, ResourceType>,
+    readonly level: number = 0,
+    readonly speed: number = 100,
   ) {
-    this.type = type;
-    this.requirements = requirements;
-    this.prosumption = prosumption;
-    this.level = level || 0;
     const defaultSpeed = speed >= 100 ? 100 : speed;
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }

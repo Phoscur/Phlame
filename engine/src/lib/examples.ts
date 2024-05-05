@@ -5,15 +5,18 @@ import examples, {
   SaltyResource,
   BlubbResource,
 } from './resources/examples';
-export type Resources = ResourceTypes | EnergyTypes;
 import { Stock, ResourceCollection } from './resources';
-import Empire from './Empire';
 import Building, {
   BuildingIdentifier as BuildingID,
   ProsumptionLookup,
   RequirementLookup,
 } from './Building';
 import BuildingRequirement from './BuildingRequirement';
+import Economy from './Economy';
+import Phlame from './Phlame';
+import Empire from './Empire';
+
+export type Resources = ResourceTypes | EnergyTypes;
 
 export const requirements: RequirementLookup<BuildingID, Resources> = {
   // tumble mine
@@ -198,5 +201,8 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
   s3.zero,
   b15.zero,
 ]);
-export const stock = new Stock<ResourceTypes>(resourceCollection);
-export const emptyStock = new Stock<ResourceTypes>(emptyResourceCollection);
+export const stock = new Stock<Resources>(resourceCollection);
+export const emptyStock = new Stock<Resources>(emptyResourceCollection);
+export const economy = new Economy<BuildingID, Resources>('Eco', stock, defaultBuildings);
+export const phlame = new Phlame<Resources, BuildingID>('Phlame', economy);
+export const empire = new Empire<BuildingID, Resources>('Empire', [phlame]);

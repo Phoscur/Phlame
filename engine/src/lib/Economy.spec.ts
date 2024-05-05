@@ -1,8 +1,22 @@
-import { stock, buildings, overconsumingBuildings, underBlubberBuildings } from './examples';
 import Economy from './Economy';
 import { ResourceCollection, ResourceProcess, Stock } from './resources';
 import { TumbleResource, BlubbResource, SaltyResource, ResourceTypes } from './resources/examples';
+import { stock, buildings, overconsumingBuildings, underBlubberBuildings } from './examples';
 
+/**
+ * At first glance, an Economy is like a Planet from our ancestorial game, however it covers edge cases differently:
+ * When Blubbs "Fuel" is burnt to exhaustion, this can bring an Economy down to a slow grind if it would rely on this energy source primarily (e.g. Solar not available).
+ * Of course one could just simply ignore the "Fusionskraftwerkbug", due to the secondary function as energy source and abundance of fuel, it is simply not economic to produce less than burnt.
+ * This engine aims to allow for all kinds of resource cascades though (instead of just ignoring the underflow).
+ * It cannot be simply configured to allow for the "buggy" behaviour, maybe with negative infinity as lower limit, while resetting to 0 as needed.
+ *
+ * TODOs:
+ * - queuing buildings, research (& units) - externally time delayed?
+ * - buildings increasing build speed
+ * - research unlocking features (buildings, units, speed improvements, ...)
+ * - buildings producing units
+ * - (un-)loading units
+ */
 describe('Factory Entity', () => {
   it('should be console printable', () => {
     const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
@@ -86,8 +100,8 @@ describe('Factory Entity', () => {
     );
   });
 
-  it('should tick', () => {
-    // for now just exhaust resources for unused energy (doesn't accumulate)
+  it('should tick: simply exhausting fuel', () => {
+    // burn resources for unused energy, which doesn't accumulate
     const stock = new Stock<ResourceTypes>(ResourceCollection.fromArray([new BlubbResource(30)]));
     const factory = new Economy('Tick', stock, [buildings[0], buildings[2]]);
     expect(factory.toString()).to.eql(
@@ -185,7 +199,7 @@ describe('Factory Entity', () => {
     expect(ft5.resources.validFor).to.be.eql(Infinity);
   });
 
-  // a) tumble plant (ID 1) is upgraded and now overconsumption slows everything, even more when blubber runs out
+  // a) tumble plant (ID 1) is upgraded and now overconsumption slows everything, even more when blubber fuel runs out
   it('a series of ticks retriggering recalculations with different impacts', () => {
     // first rates are already bad because e.g. recently upgraded building consumes more energy than solar provides
     // then blubbs run out again, so the drop brings everything to a slow grind

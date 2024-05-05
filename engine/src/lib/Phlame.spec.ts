@@ -5,30 +5,35 @@ import { stock, buildings } from './examples';
 import ResourceCollection from './resources/ResourceCollection';
 import Stock from './resources/Stock';
 import Phlame from './Phlame';
+import Economy from './Economy';
 
 describe('Phlame Entity', () => {
   it('should be console printable', () => {
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const phlame = new Phlame('Phlame', exampleStock, buildings);
+    const eco = new Economy('Eco', exampleStock, buildings);
+    const phlame = new Phlame('Phlame', eco);
     expect(phlame.toString()).to.eql(
-      'Phlame (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'Phlame (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
     );
   });
 
   it('should have resources to mine from', () => {
+    // TODO should relate to an empire (and its economies)
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const world = new Phlame('Planet', exampleStock, buildings);
+    const eco = new Economy('Eco', exampleStock, buildings);
+    const world = new Phlame('Planet', eco);
     expect(world.toString()).to.eql(
-      'Planet (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'Planet (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
     );
   });
 
   it('should queue actions', () => {
-    const phlame = new Phlame('InAction', stock, buildings);
+    const eco = new Economy('Eco', stock, buildings);
+    const phlame = new Phlame('InAction', eco);
     expect(phlame.toString()).to.eql(
-      'InAction (Stock[3tumbles(0, Infinity), 3salties(0, Infinity), 15blubbs(0, Infinity)]) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'InAction (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 15blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
     );
     const action: Action<ActionTypes> = {
       type: ActionTypes.CREATE,
