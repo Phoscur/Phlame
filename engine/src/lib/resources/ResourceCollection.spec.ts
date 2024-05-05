@@ -10,6 +10,16 @@ describe('ResourceCollection ValueObject', () => {
     expect(t3s3.types).to.eql([t3.type, s3.type]);
   });
 
+  it('should be serializable', () => {
+    const { t3, s3 } = examples;
+    const t3s3 = ResourceCollection.fromArray([t3, s3]);
+    const amount = [
+      { type: 'tumbles', amount: 3 },
+      { type: 'salties', amount: 3 },
+    ];
+    expect(t3s3.toJSON()).to.eql(amount);
+  });
+
   it('should compare resource collections', () => {
     const { t3, t5, s3 } = examples;
     const t3c = ResourceCollection.fromArray([t3]);

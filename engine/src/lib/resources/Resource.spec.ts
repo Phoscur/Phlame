@@ -7,6 +7,12 @@ describe('Resource ValueObject', () => {
     expect(resource.toString()).to.eql(`Resource[0${ResourceTypes.Tumble}]`);
   });
 
+  it('should be serializable', () => {
+    const serialized = { type: 'tumbles', amount: 3 };
+    const resource = new TumbleResource(3);
+    expect(resource.toJSON()).to.eql(serialized);
+  });
+
   it('should only accept resources by type, else return null', () => {
     const resource = new Resource('unknown', 0);
     expect(resource.toString()).to.eql(`Resource[0${Resource.Null.type}]`);
