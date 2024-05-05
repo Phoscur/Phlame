@@ -1,4 +1,10 @@
 export type ResourceIdentifier = string; // i wish^^ = symbol;
+
+export type ResourceJSON<Type extends ResourceIdentifier> = {
+  type: Type;
+  amount: number;
+};
+
 export interface ResourceValue<Type extends ResourceIdentifier> {
   readonly type: Type;
   readonly amount: number; // int32
@@ -161,7 +167,7 @@ export default class Resource<Type extends ResourceIdentifier> implements Compar
     return `Resource[${this.prettyAmount}]`;
   }
 
-  toJSON() {
+  toJSON(): ResourceJSON<Type> {
     const { type, amount } = this;
     return {
       type,
