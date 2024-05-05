@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file, arrow-body-style */
 import {
   BaseResources,
   Energy,

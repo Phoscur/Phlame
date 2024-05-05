@@ -6,6 +6,12 @@ describe('Energy Resource ValueObject', () => {
     expect(e0.toString()).to.eql(`Energy[0${EnergyTypes.Electricity}]`);
   });
 
+  it('should be serializable', () => {
+    const serialized = { type: 'energy', amount: 10 };
+    const { e10 } = energy;
+    expect(e10.toJSON()).to.eql(serialized);
+  });
+
   it('is int32 and immutable, very similar to a Resource but never infinite', () => {
     const { e0, e10 } = energy;
 

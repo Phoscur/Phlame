@@ -6,6 +6,7 @@ export interface ResourceValue<Type extends ResourceIdentifier> {
 }
 // TODO? Remove code duplicaton in Energy.ts -> Refactor extract AbstractResource class (only substract is different at this point)
 export interface ComparableResource<Type extends ResourceIdentifier> extends ResourceValue<Type> {
+  toJSON(): { type: Type; amount: number };
   equalOfTypeTo(resource: ResourceValue<Type>): boolean;
   equals(resource: ResourceValue<Type>): boolean;
   isMoreOrEquals(resource: ResourceValue<Type>): boolean;
@@ -158,5 +159,13 @@ export default class Resource<Type extends ResourceIdentifier> implements Compar
 
   toString(): string {
     return `Resource[${this.prettyAmount}]`;
+  }
+
+  toJSON() {
+    const { type, amount } = this;
+    return {
+      type,
+      amount,
+    };
   }
 }

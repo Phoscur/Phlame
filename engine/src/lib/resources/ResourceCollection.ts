@@ -200,4 +200,8 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
   toString(): string {
     return `ResourceCollection[${this.prettyAmount}]`;
   }
+
+  toJSON() {
+    return this.map((r) => r.toJSON());
+  }
 }

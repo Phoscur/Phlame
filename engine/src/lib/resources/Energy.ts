@@ -123,4 +123,12 @@ export default class Energy<Type extends ResourceIdentifier = BaseResources.Ener
   toString(): string {
     return `Energy[${this.prettyAmount}]`;
   }
+
+  toJSON() {
+    const { type, amount } = this;
+    return {
+      type,
+      amount,
+    };
+  }
 }
