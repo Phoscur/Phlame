@@ -10,9 +10,9 @@ describe('Phlame Entity', () => {
   it('should be console printable', () => {
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const phlame = new Phlame('Economy', exampleStock, buildings);
+    const phlame = new Phlame('Phlame', exampleStock, buildings);
     expect(phlame.toString()).to.eql(
-      'Economy (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'Phlame (Stock[3tumbles(0, Infinity), 3salties(0, Infinity)]) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
     );
   });
 

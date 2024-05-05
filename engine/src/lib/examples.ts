@@ -200,7 +200,3 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
 ]);
 export const stock = new Stock<ResourceTypes>(resourceCollection);
 export const emptyStock = new Stock<ResourceTypes>(emptyResourceCollection);
-
-const empire = new Empire('Phlameland', stock, buildings);
-
-export default empire;

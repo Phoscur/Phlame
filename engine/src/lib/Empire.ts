@@ -1,30 +1,15 @@
 import type { ResourceIdentifier } from './resources';
 import { Stock } from './resources';
 import Building, { BuildingIdentifier } from './Building';
+import Phlame from './Phlame';
 
 export default class Empire<
   BuildingType extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier,
+  ResourceType extends ResourceIdentifier,
 > {
-  name = '';
-
-  buildings: Building<BuildingType, ResourceTypes>[] = [];
-
-  resources: Stock<ResourceTypes>;
-
-  // energy: EnergyCalculation<Types>;
-
-  constructor(
-    name: string,
-    resources: Stock<ResourceTypes>,
-    buildings: Building<BuildingType, ResourceTypes>[] = [],
-  ) {
-    this.name = name;
-    this.buildings = buildings;
-    this.resources = resources;
-  }
+  constructor(public name: string, public entities: Phlame<ResourceType, BuildingType>[]) {}
 
   toString(): string {
-    return `${this.name} (${this.resources}) [${this.buildings.join(', ')}]`;
+    return `${this.name} [${this.entities.join(', ')}]`;
   }
 }
