@@ -11,20 +11,13 @@ export default class Economy<
   BuildingType extends BuildingIdentifier,
   ResourceTypes extends ResourceIdentifier,
 > {
-  readonly name: string;
-
-  readonly buildings: Building<BuildingType, ResourceTypes>[] = [];
-
   readonly resources: EnergyCalculation<ResourceTypes>;
 
   constructor(
-    name: string,
+    readonly name: string, // TODO? remove unused - or use this as a type? - rather leave it to an actual entity
     resources: Stock<ResourceTypes>,
-    buildings: Building<BuildingType, ResourceTypes>[] = [],
+    readonly buildings: Building<BuildingType, ResourceTypes>[] = [],
   ) {
-    this.name = name;
-    this.buildings = buildings;
-
     this.resources = this.getResourceCalculation(resources, buildings);
   }
 
