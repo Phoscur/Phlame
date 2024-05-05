@@ -1,5 +1,11 @@
 export { default as Resource } from './Resource';
-export type { ResourceIdentifier, ResourceValue, BaseResources } from './Resource';
+export type {
+  ResourceIdentifier,
+  ResourceValue,
+  BaseResources,
+  ComparableResource,
+  ResourceJSON,
+} from './Resource';
 export type { TimeUnit } from './ResourceProcess';
 export { default as ResourceCollection } from './ResourceCollection';
 export { default as ResourceProcess } from './ResourceProcess';

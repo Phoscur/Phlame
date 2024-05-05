@@ -1,4 +1,4 @@
-import Resource, { ComparableResource, ResourceIdentifier } from './Resource';
+import Resource, { ComparableResource, ResourceIdentifier, ResourceJSON } from './Resource';
 import Energy from './Energy';
 
 const RESOURCE_COLLECTION_TYPE = 'ResourceCollection';
@@ -201,7 +201,7 @@ export default class ResourceCollection<Types extends ResourceIdentifier> {
     return `ResourceCollection[${this.prettyAmount}]`;
   }
 
-  toJSON() {
+  toJSON(): ResourceJSON<Types>[] {
     return this.map((r) => r.toJSON());
   }
 }
