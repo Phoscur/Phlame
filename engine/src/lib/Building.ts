@@ -20,30 +20,30 @@ export type ProsumptionEntries<Types extends ResourceIdentifier> = {
 };
 
 export type ProsumptionLookup<
-  Types extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier,
+  ResourceType extends ResourceIdentifier,
+  BuildingType extends BuildingIdentifier,
 > = {
-  [Type in Types]?: ProsumptionEntries<ResourceTypes>;
+  [Type in BuildingType]?: ProsumptionEntries<ResourceType>;
 };
 
 export type RequirementLookup<
-  Types extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier,
+  ResourceType extends ResourceIdentifier,
+  BuildingType extends BuildingIdentifier,
 > = {
-  [Type in Types]?: BuildingRequirement<Types, ResourceTypes>;
+  [Type in BuildingType]?: BuildingRequirement<ResourceType, BuildingType>;
 };
 
 export default class Building<
-  BuildingType extends BuildingIdentifier,
   ResourceType extends ResourceIdentifier,
+  BuildingType extends BuildingIdentifier,
 > {
   static BUILD_TIME_DIVISOR = 2500 / 60;
 
   constructor(
     readonly type: BuildingType,
     // TODO! For now we have the full lookup here, might be nicer to encapsulate in a different way?
-    readonly requirements: RequirementLookup<BuildingType, ResourceType>,
-    readonly prosumption: ProsumptionLookup<BuildingType, ResourceType>,
+    readonly requirements: RequirementLookup<ResourceType, BuildingType>,
+    readonly prosumption: ProsumptionLookup<ResourceType, BuildingType>,
     readonly level: number = 0,
     readonly speed: number = 100,
   ) {
@@ -51,7 +51,7 @@ export default class Building<
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }
 
-  protected new(level?: number, speed?: number): Building<BuildingType, ResourceType> {
+  protected new(level?: number, speed?: number): Building<ResourceType, BuildingType> {
     return new Building(this.type, this.requirements, this.prosumption, level, speed);
   }
 
@@ -86,19 +86,19 @@ export default class Building<
     );
   }
 
-  get upgraded(): Building<BuildingType, ResourceType> {
+  get upgraded(): Building<ResourceType, BuildingType> {
     return this.new(this.level + 1, this.speed);
   }
 
-  get downgraded(): Building<BuildingType, ResourceType> {
+  get downgraded(): Building<ResourceType, BuildingType> {
     return this.new(this.level - 1, this.speed);
   }
 
-  at(speed: number): Building<BuildingType, ResourceType> {
+  at(speed: number): Building<ResourceType, BuildingType> {
     return this.new(this.level, speed);
   }
 
-  get disabled(): Building<BuildingType, ResourceType> {
+  get disabled(): Building<ResourceType, BuildingType> {
     return this.at(0);
   }
 

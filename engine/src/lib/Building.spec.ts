@@ -5,21 +5,21 @@ import { SaltyResource, TumbleResource } from './resources/examples';
 
 describe('Building', () => {
   it('should be console printable', () => {
-    const b = new Building<BuildingIdentifier, Resources>('B', requirements, prosumption);
+    const b = new Building<Resources, BuildingIdentifier>('B', requirements, prosumption);
     expect(b.toString()).to.eql('Building(B, 0, 100%)');
   });
 
   it('should have resources, costs and speed', () => {
     const speed = 50;
     const level = 5;
-    const building = new Building<BuildingIdentifier, Resources>(
+    const building = new Building<Resources, BuildingIdentifier>(
       'Scraper',
       requirements,
       prosumption,
       level,
       speed,
     );
-    const mine = new Building<BuildingIdentifier, Resources>(
+    const mine = new Building<Resources, BuildingIdentifier>(
       1,
       requirements,
       prosumption,
@@ -49,8 +49,8 @@ describe('Building', () => {
   });
 
   it('should be a prosumer', () => {
-    const b = new Building<BuildingIdentifier, Resources>(12, requirements, prosumption, 1, 50);
-    const bnot = new Building<BuildingIdentifier, Resources>(12, requirements, {}, 1, 0);
+    const b = new Building<Resources, BuildingIdentifier>(12, requirements, prosumption, 1, 50);
+    const bnot = new Building<Resources, BuildingIdentifier>(12, requirements, {}, 1, 0);
     expect(b.prosumes(stock).toString()).to.eql(
       'Prosumer(12, 50%, ResourceProcessCollection[15blubbs-5, 0energy+25])',
     );
@@ -58,8 +58,8 @@ describe('Building', () => {
   });
 
   it('should ignore over- and underspeed', () => {
-    const b = new Building<BuildingIdentifier, Resources>('B', requirements, prosumption, 1, -200);
-    const b2 = new Building<BuildingIdentifier, Resources>('B', requirements, prosumption, 1, 200);
+    const b = new Building<Resources, BuildingIdentifier>('B', requirements, prosumption, 1, -200);
+    const b2 = new Building<Resources, BuildingIdentifier>('B', requirements, prosumption, 1, 200);
     expect(b.toString()).to.eql('Building(B, 1, 0%)');
     expect(b2.toString()).to.eql('Building(B, 1, 100%)');
   });

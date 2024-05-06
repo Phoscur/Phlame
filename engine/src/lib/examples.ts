@@ -18,37 +18,37 @@ import Empire from './Empire';
 
 export type Resources = ResourceTypes | EnergyTypes;
 
-export const requirements: RequirementLookup<BuildingID, Resources> = {
+export const requirements: RequirementLookup<Resources, BuildingID> = {
   // tumble mine
-  1: new BuildingRequirement<BuildingID, Resources>(
+  1: new BuildingRequirement<Resources, BuildingID>(
     1,
     ResourceCollection.fromArray<Resources>([new TumbleResource(60), new SaltyResource(15)]),
     1.5,
     [],
   ),
   // salty mine
-  2: new BuildingRequirement<BuildingID, Resources>(
+  2: new BuildingRequirement<Resources, BuildingID>(
     2,
     ResourceCollection.fromArray<Resources>([new TumbleResource(48), new SaltyResource(24)]),
     1.6,
     [],
   ),
   // blubber mine
-  3: new BuildingRequirement<BuildingID, Resources>(
+  3: new BuildingRequirement<Resources, BuildingID>(
     3,
     ResourceCollection.fromArray<Resources>([new TumbleResource(225), new SaltyResource(75)]),
     1.5,
     [],
   ),
   // power
-  4: new BuildingRequirement<BuildingID, Resources>(
+  4: new BuildingRequirement<Resources, BuildingID>(
     4,
     ResourceCollection.fromArray<Resources>([new TumbleResource(75), new SaltyResource(30)]),
     1.5,
     [],
   ),
   // power based on blubber
-  12: new BuildingRequirement<BuildingID, Resources>(
+  12: new BuildingRequirement<Resources, BuildingID>(
     12,
     ResourceCollection.fromArray<Resources>([new TumbleResource(48), new SaltyResource(24)]),
     1.8,
@@ -64,7 +64,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     ],
   ),
   // build buildings faster! TODO we need to add the time reducing factors
-  14: new BuildingRequirement<BuildingID, Resources>(
+  14: new BuildingRequirement<Resources, BuildingID>(
     14, // robots factor=1/(1+level)
     ResourceCollection.fromArray<Resources>([
       new TumbleResource(400),
@@ -74,7 +74,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     2,
     [],
   ), // FASTER
-  15: new BuildingRequirement<BuildingID, Resources>(
+  15: new BuildingRequirement<Resources, BuildingID>(
     15, // nanites factor=1/2^level
     ResourceCollection.fromArray<Resources>([
       new TumbleResource(1000000),
@@ -94,7 +94,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     ],
   ),
   // lab
-  31: new BuildingRequirement<BuildingID, Resources>(
+  31: new BuildingRequirement<Resources, BuildingID>(
     31,
     ResourceCollection.fromArray<Resources>([
       new TumbleResource(200),
@@ -105,7 +105,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     [],
   ),
   // tech (above 100)
-  109: new BuildingRequirement<BuildingID, Resources>(
+  109: new BuildingRequirement<Resources, BuildingID>(
     113, // computer
     ResourceCollection.fromArray<Resources>([new SaltyResource(800), new BlubbResource(400)]),
     2,
@@ -116,7 +116,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
       },
     ],
   ),
-  113: new BuildingRequirement<BuildingID, Resources>(
+  113: new BuildingRequirement<Resources, BuildingID>(
     113, // energy
     ResourceCollection.fromArray<Resources>([new SaltyResource(800), new BlubbResource(400)]),
     2,
@@ -129,7 +129,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
   ),
   // TODO add the remaining buildings and tech aswell as fleet (with ids above 200)
 };
-export const prosumption: ProsumptionLookup<BuildingID, Resources> = {
+export const prosumption: ProsumptionLookup<Resources, BuildingID> = {
   0: {
     [ResourceTypes.Tumble]: (): number => {
       return 0;
@@ -176,16 +176,16 @@ export const prosumption: ProsumptionLookup<BuildingID, Resources> = {
     },
   },
 };
-const b = new Building<BuildingID, Resources>(12, requirements, prosumption, 1, 100);
-const bUpgraded = new Building<BuildingID, Resources>(12, requirements, prosumption, 2, 100);
-const b0 = new Building<BuildingID, Resources>(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0
-const b3 = new Building<BuildingID, Resources>(3, requirements, prosumption, 1, 100);
-const b1 = new Building<BuildingID, Resources>(1, requirements, prosumption, 2, 100);
-const b2 = new Building<BuildingID, Resources>(2, requirements, prosumption, 1, 100);
-const b4 = new Building<BuildingID, Resources>(4, requirements, prosumption, 1, 100);
-export const buildings: Building<BuildingID, Resources>[] = [b, b3, b0, b2];
-export const overconsumingBuildings: Building<BuildingID, Resources>[] = [b, b1, b2, b3, b0];
-export const underBlubberBuildings: Building<BuildingID, Resources>[] = [
+const b = new Building<Resources, BuildingID>(12, requirements, prosumption, 1, 100);
+const bUpgraded = new Building<Resources, BuildingID>(12, requirements, prosumption, 2, 100);
+const b0 = new Building(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0
+const b3 = new Building<Resources, BuildingID>(3, requirements, prosumption, 1, 100);
+const b1 = new Building<Resources, BuildingID>(1, requirements, prosumption, 2, 100);
+const b2 = new Building<Resources, BuildingID>(2, requirements, prosumption, 1, 100);
+const b4 = new Building<Resources, BuildingID>(4, requirements, prosumption, 1, 100);
+export const buildings: Building<Resources, BuildingID>[] = [b, b3, b0, b2];
+export const overconsumingBuildings: Building<Resources, BuildingID>[] = [b, b1, b2, b3, b0];
+export const underBlubberBuildings: Building<Resources, BuildingID>[] = [
   bUpgraded,
   b1,
   b2,
@@ -193,7 +193,7 @@ export const underBlubberBuildings: Building<BuildingID, Resources>[] = [
   b0,
   b4,
 ];
-export const defaultBuildings: Building<BuildingID, Resources>[] = [b1.downgraded, b2, b4];
+export const defaultBuildings: Building<Resources, BuildingID>[] = [b1.downgraded, b2, b4];
 const { t3, s3, b15 } = examples;
 export const resourceCollection = ResourceCollection.fromArray<ResourceTypes>([t3, s3, b15]);
 export const emptyResourceCollection = ResourceCollection.fromArray<ResourceTypes>([
@@ -203,6 +203,6 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
 ]);
 export const stock = new Stock<Resources>(resourceCollection);
 export const emptyStock = new Stock<Resources>(emptyResourceCollection);
-export const economy = new Economy<BuildingID, Resources>('Eco', stock, defaultBuildings);
+export const economy = new Economy<Resources, BuildingID>('Eco', stock, defaultBuildings);
 export const phlame = new Phlame<Resources, BuildingID>('Phlame', economy);
-export const empire = new Empire<BuildingID, Resources>('Empire', [phlame]);
+export const empire = new Empire<Resources, BuildingID>('Empire', [phlame]);

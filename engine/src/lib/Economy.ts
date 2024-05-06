@@ -8,39 +8,39 @@ import ProsumerCollection from './resources/ProsumerCollection';
  * for a set of building prosumers
  */
 export default class Economy<
+  ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
-  ResourceTypes extends ResourceIdentifier,
 > {
-  readonly resources: EnergyCalculation<ResourceTypes>;
+  readonly resources: EnergyCalculation<ResourceType>;
 
   constructor(
     readonly name: string, // TODO? remove unused - or use this as a type? - rather leave it to an actual entity
-    resources: Stock<ResourceTypes>,
-    readonly buildings: Building<BuildingType, ResourceTypes>[] = [],
+    resources: Stock<ResourceType>,
+    readonly buildings: Building<ResourceType, BuildingType>[] = [],
   ) {
     this.resources = this.getResourceCalculation(resources, buildings);
   }
 
-  get stock(): Stock<ResourceTypes> {
+  get stock(): Stock<ResourceType> {
     return this.resources.stock;
   }
 
   getResourceCalculation(
-    resources: Stock<ResourceTypes>,
-    buildings: Building<BuildingType, ResourceTypes>[],
-  ): EnergyCalculation<ResourceTypes> {
+    resources: Stock<ResourceType>,
+    buildings: Building<ResourceType, BuildingType>[],
+  ): EnergyCalculation<ResourceType> {
     const prosumers = new ProsumerCollection(
       buildings.map((building) => {
         return building.prosumes(resources);
       }),
     );
-    return EnergyCalculation.newStock<ResourceTypes>(resources, prosumers);
+    return EnergyCalculation.newStock<ResourceType>(resources, prosumers);
   }
 
   protected new(
-    resources: Stock<ResourceTypes>,
-    buildings: Building<BuildingType, ResourceTypes>[],
-  ): Economy<BuildingType, ResourceTypes> {
+    resources: Stock<ResourceType>,
+    buildings: Building<ResourceType, BuildingType>[],
+  ): Economy<ResourceType, BuildingType> {
     return new Economy(this.name, resources, buildings);
   }
 
@@ -49,13 +49,11 @@ export default class Economy<
    * Halt buildings
    */
   recalculationStrategy(
-    stock: Stock<ResourceTypes>,
+    stock: Stock<ResourceType>,
     factor: number,
-    buildings: Building<BuildingType, ResourceTypes>[],
-  ): Building<BuildingType, ResourceTypes>[] {
-    const prosumers = new ProsumerCollection<ResourceTypes>(
-      buildings.map((b) => b.prosumes(stock)),
-    );
+    buildings: Building<ResourceType, BuildingType>[],
+  ): Building<ResourceType, BuildingType>[] {
+    const prosumers = new ProsumerCollection<ResourceType>(buildings.map((b) => b.prosumes(stock)));
     const prosumption = factor < 1 ? prosumers.rebalancedResources(factor) : prosumers.reduced;
     const nextTickWithdrawal = prosumption.getNegativeResourcesFor(1);
     // if (stock.isFetchable(nextTickWithdrawal)) {
@@ -73,10 +71,10 @@ export default class Economy<
     });
   }
 
-  upgrade(buildingType: BuildingIdentifier): Economy<BuildingType, ResourceTypes> {
+  upgrade(buildingType: BuildingIdentifier): Economy<ResourceType, BuildingType> {
     return this.new(
       this.resources.stock,
-      this.buildings.map((building: Building<BuildingType, ResourceTypes>) => {
+      this.buildings.map((building: Building<ResourceType, BuildingType>) => {
         if (building.type === buildingType) {
           return building.upgraded;
         }
@@ -85,10 +83,10 @@ export default class Economy<
     );
   }
 
-  downgrade(buildingType: BuildingIdentifier): Economy<BuildingType, ResourceTypes> {
+  downgrade(buildingType: BuildingIdentifier): Economy<ResourceType, BuildingType> {
     return this.new(
       this.resources.stock,
-      this.buildings.map((building: Building<BuildingType, ResourceTypes>) => {
+      this.buildings.map((building: Building<ResourceType, BuildingType>) => {
         if (building.type === buildingType) {
           return building.downgraded;
         }
@@ -97,7 +95,7 @@ export default class Economy<
     );
   }
 
-  tick(cycles = 1): Economy<BuildingType, ResourceTypes> {
+  tick(cycles = 1): Economy<ResourceType, BuildingType> {
     let { resources, buildings } = this;
     while (resources.validFor < cycles) {
       const advanceCycles = resources.validFor;
