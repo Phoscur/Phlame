@@ -11,14 +11,14 @@ export interface Dependency<RequirementType extends RequirementTypes> {
  * also stores the costs for the action
  */
 export default class BuildingRequirement<
+  ResourceType extends ResourceIdentifier,
   RequirementType extends RequirementTypes,
-  ResourceTypes extends ResourceIdentifier,
 > {
   static DOWNGRADECOST_DIVISOR = 2;
 
   constructor(
     readonly type: RequirementType,
-    readonly costs: ResourceCollection<ResourceTypes>,
+    readonly costs: ResourceCollection<ResourceType>,
     readonly costFactor: number,
     readonly dependencies: Dependency<RequirementType>[],
   ) {}
@@ -27,23 +27,23 @@ export default class BuildingRequirement<
     return this.type === type;
   }
 
-  isSatisfied(level: number, factoryResources: EnergyCalculation<ResourceTypes>): boolean {
+  isSatisfied(level: number, factoryResources: EnergyCalculation<ResourceType>): boolean {
     // TODO check dependencies
     return factoryResources.hasAvailable(this.getUpgradeCost(level));
   }
 
   isSatisfiedForDowngrade(
     level: number,
-    factoryResources: EnergyCalculation<ResourceTypes>,
+    factoryResources: EnergyCalculation<ResourceType>,
   ): boolean {
     return factoryResources.hasAvailable(this.getDowngradeCost(level));
   }
 
-  getUpgradeCost(level: number): ResourceCollection<ResourceTypes> {
+  getUpgradeCost(level: number): ResourceCollection<ResourceType> {
     return this.costs.times(this.costFactor ** level);
   }
 
-  getDowngradeCost(level: number): ResourceCollection<ResourceTypes> {
+  getDowngradeCost(level: number): ResourceCollection<ResourceType> {
     return this.costs
       .times(1 / BuildingRequirement.DOWNGRADECOST_DIVISOR)
       .times(this.costFactor ** level);

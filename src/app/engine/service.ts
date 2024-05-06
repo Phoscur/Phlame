@@ -20,7 +20,7 @@ export class EngineService {
   createPhlame(id: ID): Phlame<Types, BuildingIdentifier> {
     return new Phlame(id, this.createEconomy([]));
   }
-  createEconomy(resources: ResourceJSON<Types>[]): Economy<BuildingIdentifier, Types> {
+  createEconomy(resources: ResourceJSON<Types>[]): Economy<Types, BuildingIdentifier> {
     return new Economy('Eco', this.createStock(resources));
   }
   createStock(json: ResourceJSON<Types>[]): Stock<Types> {
