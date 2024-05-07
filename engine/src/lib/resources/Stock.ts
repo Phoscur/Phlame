@@ -3,8 +3,8 @@ import ResourceCollection, { type ResourcesLike } from './ResourceCollection';
 
 export type StockJSON<Types extends ResourceIdentifier> = {
   resources: ResourceJSON<Types>[];
-  max: ResourceJSON<Types>[];
-  min: ResourceJSON<Types>[];
+  max?: ResourceJSON<Types>[];
+  min?: ResourceJSON<Types>[];
 };
 export default class Stock<Types extends ResourceIdentifier> {
   constructor(
@@ -115,8 +115,8 @@ export default class Stock<Types extends ResourceIdentifier> {
   toJSON(): StockJSON<Types> {
     return {
       resources: this.resources.toJSON(),
-      max: this.max.toJSON(),
-      min: this.min.toJSON(),
+      ...(this.max.equals(this.max.infinite) ? {} : { max: this.max.toJSON() }),
+      ...(this.min.equals(this.min.zero) ? {} : { min: this.min.toJSON() }),
     };
   }
 }

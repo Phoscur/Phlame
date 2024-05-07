@@ -17,11 +17,12 @@ import { stock, buildings, overconsumingBuildings, underBlubberBuildings } from 
  * - buildings producing units
  * - (un-)loading units
  */
-describe('Factory Entity', () => {
+describe('Economy', () => {
   it('should be console printable', () => {
-    const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
     const empty = new Economy('Empty', stock, []);
     expect(empty.toString()).to.eql('Empty (Processing energy&resources: ) []');
+
+    const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
     expect(factory.toString()).to.eql(
       'Console (Processing energy&resources: ' +
         '50/50 energy, 0/0 heat, ' +
@@ -36,6 +37,41 @@ describe('Factory Entity', () => {
     expect(factory.stock.toString()).to.eql(
       'Stock[3tumbles(0, Infinity), 3salties(0, Infinity), 15blubbs(0, Infinity)]',
     );
+  });
+
+  it('should be serializable', () => {
+    const empty = new Economy('Empty', stock, []);
+    expect(empty.toJSON()).to.eql({
+      buildings: [],
+      name: 'Empty',
+      stock: {
+        resources: [
+          { amount: 3, type: ResourceTypes.Tumble },
+          { amount: 3, type: ResourceTypes.Salty },
+          { amount: 15, type: ResourceTypes.Blubber },
+        ],
+      },
+    });
+
+    const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
+    expect(factory.toJSON()).to.eql({
+      buildings: [
+        {
+          level: 1,
+          speed: 100,
+          type: 12,
+        },
+        { level: 1, speed: 50, type: 0 },
+      ],
+      name: 'Console',
+      stock: {
+        resources: [
+          { amount: 3, type: ResourceTypes.Tumble },
+          { amount: 3, type: ResourceTypes.Salty },
+          { amount: 15, type: ResourceTypes.Blubber },
+        ],
+      },
+    });
   });
 
   it('should have resources and buildings', () => {
