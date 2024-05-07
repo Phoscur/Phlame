@@ -2,6 +2,7 @@ import { inject, injectable } from '@joist/di';
 import {
   ComparableResource,
   Economy,
+  Empire,
   ID,
   Phlame,
   ResourceCollection,
@@ -17,14 +18,21 @@ export class EngineService {
   #zeit = inject(Zeitgeber);
   #resource = inject(ResourceFactory);
 
-  createPhlame(id: ID): Phlame<Types, BuildingIdentifier> {
-    return new Phlame(id, this.createEconomy([]));
+  createEmpire(
+    id: ID,
+    entities: Phlame<Types, BuildingIdentifier>[] = [],
+  ): Empire<Types, BuildingIdentifier> {
+    return new Empire(id, entities);
+  }
+  createPhlame(id: ID, resources: ResourceJSON<Types>[] = []): Phlame<Types, BuildingIdentifier> {
+    const { time, tick } = this.#zeit();
+    return new Phlame(id, this.createEconomy(resources), [], { time, tick });
   }
   createEconomy(resources: ResourceJSON<Types>[]): Economy<Types, BuildingIdentifier> {
     return new Economy('Eco', this.createStock(resources));
   }
-  createStock(json: ResourceJSON<Types>[]): Stock<Types> {
-    return new Stock(this.createResources(json));
+  createStock(json: ResourceJSON<Types>[], maximum?: ResourceJSON<Types>[]): Stock<Types> {
+    return new Stock(this.createResources(json), maximum && this.createResources(maximum));
   }
   createResources(json: ResourceJSON<Types>[]): ResourceCollection<Types> {
     return ResourceCollection.fromArray(json.map((j) => this.createResource(j)));

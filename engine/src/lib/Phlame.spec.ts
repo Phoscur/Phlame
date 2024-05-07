@@ -1,7 +1,7 @@
 import Action, { ActionTypes } from './Action';
 
 import examples, { Types } from './resources/examples';
-import { stock, buildings } from './examples';
+import { stock, buildings, phlame } from './examples';
 import ResourceCollection from './resources/ResourceCollection';
 import Stock from './resources/Stock';
 import Phlame from './Phlame';
@@ -51,7 +51,20 @@ describe('Phlame Entity', () => {
     expect(phlame.recent).to.contain(action);
   });
 
-  //it("should queue a maximum of a type of actions");
+  // TODO? it("should queue a maximum of a type of actions");
+
+  it('should update (in) time: ticks', () => {
+    expect(phlame.lastTick).to.eql(0);
+    expect(phlame.updatedAt).to.eql(0);
+
+    phlame.update({
+      time: 1,
+      tick: 1,
+    });
+
+    expect(phlame.lastTick).to.eql(1);
+    expect(phlame.updatedAt).to.eql(1);
+  });
 
   // it.todo("should have env properties - e.g. base temperature to start from");
 });
