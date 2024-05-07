@@ -33,6 +33,12 @@ export type RequirementLookup<
   [Type in BuildingType]?: BuildingRequirement<ResourceType, BuildingType>;
 };
 
+export type BuildingJSON<Type extends BuildingIdentifier> = {
+  type: Type;
+  level: number;
+  speed: number;
+};
+
 export default class Building<
   ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
@@ -124,5 +130,10 @@ export default class Building<
 
   toString(): string {
     return `Building(${this.type}, ${this.level}, ${this.speed}%)`;
+  }
+
+  toJSON(): BuildingJSON<BuildingType> {
+    const { type, level, speed } = this;
+    return { type, level, speed };
   }
 }

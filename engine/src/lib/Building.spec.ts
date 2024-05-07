@@ -9,6 +9,15 @@ describe('Building', () => {
     expect(b.toString()).to.eql('Building(B, 0, 100%)');
   });
 
+  it('should be serializable', () => {
+    const b = new Building<Resources, BuildingIdentifier>('B', requirements, prosumption);
+    expect(b.toJSON()).to.eql({
+      type: 'B',
+      level: 0,
+      speed: 100,
+    });
+  });
+
   it('should have resources, costs and speed', () => {
     const speed = 50;
     const level = 5;
