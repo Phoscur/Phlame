@@ -8,20 +8,20 @@ import {
   zeroEnergy,
 } from './resources';
 export type Resources = ResourceTypes | EnergyTypes;
-import { Stock, ResourceCollection } from '@phlame/engine';
+import { Stock, ResourceCollection, type BuildingJSON } from '@phlame/engine';
 import {
   Building,
-  BuildingIdentifier as BuildingID,
-  ProsumptionLookup,
-  RequirementLookup,
+  BuildingRequirement,
+  type BuildingIdentifier as BuildingID,
+  type ProsumptionLookup,
+  type RequirementLookup,
 } from '@phlame/engine';
-import { BuildingRequirement } from '@phlame/engine';
 
 export type BuildingIdentifier = BuildingID;
 
-export const requirements: RequirementLookup<BuildingID, Resources> = {
+export const requirements: RequirementLookup<Resources, BuildingIdentifier> = {
   // Metallic mine
-  1: new BuildingRequirement<BuildingID, Resources>(
+  1: new BuildingRequirement<Resources, BuildingIdentifier>(
     1,
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(60),
@@ -31,7 +31,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     [],
   ),
   // Crystalline mine
-  2: new BuildingRequirement<BuildingID, Resources>(
+  2: new BuildingRequirement<Resources, BuildingIdentifier>(
     2,
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(48),
@@ -41,7 +41,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     [],
   ),
   // Liquid mine
-  3: new BuildingRequirement<BuildingID, Resources>(
+  3: new BuildingRequirement<Resources, BuildingIdentifier>(
     3,
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(225),
@@ -51,7 +51,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     [],
   ),
   // power
-  4: new BuildingRequirement<BuildingID, Resources>(
+  4: new BuildingRequirement<Resources, BuildingIdentifier>(
     4,
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(75),
@@ -61,7 +61,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     [],
   ),
   // power based on Liquid
-  12: new BuildingRequirement<BuildingID, Resources>(
+  12: new BuildingRequirement<Resources, BuildingIdentifier>(
     12,
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(48),
@@ -80,7 +80,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     ],
   ),
   // build buildings faster! TODO we need to add the time reducing factors
-  14: new BuildingRequirement<BuildingID, Resources>(
+  14: new BuildingRequirement<Resources, BuildingIdentifier>(
     14, // robots factor=1/(1+level)
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(400),
@@ -90,7 +90,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     2,
     [],
   ), // FASTER
-  15: new BuildingRequirement<BuildingID, Resources>(
+  15: new BuildingRequirement<Resources, BuildingIdentifier>(
     15, // nanites factor=1/2^level
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(1000000),
@@ -110,7 +110,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     ],
   ),
   // lab
-  31: new BuildingRequirement<BuildingID, Resources>(
+  31: new BuildingRequirement<Resources, BuildingIdentifier>(
     31,
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(200),
@@ -121,7 +121,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
     [],
   ),
   // tech (above 100)
-  109: new BuildingRequirement<BuildingID, Resources>(
+  109: new BuildingRequirement<Resources, BuildingIdentifier>(
     113, // computer
     ResourceCollection.fromArray<Resources>([
       new CrystallineResource(800),
@@ -135,7 +135,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
       },
     ],
   ),
-  113: new BuildingRequirement<BuildingID, Resources>(
+  113: new BuildingRequirement<Resources, BuildingIdentifier>(
     113, // energy
     ResourceCollection.fromArray<Resources>([
       new CrystallineResource(800),
@@ -152,7 +152,7 @@ export const requirements: RequirementLookup<BuildingID, Resources> = {
   // TODO add the remaining buildings and tech aswell as fleet (with ids above 200)
 };
 
-export const prosumption: ProsumptionLookup<BuildingID, Resources> = {
+export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
   0: {
     [ResourceTypes.Metallic]: (): number => {
       return 0;
@@ -200,13 +200,15 @@ export const prosumption: ProsumptionLookup<BuildingID, Resources> = {
   },
 };
 
-const b = new Building<BuildingID, Resources>(12, requirements, prosumption, 1, 100);
-const bUpgraded = new Building<BuildingID, Resources>(12, requirements, prosumption, 2, 100);
-const b0 = new Building<BuildingID, Resources>(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0
-const b3 = new Building<BuildingID, Resources>(3, requirements, prosumption, 1, 100);
-const b1 = new Building<BuildingID, Resources>(1, requirements, prosumption, 2, 100);
-const b2 = new Building<BuildingID, Resources>(2, requirements, prosumption, 1, 100);
-const b4 = new Building<BuildingID, Resources>(4, requirements, prosumption, 1, 100);
-
-export const defaultBuildings: Building<BuildingID, Resources>[] = [];
+export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [];
 export const emptyStock = new Stock<ResourceTypes>(zeroResources);
+
+export class BuildingFactory {
+  fromJSON({
+    type,
+    level,
+    speed,
+  }: BuildingJSON<BuildingIdentifier>): Building<Resources, BuildingIdentifier> {
+    return new Building(type, requirements, prosumption, level, speed);
+  }
+}
