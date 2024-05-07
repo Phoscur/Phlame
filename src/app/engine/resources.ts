@@ -1,4 +1,4 @@
-import { BaseResources, Energy, Resource, ResourceCollection } from '@phlame/engine';
+import { BaseResources, Energy, Resource, ResourceCollection, ResourceJSON } from '@phlame/engine';
 
 export enum ResourceTypes {
   // (partially) liquid - reactive non-metals
@@ -92,7 +92,7 @@ export const zeroResources = ResourceCollection.fromArray<ResourceTypes>([
 export const zeroEnergy: Energy<Types> = new EnergyResource(0);
 
 export class ResourceFactory {
-  fromJSON({ type, amount }: { type: Types; amount: number }): Resource<Types> {
+  fromJSON({ type, amount }: ResourceJSON<Types>): Resource<Types> {
     switch (type) {
       case ResourceTypes.Metallic:
         return new MetallicResource(amount);
