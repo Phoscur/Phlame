@@ -7,6 +7,7 @@ export {
 export { default as BuildingRequirement } from './lib/BuildingRequirement';
 export { default as Economy } from './lib/Economy';
 export { default as Phlame } from './lib/Phlame';
+export * from './lib/Phlame';
 export { default as Empire } from './lib/Empire';
 export { default as Action } from './lib/Action';
 export * from './lib/Action';
