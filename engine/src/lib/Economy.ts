@@ -1,7 +1,16 @@
-import type { ResourceIdentifier } from './resources';
-import { EnergyCalculation, Stock } from './resources';
-import Building, { BuildingIdentifier } from './Building';
+import { EnergyCalculation, Stock, type ResourceIdentifier } from './resources';
+import Building, { type BuildingIdentifier, type BuildingJSON } from './Building';
 import ProsumerCollection from './resources/ProsumerCollection';
+import type { StockJSON } from './resources/Stock';
+
+export type EconomyJSON<
+  ResourceType extends ResourceIdentifier,
+  BuildingType extends BuildingIdentifier,
+> = {
+  buildings: BuildingJSON<BuildingType>[];
+  stock: StockJSON<ResourceType>;
+  name: string;
+};
 
 /**
  * Economy is the sum of production and consumption of resources and energy
@@ -114,5 +123,13 @@ export default class Economy<
 
   toString(): string {
     return `${this.name} (${this.resources}) [${this.buildings.join(', ')}]`;
+  }
+
+  toJSON(): EconomyJSON<ResourceType, BuildingType> {
+    return {
+      name: this.name,
+      stock: this.resources.stock.toJSON(),
+      buildings: this.buildings.map((b) => b.toJSON()),
+    };
   }
 }

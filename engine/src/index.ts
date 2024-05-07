@@ -1,7 +1,7 @@
 export { default as Building } from './lib/Building';
 export * from './lib/Building';
 export { default as BuildingRequirement } from './lib/BuildingRequirement';
-export { default as Economy } from './lib/Economy';
+export { default as Economy, EconomyJSON } from './lib/Economy';
 export { default as Phlame } from './lib/Phlame';
 export * from './lib/Phlame';
 export { default as Empire } from './lib/Empire';
