@@ -1,22 +1,17 @@
-import { ComparableResource, ResourceIdentifier } from './Resource';
-import ResourceCollection, { ResourcesLike } from './ResourceCollection';
+import { ComparableResource, type ResourceIdentifier, type ResourceJSON } from './Resource';
+import ResourceCollection, { type ResourcesLike } from './ResourceCollection';
 
+export type StockJSON<Types extends ResourceIdentifier> = {
+  resources: ResourceJSON<Types>[];
+  max: ResourceJSON<Types>[];
+  min: ResourceJSON<Types>[];
+};
 export default class Stock<Types extends ResourceIdentifier> {
-  readonly resources: ResourceCollection<Types>;
-
-  readonly min: ResourceCollection<Types>;
-
-  readonly max: ResourceCollection<Types>;
-
   constructor(
-    initial: ResourceCollection<Types>,
-    maxCapacity?: ResourceCollection<Types>,
-    minCapacity?: ResourceCollection<Types>,
-  ) {
-    this.resources = initial;
-    this.max = maxCapacity || initial.infinite;
-    this.min = minCapacity || initial.zero;
-  }
+    readonly resources: ResourceCollection<Types>,
+    readonly max: ResourceCollection<Types> = resources.infinite,
+    readonly min: ResourceCollection<Types> = resources.zero,
+  ) {}
 
   getByType<Type extends Types>(type: Type): ComparableResource<Types> | undefined {
     return this.resources.getByType(type);
@@ -115,5 +110,13 @@ export default class Stock<Types extends ResourceIdentifier> {
 
   toString(): string {
     return `Stock[${this.limitedAmounts.join(', ')}]`;
+  }
+
+  toJSON(): StockJSON<Types> {
+    return {
+      resources: this.resources.toJSON(),
+      max: this.max.toJSON(),
+      min: this.min.toJSON(),
+    };
   }
 }

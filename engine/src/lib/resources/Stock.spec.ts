@@ -1,6 +1,6 @@
 import examples, { Types } from './examples';
 import ResourceCollection from './ResourceCollection';
-import Stock from './Stock';
+import Stock, { StockJSON } from './Stock';
 
 describe('Stock (ResourceCollection with limits) ValueObject', () => {
   it('should be console printable', () => {
@@ -16,6 +16,23 @@ describe('Stock (ResourceCollection with limits) ValueObject', () => {
     );
     const stocksLimited = '3tumbles(1, 8), 3salties(0, Infinity)';
     expect(stockWithLimits.toString()).to.eql(`Stock[${stocksLimited}]`);
+  });
+  it('should be serializable', () => {
+    const { t1, t3, t8, s3 } = examples;
+    const stockWithLimits = new Stock<Types>(
+      ResourceCollection.fromArray([t3, s3]),
+      ResourceCollection.fromArray([t8]),
+      ResourceCollection.fromArray([t1]),
+    );
+    const stocksJSON: StockJSON<Types> = {
+      resources: [
+        { amount: 3, type: t3.type },
+        { amount: 3, type: s3.type },
+      ],
+      max: [{ amount: 8, type: t3.type }],
+      min: [{ amount: 1, type: t3.type }],
+    };
+    expect(stockWithLimits.toJSON()).to.eql(stocksJSON);
   });
 
   it('can fetch and store', () => {

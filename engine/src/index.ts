@@ -1,9 +1,5 @@
-export {
-  default as Building,
-  BuildingIdentifier,
-  ProsumptionLookup,
-  RequirementLookup,
-} from './lib/Building';
+export { default as Building } from './lib/Building';
+export * from './lib/Building';
 export { default as BuildingRequirement } from './lib/BuildingRequirement';
 export { default as Economy } from './lib/Economy';
 export { default as Phlame } from './lib/Phlame';
