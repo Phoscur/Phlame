@@ -1,6 +1,6 @@
 import { injectable, inject } from '@joist/di';
 import { Debug } from '../debug.element';
-import { EmpireService } from './economy';
+import { EconomyService, EmpireService } from './services';
 
 @injectable
 export class EmpireElement extends HTMLElement {
@@ -12,12 +12,30 @@ export class EmpireElement extends HTMLElement {
     const engine = this.#service();
 
     try {
-      const id = 'empire';
+      const id = this.attributes.getNamedItem('id')?.value || 'Empire';
+      logger.log('Empire', id, 'initializing...');
       engine.setup(id);
     } catch (ex) {
       console.error(ex);
     }
+  }
+}
 
-    logger.log('Empire initialized!');
+@injectable
+export class PhlameElement extends HTMLElement {
+  #logger = inject(Debug);
+  #service = inject(EconomyService);
+
+  connectedCallback() {
+    const logger = this.#logger();
+    const service = this.#service();
+
+    try {
+      const id = this.attributes.getNamedItem('id')?.value || 'Empire';
+      logger.log('Phlame', id, 'initializing...');
+      service.setup(id);
+    } catch (ex) {
+      console.error(ex);
+    }
   }
 }
