@@ -37,24 +37,41 @@ export class Repository<T extends Entity> {
 @injectable
 export class EmpireService {
   #empires = new Repository<Empire<Types, BuildingIdentifier>>();
-  #phlames = new Repository<Phlame<Types, BuildingIdentifier>>();
+  #entities = new Repository<Phlame<Types, BuildingIdentifier>>();
   #engine = inject(EngineFactory);
 
-  getEmpire(id: ID): Empire<Types, BuildingIdentifier> {
-    return this.#empires.find(id);
+  #current = exampleEmpire;
+  get current() {
+    return this.#current;
   }
 
   getEntity(id: ID): Phlame<Types, BuildingIdentifier> {
-    return this.#phlames.find(id);
+    return this.#entities.find(id);
   }
 
   setup(id: ID, entities: Phlame<Types, BuildingIdentifier>[] = []) {
     const factory = this.#engine();
     this.#empires.clear();
-    this.#phlames.clear();
-    this.#empires.add([factory.createEmpire(id, entities)]);
+    this.#entities.clear();
+    this.#current = factory.createEmpire(id, entities);
+    this.#empires.add([this.#current]);
     if (entities) {
-      this.#phlames.add(entities);
+      this.#entities.add(entities);
     }
+  }
+}
+
+@injectable
+export class EconomyService {
+  #empire = inject(EmpireService);
+
+  #current = examplePhlame;
+  get current() {
+    return this.#current;
+  }
+
+  setup(id: ID) {
+    const service = this.#empire();
+    this.#current = service.getEntity(id);
   }
 }

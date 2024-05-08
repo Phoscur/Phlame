@@ -21,7 +21,7 @@ export class AppElement extends HTMLElement {
     this.innerHTML = `
     <debug-ctx>
     <zeit-ctx time="${Date.now()}" tick="${tick}">
-    <empire-ctx>
+    <empire-ctx id="E0">
     <div class="wrapper">
       <div class="flex flex-row-reverse">
         <ph-tick></ph-tick>
@@ -65,7 +65,7 @@ export class AppElement extends HTMLElement {
       </div>
         
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class=""><ph-planet /></div>
+        <ph-ctx id="P0"><ph-planet /></ph-ctx>
         <div class=""><ph-planet /></div>
         <div class=""><ph-planet /></div>
       </div>
