@@ -7,6 +7,7 @@ import {
   Phlame,
   ResourceCollection,
   Stock,
+  type StockJSON,
   type BuildingJSON,
   type ID,
   type ResourceJSON,
@@ -14,10 +15,9 @@ import {
 import { Zeitgeber } from '../signals/zeitgeber';
 import { ResourceFactory, type Types } from './resources';
 import { BuildingFactory, type BuildingIdentifier } from './buildings';
-import { StockJSON } from 'engine/src/lib/resources/Stock';
 
 @injectable
-export class EngineService {
+export class EngineFactory {
   #zeit = inject(Zeitgeber);
   #resource = inject(ResourceFactory);
   #building = inject(BuildingFactory);

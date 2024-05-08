@@ -1,12 +1,14 @@
 import htmx from 'htmx.org';
 import { AppElement } from './app/app.element';
 import { DebugCtx } from './app/debug.element';
-import { PlanetElement } from './app/planet.element';
+import { EmpireElement } from './app/engine/empire.element';
 import { ClockElement, PercentElement, TickElement, ZeitElement } from './app/tick';
+import { PlanetElement } from './app/planet.element';
 import { EnergyElement, ResourceElement, ResourcesElement } from './app/resources.element';
 
 customElements.define('debug-ctx', DebugCtx);
 customElements.define('zeit-ctx', ZeitElement);
+customElements.define('empire-ctx', EmpireElement);
 customElements.define('app-root', AppElement);
 customElements.define('app-clock', ClockElement);
 customElements.define('app-percent', PercentElement);
