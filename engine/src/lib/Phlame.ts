@@ -1,47 +1,37 @@
-import type { TimeUnit, ResourceIdentifier } from './resources';
-import type { BuildingIdentifier } from './Building';
+import type { TimeUnit, ResourceIdentifier, StockJSON } from './resources';
+import type { BuildingIdentifier, BuildingJSON } from './Building';
 import Action, { ActionTypes, Entity, ID } from './Action';
 import { Economy } from './Economy';
 
-export interface Time {
-  /**
-   * Unix Epoch (Milliseconds since 1970)
-   */
-  time: number; // TODO? (re)move? do we even want it here - at least we
-  /**
-   * Game Tick (starting at 0)
-   */
-  tick: TimeUnit;
-}
-export type AttributeMap = Record<string | symbol, string | number>;
-export class Phlame<
+export type PhlameJSON<
   ResourceType extends ResourceIdentifier,
   UnitType extends BuildingIdentifier,
-  // TODO? Attributes extends AttributeMap,
-> implements Entity
+> = {
+  id: ID;
+  stock: StockJSON<ResourceType>;
+  buildings: BuildingJSON<UnitType>[];
+};
+export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends BuildingIdentifier>
+  implements Entity
 {
   constructor(
     public readonly id: ID,
     private economy: Economy<ResourceType, UnitType>,
     private actions: Action<ActionTypes>[] = [],
-    private zeit: Time = { time: 0, tick: 0 },
+    private tick: TimeUnit = 0,
   ) {}
 
   /**
    * Access only relevant actions
    */
   get recent(): Action<ActionTypes>[] {
-    // TODO filter out old actions: action.consequence.at < time.tick
+    // TODO filter out old actions: action. consequence.at < time.tick
     // TODO drop actions (keep full count on the entity, then - after persistence - paginate long history?)
     return this.actions;
   }
 
   get lastTick(): TimeUnit {
-    return this.zeit.tick;
-  }
-
-  get updatedAt(): number {
-    return this.zeit.time;
+    return this.tick;
   }
 
   add(action: Action<ActionTypes>) {
@@ -49,14 +39,22 @@ export class Phlame<
     return this;
   }
 
-  update(zeit: Time) {
-    this.zeit = zeit;
+  update(tick: TimeUnit) {
+    const { lastTick } = this;
+    this.tick = tick;
     // TODO update economy
     return this;
   }
 
   toString(): string {
-    // [${this.time}]
     return `${this.id} (${this.economy.resources}) ${this.economy.buildings.join(', ')}`;
+  }
+
+  toJSON(): PhlameJSON<ResourceType, UnitType> {
+    const { id, economy } = this;
+    return {
+      id,
+      ...economy.toJSON(),
+    };
   }
 }
