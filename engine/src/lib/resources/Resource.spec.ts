@@ -1,5 +1,5 @@
 import examples, { TumbleResource, ResourceTypes } from './examples';
-import Resource from './Resource';
+import { Resource } from './Resource';
 
 describe('Resource ValueObject', () => {
   it('should be console printable', () => {

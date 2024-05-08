@@ -1,4 +1,4 @@
-import Economy from './Economy';
+import { Economy } from './Economy';
 import { ResourceCollection, ResourceProcess, Stock } from './resources';
 import { TumbleResource, BlubbResource, SaltyResource, ResourceTypes } from './resources/examples';
 import { stock, buildings, overconsumingBuildings, underBlubberBuildings } from './examples';

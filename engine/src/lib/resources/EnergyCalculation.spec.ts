@@ -1,12 +1,12 @@
 import examples, { Types, processes } from './examples';
-import ResourceCollection from './ResourceCollection';
-import Stock from './Stock';
-import ResourceCalculation from './ResourceCalculation';
-import ResourceProcess, { TimeUnit } from './ResourceProcess';
-import ResourceProcessCollection from './ResourceProcessCollection';
-import Prosumer from './Prosumer';
-import EnergyCalculation from './EnergyCalculation';
-import ProsumerCollection from './ProsumerCollection';
+import { ResourceCollection } from './ResourceCollection';
+import { Stock } from './Stock';
+import { ResourceCalculation } from './ResourceCalculation';
+import { ResourceProcess, type TimeUnit } from './ResourceProcess';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
+import { Prosumer } from './Prosumer';
+import { EnergyCalculation } from './EnergyCalculation';
+import { ProsumerCollection } from './ProsumerCollection';
 
 describe('EnergyCalculation (extended ResourceCalculation) ValueObject', () => {
   it('should be console printable', () => {

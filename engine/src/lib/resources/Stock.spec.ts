@@ -1,6 +1,6 @@
 import examples, { Types } from './examples';
-import ResourceCollection from './ResourceCollection';
-import Stock, { StockJSON } from './Stock';
+import { ResourceCollection } from './ResourceCollection';
+import { Stock, type StockJSON } from './Stock';
 
 describe('Stock (ResourceCollection with limits) ValueObject', () => {
   it('should be console printable', () => {

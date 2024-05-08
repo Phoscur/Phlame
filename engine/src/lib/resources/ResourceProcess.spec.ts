@@ -1,6 +1,6 @@
 import examples, { energy, process } from './examples';
 
-import ResourceProcess, { TimeUnit } from './ResourceProcess';
+import { ResourceProcess, TimeUnit } from './ResourceProcess';
 
 describe('ResourceProcess ValueObject', () => {
   it('should be console printable', () => {

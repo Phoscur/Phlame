@@ -1,9 +1,9 @@
 import { ResourceIdentifier } from './Resource';
 import { TimeUnit } from './ResourceProcess';
-import ResourceProcessCollection from './ResourceProcessCollection';
-import Stock from './Stock';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
+import { Stock } from './Stock';
 
-export default class ResourceCalculation<Types extends ResourceIdentifier> {
+export class ResourceCalculation<Types extends ResourceIdentifier> {
   readonly processes: ResourceProcessCollection<Types>;
 
   readonly stock: Stock<Types>;

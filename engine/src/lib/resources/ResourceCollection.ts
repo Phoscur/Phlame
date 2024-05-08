@@ -1,5 +1,10 @@
-import Resource, { ComparableResource, ResourceIdentifier, ResourceJSON } from './Resource';
-import Energy from './Energy';
+import {
+  Resource,
+  type ComparableResource,
+  type ResourceIdentifier,
+  type ResourceJSON,
+} from './Resource';
+import { Energy } from './Energy';
 
 const RESOURCE_COLLECTION_TYPE = 'ResourceCollection';
 export type ResourceArray = ComparableResource<ResourceIdentifier>[];
@@ -14,7 +19,7 @@ export type ResourcesLike<Types extends ResourceIdentifier> =
 
 // Cannot use <Types extends BaseResources>, because
 // TypeScript enums are finite/closed: https://github.com/microsoft/TypeScript/issues/17592#issuecomment-528993663
-export default class ResourceCollection<Types extends ResourceIdentifier> {
+export class ResourceCollection<Types extends ResourceIdentifier> {
   static TYPE = RESOURCE_COLLECTION_TYPE;
   readonly type = RESOURCE_COLLECTION_TYPE;
 

@@ -1,9 +1,9 @@
-import Resource, { ComparableResource, ResourceIdentifier } from './Resource';
-import Energy from './Energy';
+import { Resource, ComparableResource, ResourceIdentifier } from './Resource';
+import { Energy } from './Energy';
 
 export type TimeUnit = number;
 
-export default class ResourceProcess<Type extends ResourceIdentifier> {
+export class ResourceProcess<Type extends ResourceIdentifier> {
   readonly limit: ComparableResource<Type>;
 
   readonly rate: number;

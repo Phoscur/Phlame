@@ -1,8 +1,8 @@
-import ResourceCollection from './resources/ResourceCollection';
-import Stock from './resources/Stock';
-import Economy from './Economy';
-import Phlame from './Phlame';
-import Empire from './Empire';
+import { ResourceCollection } from './resources/ResourceCollection';
+import { Stock } from './resources/Stock';
+import { Economy } from './Economy';
+import { Phlame } from './Phlame';
+import { Empire } from './Empire';
 import examples, { Types } from './resources/examples';
 import { buildings } from './examples';
 import type { BuildingIdentifier } from './Building';

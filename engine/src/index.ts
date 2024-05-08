@@ -1,11 +1,8 @@
-export { default as Building } from './lib/Building';
-export * from './lib/Building';
-export { default as BuildingRequirement } from './lib/BuildingRequirement';
-export { default as Economy, EconomyJSON } from './lib/Economy';
-export { default as Phlame } from './lib/Phlame';
-export * from './lib/Phlame';
-export { default as Empire } from './lib/Empire';
-export { default as Action } from './lib/Action';
-export * from './lib/Action';
-export { emptyStock, buildings } from './lib/examples';
 export * from './lib/resources';
+export * from './lib/Building';
+export * from './lib/BuildingRequirement';
+export * from './lib/Economy';
+export * from './lib/Action';
+export * from './lib/Phlame';
+export * from './lib/Empire';
+export { emptyStock, buildings } from './lib/examples';

@@ -40,7 +40,7 @@ export enum BaseResources {
  * - addition/substraction/multiplication
  * - comparison
  */
-export default class Resource<Type extends ResourceIdentifier> implements ComparableResource<Type> {
+export class Resource<Type extends ResourceIdentifier> implements ComparableResource<Type> {
   static types: ResourceIdentifier[] = [BaseResources.Null]; // Types are appended in configuration
 
   static Null = new Resource(BaseResources.Null, 0);

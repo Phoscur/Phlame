@@ -1,8 +1,8 @@
 import examples, { Types } from './resources/examples';
-import BuildingRequirement from './BuildingRequirement';
-import ResourceCollection from './resources/ResourceCollection';
-import Stock from './resources/Stock';
-import Economy from './Economy';
+import { BuildingRequirement } from './BuildingRequirement';
+import { ResourceCollection } from './resources/ResourceCollection';
+import { Stock } from './resources/Stock';
+import { Economy } from './Economy';
 
 describe('BuildingRequirement', () => {
   it('should be console printable', () => {

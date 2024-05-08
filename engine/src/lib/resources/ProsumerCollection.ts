@@ -1,8 +1,8 @@
 import { ResourceIdentifier } from './Resource';
-import Prosumer from './Prosumer';
-import ResourceProcessCollection from './ResourceProcessCollection';
+import { Prosumer } from './Prosumer';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
 
-export default class ProsumerCollection<ResourceTypes extends ResourceIdentifier> {
+export class ProsumerCollection<ResourceTypes extends ResourceIdentifier> {
   readonly prosumers: Prosumer<ResourceTypes>[];
 
   constructor(prosumers: Prosumer<ResourceTypes>[]) {

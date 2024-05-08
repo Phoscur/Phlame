@@ -1,15 +1,15 @@
 /* eslint class-methods-use-this: "off" */
 import type { ComparableResource, ResourceIdentifier } from './Resource';
-import Resource from './Resource';
-import ResourceProcess, { TimeUnit } from './ResourceProcess';
-import ResourceCollection from './ResourceCollection';
+import { Resource } from './Resource';
+import { ResourceProcess, TimeUnit } from './ResourceProcess';
+import { ResourceCollection } from './ResourceCollection';
 
 export type ResourceProcessCollectionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: ResourceProcess<Type>;
 };
 
 const RESOURCE_PROCESS_COLLECTION_TYPE = 'ResourceProcessCollection';
-export default class ResourceProcessCollection<Types extends ResourceIdentifier> {
+export class ResourceProcessCollection<Types extends ResourceIdentifier> {
   readonly type = RESOURCE_PROCESS_COLLECTION_TYPE;
 
   readonly entries: ResourceProcessCollectionEntries<Types> = {};

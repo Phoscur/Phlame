@@ -1,5 +1,5 @@
 import examples from './examples';
-import ResourceCollection from './ResourceCollection';
+import { ResourceCollection } from './ResourceCollection';
 
 describe('ResourceCollection ValueObject', () => {
   it('should be console printable', () => {
