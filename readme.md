@@ -1,6 +1,6 @@
-# NxPhlame
+# Phlame Engine App
 
-- Run `npm start` to develop the app or `npx vite`
+- Run `npm start` to develop the app or `npx vite`, run `npx vitest` to run unit tests
 - RUN `npm run build && NODE_ENV=production npm run preview` to run the server with `tsx` TODO add a rollup config for the [server build](https://blog.devgenius.io/full-stack-development-with-vite-and-hono-1b8c26f48956)
 - Run `npm run cypress` to open Cypress for e2e tests
 - Run `npm run test-engine` to develop the engine library with unit tests
@@ -26,6 +26,7 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 
 #### Wishlist
 
+- Decide between Playwright & Cypress, we don't need both
 - Drop Nx (what do we actually need it for? or do we want Analog/Angular?)
 - Component Tests, Playground for different Resource ReCalculation Strategies
 - Check out SolidJS or/while staying true to vanilla?
