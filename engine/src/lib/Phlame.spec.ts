@@ -2,10 +2,10 @@ import Action, { ActionTypes } from './Action';
 
 import examples, { Types } from './resources/examples';
 import { stock, buildings, phlame } from './examples';
-import ResourceCollection from './resources/ResourceCollection';
-import Stock from './resources/Stock';
-import Phlame from './Phlame';
-import Economy from './Economy';
+import { ResourceCollection } from './resources/ResourceCollection';
+import { Stock } from './resources/Stock';
+import { Phlame } from './Phlame';
+import { Economy } from './Economy';
 
 describe('Phlame Entity', () => {
   it('should be console printable', () => {

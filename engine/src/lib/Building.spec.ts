@@ -1,5 +1,5 @@
 import { stock, requirements, prosumption, Resources } from './examples';
-import Building, { BuildingIdentifier } from './Building';
+import { Building, BuildingIdentifier } from './Building';
 import { ResourceCollection } from './resources';
 import { SaltyResource, TumbleResource } from './resources/examples';
 

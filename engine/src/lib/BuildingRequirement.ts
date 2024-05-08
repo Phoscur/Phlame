@@ -10,7 +10,7 @@ export interface Dependency<RequirementType extends RequirementTypes> {
  * BuildingRequirement to up- or downgrade something
  * also stores the costs for the action
  */
-export default class BuildingRequirement<
+export class BuildingRequirement<
   ResourceType extends ResourceIdentifier,
   RequirementType extends RequirementTypes,
 > {

@@ -6,15 +6,16 @@ import examples, {
   BlubbResource,
 } from './resources/examples';
 import { Stock, ResourceCollection } from './resources';
-import Building, {
+import {
+  Building,
   BuildingIdentifier as BuildingID,
   ProsumptionLookup,
   RequirementLookup,
 } from './Building';
-import BuildingRequirement from './BuildingRequirement';
-import Economy from './Economy';
-import Phlame from './Phlame';
-import Empire from './Empire';
+import { BuildingRequirement } from './BuildingRequirement';
+import { Economy } from './Economy';
+import { Phlame } from './Phlame';
+import { Empire } from './Empire';
 
 export type Resources = ResourceTypes | EnergyTypes;
 

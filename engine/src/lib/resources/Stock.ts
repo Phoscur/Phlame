@@ -1,12 +1,12 @@
 import { ComparableResource, type ResourceIdentifier, type ResourceJSON } from './Resource';
-import ResourceCollection, { type ResourcesLike } from './ResourceCollection';
+import { ResourceCollection, type ResourcesLike } from './ResourceCollection';
 
 export type StockJSON<Types extends ResourceIdentifier> = {
   resources: ResourceJSON<Types>[];
   max?: ResourceJSON<Types>[];
   min?: ResourceJSON<Types>[];
 };
-export default class Stock<Types extends ResourceIdentifier> {
+export class Stock<Types extends ResourceIdentifier> {
   constructor(
     readonly resources: ResourceCollection<Types>,
     readonly max: ResourceCollection<Types> = resources.infinite,
@@ -90,6 +90,8 @@ export default class Stock<Types extends ResourceIdentifier> {
   fetch(resources: ResourcesLike<Types>): Stock<Types> {
     return this.new(this.resources.subtract(resources));
   }
+
+  // TODO upgrade(new limits)
 
   resourceLimitToString(resource: ComparableResource<Types>): string {
     const [min, max] = this.getResourceLimits(resource);

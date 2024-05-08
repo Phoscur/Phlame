@@ -1,6 +1,6 @@
 import { EnergyCalculation, Stock, type ResourceIdentifier } from './resources';
-import Building, { type BuildingIdentifier, type BuildingJSON } from './Building';
-import ProsumerCollection from './resources/ProsumerCollection';
+import { Building, type BuildingIdentifier, type BuildingJSON } from './Building';
+import { ProsumerCollection } from './resources/ProsumerCollection';
 import type { StockJSON } from './resources/Stock';
 
 export type EconomyJSON<
@@ -16,7 +16,7 @@ export type EconomyJSON<
  * Economy is the sum of production and consumption of resources and energy
  * for a set of building prosumers
  */
-export default class Economy<
+export class Economy<
   ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
 > {

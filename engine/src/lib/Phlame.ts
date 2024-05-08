@@ -1,7 +1,7 @@
 import type { TimeUnit, ResourceIdentifier } from './resources';
 import type { BuildingIdentifier } from './Building';
 import Action, { ActionTypes, Entity, ID } from './Action';
-import Economy from './Economy';
+import { Economy } from './Economy';
 
 export interface Time {
   /**
@@ -14,7 +14,7 @@ export interface Time {
   tick: TimeUnit;
 }
 export type AttributeMap = Record<string | symbol, string | number>;
-export default class Phlame<
+export class Phlame<
   ResourceType extends ResourceIdentifier,
   UnitType extends BuildingIdentifier,
   // TODO? Attributes extends AttributeMap,

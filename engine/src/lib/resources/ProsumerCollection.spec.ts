@@ -1,8 +1,8 @@
 import { EnergyResource } from './examples';
-import Prosumer from './Prosumer';
-import ProsumerCollection from './ProsumerCollection';
-import ResourceProcess from './ResourceProcess';
-import ResourceProcessCollection from './ResourceProcessCollection';
+import { Prosumer } from './Prosumer';
+import { ProsumerCollection } from './ProsumerCollection';
+import { ResourceProcess } from './ResourceProcess';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
 
 describe('ProsumerCollection ValueObject', () => {
   it('should be console printable', () => {

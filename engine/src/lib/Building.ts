@@ -7,7 +7,7 @@ import {
   Stock,
   ResourceCollection,
 } from './resources';
-import BuildingRequirement from './BuildingRequirement';
+import { BuildingRequirement } from './BuildingRequirement';
 import type { TimeUnit } from './resources/ResourceProcess';
 import type { ProsumerIdentifier } from './resources/Prosumer';
 
@@ -39,7 +39,7 @@ export type BuildingJSON<Type extends BuildingIdentifier> = {
   speed: number;
 };
 
-export default class Building<
+export class Building<
   ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
 > {

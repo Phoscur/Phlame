@@ -1,5 +1,5 @@
 import examples, { energy, process, processes } from './examples';
-import Prosumer from './Prosumer';
+import { Prosumer } from './Prosumer';
 
 describe('Prosumer ValueObject', () => {
   it('should be console printable', () => {

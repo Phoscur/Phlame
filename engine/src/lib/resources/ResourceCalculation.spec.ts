@@ -1,9 +1,9 @@
 import examples, { process } from './examples';
-import ResourceCollection from './ResourceCollection';
-import Stock from './Stock';
-import ResourceCalculation from './ResourceCalculation';
-import ResourceProcess, { TimeUnit } from './ResourceProcess';
-import ResourceProcessCollection from './ResourceProcessCollection';
+import { ResourceCollection } from './ResourceCollection';
+import { Stock } from './Stock';
+import { ResourceCalculation } from './ResourceCalculation';
+import { ResourceProcess, type TimeUnit } from './ResourceProcess';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
 
 describe('ResourceCalculation (ResourceCollection with limits) ValueObject', () => {
   it('should be console printable', () => {

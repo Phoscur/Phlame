@@ -1,6 +1,6 @@
 import { ComparableResource, ResourceIdentifier } from './Resource';
-import ResourceProcess from './ResourceProcess';
-import ResourceProcessCollection from './ResourceProcessCollection';
+import { ResourceProcess } from './ResourceProcess';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
 
 export type ProsumerIdentifier = string | number; // I prefer string, if we want numbers for efficiency reasons it should also work
 
@@ -11,7 +11,7 @@ export type ProsumerIdentifier = string | number; // I prefer string, if we want
  * or even both
  * It has a speed applied to the rate of underlying ResourceProcesses
  */
-export default class Prosumer<Types extends ResourceIdentifier> {
+export class Prosumer<Types extends ResourceIdentifier> {
   readonly type: ProsumerIdentifier;
 
   readonly processes: ResourceProcessCollection<Types>;
