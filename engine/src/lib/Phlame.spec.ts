@@ -17,6 +17,16 @@ describe('Phlame Entity', () => {
       'Phlame (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
     );
   });
+  it('should be serializable', () => {
+    const { t3, s3 } = examples;
+    const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
+    const eco = new Economy('Eco', exampleStock, buildings);
+    const phlame = new Phlame('Phlame', eco);
+    expect(phlame.toJSON()).to.eql({
+      id: 'Phlame',
+      ...eco.toJSON(),
+    });
+  });
 
   it('should have resources to mine from', () => {
     // TODO should relate to an empire (and its economies)
@@ -55,15 +65,10 @@ describe('Phlame Entity', () => {
 
   it('should update (in) time: ticks', () => {
     expect(phlame.lastTick).to.eql(0);
-    expect(phlame.updatedAt).to.eql(0);
 
-    phlame.update({
-      time: 1,
-      tick: 1,
-    });
+    phlame.update(1);
 
     expect(phlame.lastTick).to.eql(1);
-    expect(phlame.updatedAt).to.eql(1);
   });
 
   // it.todo("should have env properties - e.g. base temperature to start from");

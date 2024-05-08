@@ -13,4 +13,11 @@ export class Empire<
   toString(): string {
     return `${this.id} [${this.entities.join(', ')}]`;
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      entities: this.entities.map((e) => e.toJSON()),
+    };
+  }
 }
