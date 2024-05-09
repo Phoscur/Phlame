@@ -2,8 +2,9 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { readFile } from 'node:fs/promises';
-import { Element } from 'html-element';
-globalThis.HTMLElement = Element;
+import './html.element.server';
+import { GameRenderer } from './render.server';
+import { defaultLang, useTranslations } from './app/i18n';
 
 const isProd = process.env['NODE_ENV'] === 'production';
 const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
@@ -16,11 +17,14 @@ const app = new Hono()
 const { createRoutes } = await import('./routes');
 createRoutes(app);
 
+const t = useTranslations(defaultLang);
+
 if (isProd) {
   const index = await html();
-  app.get('/*', (c) => c.html(index));
+  const game = new GameRenderer(index, 'Production Phlame', t);
+  app.get('/*', (c) => c.html(game.render()));
 } else {
-  app.get('/*', async (c) => c.html(await html()));
+  app.get('/*', async (c) => c.html(new GameRenderer(await html(), 'JIT Phlame', t).render()));
 }
 export default app;
 
