@@ -1,5 +1,5 @@
 import { raw } from 'hono/html';
-import { defaultLang, I18n, useTranslations } from './i18n';
+import { defaultLang, I18n, Language, useTranslations } from './i18n';
 import {
   BubblesIcon,
   CrystallineIcon,
@@ -10,14 +10,24 @@ import {
   PowerPlantSolarIcon,
   SiloIcon,
 } from './icons.svg';
+import { inject, injectable } from '@joist/di';
+import { Debug } from './debug.element';
+import { languageSelectToJSX } from './language.dropdown.element';
 
-export const appToJSX = (t: I18n, title: string, tick: number, time = Date.now()) => (
+export const appToJSX = (
+  t: I18n,
+  title: string,
+  tick: number,
+  language: Language = defaultLang,
+  time = Date.now(),
+) => (
   <>
     <zeit-ctx time={time} tick={tick}>
       <div class="wrapper">
         <div class="flex flex-row-reverse">
           <ph-tick></ph-tick>
           <app-clock></app-clock>
+          <app-i18n-select class="grid">{languageSelectToJSX(t, language)}</app-i18n-select>
         </div>
         <div class="container mx-auto py-8">
           <div class="text-center mb-6">
@@ -57,14 +67,42 @@ export const appToJSX = (t: I18n, title: string, tick: number, time = Date.now()
   </>
 );
 
+export class TranslationProvider {
+  #lang: Language = defaultLang;
+  translate: I18n = useTranslations(this.#lang);
+  set(lang: Language): boolean {
+    if (lang === this.#lang) {
+      return false;
+    }
+    this.#lang = lang;
+    this.translate = useTranslations(this.#lang);
+    return true;
+  }
+}
+@injectable
 export class AppElement extends HTMLElement {
-  public static observedAttributes = [];
+  static observedAttributes = ['lang'];
+  #logger = inject(Debug);
+  #i18n = inject(TranslationProvider);
 
   connectedCallback() {
-    return;
+    this.#logger().log('AppElement connected!');
+  }
+
+  attributeChangedCallback(name: string = 'lang', oldValue: string, newValue: string) {
+    if (name !== 'lang' || !newValue) {
+      return;
+    }
+    const logger = this.#logger();
+    const i18n = this.#i18n();
+    if (!i18n.set(newValue as Language) && !oldValue) {
+      logger.log('App I18n:', newValue, '[no update]');
+      return;
+    }
+    logger.log('App I18n:', newValue, '[updated], previously', oldValue);
     const title = 'Phlame';
     const tick = 42069;
-    const t = useTranslations(defaultLang);
-    this.innerHTML = raw(appToJSX(t, title, tick));
+    this.innerHTML = raw(appToJSX(i18n.translate, title, tick, newValue as Language));
+    logger.log('App Update:', title, tick, newValue);
   }
 }

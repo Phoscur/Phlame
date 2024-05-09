@@ -6,6 +6,7 @@ import { EmpireElement, PhlameElement } from './app/engine/empire.element';
 import { ClockElement, PercentElement, TickElement, ZeitElement } from './app/tick';
 import { PlanetElement } from './app/planet.element';
 import { EnergyElement, ResourceElement, ResourcesElement } from './app/resources.element';
+import { LanguageSelectDropdownElement } from './app/language.dropdown.element';
 
 customElements.define('debug-ctx', DebugCtx);
 customElements.define('zeit-ctx', ZeitElement);
@@ -13,6 +14,7 @@ customElements.define('game-ctx', GameElement);
 customElements.define('empire-ctx', EmpireElement);
 customElements.define('ph-ctx', PhlameElement);
 customElements.define('app-root', AppElement);
+customElements.define('app-i18n-select', LanguageSelectDropdownElement);
 customElements.define('app-clock', ClockElement);
 customElements.define('app-percent', PercentElement);
 customElements.define('ph-tick', TickElement);

@@ -1,6 +1,10 @@
 export const languages = {
   en: 'English',
   de: 'Deutsch',
+  // TODO more languages and a way to activate them optionally
+  // nl: 'Nederlands',
+  // fr: 'Français',
+  // pl: 'Polksi',
 };
 
 export const defaultLang = 'en';
@@ -81,10 +85,11 @@ export const index = {
 
 export type TranslationIndex = (typeof index)[typeof defaultLang];
 export type Entry = keyof TranslationIndex;
+export type Language = keyof typeof languages;
 
 export function getLangFromUrl(url: URL) {
   const [, lang] = url.pathname.split('/');
-  if (lang in basic) return lang as keyof typeof basic;
+  if (lang in basic) return lang as Language;
   return defaultLang;
 }
 
@@ -95,10 +100,15 @@ export type I18n = <Key extends Entry>(
   ...slots: Key extends EntryWithSlots ? Tail<Parameters<EntriesSlotsIndex[Key]>> : []
 ) => string;
 
-export function useTranslations(lang: keyof typeof basic): I18n {
+const FALLBACK_LANGUAGE: Language = defaultLang;
+
+export function useTranslations(lang: Language): I18n {
   return function t(key, ...slots) {
     const translations = (index[lang] || index[defaultLang]) as TranslationIndex;
-    const f = translations[key];
+    let f = translations[key];
+    if (FALLBACK_LANGUAGE && !f) {
+      f = (index[FALLBACK_LANGUAGE] as TranslationIndex)[key];
+    }
     if (typeof f === 'string') {
       return f;
     }
