@@ -1,6 +1,8 @@
 import { raw } from 'hono/html';
 import { appToJSX } from './app/app.element';
 import { defaultLang, I18n, Language, useTranslations } from './app/i18n';
+import { engineInjector, EngineService } from './engine.server';
+import { Injector } from '@joist/di';
 
 const AppRoot = (
   t: I18n,
@@ -17,15 +19,18 @@ const AppRoot = (
 export class GameRenderer {
   static TITLE_PLACEHOLDER = '<!-- inject title here -->';
   static APP_ROOT_PLACEHOLDER = '<!--inject app-root here -->';
-  constructor(readonly htmlFrame: string, readonly title: string, readonly lang: Language) {}
 
-  render(tick = 42, time = Date.now()): string {
-    const t = useTranslations(this.lang);
-    return this.htmlFrame
-      .replace(GameRenderer.TITLE_PLACEHOLDER, this.title)
+  render(i: Injector, htmlFrame: string, title: string, lang: Language): string {
+    const t = useTranslations(lang);
+
+    const engine = i.get(EngineService);
+    const zeit = engine.time;
+
+    return htmlFrame
+      .replace(GameRenderer.TITLE_PLACEHOLDER, title)
       .replace(
         GameRenderer.APP_ROOT_PLACEHOLDER,
-        raw(AppRoot(t, this.title, tick, time, this.lang)),
+        raw(AppRoot(t, title, zeit.tick, zeit.time, lang)),
       );
   }
 }

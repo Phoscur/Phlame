@@ -97,7 +97,8 @@ export class AppElement extends HTMLElement {
     }
     const logger = this.#logger();
     const i18n = this.#i18n();
-    if (!i18n.set(newValue as Language) && !oldValue) {
+    const updated = i18n.set(newValue as Language);
+    if (!updated || !oldValue) {
       logger.log('App I18n:', newValue, '[no update]');
       return;
     }
