@@ -59,6 +59,9 @@ export class LanguageSelectDropdownElement extends HTMLElement {
       select.onclick = () => {
         const attr = parent.attributes.getNamedItem('lang')!;
         attr.value = select.attributes.getNamedItem('data-value')!.value;
+        // save to cookie
+        document.cookie = 'lang=' + attr.value;
+        // save to app-root triggering a rerender
         parent.attributes.setNamedItem(attr);
       };
     }
