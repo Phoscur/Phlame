@@ -47,7 +47,6 @@ export const languageSelectToJSX = (t: I18n, lang: Language) => (
 
 export class LanguageSelectDropdownElement extends HTMLElement {
   connectedCallback() {
-    const parent = this.appRootParent;
     const button = this.firstElementChild as HTMLButtonElement;
     const dropdown = this.lastElementChild as HTMLDivElement;
     button.onclick = () =>
@@ -57,6 +56,7 @@ export class LanguageSelectDropdownElement extends HTMLElement {
     const selects = dropdown.getElementsByTagName('button');
     for (const select of selects) {
       select.onclick = () => {
+        const parent = this.appRootParent;
         const attr = parent.attributes.getNamedItem('lang')!;
         attr.value = select.attributes.getNamedItem('data-value')!.value;
         // save to cookie

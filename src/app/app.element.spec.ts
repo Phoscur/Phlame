@@ -12,9 +12,10 @@ describe('AppElement', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should have a greeting', () => {
-    app.connectedCallback();
+  it('should rerender switching languages', () => {
+    app.attributeChangedCallback('lang', undefined as unknown as string, 'en');
+    app.attributeChangedCallback('lang', 'en', 'de');
 
-    expect(app.querySelector('h1')!.innerHTML).toContain('Home');
+    expect(app.querySelector('h1')!.innerHTML).toContain('Übersicht');
   });
 });
