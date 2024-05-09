@@ -36,7 +36,7 @@ export class ClockElement extends HTMLElement {
     this.innerHTML = raw(html);
     const time = this.#zeit().time;
     runClock(this, new Date(time));
-    this.#logger().log('CLOCK', time);
+    this.#logger().log('Clock connected!', time);
   }
 
   // does not require updates/effects - relies on css transitions only (does not work in Firefox for now)

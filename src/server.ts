@@ -21,10 +21,12 @@ const t = useTranslations(defaultLang);
 
 if (isProd) {
   const index = await html();
-  const game = new GameRenderer(index, 'Production Phlame', t);
+  const game = new GameRenderer(index, 'Production Phlame', defaultLang);
   app.get('/*', (c) => c.html(game.render()));
 } else {
-  app.get('/*', async (c) => c.html(new GameRenderer(await html(), 'JIT Phlame', t).render()));
+  app.get('/*', async (c) =>
+    c.html(new GameRenderer(await html(), 'JIT Phlame', defaultLang).render()),
+  );
 }
 export default app;
 

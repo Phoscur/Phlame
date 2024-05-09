@@ -20,6 +20,7 @@ export class TickElement extends HTMLElement {
   static observedAttributes = [];
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
+  #cleanup = () => {};
 
   connectedCallback() {
     const zeit = this.#zeit();
@@ -33,16 +34,25 @@ export class TickElement extends HTMLElement {
     percent.setAttribute('speedms', `${zeit.msPerIteration}`);
     content.style.setProperty('transition', `--tick ${zeit.msPerIteration}ms`);
 
-    zeit.effect(() => {
+    const destroyPassed = zeit.effect(() => {
       const passed = zeit.passed;
       //percent.setAttribute('value', `${passed <= 0.01 ? 0.1 : passed}`); // rather show 10 than 0
       percent.setAttribute('value', `${passed}`);
       //logger.log('ITER', zeit.iteration);
     });
-    zeit.effect(() => {
+    const destroyTick = zeit.effect(() => {
       content.style.setProperty('--tick', `${zeit.tick}`);
       content.innerHTML = `[${zeit.tick}]`;
       logger.log('TICK', zeit.tick);
     });
+    this.#cleanup = () => {
+      destroyPassed();
+      destroyTick();
+    };
+  }
+
+  disconnectedCallback() {
+    this.#cleanup();
+    this.#logger().log('TickElement disconnected!');
   }
 }
