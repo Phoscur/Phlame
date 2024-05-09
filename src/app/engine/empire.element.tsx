@@ -12,8 +12,8 @@ export class EmpireElement extends HTMLElement {
     const engine = this.#service();
 
     try {
-      const id = this.attributes.getNamedItem('id')?.value || 'Empire';
-      logger.log('Empire', id, 'initializing...');
+      const id = this.attributes.getNamedItem('id')?.value || 'Unknown Empire';
+      logger.log(`Empire[${id}] initializing...`);
       engine.setup(id);
     } catch (ex) {
       console.error(ex);
@@ -31,8 +31,8 @@ export class PhlameElement extends HTMLElement {
     const service = this.#service();
 
     try {
-      const id = this.attributes.getNamedItem('id')?.value || 'Empire';
-      logger.log('Phlame', id, 'initializing...');
+      const id = this.attributes.getNamedItem('id')?.value || 'Unknown Phlame';
+      logger.log(`Phlame[${id}] initializing...`);
       service.setup(id);
     } catch (ex) {
       console.error(ex);
