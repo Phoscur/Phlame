@@ -1,6 +1,7 @@
 import htmx from 'htmx.org';
 import { AppElement } from './app/app.element';
 import { DebugCtx } from './app/debug.element';
+import { GameElement } from './app/game.element';
 import { EmpireElement, PhlameElement } from './app/engine/empire.element';
 import { ClockElement, PercentElement, TickElement, ZeitElement } from './app/tick';
 import { PlanetElement } from './app/planet.element';
@@ -8,6 +9,7 @@ import { EnergyElement, ResourceElement, ResourcesElement } from './app/resource
 
 customElements.define('debug-ctx', DebugCtx);
 customElements.define('zeit-ctx', ZeitElement);
+customElements.define('game-ctx', GameElement);
 customElements.define('empire-ctx', EmpireElement);
 customElements.define('ph-ctx', PhlameElement);
 customElements.define('app-root', AppElement);

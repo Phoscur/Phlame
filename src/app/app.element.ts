@@ -19,14 +19,20 @@ export class AppElement extends HTMLElement {
     const tick = 42069;
     const t = useTranslations(defaultLang);
     this.innerHTML = `
-    <debug-ctx>
     <zeit-ctx time="${Date.now()}" tick="${tick}">
-    <empire-ctx id="E0">
+    <debug-ctx>
     <div class="wrapper">
       <div class="flex flex-row-reverse">
         <ph-tick></ph-tick>
         <app-clock></app-clock>
       </div>
+      <div class="container mx-auto py-8">
+        <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold">${t('nav.home')}</h1>
+      </div>
+
+      <game-ctx></game-ctx>
+
       <div class="container">
         <div id="welcome" class="h-8 mb-16 mx-auto grid grid-flow-col gap-4 auto-cols-max">
           <div class="border-solid border-2 border-sky-500 text-metallic">
@@ -53,26 +59,16 @@ export class AppElement extends HTMLElement {
           <div>
             ${PowerPlantFusionIcon()}
           </div>
+          </div>
+            <h2 class="ml-5 mt-5 text-xl ring-1 ring-orange-400 hover:bg-orange-800 inline-flex rounded-md px-5 py-5" hx-get="/sum" hx-swap="outerHTML">
+              ${title} 👋 ${t('nav.planet')}
+            </h2>
+          </div>
         </div>
-        <h2 class="ml-5 mt-5 text-xl ring-1 ring-orange-400 hover:bg-orange-800 inline-flex rounded-md px-5 py-5" hx-get="/sum" hx-swap="outerHTML">
-          ${title} 👋 ${t('nav.planet')}
-        </h2>
       </div>
     </div>
-    <div class="container mx-auto py-8">
-      <div class="text-center mb-6">
-        <h1 class="text-2xl font-bold">${t('nav.home')}</h1>
-      </div>
-        
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ph-ctx id="P0"><ph-planet /></ph-ctx>
-        <div class=""><ph-planet /></div>
-        <div class=""><ph-planet /></div>
-      </div>
-    </div>
-    </empire-ctx>
-    </zeit-ctx>
     </debug-ctx>
+    </zeit-ctx>
     `;
   }
 }
