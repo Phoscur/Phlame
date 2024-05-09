@@ -4,7 +4,8 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { readFile } from 'node:fs/promises';
 import './html.element.server';
 import { GameRenderer } from './render.server';
-import { defaultLang, useTranslations } from './app/i18n';
+import { defaultLang, Language, useTranslations } from './app/i18n';
+import { getCookie, setCookie } from 'hono/cookie';
 
 const isProd = process.env['NODE_ENV'] === 'production';
 const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
@@ -24,9 +25,10 @@ if (isProd) {
   const game = new GameRenderer(index, 'Production Phlame', defaultLang);
   app.get('/*', (c) => c.html(game.render()));
 } else {
-  app.get('/*', async (c) =>
-    c.html(new GameRenderer(await html(), 'JIT Phlame', defaultLang).render()),
-  );
+  app.get('/*', async (c) => {
+    const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    return c.html(new GameRenderer(await html(), 'JIT Phlame', lang).render());
+  });
 }
 export default app;
 
