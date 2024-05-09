@@ -3,11 +3,16 @@ import { effect } from './effect';
 
 type TimeoutQueueFunction = (callback: () => void, ms: number) => number;
 
+export class Zeit {
+  readonly tick: number = 0;
+  readonly time: number = 0;
+}
+
 /**
  * The time-giver
  * takes care of time and tick cycles
  */
-export class Zeitgeber {
+export class Zeitgeber implements Zeit {
   private zeitgeist: {
     tick: Signal.State<number>;
     time: Signal.State<number>;

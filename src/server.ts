@@ -6,6 +6,7 @@ import './html.element.server';
 import { GameRenderer } from './render.server';
 import { defaultLang, Language, useTranslations } from './app/i18n';
 import { getCookie, setCookie } from 'hono/cookie';
+import { engineInjector } from './engine.server';
 
 const isProd = process.env['NODE_ENV'] === 'production';
 const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
@@ -22,12 +23,16 @@ const t = useTranslations(defaultLang);
 
 if (isProd) {
   const index = await html();
-  const game = new GameRenderer(index, 'Production Phlame', defaultLang);
-  app.get('/*', (c) => c.html(game.render()));
+  const game = new GameRenderer();
+  app.get('/*', (c) =>
+    c.html(game.render(engineInjector, index, 'Production Phlame', defaultLang)),
+  );
 } else {
+  const game = new GameRenderer();
+
   app.get('/*', async (c) => {
     const lang = (getCookie(c, 'lang') as Language) || defaultLang;
-    return c.html(new GameRenderer(await html(), 'JIT Phlame', lang).render());
+    return c.html(game.render(engineInjector, await html(), 'JIT Phlame', lang));
   });
 }
 export default app;
