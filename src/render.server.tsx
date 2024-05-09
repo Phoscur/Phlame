@@ -6,11 +6,11 @@ const AppRoot = (
   t: I18n,
   title: string,
   tick: number,
-  language: Language = defaultLang,
   time = Date.now(),
+  language: Language = defaultLang,
 ) => (
   <>
-    <app-root lang={language}>{appToJSX(t, title, tick, language, time)}</app-root>
+    <app-root lang={language}>{appToJSX(t, title, tick, time, language)}</app-root>
   </>
 );
 
@@ -19,10 +19,13 @@ export class GameRenderer {
   static APP_ROOT_PLACEHOLDER = '<!--inject app-root here -->';
   constructor(readonly htmlFrame: string, readonly title: string, readonly lang: Language) {}
 
-  render(tick = 42): string {
+  render(tick = 42, time = Date.now()): string {
     const t = useTranslations(this.lang);
     return this.htmlFrame
       .replace(GameRenderer.TITLE_PLACEHOLDER, this.title)
-      .replace(GameRenderer.APP_ROOT_PLACEHOLDER, raw(AppRoot(t, this.title, tick, this.lang)));
+      .replace(
+        GameRenderer.APP_ROOT_PLACEHOLDER,
+        raw(AppRoot(t, this.title, tick, time, this.lang)),
+      );
   }
 }

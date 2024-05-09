@@ -13,13 +13,14 @@ import {
 import { inject, injectable } from '@joist/di';
 import { Debug } from './debug.element';
 import { languageSelectToJSX } from './language.dropdown.element';
+import { Zeitgeber } from './signals/zeitgeber';
 
 export const appToJSX = (
   t: I18n,
   title: string,
   tick: number,
-  language: Language = defaultLang,
   time = Date.now(),
+  language: Language = defaultLang,
 ) => (
   <>
     <zeit-ctx time={time} tick={tick}>
@@ -84,6 +85,7 @@ export class AppElement extends HTMLElement {
   static observedAttributes = ['lang'];
   #logger = inject(Debug);
   #i18n = inject(TranslationProvider);
+  #zeit = inject(Zeitgeber);
 
   connectedCallback() {
     this.#logger().log('AppElement connected!');
@@ -100,9 +102,11 @@ export class AppElement extends HTMLElement {
       return;
     }
     logger.log('App I18n:', newValue, '[updated], previously', oldValue);
-    const title = 'Phlame';
-    const tick = 42069;
-    this.innerHTML = raw(appToJSX(i18n.translate, title, tick, newValue as Language));
-    logger.log('App Update:', title, tick, newValue);
+    const title = 'CS Phlame';
+    const zeit = this.#zeit();
+    this.innerHTML = raw(
+      appToJSX(i18n.translate, title, zeit.tick, zeit.time, newValue as Language),
+    );
+    logger.log('App Update:', title, zeit.tick, newValue);
   }
 }
