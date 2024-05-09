@@ -15,15 +15,14 @@ const AppRoot = (
 );
 
 export class GameRenderer {
+  static TITLE_PLACEHOLDER = '<!-- inject title here -->';
   static APP_ROOT_PLACEHOLDER = '<!--inject app-root here -->';
   constructor(readonly htmlFrame: string, readonly title: string, readonly lang: Language) {}
 
-  render(): string {
-    const tick = 42;
+  render(tick = 42): string {
     const t = useTranslations(this.lang);
-    return this.htmlFrame.replace(
-      GameRenderer.APP_ROOT_PLACEHOLDER,
-      raw(AppRoot(t, this.title, tick, this.lang)),
-    );
+    return this.htmlFrame
+      .replace(GameRenderer.TITLE_PLACEHOLDER, this.title)
+      .replace(GameRenderer.APP_ROOT_PLACEHOLDER, raw(AppRoot(t, this.title, tick, this.lang)));
   }
 }
