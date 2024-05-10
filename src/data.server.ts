@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -32,5 +33,9 @@ export class DataService {
       return true;
     }
     return false;
+  }
+
+  generateID() {
+    return nanoid();
   }
 }
