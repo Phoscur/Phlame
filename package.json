@@ -61,6 +61,7 @@
     "hono": "^4.0.10",
     "html-element": "^2.3.1",
     "htmx.org": "^1.9.10",
+    "nanoid": "^5.0.7",
     "signal-polyfill": "^0.1.0"
   }
 }
