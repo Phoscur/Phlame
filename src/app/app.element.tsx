@@ -1,4 +1,5 @@
 import { raw } from 'hono/html';
+import { inject, injectable } from '@joist/di';
 import { defaultLang, I18n, Language, useTranslations } from './i18n';
 import {
   BubblesIcon,
@@ -10,14 +11,16 @@ import {
   PowerPlantSolarIcon,
   SiloIcon,
 } from './icons.svg';
-import { inject, injectable } from '@joist/di';
 import { Debug } from './debug.element';
-import { languageSelectToJSX } from './language.dropdown.element';
 import { Zeitgeber } from './signals/zeitgeber';
+import { EmpireEntity, EmpireService } from './engine';
+import { languageSelectToJSX } from './language.dropdown.element';
+import { gameToJSX } from './game.element';
 
 export const appToJSX = (
   t: I18n,
   title: string,
+  empire: EmpireEntity,
   tick: number,
   time = Date.now(),
   language: Language = defaultLang,
@@ -37,7 +40,7 @@ export const appToJSX = (
         </div>
 
         <debug-ctx>
-          <game-ctx></game-ctx>
+          <game-ctx>{gameToJSX(t, empire)}</game-ctx>
         </debug-ctx>
 
         <div class="container app-htmx-playground">
@@ -86,6 +89,7 @@ export class AppElement extends HTMLElement {
   #logger = inject(Debug);
   #i18n = inject(TranslationProvider);
   #zeit = inject(Zeitgeber);
+  #empire = inject(EmpireService);
 
   connectedCallback() {
     this.#logger().log('AppElement connected!');
@@ -105,8 +109,9 @@ export class AppElement extends HTMLElement {
     logger.log('App I18n:', newValue, '[updated], previously', oldValue);
     const title = 'CS Phlame';
     const zeit = this.#zeit();
+    const empire = this.#empire().current;
     this.innerHTML = raw(
-      appToJSX(i18n.translate, title, zeit.tick, zeit.time, newValue as Language),
+      appToJSX(i18n.translate, title, empire, zeit.tick, zeit.time, newValue as Language),
     );
     logger.log('App Update:', title, zeit.tick, newValue);
   }

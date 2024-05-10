@@ -6,7 +6,7 @@ import './html.element.server';
 import { GameRenderer } from './render.server';
 import { defaultLang, Language, useTranslations } from './app/i18n';
 import { getCookie, setCookie } from 'hono/cookie';
-import { engineInjector } from './engine.server';
+import { engineInjector, EngineService } from './engine.server';
 import { DataService } from './data.server';
 
 const isProd = process.env['NODE_ENV'] === 'production';
@@ -23,11 +23,12 @@ createRoutes(app);
 // TODO
 // - persist sessions
 // - connect htmx-ws
-const persistence = await engineInjector.get(DataService);
-if (await persistence.init()) {
-  // first start
-  await persistence.save({});
-}
+
+// start Zeitgeber: Game Tick Loop
+const engine = engineInjector.get(EngineService).start();
+const generateID = engineInjector.get(DataService).generateID;
+
+// TODO? session middleware app.use('/*')
 
 if (isProd) {
   const index = await html();
@@ -41,6 +42,14 @@ if (isProd) {
 
   app.get('/*', async (c) => {
     const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    let sid = getCookie(c, 'sid');
+    let eid = getCookie(c, 'empire') || generateID();
+    if (!sid) {
+      sid = generateID();
+      setCookie(c, 'sid', sid);
+      setCookie(c, 'empire', eid);
+    }
+    await engine.load(sid, eid);
     return c.html(game.render(engineInjector, await html(), 'Dev Phlame', lang));
   });
 }
