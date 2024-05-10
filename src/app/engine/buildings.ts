@@ -200,7 +200,11 @@ export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
   },
 };
 
-export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [];
+const b1 = new Building<Resources, BuildingID>(1, requirements, prosumption, 1, 100);
+const b2 = new Building<Resources, BuildingID>(2, requirements, prosumption, 1, 100);
+const b4 = new Building<Resources, BuildingID>(4, requirements, prosumption, 1, 100);
+
+export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [b1, b2, b4];
 export const emptyStock = new Stock<ResourceTypes>(zeroResources);
 
 export class BuildingFactory {

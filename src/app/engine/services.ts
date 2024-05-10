@@ -1,17 +1,20 @@
 import { inject, injectable } from '@joist/di';
-import { Economy, Entity, Phlame, type ID } from '@phlame/engine';
+import { Economy, Entity, Phlame, PhlameJSON, type ID } from '@phlame/engine';
 import { Empire } from '@phlame/engine';
 import { type BuildingIdentifier, defaultBuildings, emptyStock } from './buildings';
 import type { Types } from './resources';
-import { EngineFactory } from './factory';
+import { EmpireEntity, EngineFactory, PhlameEntity } from './factory';
 
-export const exampleEconomy = new Economy<Types, BuildingIdentifier>(
-  'Phlameplanet',
-  emptyStock,
-  defaultBuildings,
-);
-export const examplePhlame = new Phlame<Types, BuildingIdentifier>('a Phlame', exampleEconomy);
-export const exampleEmpire = new Empire<Types, BuildingIdentifier>('Phlames', []);
+export function emptyEconomy(name: string) {
+  return new Economy<Types, BuildingIdentifier>(name, emptyStock, defaultBuildings);
+}
+export function emptyPlanet(id: ID) {
+  return new Phlame<Types, BuildingIdentifier>(id, emptyEconomy(`E${id}`));
+}
+
+export function emptyEmpire(id: ID, planetID: ID) {
+  return new Empire<Types, BuildingIdentifier>(id, [emptyPlanet(planetID)]);
+}
 
 export class Repository<T extends Entity> {
   #entities: T[] = [];
@@ -40,7 +43,7 @@ export class EmpireService {
   #entities = new Repository<Phlame<Types, BuildingIdentifier>>();
   #engine = inject(EngineFactory);
 
-  #current = exampleEmpire;
+  #current = emptyEmpire('Preset', 'defaultPhlame');
   get current() {
     return this.#current;
   }
@@ -49,11 +52,17 @@ export class EmpireService {
     return this.#entities.find(id);
   }
 
-  setup(id: ID, entities: Phlame<Types, BuildingIdentifier>[] = []) {
+  setupFromJSON(id: ID, entities: PhlameJSON<Types, BuildingIdentifier>[] = []) {
     const factory = this.#engine();
+    const phlames = factory.createEntities(entities);
+    const empire = factory.createEmpire(id, phlames);
+    this.setup(empire, phlames);
+  }
+
+  setup(empire: EmpireEntity, entities: PhlameEntity[] = []) {
     this.#empires.clear();
     this.#entities.clear();
-    this.#current = factory.createEmpire(id, entities);
+    this.#current = empire;
     this.#empires.add([this.#current]);
     if (entities) {
       this.#entities.add(entities);
@@ -65,7 +74,7 @@ export class EmpireService {
 export class EconomyService {
   #empire = inject(EmpireService);
 
-  #current = examplePhlame;
+  #current = emptyPlanet('presetPhlame');
   get current() {
     return this.#current;
   }
@@ -75,3 +84,5 @@ export class EconomyService {
     this.#current = service.getEntity(id);
   }
 }
+
+export class GameService {}

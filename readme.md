@@ -36,6 +36,7 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 - Try Bun again
 
 - Zeitleiste (draggable Zeitgeber Tick/Time Debugger)
+- Session Switcher Input or Dropdown
 - e2e tests with Playwright
 
 ## Easter POC 2021:
