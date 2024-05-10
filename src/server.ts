@@ -7,6 +7,7 @@ import { GameRenderer } from './render.server';
 import { defaultLang, Language, useTranslations } from './app/i18n';
 import { getCookie, setCookie } from 'hono/cookie';
 import { engineInjector } from './engine.server';
+import { DataService } from './data.server';
 
 const isProd = process.env['NODE_ENV'] === 'production';
 const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
@@ -19,20 +20,28 @@ const app = new Hono()
 const { createRoutes } = await import('./routes');
 createRoutes(app);
 
-const t = useTranslations(defaultLang);
+// TODO
+// - persist sessions
+// - connect htmx-ws
+const persistence = await engineInjector.get(DataService);
+if (await persistence.init()) {
+  // first start
+  await persistence.save({});
+}
 
 if (isProd) {
   const index = await html();
   const game = new GameRenderer();
-  app.get('/*', (c) =>
-    c.html(game.render(engineInjector, index, 'Production Phlame', defaultLang)),
-  );
+  app.get('/*', (c) => {
+    const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    return c.html(game.render(engineInjector, index, 'Production Phlame', lang));
+  });
 } else {
   const game = new GameRenderer();
 
   app.get('/*', async (c) => {
     const lang = (getCookie(c, 'lang') as Language) || defaultLang;
-    return c.html(game.render(engineInjector, await html(), 'JIT Phlame', lang));
+    return c.html(game.render(engineInjector, await html(), 'Dev Phlame', lang));
   });
 }
 export default app;
