@@ -6,7 +6,7 @@ import { Zeitgeber } from '../signals/zeitgeber';
  * Time/Tick Context: Zeitgeber start
  */
 @injectable
-export class ZeitElement extends HTMLElement {
+export class ZeitContextElement extends HTMLElement {
   static observedAttributes = [];
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
