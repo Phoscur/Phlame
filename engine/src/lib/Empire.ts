@@ -1,7 +1,15 @@
 import type { ResourceIdentifier } from './resources';
 import type { BuildingIdentifier } from './Building';
-import { Phlame } from './Phlame';
+import { Phlame, PhlameJSON } from './Phlame';
 import { Entity, ID } from './Action';
+
+export type EmpireJSON<
+  ResourceType extends ResourceIdentifier,
+  BuildingType extends BuildingIdentifier,
+> = {
+  id: ID;
+  entities: PhlameJSON<ResourceType, BuildingType>[];
+};
 
 export class Empire<
   ResourceType extends ResourceIdentifier,

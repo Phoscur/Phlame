@@ -1,9 +1,9 @@
 import { inject, injectable } from '@joist/di';
-import { Economy, Entity, Phlame, PhlameJSON, type ID } from '@phlame/engine';
+import { Economy, type EmpireJSON, Entity, Phlame, type ID } from '@phlame/engine';
 import { Empire } from '@phlame/engine';
 import { type BuildingIdentifier, defaultBuildings, emptyStock } from './buildings';
 import type { Types } from './resources';
-import { EmpireEntity, EngineFactory, PhlameEntity } from './factory';
+import { type EmpireEntity, EngineFactory } from './factory';
 
 export function emptyEconomy(name: string) {
   return new Economy<Types, BuildingIdentifier>(name, emptyStock, defaultBuildings);
@@ -52,20 +52,19 @@ export class EmpireService {
     return this.#entities.find(id);
   }
 
-  setupFromJSON(id: ID, entities: PhlameJSON<Types, BuildingIdentifier>[] = []) {
+  setupFromJSON(json: EmpireJSON<Types, BuildingIdentifier>) {
     const factory = this.#engine();
-    const phlames = factory.createEntities(entities);
-    const empire = factory.createEmpire(id, phlames);
-    this.setup(empire, phlames);
+    const empire = factory.createEmpire(json);
+    this.setup(empire);
   }
 
-  setup(empire: EmpireEntity, entities: PhlameEntity[] = []) {
+  setup(empire: EmpireEntity) {
     this.#empires.clear();
     this.#entities.clear();
     this.#current = empire;
     this.#empires.add([this.#current]);
-    if (entities) {
-      this.#entities.add(entities);
+    if (empire.entities) {
+      this.#entities.add(empire.entities);
     }
   }
 }
