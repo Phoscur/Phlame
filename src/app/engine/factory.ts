@@ -11,7 +11,8 @@ import {
   type BuildingJSON,
   type ID,
   type ResourceJSON,
-  PhlameJSON,
+  type PhlameJSON,
+  EmpireJSON,
 } from '@phlame/engine';
 import { Zeitgeber } from '../signals/zeitgeber';
 import { ResourceFactory, type Types } from './resources';
@@ -26,11 +27,8 @@ export class EngineFactory {
   #resource = inject(ResourceFactory);
   #building = inject(BuildingFactory);
 
-  createEmpire(
-    id: ID,
-    entities: Phlame<Types, BuildingIdentifier>[] = [],
-  ): Empire<Types, BuildingIdentifier> {
-    return new Empire(id, entities);
+  createEmpire(json: EmpireJSON<Types, BuildingIdentifier>): Empire<Types, BuildingIdentifier> {
+    return new Empire(json.id, this.createEntities(json.entities));
   }
 
   createEntities(es: PhlameJSON<Types, BuildingIdentifier>[]): Phlame<Types, BuildingIdentifier>[] {

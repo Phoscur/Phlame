@@ -13,8 +13,9 @@ export class EmpireElement extends HTMLElement {
 
     try {
       const id = this.attributes.getNamedItem('id')?.value || 'Unknown Empire';
-      logger.log(`Empire[${id}] initializing...`);
-      engine.setup(id);
+      const entities = this.attributes.getNamedItem('entities')?.value || '[]';
+      logger.log(`Empire[${id}] initializing...`, entities);
+      engine.setupFromJSON({ id, entities: JSON.parse(entities) });
     } catch (ex) {
       console.error(ex);
     }

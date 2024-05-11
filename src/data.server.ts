@@ -1,34 +1,59 @@
 import { nanoid } from 'nanoid';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
+import { Zeit } from './app/signals/zeitgeber';
+import { PersistedSession } from './engine.server';
 
 const FOLDER = './data';
-// TODO? one file per session?
-const GAME_FILE = join(FOLDER, 'game.json');
+const ZEIT_FILE = join(FOLDER, 'zeit.json');
+const sessionFile = (sid: string) => join(FOLDER, `${sid}.json`);
 
-async function exists(path: string) {
-  return stat(path).catch(() => false);
-}
+const zeroTime: Zeit = { time: 0, tick: 0 };
 
 /**
  * Basic Data Persistence (File)
  * TODO? use an ORM or at least sqlite?
  */
 export class DataService {
-  async save(game: object) {
-    await writeFile(GAME_FILE, JSON.stringify(game));
+  async saveZeit(zeit: Zeit) {
+    await this.save(ZEIT_FILE, zeit);
   }
 
-  async load() {
-    if (!(await exists(GAME_FILE))) {
+  async saveSession(session: PersistedSession) {
+    await this.save(sessionFile(session.sid), session);
+  }
+
+  async sessionExists(sid: NanoID) {
+    return this.exists(sessionFile(sid));
+  }
+
+  async save(fileName: string, data: object) {
+    console.log('Saving', fileName, data);
+    await writeFile(fileName, JSON.stringify(data));
+  }
+
+  async loadZeit() {
+    const json = await this.load(ZEIT_FILE);
+    if (!json) {
+      return zeroTime;
+    }
+    return json;
+  }
+
+  async loadSession(sid: NanoID): Promise<PersistedSession> {
+    return this.load(sessionFile(sid));
+  }
+
+  async load(fileName: string) {
+    if (!(await this.exists(fileName))) {
       return;
     }
-    const json = await readFile(GAME_FILE);
+    const json = await readFile(fileName);
     return JSON.parse(json.toString());
   }
 
   async init() {
-    if (!(await exists(FOLDER))) {
+    if (!(await this.exists(FOLDER))) {
       await mkdir(FOLDER);
       return true;
     }
@@ -38,4 +63,10 @@ export class DataService {
   generateID() {
     return nanoid();
   }
+
+  async exists(path: string) {
+    return stat(path).catch(() => false);
+  }
 }
+
+export type NanoID = string;
