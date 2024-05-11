@@ -10,9 +10,9 @@ import { EmpireService } from './engine/services';
 
 export const gameToJSX = (t: I18n, empire: Empire<Types, BuildingIdentifier>) => (
   <>
-    <empire-ctx id={empire.id} entities={empire.toJSON().entities}>
+    <empire-ctx id={empire.id} entities={JSON.stringify(empire.toJSON().entities)}>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ph-ctx id="P0">
+        <ph-ctx id={empire.entities[0].id}>
           <ph-planet />
         </ph-ctx>
         <div class="">
@@ -27,8 +27,8 @@ export const gameToJSX = (t: I18n, empire: Empire<Types, BuildingIdentifier>) =>
 );
 
 @injectable
-export class GameElement extends HTMLElement {
-  #logger = inject(Debug);
+export class GameContextElement extends HTMLElement {
+  /*#logger = inject(Debug);
   #service = inject(EmpireService);
 
   connectedCallback() {
@@ -37,18 +37,10 @@ export class GameElement extends HTMLElement {
 
     const t = useTranslations(defaultLang);
 
-    const empire = service.current;
-    logger.log('Game', empire);
+    //const html = gameToJSX(t, service.current);
+    //this.innerHTML = raw(html);
 
-    const entities = JSON.stringify([
-      {
-        id: 'P1',
-      },
-    ]);
-
-    const html = gameToJSX(t, service.current);
-    this.innerHTML = raw(html);
-
-    logger.log('GameElement connected!');
-  }
+    logger.log('GameElement connected!', service.current);
+    // this is too early, service.current is not ready yet
+  }*/
 }
