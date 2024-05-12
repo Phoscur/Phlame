@@ -1,6 +1,9 @@
+import { inject, injectable } from '@joist/di';
 import { raw } from 'hono/html';
 import { I18n, defaultLang, useTranslations } from './i18n';
 import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
+import { Types } from './engine';
+import { Zeitgeber } from './signals/zeitgeber';
 
 function abbreviateAmount(t: I18n, amount: number): string {
   // TODO shorten amount in kilos: e.g.: k, m, K, M
@@ -53,34 +56,39 @@ export const resourceEnergyToJSX = (t: I18n, amount: number, total: number) => (
   </>
 );
 
-export const resourcesToJSX = (t: I18n) => (
-  <>
-    <div class="flex">
-      <span class="">
-        <ph-resource type="iron" amount="30" rate="111" max="1000" />
-      </span>
-      <span class="ml-2">
-        <ph-resource type="silicon" amount="30" rate="-111" min="-1000" />
-      </span>
-      <span class="ml-2">
-        <ph-resource type="hydrogen" amount="30" rate="99e+999" max="Infinity" />
-      </span>
-      <span class="ml-2">
-        <ph-energy type="energy" amount="150" total="150" />
-      </span>
-    </div>
-  </>
-);
-
-export const resourceRenderMap = {
-  iron: resourceMetallicToJSX,
-  silicon: resourceCrystallineToJSX,
-  hydrogen: resourceBubblesToJSX,
+export const resourceRenderMap: Record<
+  Types,
+  (t: I18n, amount: number, rate: number) => JSX.Element
+> = {
+  metallic: resourceMetallicToJSX,
+  crystalline: resourceCrystallineToJSX,
+  liquid: resourceBubblesToJSX,
   energy: resourceEnergyToJSX,
+  null: () => <>Null</>,
 } as const;
 
 type Resource = keyof typeof resourceRenderMap;
 
+// TODO somehow improve or atleast import this type?!
+type ProductionTable = [Types, number, number, ...number[]][];
+
+export const resourcesToJSX = (t: I18n, productionTable: ProductionTable) => (
+  <>
+    <div class="flex">
+      {productionTable.map(([type, rate, amount, max, min]) => (
+        <>
+          <span class="ml-2">
+            <ph-resource type={type} amount={amount} rate={rate} max={max} min={min}>
+              {resourceRenderMap[type](t, amount, rate)}
+            </ph-resource>
+          </span>
+        </>
+      ))}
+    </div>
+  </>
+);
+
+@injectable
 export class ResourceElement extends HTMLElement {
   public static observedAttributes = ['type', 'amount', 'rate', 'min', 'max'];
   private intervalId: number | undefined;
@@ -92,9 +100,10 @@ export class ResourceElement extends HTMLElement {
     const rate = Number(this.attributes.getNamedItem('rate')?.value);
     const min = Number(this.attributes.getNamedItem('min')?.value) || 0;
     const max = Number(this.attributes.getNamedItem('max')?.value) || Infinity;
-    const kind = (this.attributes.getNamedItem('type')?.value || 'iron') as Resource;
+    const kind = (this.attributes.getNamedItem('type')?.value || 'metallic') as Resource;
 
-    this.render(t, kind, amount, rate);
+    //this.render(t, kind, amount, rate);
+    // TODO listen for attribute changes instead
 
     this.intervalId = window.setInterval(() => {
       amount += rate;
@@ -106,7 +115,10 @@ export class ResourceElement extends HTMLElement {
         amount = min;
         window.clearInterval(this.intervalId);
       }
-      this.getElementsByClassName('resource-amount')[0].innerHTML = abbreviateAmount(t, amount);
+      const el =
+        this.getElementsByClassName('resource-amount')[0] ||
+        this.getElementsByClassName('energy-amount')[0];
+      el.innerHTML = abbreviateAmount(t, amount);
       // avoid expensive this.render(t, kind, amount, rate);
     }, 1000);
   }
@@ -117,7 +129,8 @@ export class ResourceElement extends HTMLElement {
 
   render(t: I18n, kind: Resource, amount: number, rate: number) {
     const html = resourceRenderMap[kind](t, amount, rate);
-    this.innerHTML = raw(html);
+    // this.innerHTML = raw(html);
+    console.log('RTM', kind, amount, rate, raw(html));
   }
 }
 
@@ -133,6 +146,7 @@ export class EnergyElement extends HTMLElement {
   }
 
   render(t: I18n, kind: Resource, amount: number, rate: number) {
+    console.log('RR', kind, amount, rate);
     const html = resourceRenderMap[kind](t, amount, rate);
     this.innerHTML = raw(html);
   }
@@ -140,8 +154,11 @@ export class EnergyElement extends HTMLElement {
 
 export class ResourcesElement extends HTMLElement {
   public static observedAttributes = [];
+  // TODO inject Economy
+  // TODO inject Zeitgeber
+  // #zeit = inject(Zeitgeber);
 
-  connectedCallback() {
+  /*connectedCallback() {
     const t = useTranslations(defaultLang);
     const productionTable = [
       ['energy', 150, 150],
@@ -150,5 +167,5 @@ export class ResourcesElement extends HTMLElement {
     ];
     const html = resourcesToJSX(t);
     this.innerHTML = raw(html);
-  }
+  }*/
 }

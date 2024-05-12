@@ -1,6 +1,6 @@
 import type { ResourceIdentifier } from './Resource';
 import type { TimeUnit } from './ResourceProcess';
-import { ResourceCalculation } from './ResourceCalculation';
+import { ResourceCalculation, type ResourceTable } from './ResourceCalculation';
 import { ResourceCollection } from './ResourceCollection';
 import { ResourceProcess } from './ResourceProcess';
 import type { ResourceProcessCollectionEntries } from './ResourceProcessCollection';
@@ -114,13 +114,12 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
     return energies.concat(...this.resources.entries);
   }
 
-  get productionTable(): (number | Types)[][] {
+  get productionTable(): ResourceTable {
     return [
-      ...this.energies.map((energy: ResourceProcess<Types>) => [
-        energy.type,
-        energy.rate,
-        energy.limit.amount,
-      ]),
+      ...this.energies.map(
+        (energy: ResourceProcess<Types>) =>
+          [energy.type, energy.rate, energy.limit.amount] as [Types, number, number],
+      ),
       ...this.resources.table,
     ];
   }

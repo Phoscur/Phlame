@@ -19,7 +19,6 @@ const html = async () => await readFile(isProd ? `${distFolder}/index.html` : 'i
 
 // start Zeitgeber: Game Tick Loop
 const engineInjector = await startup();
-const generateID = engineInjector.get(DataService).generateID;
 
 // TODO? session middleware app.use('/*')
 async function sessionHelper(engine: EngineService, ctx: Context) {
@@ -63,7 +62,7 @@ if (isProd) {
   app.get('/*', async (c) => {
     const engine = engineInjector.get(EngineService);
     const lang = (getCookie(c, 'lang') as Language) || defaultLang;
-    sessionHelper(engine, c);
+    await sessionHelper(engine, c);
     const index = await html();
     return c.html(game.render(engineInjector, index, 'Dev Phlame', lang));
   });
