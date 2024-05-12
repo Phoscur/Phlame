@@ -32,7 +32,7 @@ export enum ResourceTypes {
 
 export enum EnergyTypes {
   Electricity = 'energy',
-  Heat = 'heat',
+  // Heat = 'heat',
 }
 
 export type Types = ResourceTypes | EnergyTypes | BaseResources;

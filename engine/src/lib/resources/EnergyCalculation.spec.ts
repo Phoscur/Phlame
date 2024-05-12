@@ -10,11 +10,12 @@ import { ProsumerCollection } from './ProsumerCollection';
 
 describe('EnergyCalculation (extended ResourceCalculation) ValueObject', () => {
   it('should be console printable', () => {
-    const { t3, s3 } = examples;
+    const { t3, s3, b1 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);
     const resourceProcesses = ResourceProcessCollection.fromArray([
       new ResourceProcess(t3, 1),
       new ResourceProcess(s3, -1),
+      new ResourceProcess(b1.zero, 0),
     ]);
     const stock = new Stock(resources);
     const prosumers = new ProsumerCollection<Types>([
@@ -28,11 +29,13 @@ describe('EnergyCalculation (extended ResourceCalculation) ValueObject', () => {
       '150/150 energy',
       '3tumbles(0, Infinity): +1',
       '3salties(0, Infinity): -1',
+      '0blubbs(0, Infinity): 0',
     ]);
     expect(energyCalculation.productionTable).to.eql([
       ['energy', 150, 150],
-      ['tumbles', 1, 3, 0, Infinity],
-      ['salties', -1, 3, 0, Infinity],
+      ['tumbles', 1, 3, Infinity, 0],
+      ['salties', -1, 3, Infinity, 0],
+      ['blubbs', 0, 0, Infinity, 0],
     ]);
     expect(energyCalculation.prettyProsumers).to.eql([
       'Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])',
@@ -40,7 +43,7 @@ describe('EnergyCalculation (extended ResourceCalculation) ValueObject', () => {
       'Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])',
     ]);
     expect(energyCalculation.toString()).to.eql(
-      'Processing energy&resources: 150/150 energy, 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1',
+      'Processing energy&resources: 150/150 energy, 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1, 0blubbs(0, Infinity): 0',
     );
   });
 

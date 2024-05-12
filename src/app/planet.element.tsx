@@ -10,8 +10,10 @@ import {
   PowerPlantSolarIcon,
   SiloIcon,
 } from './icons.svg';
+import { resourcesToJSX } from './resources.element';
+import { PhlameEntity } from './engine';
 
-export const planetToJSX = (t: I18n) => (
+export const planetToJSX = (t: I18n, planet: PhlameEntity) => (
   <>
     <div class="bg-gray-800 p-4 rounded-lg bg-cover bg-[url('/dall-e-planet.png')]">
       <div class="flex justify-between">
@@ -38,7 +40,7 @@ export const planetToJSX = (t: I18n) => (
           </div>
         </div>
         <div class="mt-0">
-          <ph-resources />
+          <ph-resources>{resourcesToJSX(t, planet.productionTable)}</ph-resources>
         </div>
       </div>
       <br class="mb-[200px]" />
@@ -120,9 +122,9 @@ export const planetToJSX = (t: I18n) => (
 export class PlanetElement extends HTMLElement {
   public static observedAttributes = [];
 
-  connectedCallback() {
+  /* connectedCallback() {
     const t = useTranslations(defaultLang);
     const html = planetToJSX(t);
     this.innerHTML = raw(html);
-  }
+  } */
 }

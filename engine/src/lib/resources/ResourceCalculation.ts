@@ -3,6 +3,7 @@ import { TimeUnit } from './ResourceProcess';
 import { ResourceProcessCollection } from './ResourceProcessCollection';
 import { Stock } from './Stock';
 
+export type ResourceTable = [ResourceIdentifier, number, number, ...number[]][];
 export class ResourceCalculation<Types extends ResourceIdentifier> {
   readonly processes: ResourceProcessCollection<Types>;
 
@@ -54,11 +55,11 @@ export class ResourceCalculation<Types extends ResourceIdentifier> {
     });
   }
 
-  get table(): [Types, number, number, ...number[]][] {
+  get table(): ResourceTable {
     return this.processes.asArray.map(({ rate, limit }) => {
       const resource = this.stock.has(limit.type);
-      const limits = this.stock.getResourceLimits(resource);
-      return [resource.type, rate, resource.amount, ...limits];
+      const [min, max] = this.stock.getResourceLimits(resource);
+      return [resource.type, rate, resource.amount, max, min];
     });
   }
 

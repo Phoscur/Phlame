@@ -34,6 +34,10 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
     return this.tick;
   }
 
+  get productionTable() {
+    return this.economy.resources.productionTable;
+  }
+
   add(action: Action<ActionTypes>) {
     this.actions.unshift(action);
     return this;

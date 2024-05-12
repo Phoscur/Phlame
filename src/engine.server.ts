@@ -52,11 +52,12 @@ export class EngineService {
   async load(sid: string) {
     const zeit = this.#zeit();
     const persistence = this.#persistence();
+    // TODO try {} catch (JSON parse)
     const {
       zeit: { time, tick },
       empire,
     } = await persistence.loadSession(sid);
-    console.log('Loading', tick, 'from', time, sid, empire);
+    console.log('Loading', tick, 'from', time, sid, empire.id, empire.entities[0]?.id);
     /* if (tick && tick !== zeit.tick) {
       zeit.stop();
       // TODO catch up ticks

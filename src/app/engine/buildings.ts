@@ -166,9 +166,9 @@ export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
     [EnergyTypes.Electricity]: (): number => {
       return 0;
     },
-    [EnergyTypes.Heat]: (): number => {
+    /*[EnergyTypes.Heat]: (): number => {
       return 0;
-    },
+    },*/
   },
   1: {
     [ResourceTypes.Metallic]: (lvl: number) => 30 * lvl * lvl ** 1.1,
@@ -202,9 +202,10 @@ export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
 
 const b1 = new Building<Resources, BuildingID>(1, requirements, prosumption, 1, 100);
 const b2 = new Building<Resources, BuildingID>(2, requirements, prosumption, 1, 100);
+const b3 = new Building<Resources, BuildingID>(3, requirements, prosumption, 0, 100);
 const b4 = new Building<Resources, BuildingID>(4, requirements, prosumption, 1, 100);
 
-export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [b1, b2, b4];
+export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [b1, b2, b3, b4];
 export const emptyStock = new Stock<ResourceTypes>(zeroResources);
 
 export class BuildingFactory {

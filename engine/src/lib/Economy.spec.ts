@@ -21,6 +21,7 @@ describe('Economy', () => {
   it('should be console printable', () => {
     const empty = new Economy('Empty', stock, []);
     expect(empty.toString()).to.eql('Empty (Processing energy&resources: ) []');
+    expect(empty.resources.productionTable).to.eql([]);
 
     const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
     expect(factory.toString()).to.eql(
@@ -299,8 +300,8 @@ describe('Economy', () => {
     expect(ff.resources.validFor).to.be.eql(Infinity);
   });
 
-  // b) blubber power (ID 12) is upgraded to more consumption than the production plant (ID 3) offers with empty buffers
-  it('should cover the rare blubber underflow', () => {
+  // b) blubber fueled power (ID 12) is upgraded to more consumption than the production plant (ID 3) offers with empty buffers
+  it('should cover the rare fuel underflow', () => {
     // this feels a bit redundant with the test above, but it should be more common
     const stock = new Stock<ResourceTypes>(
       ResourceCollection.fromArray([
