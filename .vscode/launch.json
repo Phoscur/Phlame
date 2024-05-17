@@ -5,41 +5,38 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Current Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Launch via NPM",
       "request": "launch",
-      "runtimeArgs": [
-        "run-script",
-        "start"
-      ],
+      "runtimeArgs": ["run-script", "start"],
       "runtimeExecutable": "npm",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "type": "pwa-node"
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}\\--watch",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js"
-      ]
+      "outFiles": ["${workspaceFolder}/**/*.js"]
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Launch TS Program",
-      "runtimeArgs": [
-          "-r",
-          "ts-node/register"
-      ],
-      "args": [
-          "${workspaceFolder}/src/run-console.ts"
-      ]
-  }
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/run-console.ts"]
+    }
   ]
 }

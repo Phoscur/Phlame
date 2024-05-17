@@ -6,13 +6,14 @@ import {
   Stock,
 } from '@phlame/engine';
 import { emptyStock, defaultBuildings } from './buildings';
-import { LiquidResource } from './resources';
+import { CrystallineResource, LiquidResource, MetallicResource } from './resources';
 
 describe("Building's Economy", () => {
   it('should be console printable', () => {
     const empty = new Economy('Empty', emptyStock, []);
     expect(empty.toString()).to.eql('Empty (Processing energy&resources: ) []');
     expect(empty.resources.productionTable).to.eql([]);
+    expect(empty.resources.validFor).to.be.eql(Infinity);
 
     const factory = new Economy('Default', emptyStock, defaultBuildings);
     const table: ResourceTable<ResourceIdentifier> = [
@@ -40,13 +41,19 @@ describe("Building's Economy", () => {
     );
   });
 
-  it.todo('should have resources and buildings', () => {
-    const stock = new Stock(ResourceCollection.fromArray([new LiquidResource(30)]));
+  it('should have resources and buildings', () => {
+    const stock = new Stock(
+      ResourceCollection.fromArray([
+        new MetallicResource(1),
+        new CrystallineResource(1),
+        new LiquidResource(30),
+      ]),
+    );
     const factory = new Economy('Factory', stock, defaultBuildings);
     const table: ResourceTable<ResourceIdentifier> = [
       ['energy', 0, 40],
-      ['metallic', 30, 0, Infinity, 0],
-      ['crystalline', 20, 0, Infinity, 0],
+      ['metallic', 30, 1, Infinity, 0],
+      ['crystalline', 20, 1, Infinity, 0],
       ['liquid', 0, 30, Infinity, 0],
     ];
     expect(factory.resources.productionTable).to.eql(table);
