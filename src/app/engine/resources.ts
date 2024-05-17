@@ -1,4 +1,11 @@
-import { BaseResources, Energy, Resource, ResourceCollection, ResourceJSON } from '@phlame/engine';
+import {
+  BaseResources,
+  ComparableResource,
+  Energy,
+  Resource,
+  ResourceCollection,
+  ResourceJSON,
+} from '@phlame/engine';
 
 export enum ResourceTypes {
   // (partially) liquid - reactive non-metals
@@ -35,15 +42,16 @@ export enum EnergyTypes {
   // Heat = 'heat',
 }
 
-export type Types = ResourceTypes | EnergyTypes | BaseResources;
+// export type Types = ResourceTypes | EnergyTypes | BaseResources;
+export type ResourceIdentifier = keyof typeof resources;
 
 // Add new resources to known resource types - only categories for now
-const newResourceTypes: Types[] = [
+const newResourceTypes: ResourceIdentifier[] = [
   ResourceTypes.Metallic,
   ResourceTypes.Crystalline,
   ResourceTypes.Liquid,
 ];
-const newEnergyTypes: Types[] = [EnergyTypes.Electricity]; // TODO? , EnergyTypes.Heat];
+const newEnergyTypes: ResourceIdentifier[] = [EnergyTypes.Electricity]; // TODO? , EnergyTypes.Heat];
 Resource.types.push(...newResourceTypes);
 Energy.types.push(...newEnergyTypes);
 
@@ -84,24 +92,26 @@ export class HeatResource extends Energy<EnergyTypes.Heat> {
 export type ResourceType = MetallicResource | CrystallineResource | BaseResources;
 export type EnergyType = EnergyResource;
 
+export const resources = {
+  null: (amount: number) => Resource.Null,
+  [ResourceTypes.Metallic]: (amount: number) => new MetallicResource(amount),
+  [ResourceTypes.Crystalline]: (amount: number) => new CrystallineResource(amount),
+  [ResourceTypes.Liquid]: (amount: number) => new LiquidResource(amount),
+  [EnergyTypes.Electricity]: (amount: number) => new EnergyResource(amount),
+} as const;
+
 export const zeroResources = ResourceCollection.fromArray<ResourceTypes>([
   new MetallicResource(0),
   new CrystallineResource(0),
   new LiquidResource(0),
 ]);
-export const zeroEnergy: Energy<Types> = new EnergyResource(0);
+export const zeroEnergy: Energy<ResourceIdentifier> = new EnergyResource(0);
 
 export class ResourceFactory {
-  fromJSON({ type, amount }: ResourceJSON<Types>): Resource<Types> {
-    switch (type) {
-      case ResourceTypes.Metallic:
-        return new MetallicResource(amount);
-      case ResourceTypes.Crystalline:
-        return new CrystallineResource(amount);
-      case ResourceTypes.Liquid:
-        return new LiquidResource(amount);
-      default:
-        return Resource.Null;
-    }
+  fromJSON({
+    type,
+    amount,
+  }: ResourceJSON<ResourceIdentifier>): ComparableResource<ResourceIdentifier> {
+    return resources[type] ? resources[type](amount) : resources.null(amount);
   }
 }

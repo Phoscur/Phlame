@@ -38,6 +38,13 @@ describe('Economy', () => {
     expect(factory.stock.toString()).to.eql(
       'Stock[3tumbles(0, Infinity), 3salties(0, Infinity), 15blubbs(0, Infinity)]',
     );
+    expect(factory.resources.productionTable).to.eql([
+      ['energy', 50, 50],
+      ['heat', 0, 0],
+      ['tumbles', 0, 3, Infinity, 0],
+      ['salties', 0, 3, Infinity, 0],
+      ['blubbs', -10, 15, Infinity, 0],
+    ]);
   });
 
   it('should be serializable', () => {

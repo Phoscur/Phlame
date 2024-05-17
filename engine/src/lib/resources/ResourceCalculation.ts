@@ -3,7 +3,13 @@ import { TimeUnit } from './ResourceProcess';
 import { ResourceProcessCollection } from './ResourceProcessCollection';
 import { Stock } from './Stock';
 
-export type ResourceTable = [ResourceIdentifier, number, number, ...number[]][];
+/**
+ * [
+ *   [rtype, rate, amount, max, min]
+ *   [etype, rate, limit]
+ * ]
+ */
+export type ResourceTable<T extends ResourceIdentifier> = [T, number, number, ...number[]][];
 export class ResourceCalculation<Types extends ResourceIdentifier> {
   readonly processes: ResourceProcessCollection<Types>;
 
@@ -55,7 +61,7 @@ export class ResourceCalculation<Types extends ResourceIdentifier> {
     });
   }
 
-  get table(): ResourceTable {
+  get table(): ResourceTable<Types> {
     return this.processes.asArray.map(({ rate, limit }) => {
       const resource = this.stock.has(limit.type);
       const [min, max] = this.stock.getResourceLimits(resource);

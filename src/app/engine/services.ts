@@ -2,18 +2,18 @@ import { inject, injectable } from '@joist/di';
 import { Economy, type EmpireJSON, Entity, Phlame, type ID } from '@phlame/engine';
 import { Empire } from '@phlame/engine';
 import { type BuildingIdentifier, defaultBuildings, emptyStock } from './buildings';
-import type { Types } from './resources';
+import type { ResourceIdentifier } from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
 
 export function emptyEconomy(name: string) {
-  return new Economy<Types, BuildingIdentifier>(name, emptyStock, defaultBuildings);
+  return new Economy<ResourceIdentifier, BuildingIdentifier>(name, emptyStock, defaultBuildings);
 }
 export function emptyPlanet(id: ID) {
-  return new Phlame<Types, BuildingIdentifier>(id, emptyEconomy(`E${id}`));
+  return new Phlame<ResourceIdentifier, BuildingIdentifier>(id, emptyEconomy(`E${id}`));
 }
 
 export function emptyEmpire(id: ID, planetID: ID) {
-  return new Empire<Types, BuildingIdentifier>(id, [emptyPlanet(planetID)]);
+  return new Empire<ResourceIdentifier, BuildingIdentifier>(id, [emptyPlanet(planetID)]);
 }
 
 export class Repository<T extends Entity> {
@@ -39,8 +39,8 @@ export class Repository<T extends Entity> {
 
 @injectable
 export class EmpireService {
-  #empires = new Repository<Empire<Types, BuildingIdentifier>>();
-  #entities = new Repository<Phlame<Types, BuildingIdentifier>>();
+  #empires = new Repository<Empire<ResourceIdentifier, BuildingIdentifier>>();
+  #entities = new Repository<Phlame<ResourceIdentifier, BuildingIdentifier>>();
   #engine = inject(EngineFactory);
 
   #current = emptyEmpire('Preset', 'defaultPhlame');
@@ -48,11 +48,11 @@ export class EmpireService {
     return this.#current;
   }
 
-  getEntity(id: ID): Phlame<Types, BuildingIdentifier> {
+  getEntity(id: ID): Phlame<ResourceIdentifier, BuildingIdentifier> {
     return this.#entities.find(id);
   }
 
-  setupFromJSON(json: EmpireJSON<Types, BuildingIdentifier>) {
+  setupFromJSON(json: EmpireJSON<ResourceIdentifier, BuildingIdentifier>) {
     const factory = this.#engine();
     const empire = factory.createEmpire(json);
     this.setup(empire);
