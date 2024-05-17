@@ -44,16 +44,18 @@ describe("Building's Economy", () => {
   it('should have resources and buildings', () => {
     const stock = new Stock(
       ResourceCollection.fromArray([
-        new MetallicResource(1),
-        new CrystallineResource(1),
+        // Note: need to have all potential resources here initially
+        // or prosumption's endsIn is going to be zero.
+        new MetallicResource(0),
+        new CrystallineResource(0),
         new LiquidResource(30),
       ]),
     );
     const factory = new Economy('Factory', stock, defaultBuildings);
     const table: ResourceTable<ResourceIdentifier> = [
       ['energy', 0, 40],
-      ['metallic', 30, 1, Infinity, 0],
-      ['crystalline', 20, 1, Infinity, 0],
+      ['metallic', 30, 0, Infinity, 0],
+      ['crystalline', 20, 0, Infinity, 0],
       ['liquid', 0, 30, Infinity, 0],
     ];
     expect(factory.resources.productionTable).to.eql(table);
