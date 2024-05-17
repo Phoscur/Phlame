@@ -23,6 +23,7 @@ export class Economy<
   readonly resources: EnergyCalculation<ResourceType>;
 
   constructor(
+    // TODO add/replace: readonly seed - binary or ID like/derived string
     readonly name: string, // TODO? remove unused - or use this as a type? - rather leave it to an actual entity
     resources: Stock<ResourceType>,
     readonly buildings: Building<ResourceType, BuildingType>[] = [],

@@ -14,7 +14,6 @@ import {
   type PhlameJSON,
   EmpireJSON,
 } from '@phlame/engine';
-import { Zeitgeber } from '../signals/zeitgeber';
 import { ResourceFactory, type ResourceIdentifier } from './resources';
 import { BuildingFactory, type BuildingIdentifier } from './buildings';
 
@@ -23,7 +22,6 @@ export type PhlameEntity = Phlame<ResourceIdentifier, BuildingIdentifier>;
 
 @injectable
 export class EngineFactory {
-  #zeit = inject(Zeitgeber);
   #resource = inject(ResourceFactory);
   #building = inject(BuildingFactory);
 
@@ -36,16 +34,16 @@ export class EngineFactory {
   createEntities(
     es: PhlameJSON<ResourceIdentifier, BuildingIdentifier>[],
   ): Phlame<ResourceIdentifier, BuildingIdentifier>[] {
-    return es.map((p) => this.createPhlame(p.id, p.stock, p.buildings));
+    return es.map((p) => this.createPhlame(p.id, p.tick, p.stock, p.buildings));
   }
 
   createPhlame(
     id: ID,
+    tick: number,
     stock: StockJSON<ResourceIdentifier>,
     // TODO actions
     buildings: BuildingJSON<BuildingIdentifier>[] = [],
   ): Phlame<ResourceIdentifier, BuildingIdentifier> {
-    const { tick } = this.#zeit();
     return new Phlame(
       id,
       this.createEconomy({

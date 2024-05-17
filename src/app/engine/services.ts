@@ -8,12 +8,12 @@ import { type EmpireEntity, EngineFactory } from './factory';
 export function emptyEconomy(name: string) {
   return new Economy<ResourceIdentifier, BuildingIdentifier>(name, emptyStock, defaultBuildings);
 }
-export function emptyPlanet(id: ID) {
-  return new Phlame<ResourceIdentifier, BuildingIdentifier>(id, emptyEconomy(`E${id}`));
+export function emptyPlanet(id: ID, tick?: number) {
+  return new Phlame<ResourceIdentifier, BuildingIdentifier>(id, emptyEconomy(`E${id}`), [], tick);
 }
 
-export function emptyEmpire(id: ID, planetID: ID) {
-  return new Empire<ResourceIdentifier, BuildingIdentifier>(id, [emptyPlanet(planetID)]);
+export function emptyEmpire(id: ID, planetID: ID, tick?: number) {
+  return new Empire<ResourceIdentifier, BuildingIdentifier>(id, [emptyPlanet(planetID, tick)]);
 }
 
 export class Repository<T extends Entity> {

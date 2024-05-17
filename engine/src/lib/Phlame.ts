@@ -8,6 +8,7 @@ export type PhlameJSON<
   UnitType extends BuildingIdentifier,
 > = {
   id: ID;
+  tick: TimeUnit;
   stock: StockJSON<ResourceType>;
   buildings: BuildingJSON<UnitType>[];
 };
@@ -46,7 +47,8 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   update(tick: TimeUnit) {
     const { lastTick } = this;
     this.tick = tick;
-    // TODO update economy
+    // TODO while checking actions
+    this.economy = this.economy.tick(tick - lastTick);
     return this;
   }
 
@@ -55,9 +57,10 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   }
 
   toJSON(): PhlameJSON<ResourceType, UnitType> {
-    const { id, economy } = this;
+    const { id, economy, tick } = this;
     return {
       id,
+      tick,
       ...economy.toJSON(),
     };
   }
