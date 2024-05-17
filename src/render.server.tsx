@@ -28,6 +28,11 @@ export class GameRenderer {
     const engine = i.get(EngineService);
     const zeit = engine.time;
     const empire = engine.empire;
+    // TODO? empire.update(zeit.tick)
+    for (const entity of empire.entities) {
+      entity.update(zeit.tick);
+    }
+    // console.log('Render', zeit.tick, empire.toString());
 
     return htmlFrame
       .replace(GameRenderer.TITLE_PLACEHOLDER, title)

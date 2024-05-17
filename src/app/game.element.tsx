@@ -13,15 +13,13 @@ export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, BuildingId
   <>
     <empire-ctx id={empire.id} entities={JSON.stringify(empire.toJSON().entities)}>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ph-ctx id={empire.entities[0].id}>
-          <ph-planet>{planetToJSX(t, empire.entities[0])}</ph-planet>
-        </ph-ctx>
-        <div class="">
-          <ph-planet />
-        </div>
-        <div class="">
-          <ph-planet />
-        </div>
+        {empire.entities.map((p) => (
+          <>
+            <ph-ctx id={p.id}>
+              <ph-planet>{planetToJSX(t, p)}</ph-planet>
+            </ph-ctx>
+          </>
+        ))}
       </div>
     </empire-ctx>
   </>

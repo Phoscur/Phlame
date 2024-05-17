@@ -55,29 +55,44 @@ export class EngineService {
     return this;
   }
 
+  /**
+   * @param sid SessionID
+   * @returns {Promise<number>} error code
+   */
   async load(sid: string) {
     const zeit = this.#zeit();
     const persistence = this.#persistence();
-    // TODO try {} catch (JSON parse)
-    const {
-      zeit: { time, tick },
-      empire,
-    } = await persistence.loadSession(sid);
-    console.log('Loading', tick, 'from', time, sid, empire.id, empire.entities[0]?.id);
-    /* if (tick && tick !== zeit.tick) {
-      zeit.stop();
-      // TODO catch up ticks
-      zeit.start(time, tick);
-    }*/
-    this.#empire().setupFromJSON(empire);
+    try {
+      const session = await persistence.loadSession(sid);
+      const {
+        zeit: { time, tick },
+        empire,
+      } = session;
+      console.log('Current', zeit.tick, 'at  ', zeit.time);
+      // Actually Session(User) Empire & MainPlanet could share an ID, then it could be ommitted for log readability?
+      console.log('Loading', tick, 'from', time, sid); //, empire.id, empire.entities[0]?.id);
+      console.log('Created', zeit.tick - tick, 'ticks ago.');
+      /* if (tick && tick !== zeit.tick) {
+        zeit.stop();
+        // TODO catch up ticks with actions
+        zeit.start(time, tick);
+      }*/
+      this.#empire().setupFromJSON(empire);
+
+      return 0;
+    } catch (e: any) {
+      this.#logger().log('Error loading session', sid, e?.code, e);
+      return e?.code || 1;
+    }
   }
 
   async generateSession() {
+    const zeit = this.#zeit();
     const persistence = this.#persistence();
     const sid = persistence.generateID();
     const eid = persistence.generateID();
     const pid = persistence.generateID();
-    const session = this.createSession(sid, eid, pid);
+    const session = this.createSession(sid, eid, pid, zeit.tick);
     await this.saveSession(session);
     this.#empire().setup(session.empire);
     return session;
@@ -92,8 +107,8 @@ export class EngineService {
     });
   }
 
-  createSession(sid: string, eid: string, pid: string): Session {
-    const empire = emptyEmpire(eid, pid);
+  createSession(sid: string, eid: string, pid: string, tick?: number): Session {
+    const empire = emptyEmpire(eid, pid, tick);
     return {
       sid,
       empire,

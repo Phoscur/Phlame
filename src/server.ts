@@ -7,7 +7,6 @@ import './html.element.server';
 import { defaultLang, Language } from './app/i18n';
 import { GameRenderer } from './render.server';
 import { EngineService, startup } from './engine.server';
-import { DataService } from './data.server';
 
 const isProd = process.env['NODE_ENV'] === 'production';
 const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
@@ -44,7 +43,22 @@ async function sessionHelper(engine: EngineService, ctx: Context) {
 
 const app = new Hono()
   .use('/assets/*', serveStatic({ root: isProd ? `${distFolder}/` : './' })) // path must end with '/'
-  .get('/sum', (c) => c.html('<h1>Sum sum</h1>'));
+  .get('/sum', async (c) => {
+    const engine = engineInjector.get(EngineService);
+    const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    const sid = getCookie(c, 'sid');
+    if (sid) {
+      const code = await engine.load(sid);
+      // TODO engine.save
+      if (0 !== code) {
+        c.status(code >= 200 ? code : 500);
+        return c.html(`<h1>Ouch, Error: ${code}</h1>`);
+      }
+      // TODO engine.update&save()
+      // but it's actually not worth updating the snapshot as long as nothing changed besides the tick
+    }
+    return c.html(`<h1>Sum sum ${engine.time.tick}</h1>`);
+  });
 
 const { createRoutes } = await import('./routes');
 createRoutes(app);
