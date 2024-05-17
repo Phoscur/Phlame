@@ -1,14 +1,24 @@
-import { nanoid } from 'nanoid';
+import { customAlphabet } from 'nanoid';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { Zeit } from './app/signals/zeitgeber';
 import { PersistedSession } from './engine.server';
+
+const NANOID_ALPHABET = '123456789ABCDFGHJKLMNQRSTVWXYZ'; // 3M IDs 1% - check collision chances https://zelark.github.io/nano-id-cc/
+const nanoid = customAlphabet(NANOID_ALPHABET, 8);
 
 const FOLDER = './data';
 const ZEIT_FILE = join(FOLDER, 'zeit.json');
 const sessionFile = (sid: string) => join(FOLDER, `${sid}.json`);
 
 const zeroTime: Zeit = { time: 0, tick: 0 };
+
+class NotFoundError extends Error {
+  public readonly code = 404;
+}
+class SessionCorruptError extends Error {
+  public readonly code = 401;
+}
 
 /**
  * Basic Data Persistence (File)
@@ -44,12 +54,21 @@ export class DataService {
     return this.load(sessionFile(sid));
   }
 
+  /**
+   * @throws NotFoundError|SessionCorruptError
+   * @param fileName
+   * @returns {PersistedSession}
+   */
   async load(fileName: string) {
     if (!(await this.exists(fileName))) {
-      return;
+      throw new NotFoundError(`Not found: ${fileName}`);
     }
-    const json = await readFile(fileName);
-    return JSON.parse(json.toString());
+    try {
+      const json = await readFile(fileName);
+      return JSON.parse(json.toString());
+    } catch (e: any) {
+      throw new SessionCorruptError(`Session corrupt: ${fileName} - ${e}`);
+    }
   }
 
   async init() {
