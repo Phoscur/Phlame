@@ -15,11 +15,11 @@ import {
   EmpireJSON,
 } from '@phlame/engine';
 import { Zeitgeber } from '../signals/zeitgeber';
-import { ResourceFactory, type Types } from './resources';
+import { ResourceFactory, type ResourceIdentifier } from './resources';
 import { BuildingFactory, type BuildingIdentifier } from './buildings';
 
-export type EmpireEntity = Empire<Types, BuildingIdentifier>;
-export type PhlameEntity = Phlame<Types, BuildingIdentifier>;
+export type EmpireEntity = Empire<ResourceIdentifier, BuildingIdentifier>;
+export type PhlameEntity = Phlame<ResourceIdentifier, BuildingIdentifier>;
 
 @injectable
 export class EngineFactory {
@@ -27,20 +27,24 @@ export class EngineFactory {
   #resource = inject(ResourceFactory);
   #building = inject(BuildingFactory);
 
-  createEmpire(json: EmpireJSON<Types, BuildingIdentifier>): Empire<Types, BuildingIdentifier> {
+  createEmpire(
+    json: EmpireJSON<ResourceIdentifier, BuildingIdentifier>,
+  ): Empire<ResourceIdentifier, BuildingIdentifier> {
     return new Empire(json.id, this.createEntities(json.entities));
   }
 
-  createEntities(es: PhlameJSON<Types, BuildingIdentifier>[]): Phlame<Types, BuildingIdentifier>[] {
+  createEntities(
+    es: PhlameJSON<ResourceIdentifier, BuildingIdentifier>[],
+  ): Phlame<ResourceIdentifier, BuildingIdentifier>[] {
     return es.map((p) => this.createPhlame(p.id, p.stock, p.buildings));
   }
 
   createPhlame(
     id: ID,
-    stock: StockJSON<Types>,
+    stock: StockJSON<ResourceIdentifier>,
     // TODO actions
     buildings: BuildingJSON<BuildingIdentifier>[] = [],
-  ): Phlame<Types, BuildingIdentifier> {
+  ): Phlame<ResourceIdentifier, BuildingIdentifier> {
     const { tick } = this.#zeit();
     return new Phlame(
       id,
@@ -58,7 +62,10 @@ export class EngineFactory {
     name,
     stock,
     buildings,
-  }: EconomyJSON<Types, BuildingIdentifier>): Economy<Types, BuildingIdentifier> {
+  }: EconomyJSON<ResourceIdentifier, BuildingIdentifier>): Economy<
+    ResourceIdentifier,
+    BuildingIdentifier
+  > {
     return new Economy(
       name,
       this.createStock(stock),
@@ -71,7 +78,7 @@ export class EngineFactory {
     return factory.fromJSON(json);
   }
 
-  createStock(json: StockJSON<Types>): Stock<Types> {
+  createStock(json: StockJSON<ResourceIdentifier>): Stock<ResourceIdentifier> {
     return new Stock(
       this.createResources(json.resources),
       json.max && this.createResources(json.max),
@@ -79,11 +86,13 @@ export class EngineFactory {
     );
   }
 
-  createResources(json: ResourceJSON<Types>[]): ResourceCollection<Types> {
+  createResources(
+    json: ResourceJSON<ResourceIdentifier>[],
+  ): ResourceCollection<ResourceIdentifier> {
     return ResourceCollection.fromArray(json.map((j) => this.createResource(j)));
   }
 
-  createResource(json: ResourceJSON<Types>): ComparableResource<Types> {
+  createResource(json: ResourceJSON<ResourceIdentifier>): ComparableResource<ResourceIdentifier> {
     const factory = this.#resource();
     return factory.fromJSON(json);
   }

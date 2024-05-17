@@ -2,7 +2,13 @@ import { injectable, inject, Injector } from '@joist/di';
 import { Zeit, Zeitgeber } from './app/signals/zeitgeber';
 import { Debug } from './app/debug.element';
 import { DataService, NanoID } from './data.server';
-import { BuildingIdentifier, EmpireEntity, EmpireService, emptyEmpire, Types } from './app/engine';
+import {
+  BuildingIdentifier,
+  EmpireEntity,
+  EmpireService,
+  emptyEmpire,
+  ResourceIdentifier,
+} from './app/engine';
 import { EmpireJSON } from '@phlame/engine';
 
 type SID = NanoID;
@@ -14,7 +20,7 @@ export type Session = {
 export type PersistedSession = {
   sid: SID;
   zeit: Zeit;
-  empire: EmpireJSON<Types, BuildingIdentifier>;
+  empire: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
 };
 @injectable
 export class EngineService {

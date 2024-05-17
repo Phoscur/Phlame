@@ -114,7 +114,7 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
     return energies.concat(...this.resources.entries);
   }
 
-  get productionTable(): ResourceTable {
+  get productionTable(): ResourceTable<Types> {
     return [
       ...this.energies.map(
         (energy: ResourceProcess<Types>) =>

@@ -17,9 +17,11 @@ import {
   type RequirementLookup,
 } from '@phlame/engine';
 
-export type BuildingIdentifier = BuildingID;
+// export type BuildingIdentifier = BuildingID;
+export type BuildingIdentifier = keyof typeof buildings;
+export type BuildingType = keyof typeof buildings;
 
-export const requirements: RequirementLookup<Resources, BuildingIdentifier> = {
+/* export const requirements: RequirementLookup<Resources, BuildingIdentifier> = {
   // Metallic mine
   1: new BuildingRequirement<Resources, BuildingIdentifier>(
     1,
@@ -166,9 +168,9 @@ export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
     [EnergyTypes.Electricity]: (): number => {
       return 0;
     },
-    /*[EnergyTypes.Heat]: (): number => {
+    [EnergyTypes.Heat]: (): number => {
       return 0;
-    },*/
+    },
   },
   1: {
     [ResourceTypes.Metallic]: (lvl: number) => 30 * lvl * lvl ** 1.1,
@@ -198,14 +200,146 @@ export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
       return 50 * lvl * lvl ** 1.1;
     },
   },
-};
+};*/
 
+export const buildings = {
+  null: (level?: number, speed?: number) =>
+    new Building(
+      'null',
+      {},
+      {
+        null: {
+          [ResourceTypes.Metallic]: (): number => {
+            return 0;
+          },
+          [ResourceTypes.Crystalline]: (): number => {
+            return 0;
+          },
+          [ResourceTypes.Liquid]: (): number => {
+            return 0;
+          },
+          [EnergyTypes.Electricity]: (): number => {
+            return 0;
+          },
+        },
+      },
+      level,
+      speed,
+    ),
+  'mine-metallic': (level?: number, speed?: number) =>
+    new Building(
+      'mine-metallic',
+      {
+        'mine-metallic': new BuildingRequirement<Resources, BuildingIdentifier>(
+          'mine-metallic',
+          ResourceCollection.fromArray<Resources>([
+            new MetallicResource(60),
+            new CrystallineResource(15),
+          ]),
+          1.5,
+          [],
+        ),
+      },
+      {
+        'mine-metallic': {
+          [ResourceTypes.Metallic]: (lvl: number) => 30 * lvl * lvl ** 1.1,
+          [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+        },
+      },
+      level,
+      speed,
+    ),
+  'mine-crystalline': (level?: number, speed?: number) =>
+    new Building(
+      'mine-crystalline',
+      {
+        'mine-crystalline': new BuildingRequirement<Resources, BuildingIdentifier>(
+          'mine-crystalline',
+          ResourceCollection.fromArray<Resources>([
+            new MetallicResource(48),
+            new CrystallineResource(24),
+          ]),
+          1.6,
+          [],
+        ),
+      },
+      {
+        'mine-crystalline': {
+          [ResourceTypes.Crystalline]: (lvl: number) => 20 * lvl * lvl ** 1.1,
+          [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+        },
+      },
+      level,
+      speed,
+    ),
+  'mine-liquid': (level?: number, speed?: number) =>
+    new Building(
+      'mine-liquid',
+      {
+        'mine-liquid': new BuildingRequirement<Resources, BuildingIdentifier>(
+          'mine-liquid',
+          ResourceCollection.fromArray<Resources>([
+            new MetallicResource(225),
+            new CrystallineResource(75),
+          ]),
+          1.5,
+          [],
+        ),
+      },
+      {
+        'mine-liquid': {
+          // TODO actually dependent on planet attribute maxTemperature: [ResourceTypes.Liquid]: (lvl, planet) => 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28),
+          [ResourceTypes.Liquid]: (lvl: number): number => {
+            return 10 * lvl * lvl ** 1.1;
+          },
+          [EnergyTypes.Electricity]: (lvl: number): number => {
+            return -10 * lvl * lvl ** 1.1;
+          },
+        },
+      },
+      level,
+      speed,
+    ),
+  'power-solar': (level?: number, speed?: number) =>
+    new Building(
+      'power-solar',
+      {
+        'power-solar': new BuildingRequirement<Resources, BuildingIdentifier>(
+          'power-solar',
+          ResourceCollection.fromArray<Resources>([
+            new MetallicResource(75),
+            new CrystallineResource(30),
+          ]),
+          1.5,
+          [],
+        ),
+      },
+      {
+        'power-solar': {
+          [EnergyTypes.Electricity]: (lvl: number): number => 20 * lvl * lvl ** 1.1,
+        },
+      },
+      level,
+      speed,
+    ),
+} as const;
+
+// TODO time to get BuildingID type as keyof buildings
+// - see if we need to refactor all the enums..
+/*const b0 = new Building<Resources, BuildingID>(0, requirements, prosumption, 0, 0);
 const b1 = new Building<Resources, BuildingID>(1, requirements, prosumption, 1, 100);
 const b2 = new Building<Resources, BuildingID>(2, requirements, prosumption, 1, 100);
-const b3 = new Building<Resources, BuildingID>(3, requirements, prosumption, 0, 100);
+const b3 = new Building<Resources, BuildingID>(3, requirements, prosumption, 0, 0);
 const b4 = new Building<Resources, BuildingID>(4, requirements, prosumption, 1, 100);
 
-export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [b1, b2, b3, b4];
+export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [b0, b1, b2, b3, b4];*/
+
+export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [
+  buildings['mine-metallic'](1),
+  buildings['mine-crystalline'](1),
+  buildings['mine-liquid'](0),
+  buildings['power-solar'](1),
+];
 export const emptyStock = new Stock<ResourceTypes>(zeroResources);
 
 export class BuildingFactory {
@@ -214,6 +348,6 @@ export class BuildingFactory {
     level,
     speed,
   }: BuildingJSON<BuildingIdentifier>): Building<Resources, BuildingIdentifier> {
-    return new Building(type, requirements, prosumption, level, speed);
+    return buildings[type] ? buildings[type](level, speed) : buildings.null(level, speed);
   }
 }
