@@ -95,7 +95,7 @@ export class AppElement extends HTMLElement {
     this.#logger().log('AppElement connected!');
   }
 
-  attributeChangedCallback(name: string = 'lang', oldValue: string, newValue: string) {
+  attributeChangedCallback(name = 'lang', oldValue: string, newValue: string) {
     if (name !== 'lang' || !newValue) {
       return;
     }
