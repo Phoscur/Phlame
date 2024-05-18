@@ -82,6 +82,7 @@ export class EngineService {
       return 0;
     } catch (e: any) {
       this.#logger().log('Error loading session', sid, e?.code, e);
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
       return e?.code ?? 1;
     }
   }

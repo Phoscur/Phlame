@@ -50,6 +50,7 @@ export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
     const inf = Object.create(this);
     inf.type = this.type;
     inf.amount = Energy.MAX_VALUE;
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return inf;
   }
 

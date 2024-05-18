@@ -53,6 +53,7 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
   }
 
   get asArray(): ResourceProcess<Types>[] {
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return Object.values(this.entries);
   }
 
