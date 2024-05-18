@@ -20,11 +20,9 @@ export default tseslint.config(
       },
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-unused-vars': 'off', // TODO re-enable!
+      '@typescript-eslint/restrict-template-expressions': 'off', // I don't like it
       '@typescript-eslint/no-confusing-void-expression': 'off',
-
     },
   },
   {
@@ -49,7 +47,7 @@ export default tseslint.config(
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
-        'vitest/valid-expect': 'off',
+        'vitest/valid-expect': 'off', // TODO? refactor matchers?
     }, 
   },
   

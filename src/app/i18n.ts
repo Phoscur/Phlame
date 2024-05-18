@@ -93,6 +93,7 @@ export function getLangFromUrl(url: URL) {
   return defaultLang;
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 type Tail<T extends any[]> = T extends [any, ...infer R] ? R : never;
 
 export type I18n = <Key extends Entry>(

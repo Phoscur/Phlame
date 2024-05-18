@@ -1,6 +1,7 @@
 import { injectable } from '@joist/di';
 
 export class Debug {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   log(...values: any[]) {
     // noop, uncomment to get ALL debug logs
     // console.log(...values);
@@ -8,6 +9,7 @@ export class Debug {
 }
 
 export class ConsoleDebug extends Debug {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   log(...values: any[]) {
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument */
     console.log(...values);

@@ -70,6 +70,7 @@ export class DataService {
       const json = await readFile(fileName);
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
       return JSON.parse(json.toString());
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     } catch (e: any) {
       throw new SessionCorruptError(`Session corrupt: ${fileName} - ${e}`);
     }
