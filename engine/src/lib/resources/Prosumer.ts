@@ -63,6 +63,6 @@ export class Prosumer<Types extends ResourceIdentifier> {
   }
 
   toString(): string {
-    return `Prosumer(${this.type}, ${this.speed}%, ${this.prosumes})`;
+    return `Prosumer(${this.type}, ${this.speed}%, ${this.prosumes.toString()})`;
   }
 }

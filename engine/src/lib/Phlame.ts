@@ -53,7 +53,7 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   }
 
   toString(): string {
-    return `${this.id} (${this.economy.resources}) ${this.economy.buildings.join(', ')}`;
+    return `${this.id} (${this.economy.resources.toString()}) ${this.economy.buildings.join(', ')}`;
   }
 
   toJSON(): PhlameJSON<ResourceType, UnitType> {

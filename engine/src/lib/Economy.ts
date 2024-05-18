@@ -123,7 +123,7 @@ export class Economy<
   }
 
   toString(): string {
-    return `${this.name} (${this.resources}) [${this.buildings.join(', ')}]`;
+    return `${this.name} (${this.resources.toString()}) [${this.buildings.join(', ')}]`;
   }
 
   toJSON(): EconomyJSON<ResourceType, BuildingType> {
