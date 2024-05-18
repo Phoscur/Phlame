@@ -1,6 +1,5 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import tailwindcss from '@tailwindcss/vite';
 import devServer from '@hono/vite-dev-server';
 
@@ -20,7 +19,6 @@ export default defineConfig({
   },
 
   plugins: [
-    nxViteTsPaths(),
     tailwindcss(),
     devServer({
       entry: 'src/server.ts',
@@ -36,11 +34,6 @@ export default defineConfig({
       injectClientScript: true,
     }),
   ],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
 
   build: {
     outDir: './dist/phlame',
