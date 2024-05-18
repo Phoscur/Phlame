@@ -47,6 +47,7 @@ export class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   get asArray(): ComparableResource<Types>[] {
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return Object.values(this.entries);
   }
 

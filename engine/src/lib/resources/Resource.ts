@@ -92,7 +92,8 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
     const inf = Object.create(this);
     inf.type = this.type;
     inf.amount = Number.POSITIVE_INFINITY;
-    // TODO we only need this once per type, cache?
+    // TODO we only need this once per type, optimise by caching?
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return inf;
   }
 

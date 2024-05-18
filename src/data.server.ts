@@ -48,10 +48,12 @@ export class DataService {
     if (!json) {
       return zeroTime;
     }
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return json;
   }
 
   async loadSession(sid: NanoID): Promise<PersistedSession> {
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return this.load(sessionFile(sid));
   }
 
@@ -66,6 +68,7 @@ export class DataService {
     }
     try {
       const json = await readFile(fileName);
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
       return JSON.parse(json.toString());
     } catch (e: any) {
       throw new SessionCorruptError(`Session corrupt: ${fileName} - ${e}`);
