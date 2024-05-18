@@ -14,14 +14,14 @@ export class PercentElement extends HTMLElement {
     const html = Percent();
     this.innerHTML = raw(html);
 
-    const value = this.attributes.getNamedItem('value')?.value || `${Math.random()}`;
+    const value = this.attributes.getNamedItem('value')?.value ?? `${Math.random()}`;
 
     const percent = this.getElementsByClassName('percent')[0] as HTMLElement;
     percent.style.setProperty('--percent', value);
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const percent = this.getElementsByClassName('percent')[0] as HTMLElement;
+    const percent = this.getElementsByClassName('percent')[0] as HTMLElement|undefined;
     if (!percent) {
       return;
     }

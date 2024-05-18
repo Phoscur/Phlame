@@ -99,12 +99,12 @@ export class ResourceElement extends HTMLElement {
     const rate = Number(this.attributes.getNamedItem('rate')?.value);
     const min = Number(this.attributes.getNamedItem('min')?.value) || 0;
     const max = Number(this.attributes.getNamedItem('max')?.value) || Infinity;
-    const kind = (this.attributes.getNamedItem('type')?.value || 'metallic') as Resource;
+    // const kind = (this.attributes.getNamedItem('type')?.value || 'metallic') as Resource;
 
     //this.render(t, kind, amount, rate);
     // TODO listen for attribute changes instead
 
-    const el = this.getElementsByClassName('resource-amount')[0];
+    const el = this.getElementsByClassName('resource-amount')[0] as HTMLElement | undefined;
 
     if (!el) return; // energy does not get updates
 
@@ -140,9 +140,9 @@ export class EnergyElement extends HTMLElement {
 
   connectedCallback() {
     const t = useTranslations(defaultLang);
-    let amount = Number(this.attributes.getNamedItem('amount')?.value);
+    const amount = Number(this.attributes.getNamedItem('amount')?.value);
     const total = Number(this.attributes.getNamedItem('total')?.value);
-    const kind = (this.attributes.getNamedItem('type')?.value || 'energy') as Resource;
+    const kind = (this.attributes.getNamedItem('type')?.value ?? 'energy') as Resource;
     this.render(t, kind, amount, total);
   }
 

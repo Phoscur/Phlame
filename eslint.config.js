@@ -9,10 +9,8 @@ import playwright from 'eslint-plugin-playwright'
 export default tseslint.config(
   { ignores: ["playwright-report/*", "assets/*", "dist/*"]},
   eslint.configs.recommended,
-  //...tseslint.configs.recommended,
-  ...tseslint.configs.stylisticTypeChecked,
   ...tseslint.configs.recommendedTypeChecked,
-  
+  ...tseslint.configs.stylisticTypeChecked,
   ...tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
@@ -23,14 +21,33 @@ export default tseslint.config(
     },
     rules: {
       //'@typescript-eslint/no-unsafe-argument': 'error',
-      //'@typescript-eslint/no-unsafe-assignment': 'error',
-      //'@typescript-eslint/no-unsafe-return': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      
+        '@typescript-eslint/no-unsafe-argument': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+
     },
   },
   {
       files: ["**/*.spec.ts", "**/vite.config.ts"], // or any other pattern
       plugins: {
         vitest
+      },
+      settings: {
+        vitest: {
+          typecheck: true,
+        }
+      },  
+      languageOptions: {
+        globals: {
+          ...vitest.environments.env.globals,
+        },
       },
       rules: {
         ...vitest.configs.recommended.rules,
@@ -39,6 +56,7 @@ export default tseslint.config(
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
+        'vitest/valid-expect': 'off',
     }, 
   },
   

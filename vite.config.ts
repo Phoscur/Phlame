@@ -19,7 +19,7 @@ export default defineConfig({
   },
 
   plugins: [
-    tailwindcss(), // eslint-disable-line @typescript-eslint/no-unsafe-call
+    tailwindcss(),
     devServer({
       entry: 'src/server.ts',
       exclude: [

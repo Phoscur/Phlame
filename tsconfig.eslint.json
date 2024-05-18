@@ -8,5 +8,6 @@
   "include": [
     // exact list of folders to lint
     "src",
+    "eslint.config.js"
   ],
 }

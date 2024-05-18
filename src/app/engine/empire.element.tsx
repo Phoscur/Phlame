@@ -12,8 +12,8 @@ export class EmpireElement extends HTMLElement {
     const engine = this.#service();
 
     try {
-      const id = this.attributes.getNamedItem('id')?.value || 'Unknown Empire';
-      const entities = this.attributes.getNamedItem('entities')?.value || '[]';
+      const id = this.attributes.getNamedItem('id')?.value ?? 'Unknown Empire';
+      const entities = this.attributes.getNamedItem('entities')?.value ?? '[]';
       logger.log(`Empire[${id}] initializing...`, entities);
       engine.setupFromJSON({ id, entities: JSON.parse(entities) });
     } catch (ex) {
@@ -32,7 +32,7 @@ export class PhlameElement extends HTMLElement {
     const service = this.#service();
 
     try {
-      const id = this.attributes.getNamedItem('id')?.value || 'Unknown Phlame';
+      const id = this.attributes.getNamedItem('id')?.value ?? 'Unknown Phlame';
       logger.log(`Phlame[${id}] initializing...`);
       service.setup(id);
     } catch (ex) {

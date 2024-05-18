@@ -57,8 +57,10 @@ export class LanguageSelectDropdownElement extends HTMLElement {
     for (const select of selects) {
       select.onclick = () => {
         const parent = this.appRootParent;
-        const attr = parent.attributes.getNamedItem('lang')!;
-        attr.value = select.attributes.getNamedItem('data-value')!.value;
+        const attr = parent.attributes.getNamedItem('lang');
+        const val = select.attributes.getNamedItem('data-value')?.value;
+        if (!attr || !val) return;
+        attr.value = val;
         // save to cookie
         document.cookie = 'lang=' + attr.value;
         // save to app-root triggering a rerender

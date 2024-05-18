@@ -3,10 +3,10 @@ import type { BuildingIdentifier, BuildingJSON } from './Building';
 import Action, { ActionTypes, Entity, ID } from './Action';
 import { Economy } from './Economy';
 
-export type PhlameJSON<
+export interface PhlameJSON<
   ResourceType extends ResourceIdentifier,
   UnitType extends BuildingIdentifier,
-> = {
+> {
   id: ID;
   tick: TimeUnit;
   stock: StockJSON<ResourceType>;

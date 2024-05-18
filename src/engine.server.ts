@@ -13,11 +13,11 @@ import { EmpireJSON } from '@phlame/engine';
 
 type SID = NanoID;
 
-export type Session = {
+export interface Session {
   sid: SID;
   empire: EmpireEntity;
 };
-export type PersistedSession = {
+export interface PersistedSession {
   sid: SID;
   zeit: Zeit;
   empire: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
@@ -50,16 +50,16 @@ export class EngineService {
     zeit.start(z.time, z.tick);
     this.#logger().log('Start', z, zeit.tick, zeit.time);
     if (firstStart) {
-      persistence.saveZeit(this.time);
+      await persistence.saveZeit(this.time);
     }
     return this;
   }
 
   /**
    * @param sid SessionID
-   * @returns {Promise<number>} error code
+   * @returns error code
    */
-  async load(sid: string) {
+  async load(sid: string): Promise<number> {
     const zeit = this.#zeit();
     const persistence = this.#persistence();
     try {
@@ -82,7 +82,7 @@ export class EngineService {
       return 0;
     } catch (e: any) {
       this.#logger().log('Error loading session', sid, e?.code, e);
-      return e?.code || 1;
+      return e?.code ?? 1;
     }
   }
 

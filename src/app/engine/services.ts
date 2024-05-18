@@ -63,9 +63,7 @@ export class EmpireService {
     this.#entities.clear();
     this.#current = empire;
     this.#empires.add([this.#current]);
-    if (empire.entities) {
-      this.#entities.add(empire.entities);
-    }
+    this.#entities.add(empire.entities);
   }
 }
 
@@ -84,4 +82,4 @@ export class EconomyService {
   }
 }
 
-export class GameService {}
+// export class GameService {}

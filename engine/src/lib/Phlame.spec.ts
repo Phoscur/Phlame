@@ -71,6 +71,6 @@ describe('Phlame Entity', () => {
     expect(phlame.lastTick).to.eql(1);
   });
 
-  // it.todo("should have env properties - e.g. base temperature and amounts of resources to start from");
+  it.todo("should have env properties - e.g. base temperature and amounts of resources to start from");
   // idea: use parts of the ID for random data
 });

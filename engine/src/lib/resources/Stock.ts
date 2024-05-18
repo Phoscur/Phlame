@@ -1,7 +1,7 @@
 import { ComparableResource, type ResourceIdentifier, type ResourceJSON } from './Resource';
 import { ResourceCollection, type ResourcesLike } from './ResourceCollection';
 
-export type StockJSON<Types extends ResourceIdentifier> = {
+export interface StockJSON<Types extends ResourceIdentifier> {
   resources: ResourceJSON<Types>[];
   max?: ResourceJSON<Types>[];
   min?: ResourceJSON<Types>[];
@@ -27,7 +27,7 @@ export class Stock<Types extends ResourceIdentifier> {
    */
   getMaxResource(resource: ComparableResource<Types>): ComparableResource<Types> {
     const stocked = this.getByType(resource.type);
-    const max = this.max.getByType(resource.type) || resource.infinite;
+    const max = this.max.getByType(resource.type) ?? resource.infinite;
     return stocked ? max.subtract(stocked) : max;
   }
 
@@ -37,7 +37,7 @@ export class Stock<Types extends ResourceIdentifier> {
    */
   getMinResource(resource: ComparableResource<Types>): ComparableResource<Types> {
     const stocked = this.getByType(resource.type);
-    const min = this.min.getByType(resource.type) || resource.zero;
+    const min = this.min.getByType(resource.type) ?? resource.zero;
     return stocked ? stocked.subtract(min) : min;
   }
 
@@ -99,8 +99,8 @@ export class Stock<Types extends ResourceIdentifier> {
   }
 
   getResourceLimits(resource: ComparableResource<Types>): [number, number] {
-    const min = this.min.getByType(resource.type) || resource.zero;
-    const max = this.max.getByType(resource.type) || resource.infinite;
+    const min = this.min.getByType(resource.type) ?? resource.zero;
+    const max = this.max.getByType(resource.type) ?? resource.infinite;
     return [min.amount, max.amount];
   }
 
