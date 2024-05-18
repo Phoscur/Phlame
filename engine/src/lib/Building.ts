@@ -50,8 +50,8 @@ export class Building<
     // TODO! For now we have the full lookup here, might be nicer to encapsulate in a different way?
     readonly requirements: RequirementLookup<ResourceType, BuildingType>,
     readonly prosumption: ProsumptionLookup<ResourceType, BuildingType>,
-    readonly level: number = 0,
-    readonly speed: number = 100,
+    readonly level = 0,
+    readonly speed = 100,
   ) {
     const defaultSpeed = speed >= 100 ? 100 : speed;
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
