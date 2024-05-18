@@ -1,3 +1,37 @@
+## 1.0 Roadmap: A nice little single player idle game
+
+Features:
+
+- ✓ lazy realtime economy
+- (timewarping) actions
+- building queue
+- tech, cool special buildings e.g. faster building
+- more & better assets e.g. building images
+- colonisation of and transports to new planets
+
+Infrastructure & DevEnv:
+
+- ✓ unit tested economy engine
+- e2e tests
+- simple persistence (localstorage + file based)
+  - hono local storage cache in service worker (proxy server)
+  - git data push from service worker
+- wait for TailwindCSS 4 stable release?
+
+#### 2.0: Combat
+
+- ships ships ships - all kinds of spaceships!
+- trade (order, deliver & pickup)
+- shared encrypted snapshots in common data repos
+  - action collision resolution
+  - partially prevents timewarping (after espionage)
+
+# Contribute
+
+Start by forking publicly, as the [AGPL license](./license.md) requires you to do anyways! (Reminder: This license also forbids you to take commercial advantage from this code.)
+
+Before creating a Pull-Request, please open an issue first. Keep commits small and focussed and title them starting with a capitalised verb in imperative (e.g. `Add`, `Change`, `Refactor`).
+
 # Phlame Engine App
 
 - Run `npm start` to develop the app or `npx vite`, run `npx vitest` to run unit tests
@@ -13,10 +47,12 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 
 ## Easter POC 2024:
 
-- htmx tailwind gui (no react - rather vanjs - and likely no graphql)
-- service worker?
-- build & tech queues
-  -> idle game
+- htmx tailwind4 alpha gui
+  - no react, no graphql
+  - not even van vanjs yet, just pure custom web components
+- Signals (Draft Polyfill)
+- used with `@joist/di` as Zeitgeber emitting time units / game ticks
+- css counter transitions with css --vars (which don't work yet in Firefox)
 
 ### POC (Tailwind 4) Learnings:
 
@@ -30,8 +66,7 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 - Drop Nx (what do we actually need it for? or do we want Analog/Angular?)
 - Component Tests, Playground for different Resource ReCalculation Strategies
 - Check out SolidJS or/while staying true to vanilla?
-- Check out Signals (Draft Polyfill) - use them with `@joist/di` as Zeitgeber emitting time units / game ticks
-- JS Decorators, JS private accessor properties (seem to be a bit too new and clashing with bundlers)
+- JS Decorators, JS private accessor properties (seem to be a bit too new and clashing with bundlers/TS)
 - Drop typescript (build for app, what about the engine?)
 - Try Bun again
 
@@ -39,11 +74,11 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 - Session Switcher Input or Dropdown
 - e2e tests with Playwright
 
-## Easter POC 2021:
+## Early (first Easter) POC 2021:
 
 - @live/@stream query resources, console & react component consumers
-- build & tech queues @defer?
-  -> idle game
+
+Decided against this approach and GraphQL usage, because of the additional complexity it adds (that does not mean React+GraphQL would not be a good fit here).
 
 ### Game Model:
 
@@ -53,3 +88,7 @@ Don't think just because there are `.tsx` files in this repo, that we have React
   Research for Technology,
   Buildings to build faster,
   Fusion as alternative Energy
+
+#
+
+Copyright (C) 2020 Phoscur <phoscur@pheelgood.net>
