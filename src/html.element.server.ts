@@ -1,5 +1,6 @@
 import { Element } from 'html-element';
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 globalThis.HTMLElement = Element;
 // TODO? do we even need this, run the Elements on server-side?
 // An empty class would do, if it's only about prerendering using jsx.
