@@ -42,7 +42,8 @@ export class DataService {
     await writeFile(fileName, JSON.stringify(data));
   }
 
-  async loadZeit() {
+  async loadZeit(): Promise<Zeit> {
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
     const json = await this.load(ZEIT_FILE);
     if (!json) {
       return zeroTime;
