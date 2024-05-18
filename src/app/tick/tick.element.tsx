@@ -20,7 +20,7 @@ export class TickElement extends HTMLElement {
   static observedAttributes = [];
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
-  #cleanup = () => {};
+  #cleanup = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
 
   connectedCallback() {
     const zeit = this.#zeit();

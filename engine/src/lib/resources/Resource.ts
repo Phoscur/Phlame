@@ -1,6 +1,6 @@
 export type ResourceIdentifier = string; // i wish^^ = symbol;
 
-export type ResourceJSON<Type extends ResourceIdentifier> = {
+export interface ResourceJSON<Type extends ResourceIdentifier> {
   type: Type;
   amount: number;
 };
@@ -76,7 +76,7 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
     return new Resource(this.type, amount);
   }
 
-  /* eslint-disable-next-line class-methods-use-this */
+  /* eslint-disable-next-line @typescript-eslint/class-literal-property-style */
   get isEnergy(): boolean {
     // Energy implements this with a lookup by type
     return false;
@@ -106,7 +106,7 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
     if (this.amount === Number.POSITIVE_INFINITY) {
       return this;
     }
-    if (resource && resource?.amount === Number.POSITIVE_INFINITY) {
+    if (resource?.amount === Number.POSITIVE_INFINITY) {
       return resource;
     }
     return false;

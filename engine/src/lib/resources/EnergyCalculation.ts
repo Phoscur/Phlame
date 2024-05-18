@@ -77,8 +77,9 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
           return;
         }
         const e = energy.limitFromRate();
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
         const limit = l[energy.type] as ResourceProcess<Types>;
-        // eslint-disable-next-line no-param-reassign
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         l[energy.type] = !limit ? e : limit.addLimit(e.limit);
       });
       return l;

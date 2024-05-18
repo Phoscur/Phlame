@@ -63,7 +63,7 @@ export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
     if (this.amount === Energy.MAX_VALUE) {
       return this;
     }
-    if (energy && energy?.amount === Energy.MAX_VALUE) {
+    if (energy?.amount === Energy.MAX_VALUE) {
       return energy;
     }
     return false;

@@ -39,8 +39,9 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
     processCollections: ResourceProcessCollection<Types>[],
   ): ResourceProcessCollection<Types> {
     if (processCollections.length < 2) {
-      return processCollections[0] || ResourceProcessCollection.fromArray([]);
+      return processCollections[0] ?? ResourceProcessCollection.fromArray([]);
     }
+    // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
     const last = processCollections.pop() as ResourceProcessCollection<Types>; // Just checked it to be not undefined!
     return processCollections.reduce((reduced, processCollection) => {
       return reduced.add(processCollection);
@@ -95,13 +96,14 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
   }
 
   get<Type extends Types>(type: Type): ResourceProcess<Types> {
-    return this.getByType(type) || new ResourceProcess(this.newResource(type, 0), 0);
+    return this.getByType(type) ?? new ResourceProcess(this.newResource(type, 0), 0);
   }
 
   map<GenericReturn>(
     mappingFunction: (resource: ResourceProcess<Types>, type: Types) => GenericReturn | undefined,
   ): GenericReturn[] {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
+      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const entry = this.entries[type] as ResourceProcess<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
       if (typeof result === 'undefined') {
@@ -139,7 +141,7 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
         if (p.isNegative) {
           return p;
         }
-
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
         const limit = limits[type]?.limit as ComparableResource<Types>;
         return p.addLimit(limit);
       }),

@@ -112,6 +112,7 @@ export class ResourceFactory {
     type,
     amount,
   }: ResourceJSON<ResourceIdentifier>): ComparableResource<ResourceIdentifier> {
+    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     return resources[type] ? resources[type](amount) : resources.null(amount);
   }
 }

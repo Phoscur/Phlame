@@ -59,12 +59,12 @@ export type SlottedTranslate = (index: BasicIndex, ...args: BasicEntry[]) => str
 
 const composite = {
   en: {
-    'resource.amount': (t: BasicIndex, resource: ResourceEntry, amount = 0) =>
+    'resource.amount': (t: BasicIndex, resource: ResourceEntry = 'resource.unknown', amount = 0) =>
       amount === 1
         ? `1 ${t[(resource + '.singular') as ResourceSingularEntry]}`
-        : `${amount} ${t[resource || 'resource.unknown']}`,
-    'building.action.research': (t: BasicIndex, building: BuildingEntry) =>
-      `Research ${t[building || 'building.missing']}`,
+        : `${amount} ${t[resource]}`,
+    'building.action.research': (t: BasicIndex, building: BuildingEntry = 'building.missing') =>
+      `Research ${t[building]}`,
   },
   de: {},
 } as const;
@@ -102,10 +102,11 @@ export type I18n = <Key extends Entry>(
 
 const FALLBACK_LANGUAGE: Language = defaultLang;
 
-export function useTranslations(lang: Language): I18n {
+export function useTranslations(lang: Language = defaultLang): I18n {
   return function t(key, ...slots) {
-    const translations = (index[lang] || index[defaultLang]) as TranslationIndex;
+    const translations = index[lang] as TranslationIndex;
     let f = translations[key];
+    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     if (FALLBACK_LANGUAGE && !f) {
       f = (index[FALLBACK_LANGUAGE] as TranslationIndex)[key];
     }

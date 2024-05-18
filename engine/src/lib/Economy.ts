@@ -3,10 +3,10 @@ import { Building, type BuildingIdentifier, type BuildingJSON } from './Building
 import { ProsumerCollection } from './resources/ProsumerCollection';
 import type { StockJSON } from './resources/Stock';
 
-export type EconomyJSON<
+export interface EconomyJSON<
   ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
-> = {
+> {
   buildings: BuildingJSON<BuildingType>[];
   stock: StockJSON<ResourceType>;
   name: string;

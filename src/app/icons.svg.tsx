@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'hono/jsx';
 
-type Icon = {
+export interface Icon {
   className?: string;
 };
 

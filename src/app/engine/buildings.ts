@@ -348,6 +348,7 @@ export class BuildingFactory {
     level,
     speed,
   }: BuildingJSON<BuildingIdentifier>): Building<Resources, BuildingIdentifier> {
+    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     return buildings[type] ? buildings[type](level, speed) : buildings.null(level, speed);
   }
 }

@@ -33,7 +33,7 @@ export type RequirementLookup<
   [Type in BuildingType]?: BuildingRequirement<ResourceType, BuildingType>;
 };
 
-export type BuildingJSON<Type extends BuildingIdentifier> = {
+export interface BuildingJSON<Type extends BuildingIdentifier> {
   type: Type;
   level: number;
   speed: number;
@@ -112,12 +112,14 @@ export class Building<
     // TODO maybe we really don't need the lookups here, or can this work without the typecasts?
     const prosumption = (this.prosumption[this.type] || {}) as ProsumptionEntries<ResourceType>;
     const processes = Object.keys(prosumption).map((type) => {
+      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const prosumptionFunc = prosumption[type as ResourceType] as LevelToProsumptionFunc; // never undefined
       const rate = prosumptionFunc(this.level);
       const stocked = stock.has(type as ResourceType);
       // limit production for an optionally maximal stock
       // also for energy a zero resource resource can be created implicitly
-      const max = (stock.max.getByType(type as ResourceType) as Resource<ResourceType>) || stocked;
+      // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
+      const max = (stock.max.getByType(type as ResourceType) as Resource<ResourceType>) ?? stocked;
       return new ResourceProcess<ResourceType>(rate > 0 ? max : stocked, rate);
     });
 

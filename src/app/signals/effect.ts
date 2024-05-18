@@ -29,8 +29,8 @@ function processPending() {
 }
 
 type CleanUp = () => void;
-export function effect(callback: () => void | CleanUp): CleanUp {
-  let cleanup: void | (() => void);
+export function effect(callback: () => undefined | CleanUp): CleanUp {
+  let cleanup: undefined | (() => void);
 
   const computed = new Signal.Computed(() => {
     typeof cleanup === 'function' && cleanup();

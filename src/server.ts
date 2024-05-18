@@ -7,9 +7,10 @@ import './html.element.server';
 import { defaultLang, Language } from './app/i18n';
 import { GameRenderer } from './render.server';
 import { EngineService, startup } from './engine.server';
+import { StatusCode } from 'hono/utils/http-status';
 
-const isProd = process.env['NODE_ENV'] === 'production';
-const distFolder = process.env['BUILD_DIR'] || 'dist/phlame';
+const isProd = process.env.NODE_ENV === 'production';
+const distFolder = process.env.BUILD_DIR ?? 'dist/phlame';
 const html = async () => await readFile(isProd ? `${distFolder}/index.html` : 'index.html', 'utf8');
 
 // TODO
@@ -45,13 +46,13 @@ const app = new Hono()
   .use('/assets/*', serveStatic({ root: isProd ? `${distFolder}/` : './' })) // path must end with '/'
   .get('/sum', async (c) => {
     const engine = engineInjector.get(EngineService);
-    const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    // const lang = (getCookie(c, 'lang') as Language) || defaultLang;
     const sid = getCookie(c, 'sid');
     if (sid) {
       const code = await engine.load(sid);
       // TODO engine.save
       if (0 !== code) {
-        c.status(code >= 200 ? code : 500);
+        c.status((code >= 200 ? code : 500) as StatusCode);
         return c.html(`<h1>Ouch, Error: ${code}</h1>`);
       }
       // TODO engine.update&save()
@@ -67,7 +68,7 @@ if (isProd) {
   const index = await html();
   const game = new GameRenderer();
   app.get('/*', (c) => {
-    const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
     return c.html(game.render(engineInjector, index, 'Production Phlame', lang));
   });
 } else {
@@ -75,7 +76,7 @@ if (isProd) {
 
   app.get('/*', async (c) => {
     const engine = engineInjector.get(EngineService);
-    const lang = (getCookie(c, 'lang') as Language) || defaultLang;
+    const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
     await sessionHelper(engine, c);
     const index = await html();
     return c.html(game.render(engineInjector, index, 'Dev Phlame', lang));
