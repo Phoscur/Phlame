@@ -1,6 +1,6 @@
 import { injectable, inject, Injector } from '@joist/di';
 import { Zeit, Zeitgeber } from './app/signals/zeitgeber';
-import { Debug } from './app/debug.element';
+import { ConsoleDebug, Debug } from './app/debug.element';
 import { DataService, NanoID } from './data.server';
 import {
   BuildingIdentifier,
@@ -16,14 +16,33 @@ type SID = NanoID;
 export interface Session {
   sid: SID;
   empire: EmpireEntity;
-};
+}
 export interface PersistedSession {
   sid: SID;
   zeit: Zeit;
   empire: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
-};
+}
 @injectable
 export class EngineService {
+  static providers = [
+    {
+      provide: Debug,
+      /* eslint-disable */
+      factory(i: Injector) {
+        return {
+          log(t: any, ...args: any[]) {
+            // WIP cut timestamps a bit - should take advantage of i.parent access for decoration here probably (ConsoleDebug)
+            if (typeof t === 'number') {
+              console.log(t / 10000, ...args);
+              return;
+            }
+            console.log(t, ...args);
+          },
+        };
+      },
+      /* eslint-enable */
+    },
+  ];
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
   #persistence = inject(DataService);
@@ -31,7 +50,6 @@ export class EngineService {
 
   get time(): Zeit {
     const { tick, time } = this.#zeit();
-    this.#logger().log('Tick', tick, time);
     return {
       tick,
       time,
@@ -43,14 +61,17 @@ export class EngineService {
   }
 
   async start() {
+    const logger = this.#logger();
     const zeit = this.#zeit();
     const persistence = this.#persistence();
     const firstStart = await persistence.init();
     const z = await persistence.loadZeit();
     zeit.start(z.time, z.tick);
-    this.#logger().log('Start', z, zeit.tick, zeit.time);
+    logger.log(zeit.time, 'Start', z.tick, '->', zeit.tick, `(${zeit.tick - z.tick})`);
     if (firstStart) {
-      await persistence.saveZeit(this.time);
+      const t = this.time;
+      await persistence.saveZeit(t);
+      logger.log(t.time, 'Zeit saved, tick:', t.tick);
     }
     return this;
   }
@@ -60,6 +81,7 @@ export class EngineService {
    * @returns error code
    */
   async load(sid: string): Promise<number> {
+    const logger = this.#logger();
     const zeit = this.#zeit();
     const persistence = this.#persistence();
     try {
@@ -68,10 +90,10 @@ export class EngineService {
         zeit: { time, tick },
         empire,
       } = session;
-      console.log('Current', zeit.tick, 'at  ', zeit.time);
       // Actually Session(User) Empire & MainPlanet could share an ID, then it could be ommitted for log readability?
-      console.log('Loading', tick, 'from', time, sid); //, empire.id, empire.entities[0]?.id);
-      console.log('Created', zeit.tick - tick, 'ticks ago.');
+      logger.log('Loading session:', sid, empire.id); //, empire.entities[0]?.id);
+      logger.log(time, 'Loading tick:', tick, `(${zeit.tick - tick})`);
+      logger.log(zeit.time, 'Current tick:', zeit.tick);
       /* if (tick && tick !== zeit.tick) {
         zeit.stop();
         // TODO catch up ticks with actions
@@ -83,8 +105,8 @@ export class EngineService {
       /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     } catch (e: any) {
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
-      this.#logger().log('Error loading session', sid, e?.code, e);
-      /* eslint-disable-next-line @typescript-eslint/no-unsafe-return *//* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
+      logger.log('Error loading session', sid, e?.code, e);
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */ /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
       return e?.code ?? 1;
     }
   }
@@ -103,11 +125,13 @@ export class EngineService {
 
   async saveSession(session: Session) {
     const persistence = this.#persistence();
+    const { time: zeit } = this;
     await persistence.saveSession({
       sid: session.sid,
-      zeit: this.time,
+      zeit,
       empire: session.empire.toJSON(),
     });
+    this.#logger().log(zeit.time, 'Saved session:', session.sid);
   }
 
   createSession(sid: string, eid: string, pid: string, tick?: number): Session {
@@ -120,7 +144,7 @@ export class EngineService {
 }
 
 export async function startup(): Promise<Injector> {
-  const injector = new Injector();
+  const injector = new Injector([{ provide: Debug, use: ConsoleDebug }]);
   const engine = injector.get(EngineService);
   await engine.start();
   return injector;
