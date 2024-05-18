@@ -9,6 +9,7 @@ export class Debug {
 
 export class ConsoleDebug extends Debug {
   log(...values: any[]) {
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument */
     console.log(...values);
   }
 }
