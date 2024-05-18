@@ -8,7 +8,7 @@ import playwright from 'eslint-plugin-playwright'
 
 export default tseslint.config(
   { ignores: ["playwright-report/*", "assets/*", "dist/*"]},
-  eslint.configs.recommended, /* eslint-disable-line @typescript-eslint/no-unsafe-argument */
+  eslint.configs.recommended, /* eslint-disable-line @typescript-eslint/no-unsafe-argument *//* eslint-disable-line @typescript-eslint/no-unsafe-member-access */
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   ...tseslint.configs.strictTypeChecked,
@@ -24,9 +24,6 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/no-confusing-void-expression': 'off',
-      
-        '@typescript-eslint/no-unsafe-call': 'off',
-        '@typescript-eslint/no-unsafe-member-access': 'off',
 
     },
   },

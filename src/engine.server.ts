@@ -81,8 +81,9 @@ export class EngineService {
 
       return 0;
     } catch (e: any) {
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
       this.#logger().log('Error loading session', sid, e?.code, e);
-      /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-return *//* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
       return e?.code ?? 1;
     }
   }

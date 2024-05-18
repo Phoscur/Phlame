@@ -48,7 +48,9 @@ export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
     // copy, and bypass int32|0 parsing (would be Infinity|0 = 0)
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
     const inf = Object.create(this);
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     inf.type = this.type;
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     inf.amount = Energy.MAX_VALUE;
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return inf;
