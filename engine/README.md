@@ -56,6 +56,10 @@ For naming additional Entities and/or ValueObjects:
 
 - servers should be able to interact, peer to peer?
   need always-on address services... can we (ab)use github for all of this?
-  α - every repo for is its own can be an alpha universe
-  Ω - omega universe allows all kinds of (possibly cheated before played) worlds and empires as long as they stay compatible at the core
-  β & γ - beta and gamma universes can be more serious or distantly forked
+  - α - every repo for is its own can be an alpha universe
+  - Ω - omega universe allows all kinds of (possibly cheated before played) worlds and empires as long as they stay compatible at the core
+  - β & γ - beta and gamma universes can be more serious or distantly forked
+
+#
+
+Copyright (C) 2020 Phoscur <phoscur@pheelgood.net>
