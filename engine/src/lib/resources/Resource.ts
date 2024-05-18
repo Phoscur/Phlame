@@ -88,6 +88,7 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
 
   get infinite(): Resource<Type> {
     // copy, and bypass in32|0 parsing (would be Infinity|0 = 0)
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
     const inf = Object.create(this);
     inf.type = this.type;
     inf.amount = Number.POSITIVE_INFINITY;
