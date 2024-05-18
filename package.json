@@ -43,6 +43,7 @@
     "typescript-eslint": "^7.9.0",
     "vite": "^5.2.11",
     "vite-plugin-dts": "^3.9.1",
+    "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0"
   },
   "dependencies": {
@@ -53,5 +54,8 @@
     "htmx.org": "^1.9.12",
     "nanoid": "^5.0.7",
     "signal-polyfill": "^0.1.1"
+  },
+  "overrides": {
+    "eslint": "^9.3.0"
   }
 }

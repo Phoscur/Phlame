@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import devServer from '@hono/vite-dev-server';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   root: __dirname,
@@ -19,6 +20,7 @@ export default defineConfig({
   },
 
   plugins: [
+    tsconfigPaths(),
     tailwindcss(),
     devServer({
       entry: 'src/server.ts',
