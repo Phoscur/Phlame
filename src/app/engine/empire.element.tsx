@@ -13,10 +13,11 @@ export class EmpireElement extends HTMLElement {
 
     try {
       const id = this.attributes.getNamedItem('id')?.value ?? 'Unknown Empire';
-      const entities = this.attributes.getNamedItem('entities')?.value ?? '[]';
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
+      const entities = JSON.parse(this.attributes.getNamedItem('entities')?.value ?? '[]');
       logger.log(`Empire[${id}] initializing...`, entities);
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
-      engine.setupFromJSON({ id, entities: JSON.parse(entities) });
+      engine.setupFromJSON({ id, entities });
     } catch (ex) {
       console.error(ex);
     }
@@ -25,6 +26,8 @@ export class EmpireElement extends HTMLElement {
 
 @injectable
 export class PhlameElement extends HTMLElement {
+  static providers = [{ provide: EconomyService, use: EconomyService }]; // force a new instance for each element
+
   #logger = inject(Debug);
   #service = inject(EconomyService);
 

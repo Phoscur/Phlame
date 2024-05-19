@@ -1,5 +1,5 @@
 import { inject, injectable } from '@joist/di';
-import { Economy, type EmpireJSON, Entity, Phlame, type ID } from '@phlame/engine';
+import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable } from '@phlame/engine';
 import { Empire } from '@phlame/engine';
 import { type BuildingIdentifier, defaultBuildings, emptyStock } from './buildings';
 import type { ResourceIdentifier } from './resources';
@@ -67,19 +67,23 @@ export class EmpireService {
   }
 }
 
+export type ProductionTable = ResourceTable<ResourceIdentifier>;
 @injectable
 export class EconomyService {
   #empire = inject(EmpireService);
 
-  #current = emptyPlanet('presetPhlame');
+  #phlame = emptyPlanet('presetPhlame');
+
   get current() {
-    return this.#current;
+    return this.#phlame;
+  }
+
+  get production(): ProductionTable {
+    return this.current.productionTable;
   }
 
   setup(id: ID) {
     const service = this.#empire();
-    this.#current = service.getEntity(id);
+    this.#phlame = service.getEntity(id);
   }
 }
-
-// export class GameService {}

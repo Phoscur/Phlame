@@ -5,7 +5,7 @@ import { GameContextElement } from './app/game.element';
 import { EmpireElement, PhlameElement } from './app/engine/empire.element';
 import { ClockElement, PercentElement, TickElement, ZeitContextElement } from './app/tick';
 import { PlanetElement } from './app/planet.element';
-import { EnergyElement, ResourceElement, ResourcesElement } from './app/resources.element';
+import { ResourceElement, ResourcesElement } from './app/resources.element';
 import { LanguageSelectDropdownElement } from './app/language.dropdown.element';
 
 customElements.define('debug-ctx', DebugCtx);
@@ -20,7 +20,6 @@ customElements.define('app-percent', PercentElement);
 customElements.define('ph-tick', TickElement);
 customElements.define('ph-planet', PlanetElement);
 customElements.define('ph-resource', ResourceElement);
-customElements.define('ph-energy', EnergyElement);
 customElements.define('ph-resources', ResourcesElement);
 
 htmx.on('htmx:load', (e: Event) => {

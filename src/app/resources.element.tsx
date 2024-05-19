@@ -1,10 +1,11 @@
 import { inject, injectable } from '@joist/di';
 import { raw } from 'hono/html';
-import { I18n, defaultLang, useTranslations } from './i18n';
+import { I18n } from './i18n';
+import { TranslationProvider } from './app.element';
+import { Debug } from './debug.element';
 import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.svg';
-import { ResourceIdentifier } from './engine';
+import { EconomyService, ProductionTable, ResourceIdentifier } from './engine';
 import { Zeitgeber } from './signals/zeitgeber';
-import { ResourceTable } from '@phlame/engine';
 
 function abbreviateAmount(t: I18n, amount: number): string {
   // TODO shorten amount in kilos: e.g.: k, m, K, M
@@ -19,6 +20,7 @@ export const resourceMetallicToJSX = (t: I18n, amount: number, rate: number) => 
     >
       <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
       <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-rate hidden">{rate}</span>
     </span>
   </>
 );
@@ -30,6 +32,7 @@ export const resourceCrystallineToJSX = (t: I18n, amount: number, rate: number) 
     >
       <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
       <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-rate hidden">{rate}</span>
     </span>
   </>
 );
@@ -37,10 +40,11 @@ export const resourceBubblesToJSX = (t: I18n, amount: number, rate: number) => (
   <>
     <span
       class="w-20 bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
+      shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
     >
       <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
       <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-rate hidden">{rate}</span>
     </span>
   </>
 );
@@ -68,9 +72,7 @@ export const resourceRenderMap: Record<
   null: () => <>Null</>,
 } as const;
 
-type Resource = keyof typeof resourceRenderMap;
-
-export const resourcesToJSX = (t: I18n, productionTable: ResourceTable<ResourceIdentifier>) => (
+export const resourcesToJSX = (t: I18n, productionTable: ProductionTable) => (
   <>
     <div class="flex">
       {/*JSON.stringify(productionTable)*/}
@@ -90,83 +92,77 @@ export const resourcesToJSX = (t: I18n, productionTable: ResourceTable<ResourceI
 @injectable
 export class ResourceElement extends HTMLElement {
   public static observedAttributes = ['type', 'amount', 'rate', 'min', 'max'];
-  private intervalId: number | undefined;
+  #i18n = inject(TranslationProvider);
 
-  connectedCallback() {
-    const t = useTranslations(defaultLang);
-
-    let amount = Number(this.attributes.getNamedItem('amount')?.value);
-    const rate = Number(this.attributes.getNamedItem('rate')?.value);
-    const min = Number(this.attributes.getNamedItem('min')?.value) || 0;
-    const max = Number(this.attributes.getNamedItem('max')?.value) || Infinity;
-    // const kind = (this.attributes.getNamedItem('type')?.value || 'metallic') as Resource;
-
-    //this.render(t, kind, amount, rate);
-    // TODO listen for attribute changes instead
-
-    const el = this.getElementsByClassName('resource-amount')[0] as HTMLElement | undefined;
-
-    if (!el) return; // energy does not get updates
-
-    this.intervalId = window.setInterval(() => {
-      amount += rate;
-      // console.log(kind, amount, rate, this.getElementsByClassName('resource-amount'));
-      if (amount >= max) {
-        amount = max;
-        window.clearInterval(this.intervalId);
-      }
-      if (amount <= min) {
-        amount = min;
-        window.clearInterval(this.intervalId);
-      }
-      el.innerHTML = abbreviateAmount(t, amount);
-      // avoid expensive this.render(t, kind, amount, rate);
-    }, 1000);
+  get amountElement(): Element {
+    return (
+      this.getElementsByClassName('resource-amount')[0] ??
+      this.getElementsByClassName('energy-limit')[0]
+    );
   }
 
-  disconnectedCallback() {
-    window.clearInterval(this.intervalId);
+  get rateElement(): Element {
+    return (
+      this.getElementsByClassName('resource-rate')[0] ??
+      this.getElementsByClassName('energy-rate')[0]
+    );
   }
 
-  render(t: I18n, kind: Resource, amount: number, rate: number) {
-    const html = resourceRenderMap[kind](t, amount, rate);
-    // this.innerHTML = raw(html);
-    console.log('RTM', kind, amount, rate, raw(html));
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if ('amount' === name) {
+      this.amountElement.innerHTML = abbreviateAmount(this.#i18n().translate, Number(newValue));
+    }
+    if ('rate' === name) {
+      this.rateElement.innerHTML = abbreviateAmount(this.#i18n().translate, Number(newValue));
+    }
   }
 }
 
-export class EnergyElement extends HTMLElement {
-  public static observedAttributes = ['type', 'amount', 'total'];
-
-  connectedCallback() {
-    const t = useTranslations(defaultLang);
-    const amount = Number(this.attributes.getNamedItem('amount')?.value);
-    const total = Number(this.attributes.getNamedItem('total')?.value);
-    const kind = (this.attributes.getNamedItem('type')?.value ?? 'energy') as Resource;
-    this.render(t, kind, amount, total);
-  }
-
-  render(t: I18n, kind: Resource, amount: number, rate: number) {
-    console.log('RR', kind, amount, rate);
-    const html = resourceRenderMap[kind](t, amount, rate);
-    this.innerHTML = raw(html);
-  }
-}
-
+@injectable
 export class ResourcesElement extends HTMLElement {
   public static observedAttributes = [];
-  // TODO inject Economy
-  // TODO inject Zeitgeber
-  // #zeit = inject(Zeitgeber);
+  #logger = inject(Debug);
+  //#i18n = inject(TranslationProvider);
+  #zeit = inject(Zeitgeber);
+  #economy = inject(EconomyService);
 
-  /*connectedCallback() {
-    const t = useTranslations(defaultLang);
-    const productionTable = [
-      ['energy', 150, 150],
-      ['iron', 1, 3, 0, Infinity],
-      ['silicon', -1, 3, 0, Infinity],
-    ];
-    const html = resourcesToJSX(t);
-    this.innerHTML = raw(html);
-  }*/
+  get resourcesElements(): HTMLCollection {
+    return this.getElementsByTagName('ph-resource');
+  }
+
+  connectedCallback() {
+    const logger = this.#logger();
+    const zeit = this.#zeit();
+    const eco = this.#economy();
+
+    const c = new zeit.Computed(() => {
+      const { tick } = zeit;
+      eco.current.update(tick);
+      return eco.production;
+    });
+
+    zeit.effect(() => {
+      const production = c.get();
+      logger.log('Res', this.resourcesElements, production);
+      this.update(production);
+    });
+    // TODO clean up on disconnectedCallback
+  }
+
+  update(table: ProductionTable) {
+    for (let i = 0; i < table.length; i++) {
+      const [t, rate, amount, max, min] = table[i];
+      this.setResourceAmount(i, amount);
+    }
+    // TODO (re-)render the other attributes or everything:
+    // this.innerHTML = raw(resourcesToJSX(this.#i18n().translate, table));
+  }
+
+  setResourceAmount(index: number, amount: number) {
+    const el = this.resourcesElements[index];
+    const attr = el.attributes.getNamedItem('amount');
+    if (!attr) return;
+    attr.value = `${amount}`;
+    el.attributes.setNamedItem(attr);
+  }
 }
