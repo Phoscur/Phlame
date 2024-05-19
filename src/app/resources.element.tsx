@@ -125,13 +125,13 @@ export class ResourcesElement extends HTMLElement {
   //#i18n = inject(TranslationProvider);
   #zeit = inject(Zeitgeber);
   #economy = inject(EconomyService);
+  #cleanup = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
 
   get resourcesElements(): HTMLCollection {
     return this.getElementsByTagName('ph-resource');
   }
 
   connectedCallback() {
-    const logger = this.#logger();
     const zeit = this.#zeit();
     const eco = this.#economy();
 
@@ -141,12 +141,16 @@ export class ResourcesElement extends HTMLElement {
       return eco.production;
     });
 
-    zeit.effect(() => {
+    this.#cleanup = zeit.effect(() => {
       const production = c.get();
-      logger.log('Res', this.resourcesElements, production);
+      // this.#logger().log('Resources update:', production);
       this.update(production);
     });
-    // TODO clean up on disconnectedCallback
+  }
+
+  disconnectedCallback() {
+    this.#cleanup();
+    this.#logger().log('ResourcesElement disconnected!');
   }
 
   update(table: ProductionTable) {
