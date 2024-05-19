@@ -29,8 +29,10 @@ function processPending() {
 }
 
 type CleanUp = () => void;
-export function effect(callback: () => undefined | CleanUp): CleanUp {
-  let cleanup: undefined | (() => void);
+/* eslint-disable-next-line @typescript-eslint/no-invalid-void-type */
+export function effect(callback: () => void | CleanUp): CleanUp {
+  /* eslint-disable-next-line @typescript-eslint/no-invalid-void-type */
+  let cleanup: void | (() => void);
 
   const computed = new Signal.Computed(() => {
     typeof cleanup === 'function' && cleanup();

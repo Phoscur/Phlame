@@ -27,7 +27,7 @@ export class Zeitgeber implements Zeit {
   /**
    * Derive a Computed time or tick change-aware Signal
    */
-  public compute = Signal.Computed;
+  public Computed = Signal.Computed;
 
   constructor(
     private currentTick = 0,

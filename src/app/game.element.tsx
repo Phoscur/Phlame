@@ -47,5 +47,6 @@ export class GameContextElement extends HTMLElement {
     logger.log('GameElement connected!', service.current);
     // this is too early, service.current is not ready yet
   }*/
-  // TODO! we'll need to rerender when entities change
+  // TODO! we'll need to rerender when entities change - one entity or more entities at once?
+  // - well, only if the HTMX replace is not enough (just rehydrate...)
 }

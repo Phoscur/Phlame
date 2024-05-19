@@ -121,10 +121,4 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => (
 
 export class PlanetElement extends HTMLElement {
   public static observedAttributes = [];
-
-  /* connectedCallback() {
-    const t = useTranslations(defaultLang);
-    const html = planetToJSX(t);
-    this.innerHTML = raw(html);
-  } */
 }
