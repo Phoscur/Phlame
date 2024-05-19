@@ -50,6 +50,14 @@ const basic = {
   },
   de: {
     'nav.home': 'Übersicht',
+    'resource.unknown': 'Unbekannt',
+    'resource.metallic': 'Metalle',
+    'resource.crystalline': 'Kristalline',
+    'resource.liquid': 'Gas',
+    'resource.energy': 'Energie',
+    'resource.metallic.singular': 'Metall',
+    'resource.crystalline.singular': 'Kristall',
+    'resource.liquid.singular': 'Gas',
   },
 } as const;
 
@@ -58,6 +66,7 @@ type BasicEntry = keyof BasicIndex;
 export type SlottedTranslate = (index: BasicIndex, ...args: BasicEntry[]) => string;
 
 const composite = {
+  // requires the BasicIndex to be fully translated to compose!
   en: {
     'resource.amount': (t: BasicIndex, resource: ResourceEntry = 'resource.unknown', amount = 0) =>
       amount === 1
