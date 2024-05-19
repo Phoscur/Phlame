@@ -24,6 +24,7 @@ describe('Phlame Entity', () => {
     const phlame = new Phlame('Phlame', eco);
     expect(phlame.toJSON()).to.eql({
       id: 'Phlame',
+      tick: 0,
       ...eco.toJSON(),
     });
   });
@@ -71,6 +72,8 @@ describe('Phlame Entity', () => {
     expect(phlame.lastTick).to.eql(1);
   });
 
-  it.todo("should have env properties - e.g. base temperature and amounts of resources to start from");
+  it.todo(
+    'should have env properties - e.g. base temperature and amounts of resources to start from',
+  );
   // idea: use parts of the ID for random data
 });
