@@ -1,5 +1,5 @@
 import { inject, injectable } from '@joist/di';
-import { raw } from 'hono/html';
+import type { FC } from 'hono/jsx';
 import { I18n } from './i18n';
 import { TranslationProvider } from './app.element';
 import { Debug } from './debug.element';
@@ -12,7 +12,13 @@ function abbreviateAmount(t: I18n, amount: number): string {
   return `${amount}`;
 }
 
-export const resourceMetallicToJSX = (t: I18n, amount: number, rate: number) => (
+interface ResourceProps {
+  t: I18n;
+  amount: number;
+  rate: number;
+}
+
+export const resourceMetallicToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
       class="w-20 bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
@@ -24,7 +30,7 @@ export const resourceMetallicToJSX = (t: I18n, amount: number, rate: number) => 
     </span>
   </>
 );
-export const resourceCrystallineToJSX = (t: I18n, amount: number, rate: number) => (
+export const resourceCrystallineToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
       class="w-20 bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
@@ -36,7 +42,7 @@ export const resourceCrystallineToJSX = (t: I18n, amount: number, rate: number) 
     </span>
   </>
 );
-export const resourceBubblesToJSX = (t: I18n, amount: number, rate: number) => (
+export const resourceBubblesToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
       class="w-20 bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
@@ -49,22 +55,22 @@ export const resourceBubblesToJSX = (t: I18n, amount: number, rate: number) => (
   </>
 );
 
-export const resourceEnergyToJSX = (t: I18n, limit: number, rate: number) => (
-  <>
-    <span
-      class="bg-orange-950 text-orange-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+export const resourceEnergyToJSX: FC<ResourceProps> = ({ t, amount, rate }) => {
+  const limit = amount;
+  return (
+    <>
+      <span
+        class="bg-orange-950 text-orange-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
               shadow-sm ring-1 ring-inset ring-orange-500 hover:bg-orange-800"
-    >
-      <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-orange-950" />
-      <span class="energy-rate">{rate}</span>/<span class="energy-limit">{limit}</span>
-    </span>
-  </>
-);
+      >
+        <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-orange-950" />
+        <span class="energy-rate">{rate}</span>/<span class="energy-limit">{limit}</span>
+      </span>
+    </>
+  );
+};
 
-export const resourceRenderMap: Record<
-  ResourceIdentifier,
-  (t: I18n, amount: number, rate: number) => JSX.Element
-> = {
+export const resourceRenderMap: Record<ResourceIdentifier, FC<ResourceProps>> = {
   metallic: resourceMetallicToJSX,
   crystalline: resourceCrystallineToJSX,
   liquid: resourceBubblesToJSX,
@@ -72,7 +78,10 @@ export const resourceRenderMap: Record<
   null: () => <>Null</>,
 } as const;
 
-export const resourcesToJSX = (t: I18n, productionTable: ProductionTable) => (
+export const resourcesToJSX: FC<{ t: I18n; productionTable: ProductionTable }> = ({
+  t,
+  productionTable,
+}) => (
   <>
     <div class="flex">
       {/*JSON.stringify(productionTable)*/}
@@ -80,7 +89,7 @@ export const resourcesToJSX = (t: I18n, productionTable: ProductionTable) => (
         <>
           <span class="ml-2">
             <ph-resource type={type} amount={amount} rate={rate} max={max} min={min}>
-              {resourceRenderMap[type](t, amount, rate)}
+              {resourceRenderMap[type]({ t, amount, rate })}
             </ph-resource>
           </span>
         </>
