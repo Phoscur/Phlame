@@ -10,7 +10,7 @@
     "build-engine": "cd engine && npm run build",
     "lint-engine": "eslint engine/src",
     "build": "vite build",
-    "test": "vitest && cd engine && npx vitest",
+    "test": "vitest run && cd engine && npx vitest run",
     "ci": "vitest --coverage && cd engine && npx vitest --coverage",
     "lint": "eslint src",
     "preview": "tsx src/server",
