@@ -85,6 +85,7 @@ if (isProd) {
 export default app;
 
 if (isProd) {
+  /* eslint-disable-next-line @typescript-eslint/no-misused-spread */
   serve({ ...app, port: 4000 }, (info) => {
     console.log(`Listening on http://localhost:${info.port}`);
   });
