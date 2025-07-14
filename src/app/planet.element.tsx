@@ -40,7 +40,9 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => (
           </div>
         </div>
         <div class="mt-0">
-          <ph-resources>{resourcesToJSX(t, planet.productionTable)}</ph-resources>
+          <ph-resources>
+            {resourcesToJSX({ t, productionTable: planet.productionTable })}
+          </ph-resources>
         </div>
       </div>
       <br class="mb-[200px]" />
