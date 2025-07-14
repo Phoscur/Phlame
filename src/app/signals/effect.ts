@@ -35,7 +35,7 @@ export function effect(callback: () => void | CleanUp): CleanUp {
   let cleanup: void | (() => void);
 
   const computed = new Signal.Computed(() => {
-    typeof cleanup === 'function' && cleanup();
+    if (typeof cleanup === 'function') cleanup();
     cleanup = callback();
   });
 
@@ -44,7 +44,7 @@ export function effect(callback: () => void | CleanUp): CleanUp {
 
   return () => {
     w.unwatch(computed);
-    typeof cleanup === 'function' && cleanup();
+    if (typeof cleanup === 'function') cleanup();
   };
 }
 

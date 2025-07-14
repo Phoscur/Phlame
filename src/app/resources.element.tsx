@@ -94,25 +94,25 @@ export class ResourceElement extends HTMLElement {
   public static observedAttributes = ['type', 'amount', 'rate', 'min', 'max'];
   #i18n = inject(TranslationProvider);
 
-  get amountElement(): Element {
+  get amountElement(): Element | null {
     return (
-      this.getElementsByClassName('resource-amount')[0] ??
-      this.getElementsByClassName('energy-limit')[0]
+      this.getElementsByClassName('resource-amount').item(0) ??
+      this.getElementsByClassName('energy-limit').item(0)
     );
   }
 
-  get rateElement(): Element {
+  get rateElement(): Element | null {
     return (
-      this.getElementsByClassName('resource-rate')[0] ??
-      this.getElementsByClassName('energy-rate')[0]
+      this.getElementsByClassName('resource-rate').item(0) ??
+      this.getElementsByClassName('energy-rate').item(0)
     );
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if ('amount' === name) {
+    if ('amount' === name && this.amountElement) {
       this.amountElement.innerHTML = abbreviateAmount(this.#i18n().translate, Number(newValue));
     }
-    if ('rate' === name) {
+    if ('rate' === name && this.rateElement) {
       this.rateElement.innerHTML = abbreviateAmount(this.#i18n().translate, Number(newValue));
     }
   }
