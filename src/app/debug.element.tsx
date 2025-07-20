@@ -17,8 +17,9 @@ export class ConsoleDebug extends Debug {
 }
 
 @injectable()
-export class DebugCtx {
+export class DebugCtx extends HTMLElement {
   constructor() {
+    super();
     console.log('DEBUG');
   }
 }
