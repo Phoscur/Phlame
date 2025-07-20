@@ -16,9 +16,11 @@ export class ConsoleDebug extends Debug {
   }
 }
 
-@injectable
-export class DebugCtx extends HTMLElement {
-  static providers = [{ provide: Debug, use: ConsoleDebug }];
+@injectable()
+export class DebugCtx {
+  constructor() {
+    console.log('DEBUG');
+  }
 }
 
 // IMPORTANT: needs to be defined *before* other custom elements be recognised as parent
@@ -27,7 +29,7 @@ export class DebugCtx extends HTMLElement {
 /*
 import { injectable, inject } from '@joist/di';
 
-@injectable
+@injectable()
 class MyElement extends HTMLElement {
   #logger = inject(Debugger);
 

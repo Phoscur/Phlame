@@ -15,7 +15,7 @@ export const Tick = () => (
   </>
 );
 
-@injectable
+@injectable()
 export class TickElement extends HTMLElement {
   static observedAttributes = [];
   #logger = inject(Debug);

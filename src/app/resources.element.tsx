@@ -98,7 +98,7 @@ export const resourcesToJSX: FC<{ t: I18n; productionTable: ProductionTable }> =
   </>
 );
 
-@injectable
+@injectable()
 export class ResourceElement extends HTMLElement {
   public static observedAttributes = ['type', 'amount', 'rate', 'min', 'max'];
   #i18n = inject(TranslationProvider);
@@ -127,7 +127,7 @@ export class ResourceElement extends HTMLElement {
   }
 }
 
-@injectable
+@injectable()
 export class ResourcesElement extends HTMLElement {
   public static observedAttributes = [];
   #logger = inject(Debug);

@@ -37,7 +37,7 @@ export class Repository<T extends Entity> {
   }
 }
 
-@injectable
+@injectable()
 export class EmpireService {
   #empires = new Repository<Empire<ResourceIdentifier, BuildingIdentifier>>();
   #entities = new Repository<Phlame<ResourceIdentifier, BuildingIdentifier>>();
@@ -68,7 +68,7 @@ export class EmpireService {
 }
 
 export type ProductionTable = ResourceTable<ResourceIdentifier>;
-@injectable
+@injectable()
 export class EconomyService {
   #empire = inject(EmpireService);
 

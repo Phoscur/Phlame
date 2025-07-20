@@ -20,7 +20,7 @@ import { BuildingFactory, type BuildingIdentifier } from './buildings';
 export type EmpireEntity = Empire<ResourceIdentifier, BuildingIdentifier>;
 export type PhlameEntity = Phlame<ResourceIdentifier, BuildingIdentifier>;
 
-@injectable
+@injectable()
 export class EngineFactory {
   #resource = inject(ResourceFactory);
   #building = inject(BuildingFactory);
