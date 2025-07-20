@@ -22,7 +22,7 @@ export interface PersistedSession {
   zeit: Zeit;
   empire: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
 }
-@injectable
+@injectable()
 export class EngineService {
   static providers = [
     {

@@ -83,7 +83,7 @@ export class TranslationProvider {
     return true;
   }
 }
-@injectable
+@injectable()
 export class AppElement extends HTMLElement {
   static observedAttributes = ['lang'];
   #logger = inject(Debug);

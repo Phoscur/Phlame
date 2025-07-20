@@ -25,7 +25,7 @@ export const Clock = () => (
   </>
 );
 
-@injectable
+@injectable()
 export class ClockElement extends HTMLElement {
   public static observedAttributes = [];
   #logger = inject(Debug);

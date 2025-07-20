@@ -30,7 +30,7 @@ export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, BuildingId
   </>
 );
 
-@injectable
+@injectable()
 export class GameContextElement extends HTMLElement {
   /*#logger = inject(Debug);
   #service = inject(EmpireService);
