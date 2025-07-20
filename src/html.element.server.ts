@@ -1,3 +1,4 @@
+// @ts-expect-error no types & commonjs :|
 import { Element } from 'html-element';
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
