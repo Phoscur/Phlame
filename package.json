@@ -13,6 +13,7 @@
     "test": "vitest run && cd engine && npx vitest run",
     "ci": "vitest --coverage && cd engine && npx vitest --coverage",
     "lint": "eslint src",
+    "tsc": "tsc -p tsconfig.spec.json --noEmit",
     "preview": "tsx src/server",
     "cypress": "cypress open"
   },
