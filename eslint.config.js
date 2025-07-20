@@ -29,6 +29,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 'off', // TODO re-enable!
       '@typescript-eslint/restrict-template-expressions': 'off', // I don't like it
       '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off', // no classes with only a constructor are legit -.-
     },
   },
   {
