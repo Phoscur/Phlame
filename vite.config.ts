@@ -1,6 +1,7 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
+import babel from 'vite-plugin-babel';
 import devServer from '@hono/vite-dev-server';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -34,6 +35,18 @@ export default defineConfig({
         /^\/node_modules\/.*/,
       ],
       injectClientScript: true,
+    }),
+    babel({
+      babelConfig: {
+        presets: [['@babel/preset-typescript', { allowDeclareFields: true }]],
+        plugins: [
+          [
+            '@babel/plugin-proposal-decorators',
+            { version: '2023-05', decoratorsBeforeExport: true },
+          ],
+        ],
+      },
+      filter: /\.tsx?$/,
     }),
   ],
 

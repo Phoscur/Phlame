@@ -144,8 +144,8 @@ export class EngineService {
 }
 
 export async function startup(): Promise<Injector> {
-  const injector = new Injector([{ provide: Debug, use: ConsoleDebug }]);
-  const engine = injector.get(EngineService);
+  const injector = new Injector({ providers: [[Debug, { use: ConsoleDebug }]] });
+  const engine = injector.inject(EngineService);
   await engine.start();
   return injector;
 }

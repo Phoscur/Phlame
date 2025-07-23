@@ -128,4 +128,4 @@ Decided against this approach and GraphQL usage, because of the additional compl
 
 #
 
-Copyright (C) 2020 Phoscur <phoscur@pheelgood.net>
+Copyright (C) 2020 Phoscur <phoscur@pheelgood.net> AGPLv3

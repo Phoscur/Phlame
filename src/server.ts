@@ -45,7 +45,7 @@ async function sessionHelper(engine: EngineService, ctx: Context) {
 const app = new Hono()
   .use('/assets/*', serveStatic({ root: isProd ? `${distFolder}/` : './' })) // path must end with '/'
   .get('/sum', async (c) => {
-    const engine = engineInjector.get(EngineService);
+    const engine = engineInjector.inject(EngineService);
     // const lang = (getCookie(c, 'lang') as Language) || defaultLang;
     const sid = getCookie(c, 'sid');
     if (sid) {
@@ -75,7 +75,7 @@ if (isProd) {
   const game = new GameRenderer();
 
   app.get('/*', async (c) => {
-    const engine = engineInjector.get(EngineService);
+    const engine = engineInjector.inject(EngineService);
     const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
     await sessionHelper(engine, c);
     const index = await html();
