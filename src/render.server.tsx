@@ -25,7 +25,7 @@ export class GameRenderer {
   render(i: Injector, htmlFrame: string, title: string, lang: Language): string {
     const t = useTranslations(lang);
 
-    const engine = i.get(EngineService);
+    const engine = i.inject(EngineService);
     const zeit = engine.time;
     const empire = engine.empire;
     // TODO? empire.update(zeit.tick)
