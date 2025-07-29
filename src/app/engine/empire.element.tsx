@@ -24,10 +24,8 @@ export class EmpireElement extends HTMLElement {
   }
 }
 
-@injectable()
+@injectable({ providers: [[EconomyService, { use: EconomyService }]] }) // force a new instance for each element, economy service is not reusable
 export class PhlameElement extends HTMLElement {
-  static providers = [{ provide: EconomyService, use: EconomyService }]; // force a new instance for each element
-
   #logger = inject(Debug);
   #service = inject(EconomyService);
 
