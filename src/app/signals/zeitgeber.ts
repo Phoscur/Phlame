@@ -123,6 +123,7 @@ export class Zeitgeber implements Zeit {
   stop() {
     if (this.timeoutId) {
       this.clearTimeout(this.timeoutId);
+      this.timeoutId = undefined;
     }
   }
 }
