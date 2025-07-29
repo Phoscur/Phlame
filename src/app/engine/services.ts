@@ -73,6 +73,7 @@ export class EconomyService {
   #empire = inject(EmpireService);
 
   #phlame = emptyPlanet('presetPhlame');
+  #setup = false;
 
   get current() {
     return this.#phlame;
@@ -83,7 +84,12 @@ export class EconomyService {
   }
 
   setup(id: ID) {
+    if (this.#setup) {
+      throw new Error(`EconomyService can only be setup once, ${id} needs a new one`);
+      // use e.g. @injectable({ providers: [[EconomyService, { use: EconomyService }]] })
+    }
     const service = this.#empire();
     this.#phlame = service.getEntity(id);
+    this.#setup = true;
   }
 }

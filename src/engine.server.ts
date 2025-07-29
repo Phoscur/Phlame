@@ -22,27 +22,30 @@ export interface PersistedSession {
   zeit: Zeit;
   empire: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
 }
-@injectable()
-export class EngineService {
-  static providers = [
-    {
-      provide: Debug,
-      /* eslint-disable */
-      factory(i: Injector) {
-        return {
-          log(t: any, ...args: any[]) {
-            // WIP cut timestamps a bit - should take advantage of i.parent access for decoration here probably (ConsoleDebug)
-            if (typeof t === 'number') {
-              console.log(t / 10000, ...args);
-              return;
-            }
-            console.log(t, ...args);
-          },
-        };
+@injectable({
+  providers: [
+    [
+      Debug,
+      {
+        /* eslint-disable */
+        factory(i: Injector) {
+          return {
+            log(t: any, ...args: any[]) {
+              // WIP cut timestamps a bit - should take advantage of i.parent access for decoration here probably (ConsoleDebug)
+              if (typeof t === 'number') {
+                console.log(t / 10000, ...args);
+                return;
+              }
+              console.log(t, ...args);
+            },
+          };
+        },
+        /* eslint-enable */
       },
-      /* eslint-enable */
-    },
-  ];
+    ],
+  ],
+})
+export class EngineService {
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
   #persistence = inject(DataService);
