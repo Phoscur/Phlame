@@ -17,8 +17,17 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: npx playwright test
+
+      - name: Run server and tests
+        run: |
+          # Install concurrently to run both server and tests
+          npm install -D concurrently wait-on
+
+          # Start server and wait for it to be ready, then run tests
+          npx concurrently -k -s first -n SERVER,TESTS \
+            "npm run start" \
+            "wait-on http://localhost:4200 && npx playwright test"
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
