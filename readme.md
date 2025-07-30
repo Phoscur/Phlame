@@ -96,7 +96,7 @@ Don't think just because there are `.tsx` files in this repo, that we have React
 
 - the new alpha is nice and simplistic, but not beginner friendly, as it's ecosystem and dark mode are not ready
 - when first using a new generated utility class, live reload does not catch it and one needs to manually refresh again
-- css counter transitions with css --vars (which don't work yet in Firefox)
+- css counter transitions with css --vars (which don't work yet in Firefox, edit 2025, they now also work in Firefox :D)
 
 #### Wishlist
 
