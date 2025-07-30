@@ -42,27 +42,19 @@ export class DataService {
     await writeFile(fileName, JSON.stringify(data));
   }
 
+  // TODO? would be great to have zod
   async loadZeit(): Promise<Zeit> {
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
-    const json = await this.load(ZEIT_FILE);
-    if (!json) {
-      return zeroTime;
-    }
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
-    return json;
+    return this.load(ZEIT_FILE).catch(() => zeroTime) as Promise<Zeit>;
   }
-
+  // TODO? would be great to have zod
   async loadSession(sid: NanoID): Promise<PersistedSession> {
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
-    return this.load(sessionFile(sid));
+    return this.load(sessionFile(sid)) as Promise<PersistedSession>;
   }
 
   /**
    * @throws NotFoundError|SessionCorruptError
-   * @param fileName
-   * @returns {PersistedSession}
    */
-  async load(fileName: string) {
+  async load(fileName: string): Promise<object> {
     if (!(await this.exists(fileName))) {
       throw new NotFoundError(`Not found: ${fileName}`);
     }
