@@ -94,7 +94,7 @@ export class EngineService {
         empire,
       } = session;
       // Actually Session(User) Empire & MainPlanet could share an ID, then it could be ommitted for log readability?
-      logger.log('Loading session:', sid, empire.id); //, empire.entities[0]?.id);
+      logger.log('Loading session:', sid, '- Empire:', empire.id); //, empire.entities[0]?.id);
       logger.log(time, 'Loading tick:', tick, `(${zeit.tick - tick})`);
       logger.log(zeit.time, 'Current tick:', zeit.tick);
       /* if (tick && tick !== zeit.tick) {

@@ -15,7 +15,7 @@
     "lint": "eslint src",
     "tsc": "tsc -p tsconfig.spec.json --noEmit",
     "preview": "tsx src/server",
-    "cypress": "cypress open"
+    "e2e": "playwright test"
   },
   "private": true,
   "resolutions": {},
