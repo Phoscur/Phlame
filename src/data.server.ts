@@ -7,12 +7,6 @@ import { PersistedSession } from './engine.server';
 const NANOID_ALPHABET = '123456789ABCDFGHJKLMNQRSTVWXYZ'; // 3M IDs 1% - check collision chances https://zelark.github.io/nano-id-cc/
 const nanoid = customAlphabet(NANOID_ALPHABET, 8);
 
-const FOLDER = './data';
-const ZEIT_FILE = join(FOLDER, 'zeit.json');
-const sessionFile = (sid: string) => join(FOLDER, `${sid}.json`);
-
-const zeroTime: Zeit = { time: 0, tick: 0 };
-
 class NotFoundError extends Error {
   public readonly code = 404;
 }
@@ -24,31 +18,56 @@ class SessionCorruptError extends Error {
  * Basic Data Persistence (File)
  * TODO? use an ORM or at least sqlite?
  */
-export class DataService {
+export class Data {
+  static FOLDER = './data';
+  static zeroTime: Zeit = { time: 0, tick: 0 };
+
+  get zeitFile() {
+    return join(Data.FOLDER, 'zeit.json');
+  }
+
+  sessionFileNameByID(sid: string) {
+    return join(Data.FOLDER, 'session', `${this.environment}-${sid}.json`);
+  }
+
+  constructor(public environment: string) {}
+
+  async init(env: string) {
+    this.environment = env;
+    if (!(await this.exists(Data.FOLDER))) {
+      await mkdir(Data.FOLDER);
+      return true;
+    }
+    if (!(await this.exists(join(Data.FOLDER, 'session')))) {
+      await mkdir(join(Data.FOLDER, 'session'));
+      return true;
+    }
+    return false;
+  }
+
   async saveZeit(zeit: Zeit) {
-    await this.save(ZEIT_FILE, zeit);
+    await this.save(this.zeitFile, zeit);
   }
 
   async saveSession(session: PersistedSession) {
-    await this.save(sessionFile(session.sid), session);
+    await this.save(this.sessionFileNameByID(session.sid), session);
   }
 
   async sessionExists(sid: NanoID) {
-    return this.exists(sessionFile(sid));
+    return this.exists(this.sessionFileNameByID(sid));
   }
 
   async save(fileName: string, data: object) {
-    console.log('Saving', fileName, data);
-    await writeFile(fileName, JSON.stringify(data));
+    await writeFile(fileName, JSON.stringify(data, null, 2));
   }
 
-  // TODO? would be great to have zod
   async loadZeit(): Promise<Zeit> {
-    return this.load(ZEIT_FILE).catch(() => zeroTime) as Promise<Zeit>;
+    // TODO? would be great to have zod
+    return this.load(this.zeitFile).catch(() => Data.zeroTime) as Promise<Zeit>;
   }
-  // TODO? would be great to have zod
   async loadSession(sid: NanoID): Promise<PersistedSession> {
-    return this.load(sessionFile(sid)) as Promise<PersistedSession>;
+    // TODO? would be great to have zod
+    return this.load(this.sessionFileNameByID(sid)) as Promise<PersistedSession>;
   }
 
   /**
@@ -66,14 +85,6 @@ export class DataService {
     } catch (e: any) {
       throw new SessionCorruptError(`Session corrupt: ${fileName} - ${e}`);
     }
-  }
-
-  async init() {
-    if (!(await this.exists(FOLDER))) {
-      await mkdir(FOLDER);
-      return true;
-    }
-    return false;
   }
 
   generateID() {
