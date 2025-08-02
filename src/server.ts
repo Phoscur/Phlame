@@ -9,7 +9,8 @@ import { GameRenderer } from './render.server';
 import { EngineService, startup } from './engine.server';
 import { StatusCode } from 'hono/utils/http-status';
 
-const isProd = process.env.NODE_ENV === 'production';
+const environment = process.env.NODE_ENV ?? 'dev';
+const isProd = environment.startsWith('prod');
 const distFolder = process.env.BUILD_DIR ?? 'dist/phlame';
 const html = async () => await readFile(isProd ? `${distFolder}/index.html` : 'index.html', 'utf8');
 
@@ -18,7 +19,7 @@ const html = async () => await readFile(isProd ? `${distFolder}/index.html` : 'i
 // - connect htmx-ws
 
 // start Zeitgeber: Game Tick Loop
-const engineInjector = await startup();
+const engineInjector = await startup(environment);
 
 // TODO? session middleware app.use('/*')
 async function sessionHelper(engine: EngineService, ctx: Context) {
@@ -66,20 +67,20 @@ createRoutes(app);
 
 if (isProd) {
   const index = await html();
-  const game = new GameRenderer();
+  const game = new GameRenderer(environment);
   app.get('/*', (c) => {
     const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
-    return c.html(game.render(engineInjector, index, 'Production Phlame', lang));
+    return c.html(game.render(engineInjector, index, `Phlame [${game.environment}]`, lang));
   });
 } else {
-  const game = new GameRenderer();
+  const game = new GameRenderer(environment);
 
   app.get('/*', async (c) => {
     const engine = engineInjector.inject(EngineService);
     const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
     await sessionHelper(engine, c);
     const index = await html();
-    return c.html(game.render(engineInjector, index, 'Dev Phlame', lang));
+    return c.html(game.render(engineInjector, index, `Phlame [${game.environment}]`, lang));
   });
 }
 export default app;

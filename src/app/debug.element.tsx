@@ -16,13 +16,8 @@ export class ConsoleDebug extends Debug {
   }
 }
 
-@injectable()
-export class DebugCtx extends HTMLElement {
-  constructor() {
-    super();
-    console.log('DEBUG');
-  }
-}
+@injectable({ providers: [[Debug, { use: ConsoleDebug }]] })
+export class DebugCtx extends HTMLElement {}
 
 // IMPORTANT: needs to be defined *before* other custom elements be recognised as parent
 // customElements.define('debug-ctx', DebugCtx);

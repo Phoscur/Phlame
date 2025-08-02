@@ -1,20 +1,15 @@
 import { raw } from 'hono/html';
-import { appToJSX } from './app/app.element';
-import { defaultLang, I18n, Language, useTranslations } from './app/i18n';
+import type { FC } from 'hono/jsx';
+import { App, AppProps } from './app/app.element';
+import { Language, useTranslations } from './app/i18n';
 import { EngineService } from './engine.server';
 import { Injector } from '@joist/di';
-import { EmpireEntity } from './app/engine';
 
-const AppRoot = (
-  t: I18n,
-  title: string,
-  empire: EmpireEntity,
-  tick: number,
-  time = Date.now(),
-  language: Language = defaultLang,
-) => (
+const AppRoot: FC<AppProps> = ({ t, title, empire, tick, time, language, environment }) => (
   <>
-    <app-root lang={language}>{appToJSX(t, title, empire, tick, time, language)}</app-root>
+    <app-root lang={language}>
+      {App({ t, title, empire, tick, time, language, environment })}
+    </app-root>
   </>
 );
 
@@ -22,15 +17,17 @@ export class GameRenderer {
   static TITLE_PLACEHOLDER = '<!-- inject title here -->';
   static APP_ROOT_PLACEHOLDER = '<!--inject app-root here -->';
 
-  render(i: Injector, htmlFrame: string, title: string, lang: Language): string {
-    const t = useTranslations(lang);
+  constructor(public readonly environment: string) {}
+
+  render(i: Injector, htmlFrame: string, title: string, language: Language): string {
+    const t = useTranslations(language);
 
     const engine = i.inject(EngineService);
-    const zeit = engine.time;
+    const { time, tick } = engine.time;
     const empire = engine.empire;
     // TODO? empire.update(zeit.tick)
     for (const entity of empire.entities) {
-      entity.update(zeit.tick);
+      entity.update(tick);
     }
     // console.log('Render', zeit.tick, empire.toString());
 
@@ -38,7 +35,7 @@ export class GameRenderer {
       .replace(GameRenderer.TITLE_PLACEHOLDER, title)
       .replace(
         GameRenderer.APP_ROOT_PLACEHOLDER,
-        raw(AppRoot(t, title, empire, zeit.tick, zeit.time, lang)),
+        raw(AppRoot({ t, title, empire, tick, time, language, environment: this.environment })),
       );
   }
 }

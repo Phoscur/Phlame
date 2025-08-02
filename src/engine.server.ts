@@ -1,7 +1,8 @@
 import { injectable, inject, Injector } from '@joist/di';
+import type { EmpireJSON } from '@phlame/engine';
 import { Zeit, Zeitgeber } from './app/signals/zeitgeber';
 import { ConsoleDebug, Debug } from './app/debug.element';
-import { DataService, NanoID } from './data.server';
+import { Data, NanoID } from './data.server';
 import {
   BuildingIdentifier,
   EmpireEntity,
@@ -9,7 +10,6 @@ import {
   emptyEmpire,
   ResourceIdentifier,
 } from './app/engine';
-import { EmpireJSON } from '@phlame/engine';
 
 type SID = NanoID;
 
@@ -48,7 +48,7 @@ export interface PersistedSession {
 export class EngineService {
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
-  #persistence = inject(DataService);
+  #persistence = inject(Data);
   #empire = inject(EmpireService);
 
   get time(): Zeit {
@@ -63,14 +63,14 @@ export class EngineService {
     return this.#empire().current;
   }
 
-  async start() {
+  async start(environment: string) {
     const logger = this.#logger();
     const zeit = this.#zeit();
     const persistence = this.#persistence();
-    const firstStart = await persistence.init();
+    const firstStart = await persistence.init(environment);
     const z = await persistence.loadZeit();
     zeit.start(z.time, z.tick);
-    logger.log(zeit.time, 'Start', z.tick, '->', zeit.tick, `(${zeit.tick - z.tick})`);
+    logger.log(zeit.time, 'Start', z.tick, '->', zeit.tick, `(${zeit.tick - z.tick} o.d.)`);
     if (firstStart) {
       const t = this.time;
       await persistence.saveZeit(t);
@@ -95,7 +95,7 @@ export class EngineService {
       } = session;
       // Actually Session(User) Empire & MainPlanet could share an ID, then it could be ommitted for log readability?
       logger.log('Loading session:', sid, '- Empire:', empire.id); //, empire.entities[0]?.id);
-      logger.log(time, 'Loading tick:', tick, `(${zeit.tick - tick})`);
+      logger.log(time, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
       logger.log(zeit.time, 'Current tick:', zeit.tick);
       /* if (tick && tick !== zeit.tick) {
         zeit.stop();
@@ -146,9 +146,9 @@ export class EngineService {
   }
 }
 
-export async function startup(): Promise<Injector> {
+export async function startup(environment: string): Promise<Injector> {
   const injector = new Injector({ providers: [[Debug, { use: ConsoleDebug }]] });
   const engine = injector.inject(EngineService);
-  await engine.start();
+  await engine.start(environment);
   return injector;
 }
