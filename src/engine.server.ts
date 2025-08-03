@@ -27,10 +27,9 @@ export interface PersistedSession {
     [
       Debug,
       {
-        /* eslint-disable */
         factory(i: Injector) {
           return {
-            log(t: any, ...args: any[]) {
+            log(t: unknown, ...args: unknown[]) {
               // WIP cut timestamps a bit - should take advantage of i.parent access for decoration here probably (ConsoleDebug)
               if (typeof t === 'number') {
                 console.log(t / 10000, ...args);
@@ -40,7 +39,6 @@ export interface PersistedSession {
             },
           };
         },
-        /* eslint-enable */
       },
     ],
   ],
@@ -93,8 +91,7 @@ export class EngineService {
         zeit: { time, tick },
         empire,
       } = session;
-      // Actually Session(User) Empire & MainPlanet could share an ID, then it could be ommitted for log readability?
-      logger.log('Loading session:', sid, '- Empire:', empire.id); //, empire.entities[0]?.id);
+      logger.log('Loading session:', sid);
       logger.log(time, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
       logger.log(zeit.time, 'Current tick:', zeit.tick);
       /* if (tick && tick !== zeit.tick) {
@@ -118,9 +115,7 @@ export class EngineService {
     const zeit = this.#zeit();
     const persistence = this.#persistence();
     const sid = persistence.generateID();
-    const eid = persistence.generateID();
-    const pid = persistence.generateID();
-    const session = this.createSession(sid, eid, pid, zeit.tick);
+    const session = this.createSession(sid, sid, sid, zeit.tick);
     await this.saveSession(session);
     this.#empire().setup(session.empire);
     return session;
