@@ -105,9 +105,7 @@ export class Zeitgeber implements Zeit {
   }
 
   start(time?: number, tick?: number) {
-    if (this.running) {
-      throw new Error('Stop Zeitgeber before restarting it!');
-    }
+    this.stop();
     if (typeof time !== 'undefined') {
       this.currentTime = time;
       this.zeitgeist.iteration.set(time);
