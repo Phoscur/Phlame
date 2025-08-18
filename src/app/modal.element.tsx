@@ -10,28 +10,26 @@ export class ModalElement extends HTMLElement {
   #i18n = inject(TranslationProvider);
 
   get modal(): HTMLElement {
-    return this.shadowRoot!.querySelector('.modal')!;
+    return this.querySelector('.modal')!;
   }
   get backdrop(): HTMLElement {
-    return this.shadowRoot!.querySelector('.backdrop')!;
+    return this.querySelector('.backdrop')!;
   }
 
   connectedCallback() {
-    const shadow = this.render();
+    this.render();
 
-    shadow
-      .querySelector('slot[name=button]')!
-      .addEventListener('click', (e) => this.open(e as MouseEvent));
+    this.querySelector('.open-modal')!.addEventListener('click', (e) => this.open(e as MouseEvent));
 
     this.backdrop.addEventListener('click', (e) => {
       if (e.target === e.currentTarget) this._fire('cancel', { reason: 'backdrop' });
     });
 
-    shadow.querySelector('.submit')!.addEventListener('click', () => {
+    this.querySelector('.submit')!.addEventListener('click', () => {
       this._fire('submit', { confirmed: true });
     });
 
-    shadow.querySelector('.cancel')!.addEventListener('click', () => {
+    this.querySelector('.cancel')!.addEventListener('click', () => {
       this._fire('cancel', { reason: 'button' });
     });
 
@@ -44,17 +42,15 @@ export class ModalElement extends HTMLElement {
   render() {
     const t = this.#i18n().translate;
 
-    const shadow = this.attachShadow({ mode: 'open' });
-    shadow.innerHTML = `
-      <slot name="button">
-        <div>ConfirmModal Button</div>
-      </slot>
-      <div class="backdrop hidden fixed top-0 left-0 w-full h-full bg-black/50 flex justify-center items-center">
+    const text = this.getAttribute('text');
+    const description = this.getAttribute('description');
+
+    this.innerHTML = `
+      <button class="open-modal w-full h-full">${text}</button>
+      <div class="backdrop hidden fixed top-0 left-0 w-full h-full bg-black/50 justify-center items-center">
         <div class="modal bg-slate-900 text-grey-300 p-5 rounded shadow-md w-auto max-w-sm">
-          <slot name="header">
-            <h3>Modal Heading</h3>
-          </slot>
-          <slot>Modal Body</slot>
+          <h3>${text}</h3>
+          <p>${description}</p>
           <div class="actions flex justify-end mt-5">
             <button class="submit ml-2">${t('app.confirm')}</button>
             <button class="cancel ml-2">${t('app.cancel')}</button>
@@ -62,8 +58,6 @@ export class ModalElement extends HTMLElement {
         </div>
       </div>
     `;
-
-    return shadow;
   }
 
   _fire(type: 'submit' | 'cancel', detail: unknown) {
@@ -79,8 +73,7 @@ export class ModalElement extends HTMLElement {
     this.setAttribute('open', '');
 
     if (!event) return;
-    const backdrop = this.backdrop;
-    const modal = this.modal;
+    const { backdrop, modal } = this;
 
     backdrop.classList.remove('justify-center', 'items-center');
     modal.style.position = 'absolute';
@@ -97,8 +90,7 @@ export class ModalElement extends HTMLElement {
     this.removeAttribute('open');
 
     // Reset styles for next open
-    const backdrop = this.backdrop;
-    const modal = this.modal;
+    const { backdrop, modal } = this;
     backdrop.classList.add('justify-center', 'items-center');
     modal.style.position = '';
     modal.style.top = '';

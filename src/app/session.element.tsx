@@ -40,13 +40,13 @@ export function SessionDropdown({ t, logout }: { t: I18n; logout: () => void }) 
       <div id="dropdown" class="hidden z-10 rounded-lg shadow-gray-100 bg-gray-700">
         <ul class="py-2 text-sm" aria-labelledby="sessionDropdown">
           <li class="flex">
-            <app-modal name="logout" onSubmit={logout} class="w-full py-2 hover:bg-gray-600">
-              <button slot="button" data-value="logout" class="w-full">
-                {t('app.logout')}
-              </button>
-              <h3 slot="header">{t('app.logout')}</h3>
-              {t('app.logout')}
-            </app-modal>
+            <app-modal
+              text={t('app.logout')}
+              description={t('app.logout')}
+              name="logout"
+              onSubmit={logout}
+              class="w-full hover:bg-gray-600"
+            />
           </li>
         </ul>
       </div>
