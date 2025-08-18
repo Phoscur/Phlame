@@ -8,12 +8,43 @@ import { EconomyService, ProductionTable, ResourceIdentifier } from './engine';
 import { Zeitgeber } from './signals/zeitgeber';
 
 function abbreviateAmount(t: I18n, amount: number, rate: number): string {
-  // TODO shorten amount in kilos: e.g.: k, m, K, M
-  if (amount > 1000000) {
-    const m = (amount / 1000000) | 0;
-    return `${m}M ${amount % 1000}`;
+  const floor = (num: number, digits = 0) => {
+    const factor = Math.pow(10, digits);
+    return Math.floor(num * factor) / factor;
+  };
+
+  if (amount < 10000) {
+    return String(floor(amount));
   }
-  return `${amount}`;
+
+  const absAmount = Math.abs(amount);
+  const absRate = Math.abs(rate);
+
+  let decimals = 1;
+  if (absRate > 0) {
+    // Calculate how many decimal places are needed to see the rate change
+    const divisor = absAmount >= 1e9 ? 1e9 : absAmount >= 1e6 ? 1e6 : 1e3;
+    const scaledRate = absRate / divisor;
+    if (scaledRate > 0) {
+      // Add 1 to the result of log10 to ensure visibility of the change
+      decimals = Math.max(decimals, Math.ceil(-Math.log10(scaledRate)) + 1);
+    }
+  }
+  // Cap decimals to a reasonable number
+  decimals = Math.min(decimals, 5);
+
+  if (amount < 1000000) {
+    decimals = Math.min(decimals, 3); // Cap for thousands
+    const value = floor(amount / 1000, decimals);
+    return value.toFixed(decimals) + 'k';
+  }
+  if (amount < 1000000000) {
+    const value = floor(amount / 1000000, decimals);
+    return value.toFixed(decimals) + 'M';
+  }
+
+  const value = floor(amount / 1000000000, decimals);
+  return value.toFixed(decimals) + 'G';
 }
 
 interface ResourceProps {
@@ -123,10 +154,15 @@ export class ResourceElement extends HTMLElement {
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if ('amount' === name && this.amountElement) {
-      this.amountElement.innerHTML = abbreviateAmount(this.#i18n().translate, Number(newValue));
+      const rate = Number(this.getAttribute('rate') ?? '0');
+      this.amountElement.innerHTML = abbreviateAmount(
+        this.#i18n().translate,
+        Number(newValue),
+        rate,
+      );
     }
     if ('rate' === name && this.rateElement) {
-      this.rateElement.innerHTML = abbreviateAmount(this.#i18n().translate, Number(newValue));
+      this.rateElement.innerHTML = Number(newValue).toLocaleString();
     }
   }
 }
