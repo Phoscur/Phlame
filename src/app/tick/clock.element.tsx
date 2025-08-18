@@ -39,8 +39,7 @@ export class ClockElement extends HTMLElement {
     this.#logger().log('Clock connected!', time);
   }
 
-  // does not require updates/effects - relies on css transitions only (does not work in Firefox for now)
-  // TODO? use effect only for Firefox
+  // does not require updates/effects - relies on css transitions only
 }
 
 // inspired by https://dev.to/madsstoumann/clocks-countdowns-timing-in-css-and-javascript-554n
