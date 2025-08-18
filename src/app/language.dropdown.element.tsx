@@ -1,52 +1,61 @@
+import { raw } from 'hono/html';
 import { I18n, Language, languages } from './i18n';
+import { inject, injectable } from '@joist/di';
+import { TranslationProvider } from './app.element';
 
-export const languageSelectToJSX = (t: I18n, lang: Language) => (
-  <>
-    <button
-      id="languageSelect"
-      data-dropdown-toggle="dropdown"
-      class="w-30 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
-      type="button"
-    >
-      {languages[lang]}{' '}
-      <svg
-        class="w-2.5 h-2.5 ms-3"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 10 6"
+export function LanguageSelect({ t, lang }: { t: I18n; lang: Language }) {
+  return (
+    <>
+      <button
+        id="languageSelect"
+        data-dropdown-toggle="dropdown"
+        class="w-30 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
+        type="button"
       >
-        <path
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="m1 1 4 4 4-4"
-        />
-      </svg>
-    </button>
+        {languages[lang]}{' '}
+        <svg
+          class="w-2.5 h-2.5 ms-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 10 6"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 4 4 4-4"
+          />
+        </svg>
+      </button>
 
-    <div id="dropdown" class="hidden z-10 rounded-lg shadow-gray-100 bg-gray-700">
-      <ul class="py-2 text-sm" aria-labelledby="languageSelect">
-        {Object.keys(languages)
-          .filter((l) => l !== lang)
-          .map((l) => (
-            <>
-              <li class="flex">
-                <button class="w-full py-2 hover:bg-gray-600" data-value={l}>
-                  {languages[l as Language]}
-                </button>
-              </li>
-            </>
-          ))}
-      </ul>
-    </div>
-  </>
-);
+      <div id="dropdown" class="hidden z-10 rounded-lg shadow-gray-100 bg-gray-700">
+        <ul class="py-2 text-sm" aria-labelledby="languageSelect">
+          {Object.keys(languages)
+            .filter((l) => l !== lang)
+            .map((l) => (
+              <>
+                <li class="flex">
+                  <button class="w-full py-2 hover:bg-gray-600" data-value={l}>
+                    {languages[l as Language]}
+                  </button>
+                </li>
+              </>
+            ))}
+        </ul>
+      </div>
+    </>
+  );
+}
 // dropdown code derived from https://flowbite.com/docs/components/dropdowns/
 
+@injectable()
 export class LanguageSelectDropdownElement extends HTMLElement {
+  #i18n = inject(TranslationProvider);
   connectedCallback() {
+    const lang = this.getAttribute('language') as Language;
+    this.innerHTML = raw(LanguageSelect({ t: this.#i18n().translate, lang }));
     const button = this.firstElementChild as HTMLButtonElement;
     const dropdown = this.lastElementChild as HTMLDivElement;
     button.onclick = () =>
