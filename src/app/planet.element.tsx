@@ -1,5 +1,4 @@
-import { raw } from 'hono/html';
-import { I18n, defaultLang, useTranslations } from './i18n';
+import { I18n } from './i18n';
 import {
   BubblesIcon,
   CrystallineIcon,

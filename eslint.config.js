@@ -26,8 +26,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      'no-unused-vars': 'off', // TODO re-enable!
-      '@typescript-eslint/no-unused-vars': 'off', // TODO re-enable!
+      '@typescript-eslint/no-unused-vars': 'off', // we prefix those with an underscore and oxlint is okay with that
       '@typescript-eslint/restrict-template-expressions': 'off', // I don't like it
       '@typescript-eslint/no-confusing-void-expression': 'off',
       '@typescript-eslint/no-extraneous-class': 'off', // no classes with only a constructor are legit -.-

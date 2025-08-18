@@ -27,7 +27,7 @@ export interface PersistedSession {
     [
       Debug,
       {
-        factory(i: Injector) {
+        factory(_i: Injector) {
           return {
             log(t: unknown, ...args: unknown[]) {
               // WIP cut timestamps a bit - should take advantage of i.parent access for decoration here probably (ConsoleDebug)

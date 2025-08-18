@@ -1,9 +1,7 @@
 import { raw } from 'hono/html';
-import { I18n, Language, languages } from './i18n';
-import { inject, injectable } from '@joist/di';
-import { TranslationProvider } from './app.element';
+import { Language, languages } from './i18n';
 
-export function LanguageSelect({ t, lang }: { t: I18n; lang: Language }) {
+export function LanguageSelect({ currentLanguage }: { currentLanguage: Language }) {
   return (
     <>
       <button
@@ -12,7 +10,7 @@ export function LanguageSelect({ t, lang }: { t: I18n; lang: Language }) {
         class="w-30 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
         type="button"
       >
-        {languages[lang]}{' '}
+        {languages[currentLanguage]}{' '}
         <svg
           class="w-2.5 h-2.5 ms-3"
           aria-hidden="true"
@@ -33,7 +31,7 @@ export function LanguageSelect({ t, lang }: { t: I18n; lang: Language }) {
       <div id="dropdown" class="hidden z-10 rounded-lg shadow-gray-100 bg-gray-700">
         <ul class="py-2 text-sm" aria-labelledby="languageSelect">
           {Object.keys(languages)
-            .filter((l) => l !== lang)
+            .filter((l) => l !== currentLanguage)
             .map((l) => (
               <>
                 <li class="flex">
@@ -50,12 +48,10 @@ export function LanguageSelect({ t, lang }: { t: I18n; lang: Language }) {
 }
 // dropdown code derived from https://flowbite.com/docs/components/dropdowns/
 
-@injectable()
 export class LanguageSelectDropdownElement extends HTMLElement {
-  #i18n = inject(TranslationProvider);
   connectedCallback() {
-    const lang = this.getAttribute('language') as Language;
-    this.innerHTML = raw(LanguageSelect({ t: this.#i18n().translate, lang }));
+    const currentLanguage = this.getAttribute('language') as Language;
+    this.innerHTML = raw(LanguageSelect({ currentLanguage }));
     const button = this.firstElementChild as HTMLButtonElement;
     const dropdown = this.lastElementChild as HTMLDivElement;
     button.onclick = () =>

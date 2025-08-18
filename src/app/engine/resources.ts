@@ -93,7 +93,7 @@ export type ResourceType = MetallicResource | CrystallineResource | BaseResource
 export type EnergyType = EnergyResource;
 
 export const resources = {
-  null: (amount: number) => Resource.Null,
+  null: (_: number) => Resource.Null,
   [ResourceTypes.Metallic]: (amount: number) => new MetallicResource(amount),
   [ResourceTypes.Crystalline]: (amount: number) => new CrystallineResource(amount),
   [ResourceTypes.Liquid]: (amount: number) => new LiquidResource(amount),
