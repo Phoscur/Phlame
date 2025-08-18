@@ -8,6 +8,8 @@ import { ClockElement, PercentElement, TickElement, ZeitContextElement } from '.
 import { PlanetElement } from './app/planet.element';
 import { ResourceElement, ResourcesElement } from './app/resources.element';
 import { LanguageSelectDropdownElement } from './app/language.dropdown.element';
+import { ModalElement } from './app/modal.element';
+import { SessionDropdownElement } from './app/session.element';
 
 const app = new DOMInjector({ providers: [[Debug, { use: ConsoleDebug }]] });
 
@@ -20,8 +22,10 @@ customElements.define('game-ctx', GameContextElement);
 customElements.define('empire-ctx', EmpireElement);
 customElements.define('ph-ctx', PhlameElement);
 customElements.define('app-i18n-select', LanguageSelectDropdownElement);
+customElements.define('app-session', SessionDropdownElement);
 customElements.define('app-clock', ClockElement);
 customElements.define('app-percent', PercentElement);
+customElements.define('app-modal', ModalElement);
 customElements.define('ph-tick', TickElement);
 customElements.define('ph-planet', PlanetElement);
 customElements.define('ph-resource', ResourceElement);

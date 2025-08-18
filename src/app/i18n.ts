@@ -37,6 +37,10 @@ export type BuildingEntry = keyof typeof buildings;
 
 const basic = {
   en: {
+    'app.confirm': 'Confirm',
+    'app.cancel': 'Cancel',
+    'app.session': 'Session',
+    'app.logout': 'Logout',
     'nav.home': 'Home',
     'nav.planet': 'Planet',
     ...resources,
@@ -49,6 +53,10 @@ const basic = {
     'building.action.destroy': 'Destroy',
   },
   de: {
+    'app.confirm': 'Bestätigen',
+    'app.cancel': 'Abbrechen',
+    'app.session': 'Session',
+    'app.logout': 'Ausloggen',
     'nav.home': 'Übersicht',
     'resource.unknown': 'Unbekannt',
     'resource.metallic': 'Metalle',
