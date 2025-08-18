@@ -7,7 +7,7 @@ import playwright from 'eslint-plugin-playwright';
 
 export default tseslint.config(
   { ignores: ['playwright-report/*', 'assets/*', 'dist/*'] },
-  /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument */ /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
+
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
@@ -26,6 +26,7 @@ export default tseslint.config(
       },
     },
     rules: {
+      'no-unused-vars': 'off', // TODO re-enable!
       '@typescript-eslint/no-unused-vars': 'off', // TODO re-enable!
       '@typescript-eslint/restrict-template-expressions': 'off', // I don't like it
       '@typescript-eslint/no-confusing-void-expression': 'off',
@@ -33,7 +34,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.spec.ts', '**/vite.config.ts'], // or any other pattern
+    files: ['**/*.element.tsx'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off', // use with care (for querySelector)
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/vite.config.ts'],
     plugins: {
       vitest,
     },
