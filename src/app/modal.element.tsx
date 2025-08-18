@@ -1,8 +1,5 @@
 import { inject, injectable } from '@joist/di';
-import { raw } from 'hono/html';
 import { TranslationProvider } from './app.element';
-
-// with help of ChatGPT5
 
 @injectable()
 export class ModalElement extends HTMLElement {

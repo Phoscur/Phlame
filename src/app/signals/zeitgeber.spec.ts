@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { Signal } from 'signal-polyfill';
 import { Zeitgeber } from './zeitgeber';
 import { effect } from './effect';

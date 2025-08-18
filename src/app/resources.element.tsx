@@ -90,7 +90,7 @@ export const resourceBubblesToJSX: FC<ResourceProps> = ({ t, amount, rate }) => 
   </>
 );
 
-export const resourceEnergyToJSX: FC<ResourceProps> = ({ t, amount, rate }) => {
+export const resourceEnergyToJSX: FC<ResourceProps> = ({ amount, rate }) => {
   const limit = amount;
   return (
     <>
@@ -152,7 +152,7 @@ export class ResourceElement extends HTMLElement {
     );
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
     if ('amount' === name && this.amountElement) {
       const rate = Number(this.getAttribute('rate') ?? '0');
       this.amountElement.innerHTML = abbreviateAmount(
@@ -204,7 +204,7 @@ export class ResourcesElement extends HTMLElement {
 
   update(table: ProductionTable) {
     for (let i = 0; i < table.length; i++) {
-      const [t, rate, amount, max, min] = table[i];
+      const [_t, _rate, amount, _max, _min] = table[i];
       this.setResourceAmount(i, amount);
     }
     // TODO (re-)render the other attributes or everything:

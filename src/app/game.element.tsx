@@ -1,13 +1,12 @@
-import { injectable, inject } from '@joist/di';
-import { Debug } from './debug.element';
-import { defaultLang, I18n, useTranslations } from './i18n';
+//import { injectable, inject } from '@joist/di';
+//import { Debug } from './debug.element';
+import { I18n } from './i18n';
 import { ResourceIdentifier } from './engine/resources';
 import { BuildingIdentifier } from './engine/buildings';
 import { Empire } from '@phlame/engine';
-import { raw } from 'hono/html';
-import { EmpireService } from './engine/services';
+//import { raw } from 'hono/html';
+//import { EmpireService } from './engine/services';
 import { planetToJSX } from './planet.element';
-// TODO clean up imports
 
 export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, BuildingIdentifier>) => (
   <>
@@ -30,10 +29,10 @@ export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, BuildingId
   </>
 );
 
-@injectable()
+//@injectable()
 export class GameContextElement extends HTMLElement {
-  /*#logger = inject(Debug);
-  #service = inject(EmpireService);
+  //#logger = inject(Debug);
+  /*#service = inject(EmpireService);
 
   connectedCallback() {
     const logger = this.#logger();
