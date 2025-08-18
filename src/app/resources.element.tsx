@@ -7,8 +7,12 @@ import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.
 import { EconomyService, ProductionTable, ResourceIdentifier } from './engine';
 import { Zeitgeber } from './signals/zeitgeber';
 
-function abbreviateAmount(t: I18n, amount: number): string {
+function abbreviateAmount(t: I18n, amount: number, rate: number): string {
   // TODO shorten amount in kilos: e.g.: k, m, K, M
+  if (amount > 1000000) {
+    const m = (amount / 1000000) | 0;
+    return `${m}M ${amount % 1000}`;
+  }
   return `${amount}`;
 }
 
@@ -25,7 +29,7 @@ export const resourceMetallicToJSX: FC<ResourceProps> = ({ t, amount, rate }) =>
               shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500 tracking-tight"
     >
       <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
-      <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-amount font-mono">{abbreviateAmount(t, amount, rate)}</span>
       <span class="resource-rate hidden">{rate}</span>
     </span>
   </>
@@ -37,7 +41,7 @@ export const resourceCrystallineToJSX: FC<ResourceProps> = ({ t, amount, rate })
               shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800 tracking-wide"
     >
       <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
-      <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-amount font-mono">{abbreviateAmount(t, amount, rate)}</span>
       <span class="resource-rate hidden">{rate}</span>
     </span>
   </>
@@ -49,7 +53,7 @@ export const resourceBubblesToJSX: FC<ResourceProps> = ({ t, amount, rate }) => 
       shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
     >
       <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
-      <span class="resource-amount font-mono">{abbreviateAmount(t, amount)}</span>
+      <span class="resource-amount font-mono">{abbreviateAmount(t, amount, rate)}</span>
       <span class="resource-rate hidden">{rate}</span>
     </span>
   </>
