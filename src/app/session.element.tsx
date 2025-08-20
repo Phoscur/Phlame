@@ -2,11 +2,15 @@ import { render } from 'hono/jsx/dom';
 import { injectable, inject } from '@joist/di';
 import { I18n } from './i18n';
 import { TranslationProvider } from './app.element';
+import { Debug } from './debug.element';
 
-function logout() {
+/**
+ * Remove cookies, disconnecting the session
+ */
+function logout(reload = false) {
   ['sid', 'empire'].forEach((name) => {
-    //document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    console.log('cleared cookie:', name);
+    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    if (reload) location.reload();
   });
 }
 
@@ -57,6 +61,8 @@ export function SessionDropdown({ t, logout }: { t: I18n; logout: () => void }) 
 @injectable()
 export class SessionDropdownElement extends HTMLElement {
   #i18n = inject(TranslationProvider);
+  logger = inject(Debug);
+
   connectedCallback() {
     render(
       SessionDropdown({
@@ -72,11 +78,11 @@ export class SessionDropdownElement extends HTMLElement {
         ? dropdown.classList.remove('hidden')
         : dropdown.classList.add('hidden');
     const selects = dropdown.getElementsByTagName('button');
-    console.log('SessionDropdown connected!', this, selects);
+    this.logger().log('SessionDropdown connected!', this, selects);
   }
 
   logout() {
-    console.log('logout!');
+    this.logger().log('Session logging out');
     logout();
   }
 }
