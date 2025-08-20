@@ -101,7 +101,9 @@ export class AppElement extends HTMLElement {
   #empire = inject(EmpireService);
 
   get environment() {
-    return this.getElementsByTagName('h1')[0].attributes.getNamedItem('environment')?.value ?? '';
+    // well it's not unnecessary for testing
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    return this.getElementsByTagName('h1')[0]?.attributes.getNamedItem('environment')?.value ?? '';
   }
 
   connectedCallback() {

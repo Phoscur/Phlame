@@ -14,8 +14,10 @@ describe('AppElement', () => {
 
   it('should rerender switching languages', () => {
     app.attributeChangedCallback('lang', undefined as unknown as string, 'en');
-    app.attributeChangedCallback('lang', 'en', 'de');
+    // actually don't have anything in innerHTML yet...
+    // expect(app.querySelector('h1')!.innerHTML).toContain('Home');
 
+    app.attributeChangedCallback('lang', 'en', 'de');
     expect(app.querySelector('h1')!.innerHTML).toContain('Übersicht');
   });
 });
