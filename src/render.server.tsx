@@ -26,9 +26,9 @@ export class GameRenderer {
     const { time, tick } = engine.time;
     const empire = engine.empire;
     // TODO? empire.update(zeit.tick)
-    for (const entity of empire.entities) {
+    /* for (const entity of empire.entities) {
       entity.update(tick);
-    }
+    } */
     // console.log('Render', zeit.tick, empire.toString());
 
     return htmlFrame

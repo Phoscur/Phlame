@@ -17,6 +17,7 @@ export class Zeitgeber implements Zeit {
     tick: Signal.State<number>;
     time: Signal.State<number>;
     iteration: Signal.State<number>;
+    hold: Signal.State<number>;
   };
   private timeoutId?: number;
 
@@ -42,6 +43,7 @@ export class Zeitgeber implements Zeit {
       tick: new Signal.State(currentTick),
       time: new Signal.State(currentTime),
       iteration: new Signal.State(currentTime),
+      hold: new Signal.State(0),
     };
   }
 
@@ -64,6 +66,13 @@ export class Zeitgeber implements Zeit {
    */
   get iteration(): number {
     return this.zeitgeist.iteration.get();
+  }
+
+  /**
+   * Current Tick - on hold! (Signal)
+   */
+  get holdingTick(): number {
+    return this.zeitgeist.hold.get();
   }
 
   /**
@@ -106,6 +115,7 @@ export class Zeitgeber implements Zeit {
 
   start(time?: number, tick?: number) {
     this.stop();
+    this.zeitgeist.hold.set(0);
     if (typeof time !== 'undefined') {
       this.currentTime = time;
       this.zeitgeist.iteration.set(time);
@@ -116,6 +126,13 @@ export class Zeitgeber implements Zeit {
       this.zeitgeist.tick.set(tick);
     }
     this.timeloop();
+  }
+
+  hold(tick: number) {
+    this.stop();
+    // don't override actual tick or time: this.currentTick = tick;
+    this.zeitgeist.tick.set(tick);
+    this.zeitgeist.hold.set(tick);
   }
 
   stop() {

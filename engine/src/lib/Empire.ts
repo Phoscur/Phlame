@@ -9,14 +9,17 @@ export interface EmpireJSON<
 > {
   id: ID;
   entities: PhlameJSON<ResourceType, BuildingType>[];
-};
+}
 
 export class Empire<
   ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
 > implements Entity
 {
-  constructor(public id: ID, public entities: Phlame<ResourceType, BuildingType>[]) {}
+  constructor(
+    public id: ID,
+    public entities: Phlame<ResourceType, BuildingType>[],
+  ) {}
 
   toString(): string {
     return `${this.id} [${this.entities.join(', ')}]`;
@@ -27,5 +30,11 @@ export class Empire<
       id: this.id,
       entities: this.entities.map((e) => e.toJSON()),
     };
+  }
+
+  get lastTick() {
+    return this.entities.reduce((maxTick, p) => {
+      return p.lastTick > maxTick ? p.lastTick : maxTick;
+    }, 0);
   }
 }
