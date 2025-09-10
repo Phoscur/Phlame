@@ -41,6 +41,8 @@ const basic = {
     'app.cancel': 'Cancel',
     'app.session': 'Session',
     'app.logout': 'Logout',
+    'app.logout.description':
+      'Logging out will disconnect the session. Currently there is no way to reconnect it!',
     'nav.home': 'Home',
     'nav.planet': 'Planet',
     ...resources,
@@ -57,6 +59,8 @@ const basic = {
     'app.cancel': 'Abbrechen',
     'app.session': 'Session',
     'app.logout': 'Ausloggen',
+    'app.logout.description':
+      'Session verlassen. Derzeit gibt es keinen Weg sich wieder zu verbinden!',
     'nav.home': 'Übersicht',
     'resource.unknown': 'Unbekannt',
     'resource.metallic': 'Metalle',
@@ -127,6 +131,10 @@ export function useTranslations(lang: Language = defaultLang): I18n {
     // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     if (FALLBACK_LANGUAGE && !f) {
       f = (index[FALLBACK_LANGUAGE] as TranslationIndex)[key];
+    }
+    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
+    if (!f) {
+      throw new Error('Missing ' + lang + ' translation for: ' + key);
     }
     if (typeof f === 'string') {
       return f;

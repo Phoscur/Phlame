@@ -10,7 +10,7 @@ import { Debug } from './debug.element';
 function logout(reload = false) {
   ['sid', 'empire'].forEach((name) => {
     document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    if (reload) location.reload();
+    if (reload) window.location.reload();
   });
 }
 
@@ -46,7 +46,7 @@ export function SessionDropdown({ t, logout }: { t: I18n; logout: () => void }) 
           <li class="flex">
             <app-modal
               text={t('app.logout')}
-              description={t('app.logout')}
+              description={t('app.logout.description')}
               name="logout"
               onSubmit={logout}
               class="w-full hover:bg-gray-600"
