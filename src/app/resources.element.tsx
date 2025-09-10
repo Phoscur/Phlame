@@ -7,6 +7,10 @@ import { BubblesIcon, CrystallineIcon, EnergyIcon, MetallicIcon } from './icons.
 import { EconomyService, ProductionTable, ResourceIdentifier } from './engine';
 import { Zeitgeber } from './signals/zeitgeber';
 
+/**
+ * Meaningfully shorten the display of big resource amounts
+ * thank you Gemini
+ */
 function abbreviateAmount(t: I18n, amount: number, rate: number): string {
   const floor = (num: number, digits = 0) => {
     const factor = Math.pow(10, digits);
@@ -36,7 +40,7 @@ function abbreviateAmount(t: I18n, amount: number, rate: number): string {
   if (amount < 1000000) {
     decimals = Math.min(decimals, 3); // Cap for thousands
     const value = floor(amount / 1000, decimals);
-    return value.toFixed(decimals) + 'k';
+    return value.toFixed(decimals) + 'K';
   }
   if (amount < 1000000000) {
     const value = floor(amount / 1000000, decimals);
@@ -56,7 +60,7 @@ interface ResourceProps {
 export const resourceMetallicToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
-      class="w-20 bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+      class="min-w-16 bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
               shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500 tracking-tight"
     >
       <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
@@ -68,7 +72,7 @@ export const resourceMetallicToJSX: FC<ResourceProps> = ({ t, amount, rate }) =>
 export const resourceCrystallineToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
-      class="w-20 bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+      class="min-w-16 bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
               shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800 tracking-wide"
     >
       <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
@@ -80,7 +84,7 @@ export const resourceCrystallineToJSX: FC<ResourceProps> = ({ t, amount, rate })
 export const resourceBubblesToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
-      class="w-20 bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+      class="min-w-16 bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
       shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
     >
       <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
@@ -113,17 +117,22 @@ export const resourceRenderMap: Record<ResourceIdentifier, FC<ResourceProps>> = 
   null: () => <>Null</>,
 } as const;
 
-export const resourcesToJSX: FC<{ t: I18n; productionTable: ProductionTable }> = ({
-  t,
-  productionTable,
-}) => (
+export const resourcesToJSX: FC<{ t: I18n; productionTable: ProductionTable }> = (
+  { t, productionTable }, // TODO! more or less width per screensize? w-*
+) => (
   <>
-    <div class="flex">
-      {/*JSON.stringify(productionTable)*/}
+    <div class="w-64 flex flex-wrap justify-end">
       {productionTable.map(([type, rate, amount, max, min]) => (
         <>
-          <span class="ml-2">
-            <ph-resource type={type} amount={amount} rate={rate} max={max} min={min}>
+          <span class="ml-2 mb-2">
+            <ph-resource
+              type={type}
+              amount={amount}
+              rate={rate}
+              max={max}
+              min={min}
+              class="min-w-32"
+            >
               {resourceRenderMap[type]({ t, amount, rate })}
             </ph-resource>
           </span>
@@ -185,14 +194,16 @@ export class ResourcesElement extends HTMLElement {
     const eco = this.#economy();
 
     const c = new zeit.Computed(() => {
+      //if (zeit.holdingTick) return eco.production;
       const { tick } = zeit;
       eco.current.update(tick);
       return eco.production;
     });
 
     this.#cleanup = zeit.effect(() => {
+      //if (zeit.holdingTick) return;
       const production = c.get();
-      // this.#logger().log('Resources update:', production);
+      this.#logger().log('Resources update:', production);
       this.update(production);
     });
   }
