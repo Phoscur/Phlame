@@ -39,9 +39,11 @@ export class Repository<T extends Entity> {
 
 @injectable()
 export class EmpireService {
+  #engine = inject(EngineFactory);
+
   #empires = new Repository<Empire<ResourceIdentifier, BuildingIdentifier>>();
   #entities = new Repository<Phlame<ResourceIdentifier, BuildingIdentifier>>();
-  #engine = inject(EngineFactory);
+  #jsonBackup?: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
 
   #current = emptyEmpire('Preset', 'defaultPhlame');
   get current() {
@@ -53,9 +55,15 @@ export class EmpireService {
   }
 
   setupFromJSON(json: EmpireJSON<ResourceIdentifier, BuildingIdentifier>) {
+    this.#jsonBackup = json;
     const factory = this.#engine();
     const empire = factory.createEmpire(json);
-    this.setup(empire);
+    return this.setup(empire);
+  }
+
+  restoreFromBackup() {
+    if (!this.#jsonBackup) throw new Error('Missing JSON Empire Backup');
+    return this.setupFromJSON(this.#jsonBackup);
   }
 
   setup(empire: EmpireEntity) {
@@ -64,6 +72,7 @@ export class EmpireService {
     this.#current = empire;
     this.#empires.add([this.#current]);
     this.#entities.add(empire.entities);
+    return this;
   }
 }
 

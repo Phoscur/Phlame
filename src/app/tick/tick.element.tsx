@@ -24,7 +24,6 @@ export class TickElement extends HTMLElement {
 
   connectedCallback() {
     const zeit = this.#zeit();
-    const logger = this.#logger();
 
     const html = Tick();
     this.innerHTML = raw(html);
@@ -38,12 +37,10 @@ export class TickElement extends HTMLElement {
       const passed = zeit.passed;
       //percent.setAttribute('value', `${passed <= 0.01 ? 0.1 : passed}`); // rather show 10 than 0
       percent.setAttribute('value', `${passed}`);
-      //logger.log('ITER', zeit.iteration);
     });
     const destroyTick = zeit.effect(() => {
       content.style.setProperty('--tick', `${zeit.tick}`);
       content.innerHTML = `[${zeit.tick}]`;
-      logger.log('TICK', zeit.tick);
     });
     this.#cleanup = () => {
       destroyPassed();

@@ -4,7 +4,13 @@ import { AppElement } from './app/app.element';
 import { ConsoleDebug, Debug, DebugCtx } from './app/debug.element';
 import { GameContextElement } from './app/game.element';
 import { EmpireElement, PhlameElement } from './app/engine/empire.element';
-import { ClockElement, PercentElement, TickElement, ZeitContextElement } from './app/tick';
+import {
+  ClockElement,
+  PercentElement,
+  TickElement,
+  TickSliderElement,
+  ZeitContextElement,
+} from './app/tick';
 import { PlanetElement } from './app/planet.element';
 import { ResourceElement, ResourcesElement } from './app/resources.element';
 import { LanguageSelectDropdownElement } from './app/language.dropdown.element';
@@ -27,6 +33,7 @@ customElements.define('app-clock', ClockElement);
 customElements.define('app-percent', PercentElement);
 customElements.define('app-modal', ModalElement);
 customElements.define('ph-tick', TickElement);
+customElements.define('ph-tick-slider', TickSliderElement);
 customElements.define('ph-planet', PlanetElement);
 customElements.define('ph-resource', ResourceElement);
 customElements.define('ph-resources', ResourcesElement);

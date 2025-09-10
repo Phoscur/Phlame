@@ -36,6 +36,7 @@ export function App({ t, title, empire, tick, time, language, environment }: App
             <app-clock />
             <app-i18n-select class="grid" language={language} />
             <app-session class="grid" />
+            <ph-tick-slider />
           </div>
           <div class="container mx-auto py-8">
             <div class="text-center mb-6">
@@ -97,8 +98,9 @@ export class AppElement extends HTMLElement {
   static observedAttributes = ['lang'];
   #logger = inject(Debug);
   #i18n = inject(TranslationProvider);
-  #zeit = inject(Zeitgeber);
   #empire = inject(EmpireService);
+  #zeit = inject(Zeitgeber);
+  #cleanup = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
 
   get environment() {
     // well it's not unnecessary for testing
@@ -106,8 +108,30 @@ export class AppElement extends HTMLElement {
     return this.getElementsByTagName('h1')[0]?.attributes.getNamedItem('environment')?.value ?? '';
   }
 
+  get game() {
+    return this.getElementsByTagName('game-ctx')[0] as HTMLElement;
+  }
+
   connectedCallback() {
-    this.#logger().log('AppElement connected!', this.environment);
+    const logger = this.#logger();
+    const zeit = this.#zeit();
+    const destroyHold = zeit.effect(() => {
+      if (!zeit.holdingTick) return;
+      logger.log('TICK hold', zeit.holdingTick);
+      const i18n = this.#i18n();
+
+      const empire = this.#empire().restoreFromBackup().current;
+      render(gameToJSX(i18n.translate, empire), this.game);
+    });
+    this.#cleanup = () => {
+      destroyHold();
+    };
+    logger.log('AppElement connected!', this.environment);
+  }
+
+  disconnectedCallback() {
+    this.#cleanup();
+    this.#logger().log('AppElement disconnected!');
   }
 
   attributeChangedCallback(name = 'lang', oldValue: string, newValue: string) {
