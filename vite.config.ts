@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import babel from 'vite-plugin-babel';
 import devServer from '@hono/vite-dev-server';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import path from 'node:path';
 
 export default defineConfig({
   root: __dirname,
@@ -13,7 +14,7 @@ export default defineConfig({
     port: 4200,
     host: 'localhost',
     watch: {
-      ignored: ['playwright-report/**', '.vscode/**', '.github/**'],
+      ignored: [path.resolve('playwright-report') + '/**', '.vscode/**', '.github/**'],
     },
   },
 
