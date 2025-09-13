@@ -21,16 +21,16 @@ export interface AppProps {
   title: string;
   empire: EmpireEntity;
   tick: number;
-  time: number;
+  timeMS: number;
   language: Language;
   environment: string;
 }
 
-export function App({ t, title, empire, tick, time, language, environment }: AppProps) {
+export function App({ t, title, empire, tick, timeMS, language, environment }: AppProps) {
   return (
     <>
       <div class="wrapper">
-        <zeit-ctx time={time} tick={tick}>
+        <zeit-ctx time={timeMS} tick={tick}>
           <div class="flex flex-row-reverse">
             <ph-tick />
             <app-clock />
@@ -148,7 +148,7 @@ export class AppElement extends HTMLElement {
       return;
     }
     logger.log('App I18n:', newValue, '[updated], previously', oldValue);
-    const { tick, time } = this.#zeit();
+    const { tick, timeMS } = this.#zeit();
     const empire = this.#empire().current;
     const environment = this.environment + '-clientside';
     const title = `Phlame [${environment}]`;
@@ -161,7 +161,7 @@ export class AppElement extends HTMLElement {
         title={title}
         empire={empire}
         tick={tick}
-        time={time}
+        timeMS={timeMS}
         language={newValue as Language}
         environment={environment}
       />,

@@ -34,9 +34,9 @@ export class ClockElement extends HTMLElement {
   connectedCallback() {
     const html = Clock();
     this.innerHTML = raw(html);
-    const time = this.#zeit().time;
-    runClock(this, new Date(time));
-    this.#logger().log('Clock connected!', time);
+    const timeMS = this.#zeit().timeMS;
+    runClock(this, new Date(timeMS));
+    this.#logger().log('Clock connected!', timeMS, new Date(timeMS));
   }
 
   // does not require updates/effects - relies on css transitions only

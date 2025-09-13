@@ -5,7 +5,7 @@ type TimeoutQueueFunction = (callback: () => void, ms: number) => number;
 
 export class Zeit {
   readonly tick: number = 0;
-  readonly time: number = 0;
+  readonly timeMS: number = 0;
 }
 
 /**
@@ -15,7 +15,7 @@ export class Zeit {
 export class Zeitgeber implements Zeit {
   private zeitgeist: {
     tick: Signal.State<number>;
-    time: Signal.State<number>;
+    timeMS: Signal.State<number>;
     iteration: Signal.State<number>;
     hold: Signal.State<number>;
   };
@@ -41,7 +41,7 @@ export class Zeitgeber implements Zeit {
   ) {
     this.zeitgeist = {
       tick: new Signal.State(currentTick),
-      time: new Signal.State(currentTime),
+      timeMS: new Signal.State(currentTime),
       iteration: new Signal.State(currentTime),
       hold: new Signal.State(0),
     };
@@ -55,10 +55,10 @@ export class Zeitgeber implements Zeit {
   }
 
   /**
-   * Current Game Time at Tick (Signal)
+   * Current Game Time at Tick in milli-seconds (Signal)
    */
-  get time(): number {
-    return this.zeitgeist.time.get();
+  get timeMS(): number {
+    return this.zeitgeist.timeMS.get();
   }
 
   /**
@@ -83,10 +83,10 @@ export class Zeitgeber implements Zeit {
   }
 
   /**
-   * Game Time at next Tick (using time Signal)
+   * Game Time at next Tick (using timeMS Signal)
    */
   get next(): number {
-    return this.time + this.msPerTick;
+    return this.timeMS + this.msPerTick;
   }
 
   /**
@@ -106,7 +106,7 @@ export class Zeitgeber implements Zeit {
     const diff = now - this.currentTime;
     const ticks = Math.floor(diff / this.msPerTick);
     this.currentTime += ticks * this.msPerTick;
-    this.zeitgeist.time.set(this.currentTime);
+    this.zeitgeist.timeMS.set(this.currentTime);
     this.currentTick += ticks;
     this.zeitgeist.tick.set(this.currentTick);
 
@@ -119,7 +119,7 @@ export class Zeitgeber implements Zeit {
     if (typeof time !== 'undefined') {
       this.currentTime = time;
       this.zeitgeist.iteration.set(time);
-      this.zeitgeist.time.set(time);
+      this.zeitgeist.timeMS.set(time);
     }
     if (typeof tick !== 'undefined') {
       this.currentTick = tick;

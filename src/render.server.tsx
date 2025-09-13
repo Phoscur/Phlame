@@ -5,10 +5,10 @@ import { Language, useTranslations } from './app/i18n';
 import { EngineService } from './engine.server';
 import { Injector } from '@joist/di';
 
-const AppRoot: FC<AppProps> = ({ t, title, empire, tick, time, language, environment }) => (
+const AppRoot: FC<AppProps> = ({ t, title, empire, tick, timeMS, language, environment }) => (
   <>
     <app-root lang={language}>
-      {App({ t, title, empire, tick, time, language, environment })}
+      {App({ t, title, empire, tick, timeMS, language, environment })}
     </app-root>
   </>
 );
@@ -23,7 +23,7 @@ export class GameRenderer {
     const t = useTranslations(language);
 
     const engine = i.inject(EngineService);
-    const { time, tick } = engine.time;
+    const { timeMS, tick } = engine.time;
     const empire = engine.empire;
     // TODO? empire.update(zeit.tick)
     /* for (const entity of empire.entities) {
@@ -31,11 +31,19 @@ export class GameRenderer {
     } */
     // console.log('Render', zeit.tick, empire.toString());
 
-    return htmlFrame
-      .replace(GameRenderer.TITLE_PLACEHOLDER, title)
-      .replace(
-        GameRenderer.APP_ROOT_PLACEHOLDER,
-        raw(AppRoot({ t, title, empire, tick, time, language, environment: this.environment })),
-      );
+    return htmlFrame.replace(GameRenderer.TITLE_PLACEHOLDER, title).replace(
+      GameRenderer.APP_ROOT_PLACEHOLDER,
+      raw(
+        AppRoot({
+          t,
+          title,
+          empire,
+          tick,
+          timeMS,
+          language,
+          environment: this.environment,
+        }),
+      ),
+    );
   }
 }

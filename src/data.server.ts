@@ -20,7 +20,7 @@ class SessionCorruptError extends Error {
  */
 export class Data {
   static FOLDER = './data';
-  static zeroTime: Zeit = { time: 0, tick: 0 };
+  static zeroTime: Zeit = { timeMS: 0, tick: 0 };
 
   get zeitFile() {
     return join(Data.FOLDER, 'zeit.json');
