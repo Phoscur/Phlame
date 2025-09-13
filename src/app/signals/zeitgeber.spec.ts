@@ -16,7 +16,7 @@ describe('Zeitgeber', () => {
     const computing = new Signal.Computed(() => (computed = zeit.tick));
 
     expect(zeit.tick).toBe(0);
-    expect(zeit.time).toBe(1714304619612);
+    expect(zeit.timeMS).toBe(1714304619612);
     expect(computed).toBe(undefined);
     computing.get();
     expect(computed).toBe(0);
@@ -27,7 +27,7 @@ describe('Zeitgeber', () => {
     await sleep(testIncrementMs);
 
     // only one, not one and a half ticks have passed
-    expect(zeit.time).toBe(1714304619622);
+    expect(zeit.timeMS).toBe(1714304619622);
     expect(zeit.tick).toBe(1);
     computing.get();
     expect(computed).toBe(1);
@@ -50,7 +50,7 @@ describe('Zeitgeber', () => {
     });
 
     expect(zeit.tick).toBe(0);
-    expect(zeit.time).toBe(1714304619612);
+    expect(zeit.timeMS).toBe(1714304619612);
     expect(computed).toBe(0);
 
     zeit.start();
@@ -58,7 +58,7 @@ describe('Zeitgeber', () => {
     expect(fakeNow).toBe(1714304619627);
     await sleep(testIncrementMs);
 
-    expect(zeit.time).toBe(1714304619622);
+    expect(zeit.timeMS).toBe(1714304619622);
     expect(zeit.tick).toBe(1);
     expect(computed).toBe(1);
 
