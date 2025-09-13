@@ -32,7 +32,7 @@ export interface PersistedSession {
             log(t: unknown, ...args: unknown[]) {
               // WIP cut timestamps a bit - should take advantage of i.parent access for decoration here probably (ConsoleDebug)
               if (typeof t === 'number') {
-                console.log(t / 10000, ...args);
+                console.log((t / 10000).toFixed(0), ...args);
                 return;
               }
               console.log(t, ...args);
@@ -50,10 +50,10 @@ export class EngineService {
   #empire = inject(EmpireService);
 
   get time(): Zeit {
-    const { tick, time } = this.#zeit();
+    const { tick, timeMS } = this.#zeit();
     return {
       tick,
-      time,
+      timeMS,
     };
   }
 
@@ -67,12 +67,12 @@ export class EngineService {
     const persistence = this.#persistence();
     const firstStart = await persistence.init(environment);
     const z = await persistence.loadZeit();
-    zeit.start(z.time, z.tick);
-    logger.log(zeit.time, 'Start', z.tick, '->', zeit.tick, `(${zeit.tick - z.tick} o.d.)`);
+    zeit.start(z.timeMS, z.tick);
+    logger.log(zeit.timeMS, 'Start', z.tick, '->', zeit.tick, `(${zeit.tick - z.tick} o.d.)`);
     if (firstStart) {
       const t = this.time;
       await persistence.saveZeit(t);
-      logger.log(t.time, 'Zeit saved, tick:', t.tick);
+      logger.log(t.timeMS, 'Zeit saved, tick:', t.tick);
     }
     return this;
   }
@@ -88,12 +88,12 @@ export class EngineService {
     try {
       const session = await persistence.loadSession(sid);
       const {
-        zeit: { time, tick },
+        zeit: { timeMS, tick },
         empire,
       } = session;
       logger.log('Loading session:', sid);
-      logger.log(time, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
-      logger.log(zeit.time, 'Current tick:', zeit.tick);
+      logger.log(timeMS, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
+      logger.log(zeit.timeMS, 'Current tick:', zeit.tick);
       /* if (tick && tick !== zeit.tick) {
         zeit.stop();
         // TODO catch up ticks with actions
@@ -129,7 +129,7 @@ export class EngineService {
       zeit,
       empire: session.empire.toJSON(),
     });
-    this.#logger().log(zeit.time, 'Saved session:', session.sid);
+    this.#logger().log(zeit.timeMS, 'Saved session:', session.sid);
   }
 
   createSession(sid: string, eid: string, pid: string, tick?: number): Session {
