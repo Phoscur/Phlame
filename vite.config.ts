@@ -7,7 +7,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'node:path';
 
 export default defineConfig({
-  root: __dirname,
+  root: 'src/app',
+  publicDir: path.resolve('public'),
   cacheDir: './node_modules/.vite/.',
 
   server: {

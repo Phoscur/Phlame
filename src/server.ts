@@ -12,7 +12,8 @@ import { StatusCode } from 'hono/utils/http-status';
 const environment = process.env.NODE_ENV ?? 'dev';
 const isProd = environment.startsWith('prod');
 const distFolder = process.env.BUILD_DIR ?? 'dist/phlame';
-const html = async () => await readFile(isProd ? `${distFolder}/index.html` : 'index.html', 'utf8');
+const html = async () =>
+  await readFile(isProd ? `${distFolder}/index.html` : 'index.template.html', 'utf8');
 
 // TODO
 // - persist sessions
@@ -66,6 +67,12 @@ const { createRoutes } = await import('./routes');
 createRoutes(app);
 
 if (isProd) {
+  /*
+   * Well, can we just statically generate the production server and
+   * deploy it to Github Pages?!
+   * For now some obvious optimizations, such as using precompiled dist/index.html and only loading that once.
+   * But I believe we want to go full static render asap, because I think that kind of hosting is the most prohibitive
+   */
   const index = await html();
   const game = new GameRenderer(environment);
   app.get('/*', (c) => {

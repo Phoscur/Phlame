@@ -28,6 +28,6 @@ jobs:
         run: |
           npm install
           npm run lint
-          npm run ci
+          npm run coverage
         env:
           CI: true
