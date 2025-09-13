@@ -34,15 +34,16 @@ export class Data {
 
   async init(env: string) {
     this.environment = env;
+    let newlySetup = false;
     if (!(await this.exists(Data.FOLDER))) {
       await mkdir(Data.FOLDER);
-      return true;
+      newlySetup = true;
     }
     if (!(await this.exists(join(Data.FOLDER, 'session')))) {
       await mkdir(join(Data.FOLDER, 'session'));
-      return true;
+      newlySetup = true;
     }
-    return false;
+    return newlySetup;
   }
 
   async saveZeit(zeit: Zeit) {
