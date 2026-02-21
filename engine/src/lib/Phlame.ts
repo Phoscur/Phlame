@@ -25,10 +25,9 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   /**
    * Access only relevant actions
    */
-  get recent(): Action<ActionType>[] {
-    // TODO filter out old actions: action.consequence.at < time.tick
+  get upcoming(): Action<ActionType>[] {
     // TODO drop actions (keep full count on the entity, then - after persistence - paginate long history?)
-    return this.actions;
+    return this.actions.filter((a) => a.consequence.at >= this.lastTick);
   }
 
   get lastTick(): TimeUnit {
@@ -48,8 +47,8 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
    * @param tick target game cycle to update to
    */
   update(tick: TimeUnit) {
-    const { lastTick, recent: actions } = this;
-    if (!actions.length) {
+    const { lastTick, upcoming: actions } = this;
+    if (!actions.filter((a) => a.consequence.at <= tick).length) {
       // fast forward
       this.tick = tick;
       this.economy = this.economy.tick(tick - lastTick);
@@ -59,7 +58,7 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
     let action = actions.pop();
     while (action) {
       console.log('Processing action', action.type, 'consequencial at', action.consequence.at);
-      if (action.consequence.at > tick + lastTick) {
+      if (action.consequence.at > tick) {
         // consequence is in the future - skip
         console.log('Action is in the future, skipping', action.type, action.consequence.at);
         action = actions.pop();

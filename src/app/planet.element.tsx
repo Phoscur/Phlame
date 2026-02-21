@@ -45,7 +45,20 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => (
         </div>
       </div>
       <br class="mb-[200px]" />
-      <ul>
+      <ul class="buildingQueue">
+        <li class="bg-metallic-dark text-metallic flex flex-columns">
+          <MetallicIcon />
+          <MineIcon />
+          {t('building.level')} 2
+          <button
+            class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+          >
+            {t('app.cancel')}
+          </button>
+        </li>
+      </ul>
+      <ul class="buildingList">
         <li class="bg-metallic-dark text-metallic flex flex-columns">
           <MetallicIcon />
           <MineIcon />

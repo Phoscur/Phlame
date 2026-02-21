@@ -19,6 +19,8 @@ import { Empire } from './Empire';
 
 export type Resources = ResourceTypes | EnergyTypes;
 
+// TODO better building type: const map
+
 export const requirements: RequirementLookup<Resources, BuildingID> = {
   // tumble mine
   1: new BuildingRequirement<Resources, BuildingID>(
@@ -129,7 +131,7 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
     ],
   ),
   // TODO add the remaining buildings and tech aswell as fleet (with ids above 200)
-};
+} as const;
 export const prosumption: ProsumptionLookup<Resources, BuildingID> = {
   0: {
     [ResourceTypes.Tumble]: (): number => {
@@ -176,7 +178,7 @@ export const prosumption: ProsumptionLookup<Resources, BuildingID> = {
       return 50 * lvl * lvl ** 1.1;
     },
   },
-};
+} as const;
 const b = new Building<Resources, BuildingID>(12, requirements, prosumption, 1, 100);
 const bUpgraded = new Building<Resources, BuildingID>(12, requirements, prosumption, 2, 100);
 const b0 = new Building(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0

@@ -31,10 +31,10 @@ async function sessionHelper(engine: EngineService, ctx: Context) {
   const sid = getCookie(ctx, 'sid');
   if (!sid) {
     const session = await engine.generateSession();
-    save(session.sid, `${session.empire.id}`); // TODO?! UnitID should be string only...
+    save(session.sid, `${session.empire.id}`);
   } else {
-    // const eid = getCookie(c, 'empire');
     await engine.load(sid);
+    // const eid = getCookie(c, 'empire');
     /*try {    } catch (e) {
       console.error('Failed to load session, generating a new one', e);
       return;
@@ -65,6 +65,13 @@ const app = new Hono()
 
 const { createRoutes } = await import('./routes');
 createRoutes(app);
+
+app.use('*', sessionMiddleware(engine));
+
+app.route('/empires/:empireId', (r) => {
+  r.use('*', empireMiddleware(engine));
+  r.route('/entities', actionsRoute(engine));
+});
 
 if (isProd) {
   /*
