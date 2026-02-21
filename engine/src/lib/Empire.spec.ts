@@ -26,6 +26,25 @@ describe('Empire Entity', () => {
     expect(empire.toJSON()).to.eql({
       id: 'Empirial',
       entities: [phlame.toJSON()],
+      events: [],
     });
+  });
+
+  it('should track lastTick across entities', () => {
+    const { t3, s3 } = examples;
+    const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
+    const eco = new Economy('Eco', stock, buildings);
+    const p1 = new Phlame<Types, BuildingIdentifier>('Phlame1', eco, [], 10);
+    const p2 = new Phlame<Types, BuildingIdentifier>('Phlame2', eco, [], 20);
+    const empire = new Empire('LastPhlameAhead', [p1, p2]);
+    expect(empire.lastTick).to.eql(20);
+    // thanks copilot
+  });
+
+  it('should add events', () => {
+    const empire = new Empire('Empire', []);
+    empire.addEvent({ type: 'test', message: 'an event' });
+    expect(empire.events).to.have.lengthOf(1);
+    expect(empire.events[0]).to.eql({ type: 'test', message: 'an event' });
   });
 });
