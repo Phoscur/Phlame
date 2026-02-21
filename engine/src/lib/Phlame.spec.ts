@@ -52,7 +52,7 @@ describe('Phlame Entity', () => {
     expect(phlame.lastTick).to.eql(2);
   });
 
-  it.only('should queue and execute actions', () => {
+  it('should queue and execute actions', () => {
     const eco = new Economy('Eco', stock, buildings);
     const phlame = new Phlame('InAction', eco);
     expect(phlame.toString()).to.eql(
@@ -71,10 +71,16 @@ describe('Phlame Entity', () => {
       },
     };
     phlame.add(action);
-    expect(phlame.recent).to.contain(action);
+    expect(phlame.upcoming).to.contain(action);
+    console.log('productionTable 0', phlame.productionTable);
+    phlame.update(1);
+    console.log('productionTable 1', phlame.productionTable);
+    phlame.update(2);
+    console.log('productionTable 2', phlame.productionTable);
     phlame.update(15);
     // at time of the consequence
     expect(phlame.lastTick).to.eql(15);
+    console.log('productionTable 15', phlame.productionTable);
     // TODO?! clean recent expect(phlame.recent).to.be.empty;
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: -3/100 energy, 0/0 heat, Degraded to 94%, 303salties(0, Infinity): +81, 15blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
@@ -82,7 +88,7 @@ describe('Phlame Entity', () => {
     );
 
     // TODO investigate, why do we have /100 energy now? (should be /50)?
-    // expect(phlame.productionTable[0]).to.eql(['energy', -3, 50]);
+    expect(phlame.productionTable[0]).to.eql(['energy', -3, 50]);
 
     // a few ticks later
     phlame.update(20);

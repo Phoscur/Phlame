@@ -61,6 +61,10 @@ export class EngineService {
     return this.#empire().current;
   }
 
+  /**
+   * Load the persistence layer and time management
+   * @returns {boolean} isFirstStart
+   */
   async start(environment: string) {
     const logger = this.#logger();
     const zeit = this.#zeit();
@@ -115,7 +119,7 @@ export class EngineService {
     const zeit = this.#zeit();
     const persistence = this.#persistence();
     const sid = persistence.generateID();
-    const session = this.createSession(sid, sid, sid, zeit.tick);
+    const session = this.createSession(sid, 'E-' + sid, 'P-' + sid, zeit.tick);
     await this.saveSession(session);
     this.#empire().setup(session.empire);
     return session;
