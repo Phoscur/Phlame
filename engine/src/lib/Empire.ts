@@ -1,7 +1,7 @@
 import type { ResourceIdentifier } from './resources';
 import type { BuildingIdentifier } from './Building';
 import { Phlame, PhlameJSON } from './Phlame';
-import { Entity, ID } from './Action';
+import { Entity, Event, ID } from './Action';
 
 export interface EmpireJSON<
   ResourceType extends ResourceIdentifier,
@@ -9,6 +9,7 @@ export interface EmpireJSON<
 > {
   id: ID;
   entities: PhlameJSON<ResourceType, BuildingType>[];
+  events: Event[];
 }
 
 export class Empire<
@@ -19,6 +20,7 @@ export class Empire<
   constructor(
     public id: ID,
     public entities: Phlame<ResourceType, BuildingType>[],
+    public events: Event[] = [],
   ) {}
 
   toString(): string {
@@ -29,6 +31,7 @@ export class Empire<
     return {
       id: this.id,
       entities: this.entities.map((e) => e.toJSON()),
+      events: this.events,
     };
   }
 
@@ -36,5 +39,10 @@ export class Empire<
     return this.entities.reduce((maxTick, p) => {
       return p.lastTick > maxTick ? p.lastTick : maxTick;
     }, 0);
+  }
+
+  addEvent(event: Event) {
+    this.events.unshift(event);
+    return this;
   }
 }
