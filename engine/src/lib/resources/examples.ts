@@ -7,18 +7,20 @@ import {
   ResourceProcessCollection,
 } from '.';
 
-// Let's invent some example replacement resource and energy types
+// Let's invent some example resource and energy types
 export enum ResourceTypes {
   // ...BaseResources,
-  Tumble = 'tumbles',
-  Salty = 'salties',
-  Blubber = 'blubbs',
+  Tumble = 'tumbles', // a tungston heavy metal mineral
+  Salty = 'salties', // a crystalline salt mineral
+  Blubber = 'blubbs', // an oil based organic resource that can be used as fuel or just hydrogen isotopes
 }
 
 export enum EnergyTypes {
   Electricity = 'energy',
   Heat = 'heat',
 }
+
+// TODO refactor enums to const map
 
 export type Types = ResourceTypes | EnergyTypes | BaseResources;
 
