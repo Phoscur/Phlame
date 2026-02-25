@@ -51,7 +51,7 @@
   "dependencies": {
     "@hono/node-server": "^1.19.9",
     "@joist/di": "^4.2.3",
-    "hono": "^4.12.1",
+    "hono": "^4.12.2",
     "html-element": "^2.3.1",
     "htmx.org": "^1.9.12",
     "nanoid": "^5.1.6",
