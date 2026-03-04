@@ -49,7 +49,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.9",
+    "@hono/node-server": "^1.19.10",
     "@joist/di": "^4.2.3",
     "hono": "^4.12.1",
     "html-element": "^2.3.1",
