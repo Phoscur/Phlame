@@ -1,64 +1,26 @@
-## Running unit tests
+# @phlame/engine
 
-Run `npm test` or `npm run test-engine` in the parent to develop - `nx test engine (--code-coverage|--watch)` executes the unit tests via `vitest`.
+Pure, dependency-free TypeScript domain library for the Phlame game economy: immutable
+value objects, integer arithmetic, and tick fast-forwarding — usable client- and
+server-side alike.
 
-# Engine centered around resources
+Read [CONTEXT.md](./CONTEXT.md) for the full tour of the model (Resource → Prosumer →
+Economy → Phlame → Empire) and [../docs/tick-flow.md](../docs/tick-flow.md) for the core
+mechanism with diagrams.
 
-2021: Models resource flows between buildings in a factory, should be usable on client- and serverside.
+## Tests
 
-Self-review 2024: I'm not sure why I'm so hesitant on merging Resource & Energy, it looks like a nice abstract class (I prefer avoiding inheritance though). It might have grown over a bit with type generics and should be simplified instead (less object-oriented...). I wish these weird `| 0 toInteger` arithmatics would not be needed (js has only floats :| webassembly?).
+- `npm test` (in this folder) — vitest in watch mode
+- `npm run test-engine` / `npm run tsc-engine` — one-shot from the repo root
+- Every module has a `*.spec.ts` sibling; keep them green and covering new behavior.
 
-## Overview
+## Design & history
 
-Already working:
-
-- Resource
-- Energy
-- ResourceProcess
-- Stock
-- ResourceCalculation
-- EnergyCalculation
-- Prosumer
-
-- Economy with Building as Prosumers
-
-# Roadmap pre-2024
-
-- solve resource & energy calculations for each game tick ✔
-- build a little idlegame: upgrade buildings (mines & stock) and tech
-- integrate with a persistence layer (git via phlame-data)
-- integrate with a simple UI, can be console based for the start
-- add fleet for trade
-- add combat and more fleet
-
-## Resource Calculation
-
-Integral part of the the game engine, calculates
-
-- Resources in factory and its environment
-- Energy and Heat levels
-- Strategy to handle resource shortage
-
-## Ideas
-
-For naming additional Entities and/or ValueObjects:
-
-- Action & Consequence (after delay), GameUnit, GameEntity
-- Economy, Industry, Construction, Investment, BuildingProcess
-- HeavenlyBody
-- World, Empire
-- Planet, SolarSystem
-- Phlame(Entity|Value|Environment)
-- Universe and PhlameBlock to collect all state
-- Ephemeris (trajectory of HeavenlyBodies over time)
-
-### P2P Game networking
-
-- servers should be able to interact, peer to peer?
-  need always-on address services... can we (ab)use github for all of this?
-  - α - every repo for is its own can be an alpha universe
-  - Ω - omega universe allows all kinds of (possibly cheated before played) worlds and empires as long as they stay compatible at the core
-  - β & γ - beta and gamma universes can be more serious or distantly forked
+Decisions concerning this library: [ADRs](../docs/decisions/README.md) 0002 (lazy
+realtime), 0003 (int32 math), 0004 (Resource/Energy separate), 0005 (immutable value
+objects), 0009 (event sourcing), 0012 (Empire owns the log). Old roadmaps and the P2P
+universe ideas moved to [../docs/history.md](../docs/history.md) and
+[../PLAN.md](../PLAN.md).
 
 #
 
