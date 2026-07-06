@@ -1,0 +1,642 @@
+{
+    "user": {
+        "userID": 1,
+        "username": "admin",
+        "email": "user_1501005189510@test.com",
+        "onlineTime": 1528485070,
+        "currentPlanet": 167546850,
+        "planetList": [{
+            "planetID": 167546850,
+            "ownerID": 1,
+            "name": "Planet",
+            "galaxy": 9,
+            "system": 54,
+            "planet": 1,
+            "last_update": 1528485070,
+            "planet_type": 0,
+            "image": "dschjungelplanet02",
+            "diameter": 14452,
+            "fields_current": 0,
+            "fields_max": 196,
+            "temp_min": 73,
+            "temp_max": 195,
+            "metal": 34984697,
+            "crystal": 36319925,
+            "deuterium": 99225000,
+            "energy_used": 103,
+            "energy_max": 117,
+            "metal_mine_percent": 100,
+            "crystal_mine_percent": 100,
+            "deuterium_synthesizer_percent": 100,
+            "solar_plant_percent": 100,
+            "fusion_reactor_percent": 100,
+            "solar_satellite_percent": 100,
+            "b_building_id": 0,
+            "b_building_endtime": 0,
+            "b_tech_id": 0,
+            "b_hangar_start_time": 0,
+            "b_tech_endtime": 0,
+            "b_hangar_id": "",
+            "b_hangar_plus": false,
+            "destroyed": false
+        }],
+        "points": 2213423465,
+        "current_rank": 1,
+        "old_rank": 0
+    },
+    "planet": {
+        "planetID": 167546850,
+        "ownerID": 1,
+        "name": "Planet",
+        "galaxy": 9,
+        "system": 54,
+        "planet": 1,
+        "last_update": 1528485070,
+        "planet_type": 0,
+        "image": "dschjungelplanet02",
+        "diameter": 14452,
+        "fields_current": 0,
+        "fields_max": 196,
+        "temp_min": 73,
+        "temp_max": 195,
+        "metal": 34984697,
+        "crystal": 36319925,
+        "deuterium": 99225000,
+        "energy_used": 103,
+        "energy_max": 117,
+        "metal_mine_percent": 100,
+        "crystal_mine_percent": 100,
+        "deuterium_synthesizer_percent": 100,
+        "solar_plant_percent": 100,
+        "fusion_reactor_percent": 100,
+        "solar_satellite_percent": 100,
+        "b_building_id": 0,
+        "b_building_endtime": 0,
+        "b_tech_id": 0,
+        "b_hangar_start_time": 0,
+        "b_tech_endtime": 0,
+        "b_hangar_id": "",
+        "b_hangar_plus": false,
+        "destroyed": false
+    },
+    "galaxy": {
+        "debris_metal": 0,
+        "debris_crystal": 0
+    },
+    "buildingData": {
+        "metal_mine": 5,
+        "crystal_mine": 1,
+        "deuterium_synthesizer": 1,
+        "solar_plant": 4,
+        "fusion_reactor": 0,
+        "robotic_factory": 11,
+        "nanite_factory": 8,
+        "shipyard": 12,
+        "metal_storage": 0,
+        "crystal_storage": 0,
+        "deuterium_storage": 0,
+        "research_lab": 20,
+        "terraformer": 0,
+        "alliance_depot": 0,
+        "missile_silo": 0
+    },
+    "buildingList": {
+        "1": {
+            "level": 5,
+            "unitID": 1,
+            "costMetal": 60,
+            "costCrystal": 15,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1.5
+        },
+        "2": {
+            "level": 1,
+            "unitID": 2,
+            "costMetal": 48,
+            "costCrystal": 24,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1.6
+        },
+        "3": {
+            "level": 1,
+            "unitID": 3,
+            "costMetal": 225,
+            "costCrystal": 75,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1.5
+        },
+        "4": {
+            "level": 4,
+            "unitID": 4,
+            "costMetal": 75,
+            "costCrystal": 30,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1.5
+        },
+        "5": {
+            "level": 0,
+            "unitID": 5,
+            "costMetal": 900,
+            "costCrystal": 360,
+            "costDeuterium": 180,
+            "costEnergy": 0,
+            "costFactor": 1.8
+        },
+        "6": {
+            "level": 11,
+            "unitID": 6,
+            "costMetal": 400,
+            "costCrystal": 120,
+            "costDeuterium": 200,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "7": {
+            "level": 8,
+            "unitID": 7,
+            "costMetal": 1000000,
+            "costCrystal": 500000,
+            "costDeuterium": 100000,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "8": {
+            "level": 12,
+            "unitID": 8,
+            "costMetal": 400,
+            "costCrystal": 200,
+            "costDeuterium": 100,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "9": {
+            "level": 0,
+            "unitID": 9,
+            "costMetal": 1000,
+            "costCrystal": 0,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "10": {
+            "level": 0,
+            "unitID": 10,
+            "costMetal": 1000,
+            "costCrystal": 500,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "11": {
+            "level": 0,
+            "unitID": 11,
+            "costMetal": 1000,
+            "costCrystal": 1000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "12": {
+            "level": 20,
+            "unitID": 12,
+            "costMetal": 200,
+            "costCrystal": 400,
+            "costDeuterium": 200,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "13": {
+            "level": 0,
+            "unitID": 13,
+            "costMetal": 0,
+            "costCrystal": 50000,
+            "costDeuterium": 100000,
+            "costEnergy": 1000,
+            "costFactor": 2
+        },
+        "14": {
+            "level": 0,
+            "unitID": 14,
+            "costMetal": 20000,
+            "costCrystal": 40000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 2
+        },
+        "15": {
+            "level": 0,
+            "unitID": 15,
+            "costMetal": 20000,
+            "costCrystal": 20000,
+            "costDeuterium": 1000,
+            "costEnergy": 0,
+            "costFactor": 2
+        }
+    },
+    "defenseData": {
+        "rocket_launcher": 0,
+        "light_laser": 0,
+        "heavy_laser": 0,
+        "ion_cannon": 0,
+        "gauss_cannon": 0,
+        "plasma_turret": 0,
+        "small_shield_dome": 0,
+        "large_shield_dome": 0,
+        "anti_ballistic_missile": 0,
+        "interplanetary_missile": 0
+    },
+    "defenseList": {
+        "301": {
+            "amount": 0,
+            "unitID": 301,
+            "costMetal": 2000,
+            "costCrystal": 0,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "302": {
+            "amount": 0,
+            "unitID": 302,
+            "costMetal": 1500,
+            "costCrystal": 500,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "303": {
+            "amount": 0,
+            "unitID": 303,
+            "costMetal": 6000,
+            "costCrystal": 2000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "304": {
+            "amount": 0,
+            "unitID": 304,
+            "costMetal": 20000,
+            "costCrystal": 15000,
+            "costDeuterium": 2000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "305": {
+            "amount": 0,
+            "unitID": 305,
+            "costMetal": 2000,
+            "costCrystal": 6000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "306": {
+            "amount": 0,
+            "unitID": 306,
+            "costMetal": 50000,
+            "costCrystal": 50000,
+            "costDeuterium": 30000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "307": {
+            "amount": 0,
+            "unitID": 307,
+            "costMetal": 10000,
+            "costCrystal": 10000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "308": {
+            "amount": 0,
+            "unitID": 308,
+            "costMetal": 50000,
+            "costCrystal": 50000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "309": {
+            "amount": 0,
+            "unitID": 309,
+            "costMetal": 8000,
+            "costCrystal": 2000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "310": {
+            "amount": 0,
+            "unitID": 310,
+            "costMetal": 12500,
+            "costCrystal": 2500,
+            "costDeuterium": 10000,
+            "costEnergy": 0,
+            "costFactor": 1
+        }
+    },
+    "techData": {
+        "espionage_tech": 23,
+        "computer_tech": 23,
+        "weapon_tech": 23,
+        "armour_tech": 23,
+        "shielding_tech": 23,
+        "energy_tech": 23,
+        "hyperspace_tech": 23,
+        "combustion_drive_tech": 1,
+        "impulse_drive_tech": 23,
+        "hyperspace_drive_tech": 23,
+        "laser_tech": 23,
+        "ion_tech": 23,
+        "plasma_tech": 23,
+        "intergalactic_research_tech": 21,
+        "graviton_tech": 1
+    },
+    "techList": {
+        "101": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 101,
+            "costMetal": 200,
+            "costCrystal": 1000,
+            "costDeuterium": 200,
+            "costEnergy": 0
+        },
+        "102": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 102,
+            "costMetal": 0,
+            "costCrystal": 400,
+            "costDeuterium": 600,
+            "costEnergy": 0
+        },
+        "103": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 103,
+            "costMetal": 800,
+            "costCrystal": 200,
+            "costDeuterium": 0,
+            "costEnergy": 0
+        },
+        "104": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 104,
+            "costMetal": 200,
+            "costCrystal": 600,
+            "costDeuterium": 0,
+            "costEnergy": 0
+        },
+        "105": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 105,
+            "costMetal": 1000,
+            "costCrystal": 0,
+            "costDeuterium": 0,
+            "costEnergy": 0
+        },
+        "106": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 106,
+            "costMetal": 0,
+            "costCrystal": 800,
+            "costDeuterium": 400,
+            "costEnergy": 0
+        },
+        "107": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 107,
+            "costMetal": 0,
+            "costCrystal": 4000,
+            "costDeuterium": 2000,
+            "costEnergy": 0
+        },
+        "108": {
+            "level": 1,
+            "costFactor": 2,
+            "unitID": 108,
+            "costMetal": 400,
+            "costCrystal": 0,
+            "costDeuterium": 600,
+            "costEnergy": 0
+        },
+        "109": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 109,
+            "costMetal": 2000,
+            "costCrystal": 4000,
+            "costDeuterium": 600,
+            "costEnergy": 0
+        },
+        "110": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 110,
+            "costMetal": 10000,
+            "costCrystal": 20000,
+            "costDeuterium": 6000,
+            "costEnergy": 0
+        },
+        "111": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 111,
+            "costMetal": 200,
+            "costCrystal": 100,
+            "costDeuterium": 0,
+            "costEnergy": 0
+        },
+        "112": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 112,
+            "costMetal": 1000,
+            "costCrystal": 300,
+            "costDeuterium": 100,
+            "costEnergy": 0
+        },
+        "113": {
+            "level": 23,
+            "costFactor": 2,
+            "unitID": 113,
+            "costMetal": 2000,
+            "costCrystal": 4000,
+            "costDeuterium": 1000,
+            "costEnergy": 0
+        },
+        "114": {
+            "level": 21,
+            "costFactor": 2,
+            "unitID": 114,
+            "costMetal": 240000,
+            "costCrystal": 400000,
+            "costDeuterium": 160000,
+            "costEnergy": 0
+        },
+        "115": {
+            "level": 1,
+            "costFactor": 3,
+            "unitID": 115,
+            "costMetal": 0,
+            "costCrystal": 0,
+            "costDeuterium": 0,
+            "costEnergy": 300000
+        }
+    },
+    "fleetData": {
+        "small_cargo_ship": 0,
+        "large_cargo_ship": 0,
+        "light_fighter": 22999,
+        "heavy_fighter": 20,
+        "cruiser": 0,
+        "battleship": 0,
+        "colony_ship": 0,
+        "recycler": 0,
+        "espionage_probe": 0,
+        "bomber": 0,
+        "solar_satellite": 0,
+        "destroyer": 40,
+        "battlecruiser": 0,
+        "deathstar": 0
+    },
+    "fleetList": {
+        "201": {
+            "amount": 0,
+            "unitID": 201,
+            "costMetal": 2000,
+            "costCrystal": 2000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "202": {
+            "amount": 0,
+            "unitID": 202,
+            "costMetal": 6000,
+            "costCrystal": 6000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "203": {
+            "amount": 22999,
+            "unitID": 203,
+            "costMetal": 3000,
+            "costCrystal": 1000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "204": {
+            "amount": 20,
+            "unitID": 204,
+            "costMetal": 6000,
+            "costCrystal": 4000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "205": {
+            "amount": 0,
+            "unitID": 205,
+            "costMetal": 20000,
+            "costCrystal": 7000,
+            "costDeuterium": 2000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "206": {
+            "amount": 0,
+            "unitID": 206,
+            "costMetal": 45000,
+            "costCrystal": 15000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "207": {
+            "amount": 0,
+            "unitID": 207,
+            "costMetal": 10000,
+            "costCrystal": 20000,
+            "costDeuterium": 10000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "208": {
+            "amount": 0,
+            "unitID": 208,
+            "costMetal": 10000,
+            "costCrystal": 6000,
+            "costDeuterium": 2000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "209": {
+            "amount": 0,
+            "unitID": 209,
+            "costMetal": 0,
+            "costCrystal": 1000,
+            "costDeuterium": 0,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "210": {
+            "amount": 0,
+            "unitID": 210,
+            "costMetal": 50000,
+            "costCrystal": 25000,
+            "costDeuterium": 15000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "211": {
+            "amount": 0,
+            "unitID": 211,
+            "costMetal": 0,
+            "costCrystal": 2000,
+            "costDeuterium": 500,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "212": {
+            "amount": 40,
+            "unitID": 212,
+            "costMetal": 60000,
+            "costCrystal": 50000,
+            "costDeuterium": 15000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "213": {
+            "amount": 0,
+            "unitID": 213,
+            "costMetal": 30000,
+            "costCrystal": 40000,
+            "costDeuterium": 15000,
+            "costEnergy": 0,
+            "costFactor": 1
+        },
+        "214": {
+            "amount": 0,
+            "unitID": 214,
+            "costMetal": 5000000,
+            "costCrystal": 4000000,
+            "costDeuterium": 1000000,
+            "costEnergy": 0,
+            "costFactor": 1
+        }
+    }
+}

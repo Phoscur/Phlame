@@ -31,6 +31,16 @@ prefigures fleets-as-Phlames (fuel = negative ResourceProcess, ADR 0012).
 
 The rewrite eventually turned away from PHP/SQL toward TypeScript foundations.
 
+## 2018–2019 — Monorepo era experiments
+
+The old `phlame` monorepo (GitLab) collected several attempts around the game: an
+Angular 6 UI (`phlame-ui`), an "Open API Game Server" (`phlame-server`), a greenlock
+SSL `proxy` + pm2 deployment, a peerjs signaling server (`peer-server` — the P2P seed),
+and `phlame-data` — js-github experiments storing game data in GitHub repos, the
+proof-of-concept of today's git-as-storage vision (ADR 0010). Design notes and a
+UGamela state dump from that era are preserved in [artifacts/](artifacts/README.md);
+the code rests in the GitLab history.
+
 ## 2021 — First Easter POC (GraphQL/React)
 
 - `@live`/`@stream` GraphQL queries over resources, console & React component consumers.
