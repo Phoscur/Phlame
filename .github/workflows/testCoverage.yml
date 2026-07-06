@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npx --yes oxlint@1.6.0 --deny-warnings
+      - run: npx --yes oxlint@1.72.0 --deny-warnings
   test:
     runs-on: ubuntu-latest
     strategy:

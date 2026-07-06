@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: "off" */
-import type { ComparableResource, ResourceIdentifier } from './Resource';
+import type { ResourceIdentifier } from './Resource';
 import { Resource } from './Resource';
 import { ResourceProcess, TimeUnit } from './ResourceProcess';
 import { ResourceCollection } from './ResourceCollection';
