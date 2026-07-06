@@ -6,6 +6,7 @@ import { Empire } from './Empire';
 import examples, { Types } from './resources/examples';
 import { buildings } from './examples';
 import type { BuildingIdentifier } from './Building';
+import { ActionFactory, EventFactory } from './Action';
 
 describe('Empire Entity', () => {
   it('should be console printable', () => {
@@ -43,8 +44,10 @@ describe('Empire Entity', () => {
 
   it('should add events', () => {
     const empire = new Empire('Empire', []);
-    empire.addEvent({ type: 'test', message: 'an event' });
+    const action = new ActionFactory().createBuilding(1, empire, 4);
+    const event = new EventFactory().fromAction(0, action);
+    empire.addEvent(event);
     expect(empire.events).to.have.lengthOf(1);
-    expect(empire.events[0]).to.eql({ type: 'test', message: 'an event' });
+    expect(empire.events[0]).to.eql(event);
   });
 });

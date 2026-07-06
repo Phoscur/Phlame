@@ -55,10 +55,14 @@
     "html-element": "^2.3.1",
     "htmx.org": "^1.9.12",
     "nanoid": "^5.1.6",
-    "signal-polyfill": "^0.2.2"
+    "signal-polyfill": "^0.2.2",
+    "zod": "^4.4.3"
   },
   "overrides": {
-    "eslint": "^10.0.1",
+    "eslint": {
+      ".": "^10.0.1",
+      "ajv": "^6.12.6"
+    },
     "minimatch": "^10.2.1",
     "ajv": "^8.17.1"
   }

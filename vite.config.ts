@@ -70,6 +70,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // scan all of src (vite root is src/app, which would miss e.g. src/actions.spec.ts)
+    dir: path.resolve('src'),
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
 
     reporters: ['default'],

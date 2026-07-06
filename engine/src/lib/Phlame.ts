@@ -23,11 +23,12 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   ) {}
 
   /**
-   * Access only relevant actions
+   * Access only relevant actions: consequences strictly after lastTick
+   * (a consequence at lastTick has already been applied by update)
    */
   get upcoming(): Action<ActionType>[] {
     // TODO drop actions (keep full count on the entity, then - after persistence - paginate long history?)
-    return this.actions.filter((a) => a.consequence.at >= this.lastTick);
+    return this.actions.filter((a) => a.consequence.at > this.lastTick);
   }
 
   get lastTick(): TimeUnit {
@@ -44,36 +45,20 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   }
 
   /**
+   * Fast forward the economy to the target tick,
+   * applying due action consequences in chronological order on the way
    * @param tick target game cycle to update to
    */
   update(tick: TimeUnit) {
-    const { lastTick, upcoming: actions } = this;
-    if (!actions.filter((a) => a.consequence.at <= tick).length) {
-      // fast forward
-      this.tick = tick;
-      this.economy = this.economy.tick(tick - lastTick);
-      console.log('Fast forwarded to', tick);
-      return this;
-    }
-    let action = actions.pop();
-    while (action) {
-      console.log('Processing action', action.type, 'consequencial at', action.consequence.at);
-      if (action.consequence.at > tick) {
-        // consequence is in the future - skip
-        console.log('Action is in the future, skipping', action.type, action.consequence.at);
-        action = actions.pop();
-        continue;
+    const due = this.upcoming
+      .filter((a) => a.consequence.at <= tick)
+      .sort((a, b) => a.consequence.at - b.consequence.at);
+    for (const action of due) {
+      const cycles = action.consequence.at - this.tick;
+      if (cycles > 0) {
+        this.economy = this.economy.tick(cycles);
+        this.tick = action.consequence.at;
       }
-      if (action.consequence.at < lastTick) {
-        // action is in the past, should not be in recents?! - skip
-        console.log('Action is in the past, skipping', action.type, action.consequence.at);
-        action = actions.pop();
-        continue;
-      }
-      const cycles = action.consequence.at - lastTick;
-      tick -= cycles;
-      this.tick += cycles;
-      this.economy = this.economy.tick(cycles);
       if (action.consequence.type === ActionTypes.UPDATE) {
         // TODO make action polymorphic?
         // TODO validate payload
@@ -82,14 +67,17 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
           buildingID: BuildingIdentifier;
           grade: 'up' | 'down';
         };
-        console.log('Applying action', action.consequence);
         if (grade === 'up') {
           this.economy = this.economy.upgrade(buildingID);
         } else {
           this.economy = this.economy.downgrade(buildingID);
         }
       }
-      action = actions.pop();
+    }
+    if (tick > this.tick) {
+      // fast forward the remainder
+      this.economy = this.economy.tick(tick - this.tick);
+      this.tick = tick;
     }
     return this;
   }
