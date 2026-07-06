@@ -35,8 +35,30 @@ Small decisions that get expensive to change once actions & persistence formats 
       merging the first substantial external engine contribution — after that,
       unilateral relicensing is off the table. Game stays AGPL either way (ADR 0013).
 
+## Side quest — MCP CLI (engine-ui reborn)
+
+The old console engine-ui returns as agent tooling: a small stdio MCP server
+(`@modelcontextprotocol/sdk`, one tsx script, e.g. `tools/mcp/`) wrapping
+`EngineService`/`EmpireService` with tools like `new_session`, `advance_ticks(n)`,
+`production_table`, `upgrade_building`, `show_log`. Lets AI agents actually *play*
+the game deterministically — useful for the M0 invariant test, M1 queue debugging,
+and M2 balancing runs ("play 10k ticks, show me the curves"). Not on the 1.0
+critical path; build alongside M1.
+
 ## Milestone 1 — Actions & building queue (the 1.0 core)
 
+Started on the `game-actions` branch (2026-02): ActionFactory/EventFactory,
+`Phlame.update` processes actions while fast-forwarding, zod-validated actions route,
+empire middleware, e2e `build.spec` — plus a red test pinning a real energy-limit bug
+(see below).
+
+- [x] Energy limit bug fixed (2026-07): `EnergyCalculation.energies` sums rates first
+      and applies the production *capacity* directly as limit, instead of routing limits
+      through `add()`, whose negative-net branch applies stock-withdrawal semantics
+      (summing limits — 50 became 100; also mispinned as 40 in two other specs).
+      Un-blocking the spec exposed two more `Phlame.update` bugs, also fixed: applied
+      actions re-applied on the next update (boundary in `upcoming`), and ticks after
+      the last action were not fast-forwarded; actions now apply in chronological order.
 - [ ] Implement Action/Consequence in the engine (replace interface-only `Action.ts`);
       the log lives on the Empire (ADR 0012), `Phlame.actions` becomes a projection.
       Replay orchestration in the empire-level update: fast-forward concerned entities
@@ -58,8 +80,9 @@ Small decisions that get expensive to change once actions & persistence formats 
 - [ ] Colonization + transports between Phlames (Empire already holds multiple planets;
       transports = paired actions on two entities — first cross-entity consistency test).
 - [ ] Balancing pass — fresh balance, deliberately moving away from UGamela (decided
-      2026-07; parent `Loader.json` is historical reference only). Where the tables live
-      (code vs data) is still open and feeds the rules hash (ADR 0011).
+      2026-07; [docs/artifacts/ugamela-loader.json](docs/artifacts/ugamela-loader.json)
+      is historical reference only). Where the tables live (code vs data) is still open
+      and feeds the rules hash (ADR 0011).
 
 ## Milestone 3 — Static-first release (1.0)
 
@@ -75,7 +98,9 @@ Small decisions that get expensive to change once actions & persistence formats 
 Not scheduled; 1.0 architecture must not block it (that's why event sourcing + global
 time + rules versioning land first).
 
-- Ships, ships, ships — fleets, trade (order, deliver & pickup), combat.
+- Ships, ships, ships — fleets, trade (order, deliver & pickup), combat. Early entity
+  and scenario sketches (Moon, Shipyard, Fleet missions, Galaxy/Solarsystem events)
+  survive in [docs/artifacts/actions.md](docs/artifacts/actions.md).
 - Shared encrypted snapshots in common data repos; action collision resolution;
   timewarp detection after espionage (replay someone's log to audit it).
 - P2P universes: α (every repo its own universe), Ω (anything compatible), β/γ forks;
@@ -124,5 +149,8 @@ entity re-creation).
 - [x] README slimmed (2026-07): roadmap → this file, history/POC learnings →
       [docs/history.md](docs/history.md), docs section points at CONTEXT.md.
 - [x] `engine/engine/README.md` shrunk to test instructions + pointers (2026-07).
-- [ ] Parent `phlame.code-workspace` still references dead Nx paths (`engine/libs/engine`,
-      `engine/apps/server`) — fix when touching the workspace file.
+- [ ] Directory restructure: this repo becomes `~/Projects/phlame` (the old monorepo
+      parent moves aside/gets torn down after a final GitLab push; treasures rescued to
+      [docs/artifacts/](docs/artifacts/README.md)). `engine-ui`'s console idea gets
+      reinvented in-repo (console/MCP CLI) instead of dragging the old code along.
+      The stale `phlame.code-workspace` (dead Nx paths) dies with the monorepo.

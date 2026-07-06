@@ -328,7 +328,7 @@ describe('Economy', () => {
     expect(factory.resources.validFor).to.be.eql(1);
     const f2 = factory.tick(2);
     expect(f2.resources.productionEntries).to.eql([
-      '-43/40 energy',
+      '-43/20 energy',
       '0/0 heat',
       'Degraded to 28%',
       // TODO fix ordering, always tumble mine first?
@@ -338,7 +338,7 @@ describe('Economy', () => {
     ]);
     expect(f2.toString()).to.eql(
       'Underblubbling (Processing energy&resources: ' +
-        '-43/40 energy, 0/0 heat, ' +
+        '-43/20 energy, 0/0 heat, ' +
         'Degraded to 28%, ' +
         '10blubbs(0, Infinity): +3, ' +
         '176tumbles(0, Infinity): +37, ' +

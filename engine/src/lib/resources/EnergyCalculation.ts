@@ -84,9 +84,14 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
       });
       return l;
     }, {});
-    return ResourceProcessCollection.reduce(
-      energies.map((es) => {
-        return es.addLimits(limits);
+    // Sum the rates across all prosumers, then apply the production capacity (limits)
+    // as each energy's limit: combining limits through add() instead would apply
+    // stock-withdrawal semantics (summing limits) once the net rate turns negative
+    const combined = ResourceProcessCollection.reduce([...energies]);
+    return ResourceProcessCollection.fromArray(
+      combined.map((energy) => {
+        const capacity = limits[energy.type];
+        return capacity ? energy.newLimit(capacity.limit) : energy;
       }),
     );
   }

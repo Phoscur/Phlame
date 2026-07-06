@@ -7,6 +7,8 @@ import './html.element.server';
 import { defaultLang, Language } from './app/i18n';
 import { GameRenderer } from './render.server';
 import { EngineService, startup } from './engine.server';
+import { empireMiddleware } from './empire.middleware';
+import { createActionsRoute } from './actions';
 import { StatusCode } from 'hono/utils/http-status';
 
 const environment = process.env.NODE_ENV ?? 'dev';
@@ -66,12 +68,11 @@ const app = new Hono()
 const { createRoutes } = await import('./routes');
 createRoutes(app);
 
-app.use('*', sessionMiddleware(engine));
-
-app.route('/empires/:empireId', (r) => {
-  r.use('*', empireMiddleware(engine));
-  r.route('/entities', actionsRoute(engine));
-});
+// TODO? replace sessionHelper (dev handler below) with a session middleware for all routes
+const engineService = engineInjector.inject(EngineService);
+app.use('/empires/:empireId/*', empireMiddleware(engineService));
+// mounts GET/POST /empires/:empireId/entities/:id/actions
+app.route('/empires/:empireId', createActionsRoute());
 
 if (isProd) {
   /*

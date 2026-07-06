@@ -83,18 +83,18 @@ describe('Phlame Entity', () => {
     console.log('productionTable 15', phlame.productionTable);
     // TODO?! clean recent expect(phlame.recent).to.be.empty;
     expect(phlame.toString()).to.eql(
-      'InAction (Processing energy&resources: -3/100 energy, 0/0 heat, Degraded to 94%, 303salties(0, Infinity): +81, 15blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
+      'InAction (Processing energy&resources: -3/50 energy, 0/0 heat, Degraded to 94%, 303salties(0, Infinity): +81, 15blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
         'Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
     );
 
-    // TODO investigate, why do we have /100 energy now? (should be /50)?
+    // energy limit is the production capacity (50), even when the net rate is negative
     expect(phlame.productionTable[0]).to.eql(['energy', -3, 50]);
 
     // a few ticks later
     phlame.update(20);
     expect(phlame.lastTick).to.eql(20);
     expect(phlame.toString()).to.eql(
-      'InAction (Processing energy&resources: -3/100 energy, 0/0 heat, Degraded to 94%, 708salties(0, Infinity): +81, 10blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
+      'InAction (Processing energy&resources: -3/50 energy, 0/0 heat, Degraded to 94%, 708salties(0, Infinity): +81, 10blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
         'Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
     );
 
@@ -102,7 +102,7 @@ describe('Phlame Entity', () => {
     phlame.update(30);
     expect(phlame.lastTick).to.eql(30);
     expect(phlame.toString()).to.eql(
-      'InAction (Processing energy&resources: -3/100 energy, 0/0 heat, Degraded to 94%, 1518salties(0, Infinity): +81, 0blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
+      'InAction (Processing energy&resources: -3/50 energy, 0/0 heat, Degraded to 94%, 1518salties(0, Infinity): +81, 0blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
         'Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
     );
 
