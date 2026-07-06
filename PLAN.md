@@ -29,8 +29,11 @@ Small decisions that get expensive to change once actions & persistence formats 
       `Economy` — the existing TODO), so a save can be `genesis + action log`.
 - [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
 - [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
-- [ ] Before accepting outside contributions: add a DCO (or CLA) to keep dual-licensing
-      possible ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
+- [x] DCO sign-off required for contributions — see CONTRIBUTING.md
+      ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
+- [ ] **License guardrail**: decide whether `engine/` switches to Apache-2.0 *before*
+      merging the first substantial external engine contribution — after that,
+      unilateral relicensing is off the table. Game stays AGPL either way (ADR 0013).
 
 ## Milestone 1 — Actions & building queue (the 1.0 core)
 
