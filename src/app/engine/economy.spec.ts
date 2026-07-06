@@ -17,7 +17,7 @@ describe("Building's Economy", () => {
 
     const factory = new Economy('Default', emptyStock, defaultBuildings);
     const table: ResourceTable<ResourceIdentifier> = [
-      ['energy', 0, 40],
+      ['energy', 0, 20],
       ['metallic', 30, 0, Infinity, 0],
       ['crystalline', 20, 0, Infinity, 0],
       ['liquid', 0, 0, Infinity, 0],
@@ -25,7 +25,7 @@ describe("Building's Economy", () => {
     expect(factory.resources.productionTable).to.eql(table);
     expect(factory.toString()).to.eql(
       'Default (Processing energy&resources: ' +
-        '0/40 energy, ' +
+        '0/20 energy, ' +
         '0metallic(0, Infinity): +30, ' +
         '0crystalline(0, Infinity): +20, ' +
         '0liquid(0, Infinity): 0' +
@@ -53,7 +53,7 @@ describe("Building's Economy", () => {
     );
     const factory = new Economy('Factory', stock, defaultBuildings);
     const table: ResourceTable<ResourceIdentifier> = [
-      ['energy', 0, 40],
+      ['energy', 0, 20],
       ['metallic', 30, 0, Infinity, 0],
       ['crystalline', 20, 0, Infinity, 0],
       ['liquid', 0, 30, Infinity, 0],

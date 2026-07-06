@@ -136,20 +136,6 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
     );
   }
 
-  addLimits(limits: ResourceProcessCollectionEntries<Types>): ResourceProcessCollection<Types> {
-    const s = ResourceProcessCollection.fromArray(
-      this.map((p, type) => {
-        if (p.isNegative) {
-          return p;
-        }
-        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-        const limit = limits[type]?.limit as ComparableResource<Types>;
-        return p.addLimit(limit);
-      }),
-    );
-    return s;
-  }
-
   get zero(): ResourceProcessCollection<Types> {
     return ResourceProcessCollection.fromArray(
       this.asArray.map((resourceProcess) => {
