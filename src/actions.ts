@@ -39,7 +39,7 @@ export function createActionsRoute() {
     try {
       // safe JSON parse (catch invalid JSON)
       body = await c.req.json();
-    } catch (err) {
+    } catch {
       return c.json({ error: 'Invalid JSON body' }, 400);
     }
 
