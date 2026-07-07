@@ -6,13 +6,15 @@
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
     "importHelpers": true,
-    "target": "ESNext",
+    // ES2022 (not ESNext) so esbuild/tsx down-level the standard decorators
+    // @joist/di uses — at esnext esbuild passes them through untransformed.
+    "target": "ES2022",
     "module": "ESNext",
     "lib": ["ES2022", "ESNext.Decorators", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": { "@phlame/engine": ["engine/src/index.ts"] },
+    // paths resolve relative to this tsconfig (no baseUrl — deprecated in TS 6, gone in 7)
+    "paths": { "@phlame/engine": ["./engine/src/index.ts"] },
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "allowJs": false,
