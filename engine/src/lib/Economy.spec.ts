@@ -1,7 +1,7 @@
 import { Economy } from './Economy';
 import { ResourceCollection, ResourceProcess, Stock } from './resources';
 import { TumbleResource, BlubbResource, SaltyResource, ResourceTypes } from './resources/examples';
-import { stock, phelopments, overconsumingPhelopments, underBlubberPhelopments } from './examples';
+import { stock, phelopments, overconsumingPhelopments, underBlubberPhelopments, phormulae } from './examples';
 
 /**
  * At first glance, an Economy is like a Planet from our ancestorial game, however it covers edge cases differently:
@@ -19,11 +19,11 @@ import { stock, phelopments, overconsumingPhelopments, underBlubberPhelopments }
  */
 describe('Economy', () => {
   it('should be console printable', () => {
-    const empty = new Economy('Empty', stock, []);
+    const empty = new Economy('Empty', stock, [], phormulae);
     expect(empty.toString()).to.eql('Empty (Processing energy&resources: ) []');
     expect(empty.resources.productionTable).to.eql([]);
 
-    const factory = new Economy('Console', stock, [phelopments[0], phelopments[2]]);
+    const factory = new Economy('Console', stock, [phelopments[0], phelopments[2]], phormulae);
     expect(factory.toString()).to.eql(
       'Console (Processing energy&resources: ' +
         '50/50 energy, 0/0 heat, ' +
@@ -48,7 +48,7 @@ describe('Economy', () => {
   });
 
   it('should be serializable', () => {
-    const empty = new Economy('Empty', stock, []);
+    const empty = new Economy('Empty', stock, [], phormulae);
     expect(empty.toJSON()).to.eql({
       phelopments: [],
       name: 'Empty',
@@ -61,7 +61,7 @@ describe('Economy', () => {
       },
     });
 
-    const factory = new Economy('Console', stock, [phelopments[0], phelopments[2]]);
+    const factory = new Economy('Console', stock, [phelopments[0], phelopments[2]], phormulae);
     expect(factory.toJSON()).to.eql({
       phelopments: [
         {
@@ -83,7 +83,7 @@ describe('Economy', () => {
   });
 
   it('should have resources and phelopments', () => {
-    const factory = new Economy('Factory', stock, phelopments);
+    const factory = new Economy('Factory', stock, phelopments, phormulae);
     expect(factory.toString()).to.eql(
       'Factory (Processing energy&resources: ' +
         '30/50 energy, 0/0 heat, ' +
@@ -112,7 +112,7 @@ describe('Economy', () => {
   });
 
   it('can upgrade phelopments, in time', () => {
-    const factory = new Economy('Factory', stock, phelopments);
+    const factory = new Economy('Factory', stock, phelopments, phormulae);
     // TODO check substracted resources
     // TODO check build time
     expect(factory.upgrade(factory.phelopments[0].type).toString()).to.eql(
@@ -147,7 +147,7 @@ describe('Economy', () => {
   it('should tick: simply exhausting fuel', () => {
     // burn resources for unused energy, which doesn't accumulate
     const stock = new Stock<ResourceTypes>(ResourceCollection.fromArray([new BlubbResource(30)]));
-    const factory = new Economy('Tick', stock, [phelopments[0], phelopments[2]]);
+    const factory = new Economy('Tick', stock, [phelopments[0], phelopments[2]], phormulae);
     expect(factory.toString()).to.eql(
       'Tick (Processing energy&resources: ' +
         '50/50 energy, 0/0 heat, ' +
@@ -252,7 +252,7 @@ describe('Economy', () => {
     const stock = new Stock<ResourceTypes>(
       ResourceCollection.fromArray([tumbles, new SaltyResource(0), blubbs]),
     );
-    const factory = new Economy('Overtumbling', stock, overconsumingPhelopments);
+    const factory = new Economy('Overtumbling', stock, overconsumingPhelopments, phormulae);
     // full rate would be 129, but -13/50 energy degrades it
     const tumbleProcess = new ResourceProcess(tumbles.infinite, 129 * (50 / (13 + 50)) ** 1.1);
     const blubbProcess = new ResourceProcess(blubbs, 8 - 10);
@@ -317,7 +317,7 @@ describe('Economy', () => {
         new BlubbResource(40),
       ]),
     );
-    const factory = new Economy('Underblubbling', stock, underBlubberPhelopments);
+    const factory = new Economy('Underblubbling', stock, underBlubberPhelopments, phormulae);
     expect(factory.resources.productionEntries).to.eql([
       '171/234 energy',
       '0/0 heat',

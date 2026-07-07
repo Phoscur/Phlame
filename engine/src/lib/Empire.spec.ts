@@ -4,7 +4,7 @@ import { Economy } from './Economy';
 import { Phlame } from './Phlame';
 import { Empire } from './Empire';
 import examples, { Types } from './resources/examples';
-import { phelopments } from './examples';
+import { phelopments, phormulae } from './examples';
 import type { PhelopmentIdentifier } from './Phelopment';
 import { ActionFactory, EventFactory } from './Action';
 
@@ -18,7 +18,7 @@ describe('Empire Entity', () => {
     const { t3, s3 } = examples;
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
 
-    const eco = new Economy('Eco', stock, phelopments);
+    const eco = new Economy('Eco', stock, phelopments, phormulae);
     const phlame = new Phlame<Types, PhelopmentIdentifier>('Phlame', eco);
     const empire = new Empire('Empirial', [phlame]);
     expect(empire.toString()).to.eql(
@@ -34,7 +34,7 @@ describe('Empire Entity', () => {
   it('should track lastTick across entities', () => {
     const { t3, s3 } = examples;
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', stock, phelopments);
+    const eco = new Economy('Eco', stock, phelopments, phormulae);
     const p1 = new Phlame<Types, PhelopmentIdentifier>('Phlame1', eco, [], 10);
     const p2 = new Phlame<Types, PhelopmentIdentifier>('Phlame2', eco, [], 20);
     const empire = new Empire('LastPhlameAhead', [p1, p2]);

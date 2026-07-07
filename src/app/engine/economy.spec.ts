@@ -5,7 +5,7 @@ import {
   ResourceTable,
   Stock,
 } from '@phlame/engine';
-import { emptyStock, defaultPhelopments } from './phelopments';
+import { emptyStock, defaultPhelopments, phormulae } from './phelopments';
 import { CrystallineResource, LiquidResource, MetallicResource } from './resources';
 
 describe("Phelopment's Economy", () => {
@@ -15,7 +15,7 @@ describe("Phelopment's Economy", () => {
     expect(empty.resources.productionTable).to.eql([]);
     expect(empty.resources.validFor).to.be.eql(Infinity);
 
-    const factory = new Economy('Default', emptyStock, defaultPhelopments);
+    const factory = new Economy('Default', emptyStock, defaultPhelopments, phormulae);
     const table: ResourceTable<ResourceIdentifier> = [
       ['energy', 0, 20],
       ['metallic', 30, 0, Infinity, 0],
@@ -51,7 +51,7 @@ describe("Phelopment's Economy", () => {
         new LiquidResource(30),
       ]),
     );
-    const factory = new Economy('Factory', stock, defaultPhelopments);
+    const factory = new Economy('Factory', stock, defaultPhelopments, phormulae);
     const table: ResourceTable<ResourceIdentifier> = [
       ['energy', 0, 20],
       ['metallic', 30, 0, Infinity, 0],
@@ -74,7 +74,7 @@ describe("Phelopment's Economy", () => {
   });
 
   it.todo('can upgrade phelopments, in time', () => {
-    const factory = new Economy('Factory', emptyStock, defaultPhelopments);
+    const factory = new Economy('Factory', emptyStock, defaultPhelopments, phormulae);
     // TODO check substracted resources
     // TODO check build time
     expect(factory.upgrade(factory.phelopments[0].type).toString()).to.eql(

@@ -1,5 +1,4 @@
 import { ResourceIdentifier, BaseResources, ResourceValue, ComparableResource } from './Resource';
-import { Phormulae } from '../Phormulae';
 
 const MAX_VALUE = Number.POSITIVE_INFINITY; // if we want Number.MAX_VALUE here instead we need more checks getting closer to it
 
@@ -13,14 +12,6 @@ const MAX_VALUE = Number.POSITIVE_INFINITY; // if we want Number.MAX_VALUE here 
 export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
   implements ComparableResource<Type>
 {
-  /**
-   * @deprecated read-only shim delegating to `Phormulae.current` (ADR 0014) —
-   * configuration activates its rules via `Phormulae.use()`; dies with injection
-   */
-  static get types(): ResourceIdentifier[] {
-    return Phormulae.current.energyTypes;
-  }
-
   static MAX_VALUE = MAX_VALUE;
 
   readonly type: Type;
@@ -43,8 +34,10 @@ export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
     return new Energy(this.type, amount);
   }
 
+  // eslint-disable-next-line @typescript-eslint/class-literal-property-style
   get isEnergy(): boolean {
-    return !!~Energy.types.indexOf(this.type);
+    // an Energy instance is energy by construction - no registry lookup needed (ADR 0014)
+    return true;
   }
 
   get zero(): Energy<Type> {

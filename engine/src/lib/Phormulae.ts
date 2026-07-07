@@ -157,6 +157,7 @@ export class Phormulae {
     return `Phormulae[${this.resourceTypes.join(', ')}|${this.energyTypes.join(', ')}]`;
   }
 
+
   /**
    * Canonical serialization - the future universe rules hash (ADR 0011) hashes this
    */
@@ -186,21 +187,5 @@ export class Phormulae {
         ]),
       ),
     };
-  }
-
-  /**
-   * The process-global phormulae backing the deprecated static shims
-   * (`Resource.types`, `Energy.types`, ...).
-   * The last global - it dies once a Phormulae is injected everywhere (ADR 0014).
-   */
-  static current = new Phormulae();
-
-  /**
-   * Swap the current phormulae, returning the previous one (restore it after tests!)
-   */
-  static use(phormulae: Phormulae): Phormulae {
-    const previous = Phormulae.current;
-    Phormulae.current = phormulae;
-    return previous;
   }
 }

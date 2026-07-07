@@ -1,7 +1,7 @@
 import { Action, ActionType, ActionTypes } from './Action';
 
 import examples, { Types } from './resources/examples';
-import { stock, phelopments, phlame } from './examples';
+import { stock, phelopments, phlame, phormulae } from './examples';
 import { ResourceCollection } from './resources/ResourceCollection';
 import { Stock } from './resources/Stock';
 import { Phlame } from './Phlame';
@@ -11,7 +11,7 @@ describe('Phlame Entity', () => {
   it('should be console printable', () => {
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', exampleStock, phelopments);
+    const eco = new Economy('Eco', exampleStock, phelopments, phormulae);
     const phlame = new Phlame('Phlame', eco);
     expect(phlame.toString()).to.eql(
       'Phlame (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',
@@ -20,7 +20,7 @@ describe('Phlame Entity', () => {
   it('should be serializable', () => {
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', exampleStock, phelopments);
+    const eco = new Economy('Eco', exampleStock, phelopments, phormulae);
     const phlame = new Phlame('Phlame', eco);
     expect(phlame.toJSON()).to.eql({
       id: 'Phlame',
@@ -33,7 +33,7 @@ describe('Phlame Entity', () => {
     // TODO should relate to an empire (and its economies)
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', exampleStock, phelopments);
+    const eco = new Economy('Eco', exampleStock, phelopments, phormulae);
     const world = new Phlame('Planet', eco);
     expect(world.toString()).to.eql(
       'Planet (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',
@@ -53,7 +53,7 @@ describe('Phlame Entity', () => {
   });
 
   it('should queue and execute actions', () => {
-    const eco = new Economy('Eco', stock, phelopments);
+    const eco = new Economy('Eco', stock, phelopments, phormulae);
     const phlame = new Phlame('InAction', eco);
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 15blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',

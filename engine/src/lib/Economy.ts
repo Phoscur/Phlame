@@ -1,4 +1,5 @@
 import {
+  Energy,
   EnergyCalculation,
   Prosumer,
   Resource,
@@ -40,8 +41,8 @@ export class Economy<
     readonly name: string, // TODO? remove unused - or use this as a type? - rather leave it to an actual entity
     resources: Stock<ResourceType>,
     readonly phelopments: Phelopment<ResourceType, PhelopmentType>[] = [],
-    // defaulting to the current Phormulae is the documented bridge until injection lands (ADR 0014)
-    readonly phormulae: Phormulae = Phormulae.current,
+    // rules are explicit now - no Phormulae.current fallback (ADR 0014, injection done)
+    readonly phormulae: Phormulae = new Phormulae(),
   ) {
     this.resources = this.getResourceCalculation(resources, phelopments);
   }
@@ -58,11 +59,17 @@ export class Economy<
     stock: Stock<ResourceType> = this.stock,
   ): Prosumer<ResourceType> {
     const prosumption = this.phormulae.prosumptionFor(phelopment.type);
+    const energyTypes = this.phormulae.energyTypes;
     const processes = Object.keys(prosumption).map((type) => {
       // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const phormula = prosumption[type as ResourceType]!; // keys are never undefined
       const rate = phormula.at(phelopment.level);
-      const stocked = stock.has(type as ResourceType);
+      // energy isn't stocked (balanced, not stored) - build its placeholder from the
+      // rules; only the rules-aware Economy knows which types are energy (ADR 0014)
+      const stocked = energyTypes.includes(type)
+        ? ((stock.getByType(type as ResourceType) as Energy<ResourceType> | undefined) ??
+          new Energy(type as ResourceType, 0))
+        : stock.has(type as ResourceType);
       // limit production for an optionally maximal stock
       // also for energy a zero resource resource can be created implicitly
       // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
@@ -113,7 +120,11 @@ export class Economy<
         return this.prosumes(phelopment, resources);
       }),
     );
-    return EnergyCalculation.newStock<ResourceType>(resources, prosumers);
+    return EnergyCalculation.newStock<ResourceType>(
+      resources,
+      prosumers,
+      this.phormulae.rebalancingExponent,
+    );
   }
 
   protected new(

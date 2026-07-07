@@ -1,9 +1,10 @@
 # 0014 — Rules as data (lift the engine statics)
 
-Status: accepted (2026-07; steps 1-3 landed: `Phormulae` object, read-only static shims,
-barrel leak fix, app & examples build their Phormulae via `Phormulae.use()`, and the
-lookups moved in as kind-discriminated `Phormula` descriptors with Building reduced to
-pure state — see ADR 0015; injection and the hash itself still pending)
+Status: accepted (2026-07; **complete**). Steps: `Phormulae` object; lookups moved in as
+kind-discriminated `Phormula` descriptors with Building → pure state (ADR 0015); the
+Phingerprint (ADR 0011); and finally injection — `Phormulae.current` and all static shims
+(`Resource.types`, `Energy.types`, `EnergyCalculation.REBALANCING_EXPONENT`) are gone,
+rules are passed explicitly into every `Economy`. No hidden global state remains.
 
 ## Context
 
@@ -45,3 +46,27 @@ to M2 balancing.
   data file is just its storage).
 - Prerequisite for PLAN-MCP (multi-session A/B, `run_scenario`) and for M2 balancing.
 - Touches the active `game-actions` work — land it before the action log format spreads.
+
+## Injection (the final step, done 2026-07)
+
+Killing `Phormulae.current` took four clean cuts plus one insight:
+
+- `isEnergy` is now instance-based (an `Energy` is energy by construction) — which also
+  lets `ResourceProcess.getResourceFor` use `this.limit.isEnergy` instead of a registry.
+- `EnergyCalculation` carries its `rebalancingExponent` as a field, threaded from the
+  Economy's Phormulae.
+- The `Resource` constructor no longer coerces unknown types to Null via the global —
+  type validation is the factory/config boundary's job. (`new Resource('x', 0).type` is
+  now `'x'`, not Null.)
+- `Economy` requires its Phormulae explicitly (no `Phormulae.current` default); every
+  construction passes it.
+- The one genuinely hard reader was `ResourceCollection.createByType` classifying a bare
+  type string as energy, deep in the pure algebra with no Phormulae in scope. Insight:
+  the *only* place that synthesizes an energy placeholder is `Economy.prosumes` (empty
+  stock, energy prosumption) — and the Economy has the rules. So `createByType` defaults
+  to Resource and the Economy builds energy placeholders from `phormulae.energyTypes`.
+  No rule-context had to be threaded through the value-object algebra.
+
+Result: the fixture leak is structurally impossible (no global to leak into), and A/B
+with *differing type registries* now works (no shared global) — the last caveat noted in
+PLAN-MCP is resolved.
