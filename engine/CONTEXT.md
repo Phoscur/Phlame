@@ -25,11 +25,12 @@ See also: [../docs/tick-flow.md](../docs/tick-flow.md) (the tick loop with diagr
   unions supplied by the consumer (the app defines metallic/crystalline/liquid/energy).
 - **Rules as data** (ADR 0014, in migration): valid types and tuning constants live in the
   `Phormulae` value object (`lib/Phormulae.ts` — a universe's formula collection, singular
-  Phormula; canonical `toJSON` for the future rules hash). The old statics
-  (`Resource.types`, `Building.BUILD_TIME_DIVISOR`, ...) remain as deprecated shims over
-  `Phormulae.current`; config still push-registers through them until injection lands.
-  The engine barrel deliberately does NOT export `lib/examples` — its import registers
-  fixture types (that leak is fixed and regression-tested).
+  Phormula; canonical `toJSON` for the future rules hash). Configuration builds and
+  activates its rules via `Phormulae.use()`; the old statics (`Resource.types`,
+  `Building.BUILD_TIME_DIVISOR`, ...) remain as deprecated read-only shims over
+  `Phormulae.current` until injection lands. The engine barrel deliberately does NOT
+  export `lib/examples` — its import activates the example Phormulae (that fixture leak
+  is fixed and regression-tested).
 - Everything is JSON round-trippable: `toJSON()` on each layer, revival is the consumer's
   job (the app's `EngineFactory`). `toString()` everywhere for debugging/console UI.
 
