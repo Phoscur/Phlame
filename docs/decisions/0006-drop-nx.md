@@ -5,7 +5,8 @@ Status: accepted (done; readme wishlist item checked ~2024/2025)
 ## Context
 
 The repo was once an Nx workspace (`engine/libs/engine`, `engine/apps/server` — paths
-that still linger in the parent `phlame.code-workspace`). Nx brought generators and
+that lingered in the old monorepo's `phlame.code-workspace`, retired with `phlame-legacy`).
+Nx brought generators and
 caching, but also heavy tooling, config sprawl and upgrade churn for what is effectively
 one app plus one small library.
 

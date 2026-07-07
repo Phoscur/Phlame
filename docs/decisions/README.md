@@ -26,3 +26,4 @@ Reversing a decision gets a *new* ADR that supersedes the old one — don't rewr
 - [0011 — Universe identity = rules hash, Ω-first trust](0011-universe-rules-hash.md) `accepted`
 - [0012 — Empire owns the action log ("everything is a Phlame")](0012-empire-owns-the-log.md) `accepted`
 - [0013 — Stays open source (AGPL), monetization deferred](0013-open-source-monetization-deferred.md) `accepted`
+- [0014 — Rules as data (lift the engine statics)](0014-rules-as-data.md) `accepted`
