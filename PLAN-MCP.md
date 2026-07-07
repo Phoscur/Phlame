@@ -20,12 +20,13 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
 
 ## Prerequisites (found in review, 2026-07)
 
-- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)): the engine's
-      rule statics (`Resource.types`, `Energy.types`, tuning constants, lookups) become
-      an injectable `Phormulae` value object. Decided to pull this *before* the MCP server:
-      unblocks multi-Phormulae processes (A/B balancing), gives ADR 0011 its hashable
-      object, and kills the fixture leak (engine `examples.ts` registers
-      tumbles/salties/blubbs globally on import today).
+- [x] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md) /
+      [0015](docs/decisions/0015-phormula-descriptors-pure-building.md), landed 2026-07):
+      `Phormulae` value object carries registries, constants, requirements and
+      kind-discriminated `Phormula` descriptors; Building is pure state, Economy
+      interprets. A/B balancing (same types, different numbers) works per-instance;
+      *differing type registries* still collide on `Phormulae.current` until injection
+      (ADR 0014 step 4) — acceptable for MCP-0..2, revisit before MCP-3.
 - [ ] **DOM-free config imports**: `src/app/engine/index.ts` re-exports
       `empire.element.tsx` (`extends HTMLElement`) — importing the barrel in plain Node
       crashes without the `html-element` polyfill trick from `src/server.ts`. Split the

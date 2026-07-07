@@ -28,15 +28,15 @@ Small decisions that get expensive to change once actions & persistence formats 
 - [ ] Define genesis: a new empire must be derivable deterministically (seed on
       `Economy` — the existing TODO), so a save can be `genesis + action log`.
 - [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
-- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)) — steps 1+2
-      landed 2026-07: `Phormulae` value object (type registries + tuning constants,
-      canonical `toJSON` for the future hash), the old statics are `@deprecated` read-only
-      shims over `Phormulae.current`, the engine barrel no longer exports examples (fixture
-      leak fixed, regression-tested in `Phormulae.spec.ts`), and both the app
-      (`src/app/engine/resources.ts`) and the engine examples build + activate their
-      Phormulae explicitly via `Phormulae.use()` — the push-registration path is gone.
-      Still open: prosumption/requirement lookups into the Phormulae, actual injection
-      (kill `Phormulae.current`), the rules hash itself.
+- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)) — steps 1-3
+      landed 2026-07: `Phormulae` value object over `Phormulae.current` shims (fixture
+      leak fixed, regression-tested), app & examples build their Phormulae explicitly,
+      and the lookups moved in ([ADR 0015](docs/decisions/0015-phormula-descriptors-pure-building.md)):
+      formulas are kind-discriminated `Phormula` descriptors (`zero`/`polynomial`),
+      `Building` is pure state (= its JSON), the `Economy` interprets the rules
+      (`prosumes`/`upgradeCost`/`upgradeTime`), and `Phormulae.toJSON()` is complete.
+      Still open: actual injection (kill `Phormulae.current`; moves constructor type
+      validation to the config boundary), the rules hash itself (now unblocked).
 - [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).

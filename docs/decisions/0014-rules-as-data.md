@@ -1,8 +1,9 @@
 # 0014 — Rules as data (lift the engine statics)
 
-Status: accepted (2026-07; steps 1+2 landed: `Phormulae` object, read-only static shims,
-barrel leak fix, app & examples build their Phormulae via `Phormulae.use()` — push path
-removed; lookups, injection and the hash itself still pending)
+Status: accepted (2026-07; steps 1-3 landed: `Phormulae` object, read-only static shims,
+barrel leak fix, app & examples build their Phormulae via `Phormulae.use()`, and the
+lookups moved in as kind-discriminated `Phormula` descriptors with Building reduced to
+pure state — see ADR 0015; injection and the hash itself still pending)
 
 ## Context
 
