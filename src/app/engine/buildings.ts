@@ -3,26 +3,28 @@ import {
   EnergyTypes,
   MetallicResource,
   CrystallineResource,
-  // LiquidResource,
   zeroResources,
-  // zeroEnergy,
+  resourcePhormulae,
 } from './resources';
 export type Resources = ResourceTypes | EnergyTypes;
-import { Stock, ResourceCollection, type BuildingJSON } from '@phlame/engine';
 import {
   Building,
   BuildingRequirement,
-  // type BuildingIdentifier as BuildingID, type ProsumptionLookup, type RequirementLookup,
+  Phormula,
+  Phormulae,
+  ResourceCollection,
+  Stock,
+  type BuildingJSON,
+  type ProsumptionLookup,
+  type RequirementLookup,
 } from '@phlame/engine';
 
-// export type BuildingIdentifier = BuildingID;
 export type BuildingIdentifier = keyof typeof buildings;
 export type BuildingType = keyof typeof buildings;
 
-/* export const requirements: RequirementLookup<Resources, BuildingIdentifier> = {
-  // Metallic mine
-  1: new BuildingRequirement<Resources, BuildingIdentifier>(
-    1,
+export const requirements: RequirementLookup<Resources, BuildingIdentifier> = {
+  'mine-metallic': new BuildingRequirement<Resources, BuildingIdentifier>(
+    'mine-metallic',
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(60),
       new CrystallineResource(15),
@@ -30,9 +32,8 @@ export type BuildingType = keyof typeof buildings;
     1.5,
     [],
   ),
-  // Crystalline mine
-  2: new BuildingRequirement<Resources, BuildingIdentifier>(
-    2,
+  'mine-crystalline': new BuildingRequirement<Resources, BuildingIdentifier>(
+    'mine-crystalline',
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(48),
       new CrystallineResource(24),
@@ -40,9 +41,8 @@ export type BuildingType = keyof typeof buildings;
     1.6,
     [],
   ),
-  // Liquid mine
-  3: new BuildingRequirement<Resources, BuildingIdentifier>(
-    3,
+  'mine-liquid': new BuildingRequirement<Resources, BuildingIdentifier>(
+    'mine-liquid',
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(225),
       new CrystallineResource(75),
@@ -50,9 +50,8 @@ export type BuildingType = keyof typeof buildings;
     1.5,
     [],
   ),
-  // power
-  4: new BuildingRequirement<Resources, BuildingIdentifier>(
-    4,
+  'power-solar': new BuildingRequirement<Resources, BuildingIdentifier>(
+    'power-solar',
     ResourceCollection.fromArray<Resources>([
       new MetallicResource(75),
       new CrystallineResource(30),
@@ -60,277 +59,50 @@ export type BuildingType = keyof typeof buildings;
     1.5,
     [],
   ),
-  // power based on Liquid
-  12: new BuildingRequirement<Resources, BuildingIdentifier>(
-    12,
-    ResourceCollection.fromArray<Resources>([
-      new MetallicResource(48),
-      new CrystallineResource(24),
-    ]),
-    1.8,
-    [
-      {
-        type: 3,
-        level: 5,
-      },
-      {
-        type: 113,
-        level: 3,
-      },
-    ],
-  ),
-  // build buildings faster! TODO we need to add the time reducing factors
-  14: new BuildingRequirement<Resources, BuildingIdentifier>(
-    14, // robots factor=1/(1+level)
-    ResourceCollection.fromArray<Resources>([
-      new MetallicResource(400),
-      new CrystallineResource(120),
-      new LiquidResource(200),
-    ]),
-    2,
-    [],
-  ), // FASTER
-  15: new BuildingRequirement<Resources, BuildingIdentifier>(
-    15, // nanites factor=1/2^level
-    ResourceCollection.fromArray<Resources>([
-      new MetallicResource(1000000),
-      new CrystallineResource(500000),
-      new LiquidResource(100000),
-    ]),
-    2,
-    [
-      {
-        type: 14,
-        level: 10,
-      },
-      {
-        type: 108,
-        level: 10,
-      },
-    ],
-  ),
-  // lab
-  31: new BuildingRequirement<Resources, BuildingIdentifier>(
-    31,
-    ResourceCollection.fromArray<Resources>([
-      new MetallicResource(200),
-      new CrystallineResource(400),
-      new LiquidResource(200),
-    ]),
-    2,
-    [],
-  ),
-  // tech (above 100)
-  109: new BuildingRequirement<Resources, BuildingIdentifier>(
-    113, // computer
-    ResourceCollection.fromArray<Resources>([
-      new CrystallineResource(800),
-      new LiquidResource(400),
-    ]),
-    2,
-    [
-      {
-        type: 31,
-        level: 4,
-      },
-    ],
-  ),
-  113: new BuildingRequirement<Resources, BuildingIdentifier>(
-    113, // energy
-    ResourceCollection.fromArray<Resources>([
-      new CrystallineResource(800),
-      new LiquidResource(400),
-    ]),
-    2,
-    [
-      {
-        type: 31,
-        level: 1,
-      },
-    ],
-  ),
-  // TODO add the remaining buildings and tech aswell as fleet (with ids above 200)
 };
 
-export const prosumption: ProsumptionLookup<Resources, BuildingIdentifier> = {
-  0: {
-    [ResourceTypes.Metallic]: (): number => {
-      return 0;
-    },
-    [ResourceTypes.Crystalline]: (): number => {
-      return 0;
-    },
-    [ResourceTypes.Liquid]: (): number => {
-      return 0;
-    },
-    [EnergyTypes.Electricity]: (): number => {
-      return 0;
-    },
-    [EnergyTypes.Heat]: (): number => {
-      return 0;
-    },
+export const prosumptions: ProsumptionLookup<Resources, BuildingIdentifier> = {
+  null: {},
+  'mine-metallic': {
+    [ResourceTypes.Metallic]: Phormula.polynomial(30),
+    [EnergyTypes.Electricity]: Phormula.polynomial(-10),
   },
-  1: {
-    [ResourceTypes.Metallic]: (lvl: number) => 30 * lvl * lvl ** 1.1,
-    [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+  'mine-crystalline': {
+    [ResourceTypes.Crystalline]: Phormula.polynomial(20),
+    [EnergyTypes.Electricity]: Phormula.polynomial(-10),
   },
-  2: {
-    [ResourceTypes.Crystalline]: (lvl: number) => 20 * lvl * lvl ** 1.1,
-    [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+  'mine-liquid': {
+    // TODO actually dependent on planet attribute maxTemperature - a future Phormula kind:
+    // 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28)
+    [ResourceTypes.Liquid]: Phormula.polynomial(10),
+    [EnergyTypes.Electricity]: Phormula.polynomial(-10),
   },
-  3: {
-    // TODO actually [ResourceTypes.Liquid]: (lvl, planet) => 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28),
-    [ResourceTypes.Liquid]: (lvl: number): number => {
-      return 10 * lvl * lvl ** 1.1;
-    },
-    [EnergyTypes.Electricity]: (lvl: number): number => {
-      return -10 * lvl * lvl ** 1.1;
-    },
+  'power-solar': {
+    [EnergyTypes.Electricity]: Phormula.polynomial(20),
   },
-  4: {
-    [EnergyTypes.Electricity]: (lvl: number): number => 20 * lvl * lvl ** 1.1,
-  },
-  12: {
-    [ResourceTypes.Liquid]: (lvl: number): number => {
-      return -10 * lvl * lvl ** 1.1;
-    },
-    [EnergyTypes.Electricity]: (lvl: number): number => {
-      return 50 * lvl * lvl ** 1.1;
-    },
-  },
-};*/
+};
+
+/**
+ * The game's complete Phormulae (ADR 0014/0015): types + requirements + prosumptions;
+ * activated as the current rules on import (until injection replaces `Phormulae.current`)
+ */
+export const phormulae = resourcePhormulae
+  .withRequirements(requirements)
+  .withProsumptions(prosumptions);
+Phormulae.use(phormulae);
 
 export const buildings = {
-  null: (level?: number, speed?: number) =>
-    new Building(
-      'null',
-      {},
-      {
-        null: {
-          [ResourceTypes.Metallic]: (): number => {
-            return 0;
-          },
-          [ResourceTypes.Crystalline]: (): number => {
-            return 0;
-          },
-          [ResourceTypes.Liquid]: (): number => {
-            return 0;
-          },
-          [EnergyTypes.Electricity]: (): number => {
-            return 0;
-          },
-        },
-      },
-      level,
-      speed,
-    ),
+  null: (level?: number, speed?: number) => new Building('null', level, speed),
   'mine-metallic': (level?: number, speed?: number) =>
-    new Building(
-      'mine-metallic',
-      {
-        'mine-metallic': new BuildingRequirement<Resources, BuildingIdentifier>(
-          'mine-metallic',
-          ResourceCollection.fromArray<Resources>([
-            new MetallicResource(60),
-            new CrystallineResource(15),
-          ]),
-          1.5,
-          [],
-        ),
-      },
-      {
-        'mine-metallic': {
-          [ResourceTypes.Metallic]: (lvl: number) => 30 * lvl * lvl ** 1.1,
-          [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
-        },
-      },
-      level,
-      speed,
-    ),
+    new Building('mine-metallic', level, speed),
   'mine-crystalline': (level?: number, speed?: number) =>
-    new Building(
-      'mine-crystalline',
-      {
-        'mine-crystalline': new BuildingRequirement<Resources, BuildingIdentifier>(
-          'mine-crystalline',
-          ResourceCollection.fromArray<Resources>([
-            new MetallicResource(48),
-            new CrystallineResource(24),
-          ]),
-          1.6,
-          [],
-        ),
-      },
-      {
-        'mine-crystalline': {
-          [ResourceTypes.Crystalline]: (lvl: number) => 20 * lvl * lvl ** 1.1,
-          [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
-        },
-      },
-      level,
-      speed,
-    ),
-  'mine-liquid': (level?: number, speed?: number) =>
-    new Building(
-      'mine-liquid',
-      {
-        'mine-liquid': new BuildingRequirement<Resources, BuildingIdentifier>(
-          'mine-liquid',
-          ResourceCollection.fromArray<Resources>([
-            new MetallicResource(225),
-            new CrystallineResource(75),
-          ]),
-          1.5,
-          [],
-        ),
-      },
-      {
-        'mine-liquid': {
-          // TODO actually dependent on planet attribute maxTemperature: [ResourceTypes.Liquid]: (lvl, planet) => 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28),
-          [ResourceTypes.Liquid]: (lvl: number): number => {
-            return 10 * lvl * lvl ** 1.1;
-          },
-          [EnergyTypes.Electricity]: (lvl: number): number => {
-            return -10 * lvl * lvl ** 1.1;
-          },
-        },
-      },
-      level,
-      speed,
-    ),
-  'power-solar': (level?: number, speed?: number) =>
-    new Building(
-      'power-solar',
-      {
-        'power-solar': new BuildingRequirement<Resources, BuildingIdentifier>(
-          'power-solar',
-          ResourceCollection.fromArray<Resources>([
-            new MetallicResource(75),
-            new CrystallineResource(30),
-          ]),
-          1.5,
-          [],
-        ),
-      },
-      {
-        'power-solar': {
-          [EnergyTypes.Electricity]: (lvl: number): number => 20 * lvl * lvl ** 1.1,
-        },
-      },
-      level,
-      speed,
-    ),
+    new Building('mine-crystalline', level, speed),
+  'mine-liquid': (level?: number, speed?: number) => new Building('mine-liquid', level, speed),
+  'power-solar': (level?: number, speed?: number) => new Building('power-solar', level, speed),
 } as const;
 
 // TODO time to get BuildingID type as keyof buildings
 // - see if we need to refactor all the enums..
-/*const b0 = new Building<Resources, BuildingID>(0, requirements, prosumption, 0, 0);
-const b1 = new Building<Resources, BuildingID>(1, requirements, prosumption, 1, 100);
-const b2 = new Building<Resources, BuildingID>(2, requirements, prosumption, 1, 100);
-const b3 = new Building<Resources, BuildingID>(3, requirements, prosumption, 0, 0);
-const b4 = new Building<Resources, BuildingID>(4, requirements, prosumption, 1, 100);
-
-export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [b0, b1, b2, b3, b4];*/
 
 export const defaultBuildings: Building<Resources, BuildingIdentifier>[] = [
   buildings['mine-metallic'](1),
@@ -350,3 +122,56 @@ export class BuildingFactory {
     return buildings[type] ? buildings[type](level, speed) : buildings.null(level, speed);
   }
 }
+
+/*
+ * M0 reference — the full intended building + tech tree (numbers from the UGamela era).
+ * The live definitions above cover the first four buildings; this block is the target to
+ * grow into: proper string names still missing (numeric ids below), tech dependencies,
+ * special buildings (faster building), and conversion of the formulas to Phormula
+ * descriptors (ADR 0015). See PLAN.md M0/M2. Fusion (12) needs mine-liquid L5 + energy-tech
+ * L3; nanites (15) need robots (14) L10 + tech 108 L10; techs (109 computer, 113 energy)
+ * live on the Empire per "everything is a Phlame" (ADR 0012).
+ *
+ * export const requirements: RequirementLookup<Resources, BuildingIdentifier> = {
+ *   // Metallic mine
+ *   1: new BuildingRequirement(1, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(60), new CrystallineResource(15)]), 1.5, []),
+ *   // Crystalline mine
+ *   2: new BuildingRequirement(2, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(48), new CrystallineResource(24)]), 1.6, []),
+ *   // Liquid mine
+ *   3: new BuildingRequirement(3, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(225), new CrystallineResource(75)]), 1.5, []),
+ *   // power (solar)
+ *   4: new BuildingRequirement(4, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(75), new CrystallineResource(30)]), 1.5, []),
+ *   // power based on Liquid (fusion)
+ *   12: new BuildingRequirement(12, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(48), new CrystallineResource(24)]), 1.8,
+ *     [{ type: 3, level: 5 }, { type: 113, level: 3 }]),
+ *   // build buildings faster! TODO time-reducing factors — robots factor=1/(1+level)
+ *   14: new BuildingRequirement(14, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(400), new CrystallineResource(120), new LiquidResource(200)]), 2, []),
+ *   // nanites factor=1/2^level
+ *   15: new BuildingRequirement(15, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(1000000), new CrystallineResource(500000), new LiquidResource(100000)]),
+ *     2, [{ type: 14, level: 10 }, { type: 108, level: 10 }]),
+ *   // lab
+ *   31: new BuildingRequirement(31, ResourceCollection.fromArray<Resources>([
+ *     new MetallicResource(200), new CrystallineResource(400), new LiquidResource(200)]), 2, []),
+ *   // tech (above 100) — computer
+ *   109: new BuildingRequirement(113, ResourceCollection.fromArray<Resources>([
+ *     new CrystallineResource(800), new LiquidResource(400)]), 2, [{ type: 31, level: 4 }]),
+ *   // energy tech
+ *   113: new BuildingRequirement(113, ResourceCollection.fromArray<Resources>([
+ *     new CrystallineResource(800), new LiquidResource(400)]), 2, [{ type: 31, level: 1 }]),
+ *   // TODO remaining buildings, tech and fleet (ids above 200)
+ * };
+ *
+ * // prosumption per level (now Phormula.polynomial(coefficient), see live prosumptions above)
+ * // 1 metallic mine: Metallic +30, Electricity -10
+ * // 2 crystalline mine: Crystalline +20, Electricity -10
+ * // 3 liquid mine: Liquid +10 (TODO * (-0.002*maxTemperature + 1.28)), Electricity -10
+ * // 4 solar power: Electricity +20
+ * // 12 fusion: Liquid -10, Electricity +50
+ */

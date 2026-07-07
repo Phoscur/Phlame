@@ -15,7 +15,7 @@ import {
   EmpireJSON,
 } from '@phlame/engine';
 import { ResourceFactory, type ResourceIdentifier } from './resources';
-import { BuildingFactory, type BuildingIdentifier } from './buildings';
+import { BuildingFactory, phormulae, type BuildingIdentifier } from './buildings';
 
 export type EmpireEntity = Empire<ResourceIdentifier, BuildingIdentifier>;
 export type PhlameEntity = Phlame<ResourceIdentifier, BuildingIdentifier>;
@@ -68,6 +68,7 @@ export class EngineFactory {
       name,
       this.createStock(stock),
       buildings.map((b) => this.createBuilding(b)),
+      phormulae,
     );
   }
 

@@ -1,38 +1,8 @@
-import {
-  ResourceIdentifier,
-  Resource,
-  ResourceProcess,
-  ResourceProcessCollection,
-  Prosumer,
-  Stock,
-  ResourceCollection,
-} from './resources';
-import { BuildingRequirement } from './BuildingRequirement';
-import { Phormulae } from './Phormulae';
-import type { TimeUnit } from './resources/ResourceProcess';
-import type { ProsumerIdentifier } from './resources/Prosumer';
+import type { ResourceIdentifier } from './resources/Resource';
+import type { BuildingIdentifier } from './Phormulae';
 
-export type BuildingIdentifier = ProsumerIdentifier;
-
-export type LevelToProsumptionFunc = (level: number) => number;
-
-export type ProsumptionEntries<Types extends ResourceIdentifier> = {
-  [Type in Types]?: LevelToProsumptionFunc;
-};
-
-export type ProsumptionLookup<
-  ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
-> = {
-  [Type in BuildingType]?: ProsumptionEntries<ResourceType>;
-};
-
-export type RequirementLookup<
-  ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
-> = {
-  [Type in BuildingType]?: BuildingRequirement<ResourceType, BuildingType>;
-};
+// BuildingIdentifier moved to Phormulae.ts (ADR 0015), re-exported here for compatibility
+export type { BuildingIdentifier } from './Phormulae';
 
 export interface BuildingJSON<Type extends BuildingIdentifier> {
   type: Type;
@@ -40,22 +10,18 @@ export interface BuildingJSON<Type extends BuildingIdentifier> {
   speed: number;
 };
 
+/**
+ * Building - pure state, exactly its JSON: type, level, speed (ADR 0015)
+ * Costs, build times and prosumption are computed by the Economy interpreting
+ * the Phormulae; ResourceType stays a type parameter only for API symmetry
+ * with Economy/Phlame/Empire.
+ */
 export class Building<
-  ResourceType extends ResourceIdentifier,
+  _ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
 > {
-  /**
-   * @deprecated shim delegating to `Phormulae.current` (ADR 0014)
-   */
-  static get BUILD_TIME_DIVISOR(): number {
-    return Phormulae.current.buildTimeDivisor;
-  }
-
   constructor(
     readonly type: BuildingType,
-    // TODO! For now we have the full lookup here, might be nicer to encapsulate in a different way?
-    readonly requirements: RequirementLookup<ResourceType, BuildingType>,
-    readonly prosumption: ProsumptionLookup<ResourceType, BuildingType>,
     readonly level = 0,
     readonly speed = 100,
   ) {
@@ -63,77 +29,24 @@ export class Building<
     this.speed = defaultSpeed <= 0 ? 0 : defaultSpeed;
   }
 
-  protected new(level?: number, speed?: number): Building<ResourceType, BuildingType> {
-    return new Building(this.type, this.requirements, this.prosumption, level, speed);
+  protected new(level?: number, speed?: number): Building<_ResourceType, BuildingType> {
+    return new Building(this.type, level, speed);
   }
 
-  get upgradeCost(): ResourceCollection<ResourceType> {
-    const requirement = this.requirements[this.type];
-    if (!requirement) {
-      throw new Error(`Unknown building requirement, BuildingType: ${this.type}`);
-    }
-    return requirement.getUpgradeCost(this.level + 1);
-  }
-
-  get downgradeCost(): ResourceCollection<ResourceType> {
-    const requirement = this.requirements[this.type];
-    if (!requirement) {
-      throw new Error(`Unknown building requirement, BuildingType: ${this.type}`);
-    }
-    return requirement.getDowngradeCost(this.level + 1);
-  }
-
-  get upgradeTime(): TimeUnit {
-    return Math.floor(
-      this.upgradeCost.map((resource) => resource.amount).reduce((sum, amount) => sum + amount, 0) /
-        Building.BUILD_TIME_DIVISOR,
-    );
-  }
-
-  get downgradeTime(): TimeUnit {
-    return Math.floor(
-      this.downgradeCost
-        .map((resource) => resource.amount)
-        .reduce((sum, amount) => sum + amount, 0) / Building.BUILD_TIME_DIVISOR,
-    );
-  }
-
-  get upgraded(): Building<ResourceType, BuildingType> {
+  get upgraded(): Building<_ResourceType, BuildingType> {
     return this.new(this.level + 1, this.speed);
   }
 
-  get downgraded(): Building<ResourceType, BuildingType> {
+  get downgraded(): Building<_ResourceType, BuildingType> {
     return this.new(this.level - 1, this.speed);
   }
 
-  at(speed: number): Building<ResourceType, BuildingType> {
+  at(speed: number): Building<_ResourceType, BuildingType> {
     return this.new(this.level, speed);
   }
 
-  get disabled(): Building<ResourceType, BuildingType> {
+  get disabled(): Building<_ResourceType, BuildingType> {
     return this.at(0);
-  }
-
-  prosumes(stock: Stock<ResourceType>): Prosumer<ResourceType> {
-    // TODO maybe we really don't need the lookups here, or can this work without the typecasts?
-    const prosumption = (this.prosumption[this.type] || {}) as ProsumptionEntries<ResourceType>;
-    const processes = Object.keys(prosumption).map((type) => {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      const prosumptionFunc = prosumption[type as ResourceType] as LevelToProsumptionFunc; // never undefined
-      const rate = prosumptionFunc(this.level);
-      const stocked = stock.has(type as ResourceType);
-      // limit production for an optionally maximal stock
-      // also for energy a zero resource resource can be created implicitly
-      // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
-      const max = (stock.max.getByType(type as ResourceType) as Resource<ResourceType>) ?? stocked;
-      return new ResourceProcess<ResourceType>(rate > 0 ? max : stocked, rate);
-    });
-
-    return new Prosumer<ResourceType>(
-      this.type,
-      ResourceProcessCollection.fromArray<ResourceType>(processes),
-      this.speed,
-    );
   }
 
   toString(): string {

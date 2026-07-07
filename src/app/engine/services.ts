@@ -1,12 +1,17 @@
 import { inject, injectable } from '@joist/di';
 import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable } from '@phlame/engine';
 import { Empire } from '@phlame/engine';
-import { type BuildingIdentifier, defaultBuildings, emptyStock } from './buildings';
+import { type BuildingIdentifier, defaultBuildings, emptyStock, phormulae } from './buildings';
 import type { ResourceIdentifier } from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
 
 export function emptyEconomy(name: string) {
-  return new Economy<ResourceIdentifier, BuildingIdentifier>(name, emptyStock, defaultBuildings);
+  return new Economy<ResourceIdentifier, BuildingIdentifier>(
+    name,
+    emptyStock,
+    defaultBuildings,
+    phormulae,
+  );
 }
 export function emptyPlanet(id: ID, tick?: number) {
   return new Phlame<ResourceIdentifier, BuildingIdentifier>(id, emptyEconomy(`E${id}`), [], tick);

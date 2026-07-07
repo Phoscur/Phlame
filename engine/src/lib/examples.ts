@@ -4,14 +4,16 @@ import examples, {
   TumbleResource,
   SaltyResource,
   BlubbResource,
+  phormulae as resourcePhormulae,
 } from './resources/examples';
 import { Stock, ResourceCollection } from './resources';
+import { Building, BuildingIdentifier as BuildingID } from './Building';
 import {
-  Building,
-  BuildingIdentifier as BuildingID,
-  ProsumptionLookup,
-  RequirementLookup,
-} from './Building';
+  Phormulae,
+  type ProsumptionLookup,
+  type RequirementLookup,
+} from './Phormulae';
+import { Phormula } from './Phormula';
 import { BuildingRequirement } from './BuildingRequirement';
 import { Economy } from './Economy';
 import { Phlame } from './Phlame';
@@ -134,58 +136,47 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
 } as const;
 export const prosumption: ProsumptionLookup<Resources, BuildingID> = {
   0: {
-    [ResourceTypes.Tumble]: (): number => {
-      return 0;
-    },
-    [ResourceTypes.Salty]: (): number => {
-      return 0;
-    },
-    [ResourceTypes.Blubber]: (): number => {
-      return 0;
-    },
-    [EnergyTypes.Electricity]: (): number => {
-      return 0;
-    },
-    [EnergyTypes.Heat]: (): number => {
-      return 0;
-    },
+    [ResourceTypes.Tumble]: Phormula.zero(),
+    [ResourceTypes.Salty]: Phormula.zero(),
+    [ResourceTypes.Blubber]: Phormula.zero(),
+    [EnergyTypes.Electricity]: Phormula.zero(),
+    [EnergyTypes.Heat]: Phormula.zero(),
   },
   1: {
-    [ResourceTypes.Tumble]: (lvl: number) => 30 * lvl * lvl ** 1.1,
-    [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+    [ResourceTypes.Tumble]: Phormula.polynomial(30),
+    [EnergyTypes.Electricity]: Phormula.polynomial(-10),
   },
   2: {
-    [ResourceTypes.Salty]: (lvl: number) => 20 * lvl * lvl ** 1.1,
-    [EnergyTypes.Electricity]: (lvl: number) => -10 * lvl * lvl ** 1.1,
+    [ResourceTypes.Salty]: Phormula.polynomial(20),
+    [EnergyTypes.Electricity]: Phormula.polynomial(-10),
   },
   3: {
-    // TODO actually [ResourceTypes.Blubber]: (lvl, planet) => 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28),
-    [ResourceTypes.Blubber]: (lvl: number): number => {
-      return 10 * lvl * lvl ** 1.1;
-    },
-    [EnergyTypes.Electricity]: (lvl: number): number => {
-      return -10 * lvl * lvl ** 1.1;
-    },
+    // TODO actually dependent on the planet's maxTemperature - a future Phormula kind:
+    // 10 * lvl * lvl ** 1.1 * (-0.002 * planet.maxTemperature + 1.28)
+    [ResourceTypes.Blubber]: Phormula.polynomial(10),
+    [EnergyTypes.Electricity]: Phormula.polynomial(-10),
   },
   4: {
-    [EnergyTypes.Electricity]: (lvl: number): number => 20 * lvl * lvl ** 1.1,
+    [EnergyTypes.Electricity]: Phormula.polynomial(20),
   },
   12: {
-    [ResourceTypes.Blubber]: (lvl: number): number => {
-      return -10 * lvl * lvl ** 1.1;
-    },
-    [EnergyTypes.Electricity]: (lvl: number): number => {
-      return 50 * lvl * lvl ** 1.1;
-    },
+    [ResourceTypes.Blubber]: Phormula.polynomial(-10),
+    [EnergyTypes.Electricity]: Phormula.polynomial(50),
   },
 } as const;
-const b = new Building<Resources, BuildingID>(12, requirements, prosumption, 1, 100);
-const bUpgraded = new Building<Resources, BuildingID>(12, requirements, prosumption, 2, 100);
-const b0 = new Building(0, requirements, prosumption, 1, 50); // 0 times 0,5 is still 0
-const b3 = new Building<Resources, BuildingID>(3, requirements, prosumption, 1, 100);
-const b1 = new Building<Resources, BuildingID>(1, requirements, prosumption, 2, 100);
-const b2 = new Building<Resources, BuildingID>(2, requirements, prosumption, 1, 100);
-const b4 = new Building<Resources, BuildingID>(4, requirements, prosumption, 1, 100);
+
+// The complete example rules: types + requirements + prosumption Phormulae
+export const phormulae = resourcePhormulae
+  .withRequirements(requirements)
+  .withProsumptions(prosumption);
+Phormulae.use(phormulae);
+const b = new Building<Resources, BuildingID>(12, 1, 100);
+const bUpgraded = new Building<Resources, BuildingID>(12, 2, 100);
+const b0 = new Building<Resources, BuildingID>(0, 1, 50); // 0 times 0,5 is still 0
+const b3 = new Building<Resources, BuildingID>(3, 1, 100);
+const b1 = new Building<Resources, BuildingID>(1, 2, 100);
+const b2 = new Building<Resources, BuildingID>(2, 1, 100);
+const b4 = new Building<Resources, BuildingID>(4, 1, 100);
 export const buildings: Building<Resources, BuildingID>[] = [b, b3, b0, b2];
 export const overconsumingBuildings: Building<Resources, BuildingID>[] = [b, b1, b2, b3, b0];
 export const underBlubberBuildings: Building<Resources, BuildingID>[] = [
@@ -206,6 +197,6 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
 ]);
 export const stock = new Stock<Resources>(resourceCollection);
 export const emptyStock = new Stock<Resources>(emptyResourceCollection);
-export const economy = new Economy<Resources, BuildingID>('Eco', stock, defaultBuildings);
+export const economy = new Economy<Resources, BuildingID>('Eco', stock, defaultBuildings, phormulae);
 export const phlame = new Phlame<Resources, BuildingID>('Phlame', economy);
 export const empire = new Empire<Resources, BuildingID>('Empire', [phlame]);

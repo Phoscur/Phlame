@@ -1,3 +1,4 @@
+export * from './lib/Phormula';
 export * from './lib/Phormulae';
 export * from './lib/resources';
 export * from './lib/Building';
