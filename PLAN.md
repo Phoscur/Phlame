@@ -28,12 +28,13 @@ Small decisions that get expensive to change once actions & persistence formats 
 - [ ] Define genesis: a new empire must be derivable deterministically (seed on
       `Economy` — the existing TODO), so a save can be `genesis + action log`.
 - [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
-- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)): lift the
-      engine's rule statics (`Resource.types`/`Energy.types` registries, tuning
-      constants, lookups) into an injectable `Ruleset` value object — gives the rules
-      hash (ADR 0011) its object, enables multi-ruleset processes (PLAN-MCP A/B), and
-      kills the fixture leak (engine `examples.ts` registers test types globally on
-      import). Land before the action log format spreads.
+- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)) — step 1
+      landed 2026-07: `Phormulae` value object (type registries + tuning constants,
+      canonical `toJSON` for the future hash), the old statics are `@deprecated` shims
+      over `Phormulae.current`, and the engine barrel no longer exports examples — the
+      fixture leak is fixed and regression-tested (`Phormulae.spec.ts`). Still open:
+      prosumption/requirement lookups into the Phormulae, app builds its Phormulae instead
+      of push-registering, actual injection (kill `Phormulae.current`), the rules hash itself.
 - [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).

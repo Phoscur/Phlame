@@ -1,5 +1,6 @@
 import type { ResourceIdentifier } from './resources/Resource';
 import { EnergyCalculation, ResourceCollection } from './resources';
+import { Phormulae } from './Phormulae';
 
 export type RequirementTypes = number | string;
 export interface Dependency<RequirementType extends RequirementTypes> {
@@ -14,7 +15,12 @@ export class BuildingRequirement<
   ResourceType extends ResourceIdentifier,
   RequirementType extends RequirementTypes,
 > {
-  static DOWNGRADECOST_DIVISOR = 2;
+  /**
+   * @deprecated shim delegating to `Phormulae.current` (ADR 0014)
+   */
+  static get DOWNGRADECOST_DIVISOR(): number {
+    return Phormulae.current.downgradeCostDivisor;
+  }
 
   constructor(
     readonly type: RequirementType,
