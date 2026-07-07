@@ -6,28 +6,34 @@ on:
   pull_request:
 
 jobs:
+  # Fail-fast lint gate: oxlint runs in seconds with no install step, so a lint
+  # regression surfaces almost immediately — well before the slower test job below
+  # finishes. Pinned version + --deny-warnings keeps it identical to local `oxlint`.
   oxlint:
-    name: Lint (fast pass)
+    name: Lint (fast fail)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npx --yes oxlint@1.6.0 --deny-warnings
+      - run: npx --yes oxlint@1.72.0 --deny-warnings
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
-    name: Test & Lint
+        node-version: [24.x]
+    name: Test & Typecheck
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, lint and test with coverage
-        run: |
-          npm install
-          npm run lint
-          npm run coverage
+      - name: Install dependencies
+        run: npm install
+      - name: Typecheck - TSC
+        run: npm run tsc
+      - name: ESLint
+        run: npm run lint
+      - name: Unit tests with coverage (app + engine) - Vitest
+        run: npm run coverage
         env:
           CI: true

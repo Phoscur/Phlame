@@ -1,25 +1,13 @@
-/// <reference types='vitest' />
+/// <reference types='vitest/config' />
 import { defineConfig } from 'vite';
-import dts from 'vite-plugin-dts';
-import * as path from 'path';
-import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   root: __dirname,
   cacheDir: '../node_modules/.vite/engine',
 
-  plugins: [
-    tsconfigPaths(),
-    dts({
-      entryRoot: 'src',
-      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
-    }),
-  ],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+  // Pure library: no decorators, tests use relative imports, so no plugins needed.
+  // (Type declarations for `build` are emitted via `npm run tsc` / tsconfig.lib.json,
+  // not vite-plugin-dts anymore.)
 
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
