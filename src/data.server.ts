@@ -5,7 +5,14 @@ import { Zeit } from './app/signals/zeitgeber';
 import { PersistedSession } from './engine.server';
 
 const NANOID_ALPHABET = '123456789ABCDFGHJKLMNQRSTVWXYZ'; // 3M IDs 1% - check collision chances https://zelark.github.io/nano-id-cc/
-const nanoid = customAlphabet(NANOID_ALPHABET, 8);
+const NANOID_LENGTH = 8;
+const nanoid = customAlphabet(NANOID_ALPHABET, NANOID_LENGTH);
+const SID_REGEX = new RegExp(`^[${NANOID_ALPHABET}]{${NANOID_LENGTH}}$`);
+
+/** SIDs come from cookies — anything but a plain nanoid must be rejected before it reaches a file path */
+export function isValidSID(sid: string): boolean {
+  return SID_REGEX.test(sid);
+}
 
 class NotFoundError extends Error {
   public readonly code = 404;
@@ -16,6 +23,8 @@ class SessionCorruptError extends Error {
 
 /**
  * Basic Data Persistence (File)
+ * Sessions are stored in ./data/session/${environment}-${sid}.json
+ * Zeit is stored in ./data/zeit.json
  * TODO? use an ORM or at least sqlite?
  */
 export class Data {
@@ -51,10 +60,16 @@ export class Data {
   }
 
   async saveSession(session: PersistedSession) {
+    if (!isValidSID(session.sid)) {
+      throw new NotFoundError(`Invalid session ID`);
+    }
     await this.save(this.sessionFileNameByID(session.sid), session);
   }
 
   async sessionExists(sid: NanoID) {
+    if (!isValidSID(sid)) {
+      return false;
+    }
     return this.exists(this.sessionFileNameByID(sid));
   }
 
@@ -67,6 +82,9 @@ export class Data {
     return this.load(this.zeitFile).catch(() => Data.zeroTime) as Promise<Zeit>;
   }
   async loadSession(sid: NanoID): Promise<PersistedSession> {
+    if (!isValidSID(sid)) {
+      throw new NotFoundError(`Invalid session ID`);
+    }
     // TODO? would be great to have zod
     return this.load(this.sessionFileNameByID(sid)) as Promise<PersistedSession>;
   }
