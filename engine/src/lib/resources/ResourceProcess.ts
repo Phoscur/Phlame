@@ -96,7 +96,8 @@ export class ResourceProcess<Type extends ResourceIdentifier> {
   }
 
   getResourceFor(timeUnits: TimeUnit = 1): Resource<Type> | Energy<Type> {
-    if (~Energy.types.indexOf(this.limit.type)) {
+    // the limit already knows what it is - no registry lookup needed (ADR 0014)
+    if (this.limit.isEnergy) {
       return new Energy(this.limit.type, Math.abs(this.rate) * timeUnits);
     }
     return new Resource(this.limit.type, Math.abs(this.rate) * timeUnits);

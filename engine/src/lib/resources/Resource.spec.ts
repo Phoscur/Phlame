@@ -13,9 +13,11 @@ describe('Resource ValueObject', () => {
     expect(resource.toJSON()).to.eql(serialized);
   });
 
-  it('should only accept resources by type, else return null', () => {
+  it('keeps its type verbatim - validation is the config/factory boundary now (ADR 0014)', () => {
+    // the constructor no longer consults a global registry to coerce unknown types to Null
     const resource = new Resource('unknown', 0);
-    expect(resource.toString()).to.eql(`Resource[0${Resource.Null.type}]`);
+    expect(resource.type).to.eql('unknown');
+    expect(Resource.Null.type).to.eql('null');
   });
 
   it('is usually int32 but it can be infinite', () => {

@@ -1,4 +1,4 @@
-import { BaseResources, Phormulae } from '../Phormulae';
+import { BaseResources } from '../Phormulae';
 
 export type ResourceIdentifier = string; // i wish^^ = symbol;
 
@@ -42,14 +42,6 @@ export interface ComparableResource<Type extends ResourceIdentifier> extends Res
  * - comparison
  */
 export class Resource<Type extends ResourceIdentifier> implements ComparableResource<Type> {
-  /**
-   * @deprecated read-only shim delegating to `Phormulae.current` (ADR 0014) —
-   * configuration activates its rules via `Phormulae.use()`; dies with injection
-   */
-  static get types(): ResourceIdentifier[] {
-    return Phormulae.current.resourceTypes;
-  }
-
   static Null = new Resource(BaseResources.Null, 0);
 
   readonly type: Type;
@@ -60,8 +52,8 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
     // Instead of throwing an error, set resource amount to zero on underflow
     // TODO handle overflow? use BigIntegers?
     this.amount = amount < 0 ? 0 : amount | 0; // int32|0 handling is very fast in v8
-    // Default to null type (!~ = not found)
-    this.type = !~Resource.types.indexOf(type) ? (Resource.types[0] as Type) : type;
+    // Type validation (unknown -> Null) is the factory/config boundary's job now (ADR 0014)
+    this.type = type;
   }
 
   get prettyAmount(): string {

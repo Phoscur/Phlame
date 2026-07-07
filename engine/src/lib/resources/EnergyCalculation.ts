@@ -7,21 +7,21 @@ import type { ResourceProcessCollectionEntries } from './ResourceProcessCollecti
 import { ResourceProcessCollection } from './ResourceProcessCollection';
 import { Stock } from './Stock';
 import { ProsumerCollection } from './ProsumerCollection';
-import { Phormulae } from '../Phormulae';
 
 export class EnergyCalculation<Types extends ResourceIdentifier> {
-  /**
-   * @deprecated shim delegating to `Phormulae.current` (ADR 0014)
-   */
-  static get REBALANCING_EXPONENT(): number {
-    return Phormulae.current.rebalancingExponent;
-  }
+  /** default rebalancing exponent (base rules) when no Phormulae value is threaded in */
+  static DEFAULT_REBALANCING_EXPONENT = 1.1;
 
   readonly resources: ResourceCalculation<Types>;
 
   readonly prosumers: ProsumerCollection<Types>;
 
-  constructor(resources: ResourceCalculation<Types>, prosumers: ProsumerCollection<Types>) {
+  constructor(
+    resources: ResourceCalculation<Types>,
+    prosumers: ProsumerCollection<Types>,
+    // the deficit multiplier exponent from the Phormulae (ADR 0014); Economy threads it in
+    readonly rebalancingExponent = EnergyCalculation.DEFAULT_REBALANCING_EXPONENT,
+  ) {
     this.prosumers = prosumers;
     if (!prosumers.isUnbalanced) {
       this.resources = resources;
@@ -37,10 +37,12 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
   static newStock<ResourceTypes extends ResourceIdentifier>(
     stock: Stock<ResourceTypes>,
     prosumers: ProsumerCollection<ResourceTypes>,
+    rebalancingExponent = EnergyCalculation.DEFAULT_REBALANCING_EXPONENT,
   ): EnergyCalculation<ResourceTypes> {
     return new EnergyCalculation<ResourceTypes>(
       new ResourceCalculation(stock, prosumers.resources),
       prosumers,
+      rebalancingExponent,
     );
   }
 
@@ -54,7 +56,7 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
   }
 
   get balanceFactor(): number {
-    return this.prosumers.balanceFactor ** EnergyCalculation.REBALANCING_EXPONENT;
+    return this.prosumers.balanceFactor ** this.rebalancingExponent;
   }
 
   hasAvailable(resources: ResourceCollection<Types>): boolean {
@@ -64,7 +66,7 @@ export class EnergyCalculation<Types extends ResourceIdentifier> {
 
   calculate(timeUnits: TimeUnit): EnergyCalculation<Types> {
     const resources = this.resources.calculate(timeUnits);
-    return new EnergyCalculation(resources, this.prosumers);
+    return new EnergyCalculation(resources, this.prosumers, this.rebalancingExponent);
   }
 
   get prettyProsumers(): string[] {

@@ -8,11 +8,7 @@ import examples, {
 } from './resources/examples';
 import { Stock, ResourceCollection } from './resources';
 import { Phelopment, PhelopmentIdentifier as PhelopmentID } from './Phelopment';
-import {
-  Phormulae,
-  type ProsumptionLookup,
-  type RequirementLookup,
-} from './Phormulae';
+import { type ProsumptionLookup, type RequirementLookup } from './Phormulae';
 import { Phormula } from './Phormula';
 import { PhelopmentRequirement } from './PhelopmentRequirement';
 import { Economy } from './Economy';
@@ -165,11 +161,11 @@ export const prosumption: ProsumptionLookup<Resources, PhelopmentID> = {
   },
 } as const;
 
-// The complete example rules: types + requirements + prosumption Phormulae
+// The complete example rules: types + requirements + prosumption Phormulae -
+// passed explicitly into every Economy (no global; ADR 0014 injection complete)
 export const phormulae = resourcePhormulae
   .withRequirements(requirements)
   .withProsumptions(prosumption);
-Phormulae.use(phormulae);
 const b = new Phelopment<Resources, PhelopmentID>(12, 1, 100);
 const bUpgraded = new Phelopment<Resources, PhelopmentID>(12, 2, 100);
 const b0 = new Phelopment<Resources, PhelopmentID>(0, 1, 50); // 0 times 0,5 is still 0

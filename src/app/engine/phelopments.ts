@@ -11,7 +11,6 @@ import {
   Phelopment,
   PhelopmentRequirement,
   Phormula,
-  Phormulae,
   ResourceCollection,
   Stock,
   type PhelopmentJSON,
@@ -83,13 +82,12 @@ export const prosumptions: ProsumptionLookup<Resources, PhelopmentIdentifier> = 
 };
 
 /**
- * The game's complete Phormulae (ADR 0014/0015): types + requirements + prosumptions;
- * activated as the current rules on import (until injection replaces `Phormulae.current`)
+ * The game's complete Phormulae (ADR 0014/0015): types + requirements + prosumptions.
+ * Passed explicitly into every Economy (EngineFactory, services) - no global (ADR 0014).
  */
 export const phormulae = resourcePhormulae
   .withRequirements(requirements)
   .withProsumptions(prosumptions);
-Phormulae.use(phormulae);
 
 export const phelopments = {
   null: (level?: number, speed?: number) => new Phelopment('null', level, speed),

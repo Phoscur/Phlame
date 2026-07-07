@@ -24,9 +24,9 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
       [0015](docs/decisions/0015-phormula-descriptors-pure-building.md), landed 2026-07):
       `Phormulae` value object carries registries, constants, requirements and
       kind-discriminated `Phormula` descriptors; Phelopment (ex-Building, ADR 0016) is
-      pure state, Economy interprets. A/B balancing (same types, different numbers) works per-instance;
-      *differing type registries* still collide on `Phormulae.current` until injection
-      (ADR 0014 step 4) — acceptable for MCP-0..2, revisit before MCP-3.
+      pure state, Economy interprets. Injection is complete (no `Phormulae.current`), so
+      A/B balancing works fully per-instance — even with *differing type registries* in
+      one process.
 - [ ] **DOM-free config imports**: `src/app/engine/index.ts` re-exports
       `empire.element.tsx` (`extends HTMLElement`) — importing the barrel in plain Node
       crashes without the `html-element` polyfill trick from `src/server.ts`. Split the
@@ -100,7 +100,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
       route (one schema, two consumers); past ticks allowed → triggers replay (timewarp lab).
 - [ ] `replay_check(session)` — run the M0 invariant on the live session; the flagship tool.
 
-### MCP-3 — Balancing instruments (M2 era; needs ADR 0014 for A/B)
+### MCP-3 — Balancing instruments (M2 era; A/B unblocked, ADR 0014 injection done)
 
 - [ ] `run_scenario(session, plan, ticks)` — scripted build order, returns
       segment-boundary curves (see design) for plotting & regression comparison.
