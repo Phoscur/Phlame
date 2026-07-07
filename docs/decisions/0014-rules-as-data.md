@@ -1,7 +1,8 @@
 # 0014 — Rules as data (lift the engine statics)
 
-Status: accepted (2026-07; step 1 landed: `Phormulae` object, static shims, barrel leak fix —
-lookups, app conversion, injection and the hash itself still pending)
+Status: accepted (2026-07; steps 1+2 landed: `Phormulae` object, read-only static shims,
+barrel leak fix, app & examples build their Phormulae via `Phormulae.use()` — push path
+removed; lookups, injection and the hash itself still pending)
 
 ## Context
 
