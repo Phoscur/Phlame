@@ -10,8 +10,8 @@ and move answered open questions into ADRs.
 
 ## What this is
 
-Phlame: a browser idle game. This folder is its own git repo (nested inside the `phlame`
-monorepo folder — run git commands here, not in the parent). Two parts:
+Phlame: a browser idle game. This is the standalone repo (GitHub: Phoscur/Phlame); the
+older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two parts:
 
 - `engine/` — `@phlame/engine`, the pure, fully unit-tested economy library (no deps).
 - `src/` — the app: Hono SSR server (`src/server.ts`) + Custom Elements client (`src/app/`).
@@ -22,7 +22,7 @@ monorepo folder — run git commands here, not in the parent). Two parts:
 - `npm test` — all unit tests once (app: jsdom, engine: node)
 - `npx vitest run <file>` — single test file; in `engine/`: `npx vitest --watch`
 - `npm run tsc` && `npm run lint` — typecheck + eslint (run both before considering work done)
-- `npm run e2e` — Playwright (needs the dev server; `npm run ci` handles both)
+- `npm run e2e` — Playwright; starts the dev server itself (reuses a running one locally)
 
 ## Hard rules
 

@@ -28,6 +28,12 @@ Small decisions that get expensive to change once actions & persistence formats 
 - [ ] Define genesis: a new empire must be derivable deterministically (seed on
       `Economy` — the existing TODO), so a save can be `genesis + action log`.
 - [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
+- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)): lift the
+      engine's rule statics (`Resource.types`/`Energy.types` registries, tuning
+      constants, lookups) into an injectable `Ruleset` value object — gives the rules
+      hash (ADR 0011) its object, enables multi-ruleset processes (PLAN-MCP A/B), and
+      kills the fixture leak (engine `examples.ts` registers test types globally on
+      import). Land before the action log format spreads.
 - [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
@@ -35,7 +41,50 @@ Small decisions that get expensive to change once actions & persistence formats 
       merging the first substantial external engine contribution — after that,
       unilateral relicensing is off the table. Game stays AGPL either way (ADR 0013).
 
+## Toolchain (2026-07 dependency upgrade to Node 24 + Vite 8)
+
+Bumped everything to max and dropped babel. Notes for whoever touches the build next:
+
+- **Standard decorators without babel**: `@joist/di` uses standard (2023-05) decorators.
+  Vite 8 / Vitest 4 transpile with **Oxc, which does not transform standard decorators at
+  any target or option** (verified: only `decorator.legacy` exists, wrong semantics for
+  joist; upstream deliberately deferred until the spec stabilizes —
+  https://github.com/oxc-project/oxc/issues/9170, no ETA). esbuild *does* (at a target
+  below esnext) and ships with the toolchain anyway (tsx bundles it) — so
+  `vite.config.ts` has a tiny `esbuildDecorators` pre-plugin, **scoped to files that
+  contain decorator syntax** (line-leading `@identifier`); everything else stays on the
+  fast Oxc default path. `tsx` (preview/server) covers itself via `tsconfig.json` target
+  ES2022. Watch #9170: when oxc lands ecma decorators, delete the plugin + explicit
+  esbuild dep and set the Oxc target instead.
+- Dropped deps: babel (all `@babel/*`, `vite-plugin-babel`), `vite-tsconfig-paths`
+  (replaced by a one-line `resolve.alias`), `vite-plugin-dts` (lib `.d.ts` now via
+  `tsc`). Added `esbuild` explicitly (the plugin imports it directly). `cross-env` stays:
+  Node's `--env-file` can't replace it here — `start-server` needs `NODE_ENV=test` in a
+  grandchild (`npm start` → vite), and `--env-file` is a node-process flag that Node
+  explicitly forbids in `NODE_OPTIONS`. (Could instead drop the var entirely — it only
+  prefixes e2e session files `test-` vs `dev-`; dev is already non-prod.)
+- TS 6 / Vitest 4 config fixes: removed deprecated `baseUrl` (paths now `./`-relative),
+  triple-slash ref is `vitest/config`.
+- Lint: `.oxlintrc.json` turns off `no-unused-expressions` for `*.spec.ts` (chai-BDD
+  getters like `expect(x).to.be.true`). Note the footgun: typo'd getters pass silently —
+  reconsider if we ever move specs to call-style (`toBe(true)`).
+- [x] **Dev server SSR fixed** (2026-07): Vite 8 no longer tolerates non-absolute module
+      ids from the SSR loader — `@hono/vite-dev-server`'s `entry` must be
+      `path.resolve('src/server.ts')` (a relative entry made every relative import in
+      `server.ts` unresolvable: "Failed to load url ./html.element.server").
+- [x] **Dropped `start-server-and-test` + `cross-env`** (2026-07): Playwright's built-in
+      `webServer` (playwright.config.ts) starts/reuses the dev server, probes
+      `/sum` for readiness (`/` would write a session file per poll) and passes
+      `NODE_ENV=test` directly. `ci` script = `playwright test`. `tests/build.spec.ts`
+      is `test.fixme` TDD for the M1 queue UI — flip to `test` when it lands.
+- [ ] `npm run build` still fails on the missing `src/app/index.html` entry
+      (pre-existing; ties into the M3 static build story).
+
 ## Side quest — MCP CLI (engine-ui reborn)
+
+Detailed plan: [PLAN-MCP.md](./PLAN-MCP.md) — prerequisites: rules-as-data (ADR 0014),
+DOM-free config imports (app/engine barrel split), `tools/**` toolchain reach, zod-v4
+SDK gate.
 
 The old console engine-ui returns as agent tooling: a small stdio MCP server
 (`@modelcontextprotocol/sdk`, one tsx script, e.g. `tools/mcp/`) wrapping
@@ -148,9 +197,9 @@ entity re-creation).
 
 - [x] README slimmed (2026-07): roadmap → this file, history/POC learnings →
       [docs/history.md](docs/history.md), docs section points at CONTEXT.md.
-- [x] `engine/engine/README.md` shrunk to test instructions + pointers (2026-07).
-- [ ] Directory restructure: this repo becomes `~/Projects/phlame` (the old monorepo
-      parent moves aside/gets torn down after a final GitLab push; treasures rescued to
-      [docs/artifacts/](docs/artifacts/README.md)). `engine-ui`'s console idea gets
-      reinvented in-repo (console/MCP CLI) instead of dragging the old code along.
-      The stale `phlame.code-workspace` (dead Nx paths) dies with the monorepo.
+- [x] `engine/README.md` shrunk to test instructions + pointers (2026-07).
+- [x] Directory restructure done (2026-07): this repo is now `~/Projects/phlame`, the old
+      monorepo retired to `phlame-legacy`; treasures rescued to
+      [docs/artifacts/](docs/artifacts/README.md). The stale `phlame.code-workspace`
+      (dead Nx paths) died with it. `engine-ui`'s console idea gets reinvented in-repo
+      (console/MCP CLI) rather than dragging the old code along — see Icebox.

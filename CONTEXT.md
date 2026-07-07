@@ -5,13 +5,15 @@ game) built as a playground for minimal, modern web technology: no React, no fra
 Hono (server + JSX), Custom Elements (Web Components), the TC39 Signals polyfill, HTMX,
 TailwindCSS 4 and `@joist/di` for dependency injection. AGPLv3 licensed.
 
-This folder is its **own git repository**, nested inside the `phlame` monorepo folder
-(siblings like `phlame-server`, `peer-server`, `proxy` are older/separate projects).
+This is the standalone Phlame repository (GitHub: Phoscur/Phlame). It used to live nested
+inside an older `phlame` monorepo; that parent has been retired to `phlame-legacy` and its
+salvageable pieces rescued to [docs/artifacts/](docs/artifacts/README.md) and
+[docs/history.md](docs/history.md).
 
 ## Layout
 
 ```
-engine/                  <- this repo: the game app ("phlame" package)
+phlame/                  <- this repo: the game app ("phlame" package)
 ├── engine/              <- @phlame/engine: pure domain library (see engine/CONTEXT.md)
 ├── src/
 │   ├── server.ts        <- Hono server entry (dev via @hono/vite-dev-server, prod via tsx)
@@ -57,7 +59,7 @@ diagrams), [docs/glossary.md](docs/glossary.md) (domain terms), and
 - `npm start` — Vite dev server (app + Hono SSR) on http://localhost:4200
 - `npm test` — unit tests (app via jsdom, then engine lib)
 - `npm run test-engine` — engine lib tests in watch mode
-- `npm run e2e` / `npm run play` / `npm run ci` — Playwright (ci starts its own server)
+- `npm run e2e` / `npm run play` — Playwright; the `webServer` config starts/reuses the dev server (`ci` = same, CI never reuses)
 - `npm run lint`, `npm run tsc` — eslint / typecheck
 - `npm run build` + `NODE_ENV=production npm run preview` — prod build, served with tsx on port 4000
 
