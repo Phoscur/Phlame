@@ -25,14 +25,12 @@ export enum EnergyTypes {
 
 export type Types = ResourceTypes | EnergyTypes | BaseResources;
 
-// Activate the example Phormulae on import — which is why this module must never be
-// exported from the engine barrel (fixture leak, ADR 0014); the module-level example
-// instances below need these rules to be current right here
+// The example resource/energy types as a Phormulae (extended with requirements +
+// prosumptions in lib/examples.ts); passed explicitly into Economies - no global (ADR 0014)
 export const phormulae = new Phormulae(
   [ResourceTypes.Tumble, ResourceTypes.Salty, ResourceTypes.Blubber],
   [EnergyTypes.Electricity, EnergyTypes.Heat],
 );
-Phormulae.use(phormulae);
 
 export class TumbleResource extends Resource<ResourceTypes.Tumble> {
   constructor(amount: number) {

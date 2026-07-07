@@ -28,18 +28,15 @@ Small decisions that get expensive to change once actions & persistence formats 
 - [ ] Define genesis: a new empire must be derivable deterministically (seed on
       `Economy` — the existing TODO), so a save can be `genesis + action log`.
 - [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
-- [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)) — steps 1-3
-      landed 2026-07: `Phormulae` value object over `Phormulae.current` shims (fixture
-      leak fixed, regression-tested), app & examples build their Phormulae explicitly,
-      and the lookups moved in ([ADR 0015](docs/decisions/0015-phormula-descriptors-pure-building.md)):
-      formulas are kind-discriminated `Phormula` descriptors (`zero`/`polynomial`),
-      `Phelopment` (renamed from Building, [ADR 0016](docs/decisions/0016-phelopment-rename.md))
-      is pure state (= its JSON), the `Economy` interprets the rules
-      (`prosumes`/`upgradeCost`/`upgradeTime`), and `Phormulae.toJSON()` is complete.
-      The universe **Phingerprint** ([ADR 0011](docs/decisions/0011-universe-rules-hash.md))
-      is implemented: `Phormulae.phingerprint` = FNV-1a over canonical JSON. Still open:
-      actual injection (kill `Phormulae.current`; moves constructor type validation to the
-      config boundary), and wiring the Phingerprint into save/action-schema when M1 lands.
+- [x] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)) — **complete**
+      2026-07: `Phormulae` value object; lookups are kind-discriminated `Phormula`
+      descriptors ([ADR 0015](docs/decisions/0015-phormula-descriptors-pure-building.md));
+      `Phelopment` (ex-Building, [ADR 0016](docs/decisions/0016-phelopment-rename.md)) is
+      pure state, the `Economy` interprets the rules; the universe **Phingerprint**
+      ([ADR 0011](docs/decisions/0011-universe-rules-hash.md)) = FNV-1a over canonical
+      JSON; and injection is done — `Phormulae.current` and all static shims are gone,
+      every `Economy` takes its Phormulae explicitly. No hidden global state remains.
+      Still open (M1): wire the Phingerprint into the save/action-schema.
 - [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).

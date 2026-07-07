@@ -1,4 +1,5 @@
 import examples, { Types } from './resources/examples';
+import { phormulae } from './examples';
 import { PhelopmentRequirement } from './PhelopmentRequirement';
 import { ResourceCollection } from './resources/ResourceCollection';
 import { Stock } from './resources/Stock';
@@ -18,7 +19,7 @@ describe('PhelopmentRequirement', () => {
     const { t3, s3 } = examples;
     const ress = ResourceCollection.fromArray([t3, s3]);
     const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const factory = new Economy('Fact2', stock);
+    const factory = new Economy('Fact2', stock, [], phormulae);
     const type = 'B';
     const level = 1;
     const b = new PhelopmentRequirement(type, ress, 1, []);
@@ -35,7 +36,7 @@ describe('PhelopmentRequirement', () => {
     const { t0, t3, s3 } = examples;
     const ress = ResourceCollection.fromArray([t3, s3]);
     const stock0 = new Stock<Types>(ResourceCollection.fromArray([t0, s3]));
-    const factory = new Economy('Fact3', stock0);
+    const factory = new Economy('Fact3', stock0, [], phormulae);
     const level = 1;
     const b = new PhelopmentRequirement('B', ress, 2, []);
 

@@ -29,13 +29,12 @@ See also: [../docs/tick-flow.md](../docs/tick-flow.md) (the tick loop with diagr
   `zero`, `polynomial` = `k·lvl·lvl^exp`) — data, not functions, so they hash. A universe's
   identity is its **Phingerprint** (`Phormulae.phingerprint`, `lib/Phingerprint.ts`: FNV-1a
   over canonical key-sorted JSON — ADR 0011). Phormulae stays runtime-import-free
-  (the rule document must not import its interpreter); the Economy interprets it. Phormulae stays runtime-import-free
   (the rule document must not import its interpreter); the Economy interprets it.
-  Configuration builds and activates its rules via `Phormulae.use()`; the remaining statics
-  (`Resource.types`, `Energy.types`, `EnergyCalculation.REBALANCING_EXPONENT`) are
-  deprecated read-only shims over `Phormulae.current` until injection lands. The engine
-  barrel deliberately does NOT export `lib/examples` — its import activates the example
-  Phormulae (that fixture leak is fixed and regression-tested).
+  **Rules are injected explicitly**: every `Economy` takes its Phormulae as a constructor
+  argument — there is no global (`Phormulae.current` and the old `Resource.types`/
+  `Energy.types` statics are gone, ADR 0014). Configuration (`src/app/engine`, engine
+  `examples.ts`) builds a Phormulae and passes it in. The engine barrel deliberately does
+  NOT export `lib/examples` (fixture types stay out of production; regression-tested).
 - Everything is JSON round-trippable: `toJSON()` on each layer, revival is the consumer's
   job (the app's `EngineFactory`). `toString()` everywhere for debugging/console UI.
 

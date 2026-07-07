@@ -4,7 +4,6 @@ import {
   type ResourceIdentifier,
   type ResourceJSON,
 } from './Resource';
-import { Energy } from './Energy';
 
 const RESOURCE_COLLECTION_TYPE = 'ResourceCollection';
 export type ResourceArray = ComparableResource<ResourceIdentifier>[];
@@ -60,9 +59,8 @@ export class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   protected createByType<Type extends Types>(type: Type, amount = 0): ComparableResource<Type> {
-    if (~Energy.types.indexOf(type)) {
-      return new Energy(type, amount);
-    }
+    // A synthesized placeholder for an absent type defaults to a Resource; energy
+    // placeholders are created by the rules-aware layer (Economy) - no registry here (ADR 0014)
     return new Resource(type, amount);
   }
 

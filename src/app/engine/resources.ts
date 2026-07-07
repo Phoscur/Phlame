@@ -48,14 +48,12 @@ export type ResourceIdentifier = keyof typeof resources;
 
 /**
  * The resource-types half of the game's Phormulae (ADR 0014) - phelopments.ts extends
- * this with requirements + prosumptions into the complete `phormulae`;
- * activated on import so the module-level resource instances below validate
+ * this with requirements + prosumptions into the complete `phormulae`.
  */
 export const resourcePhormulae = new Phormulae(
   [ResourceTypes.Metallic, ResourceTypes.Crystalline, ResourceTypes.Liquid],
   [EnergyTypes.Electricity], // TODO? EnergyTypes.Heat
 );
-Phormulae.use(resourcePhormulae);
 
 export class MetallicResource extends Resource<ResourceTypes.Metallic> {
   constructor(amount: number) {

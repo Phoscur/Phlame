@@ -2,10 +2,7 @@ import {
   BaseResources,
   Phormula,
   Phormulae,
-  Resource,
-  Energy,
   PhelopmentRequirement,
-  EnergyCalculation,
   ResourceCollection,
 } from '..';
 
@@ -73,25 +70,9 @@ describe('Phormulae', () => {
     });
   });
 
-  it('should back the deprecated static shims through Phormulae.current', () => {
-    const previous = Phormulae.use(new Phormulae(['gold'], ['steam'], 100, 4, 1.5));
-    try {
-      expect(Resource.types).toEqual([BaseResources.Null, 'gold']);
-      expect(Energy.types).toEqual([BaseResources.Null, 'steam']);
-      expect(EnergyCalculation.REBALANCING_EXPONENT).toBe(1.5);
-      // unknown types still fall back to Null, now Phormulae-driven
-      expect(new Resource('silver', 5).type).toBe(BaseResources.Null);
-      expect(new Resource('gold', 5).type).toBe('gold');
-    } finally {
-      Phormulae.use(previous);
-    }
-  });
-
-  it('should not register example fixture types on barrel import', () => {
-    // regression for the fixture leak (ADR 0014): importing '@phlame/engine' used to
-    // push tumbles/salties/blubbs into the registries via the examples export;
-    // this spec deliberately never imports the examples module
-    expect(Resource.types).toEqual([BaseResources.Null]);
-    expect(Energy.types).toEqual([BaseResources.Null]);
+  it('carries the rebalancing exponent as data (no static shim)', () => {
+    // the global Phormulae.current and the Resource.types/Energy.types shims are gone;
+    // rules are injected explicitly (ADR 0014, injection complete)
+    expect(new Phormulae([], [], 40, 2, 1.5).rebalancingExponent).toBe(1.5);
   });
 });
