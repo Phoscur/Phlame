@@ -6,6 +6,7 @@ import {
   ResourceProcess,
   ResourceProcessCollection,
 } from '.';
+import { Phormulae } from '../Phormulae';
 
 // Let's invent some example resource and energy types
 export enum ResourceTypes {
@@ -24,17 +25,14 @@ export enum EnergyTypes {
 
 export type Types = ResourceTypes | EnergyTypes | BaseResources;
 
-// Register example types in the current Phormulae on import — which is why this module
-// must never be exported from the engine barrel (fixture leak, ADR 0014); the
-// module-level example instances below need the registration to happen right here
-const newResourceTypes: Types[] = [
-  ResourceTypes.Tumble,
-  ResourceTypes.Salty,
-  ResourceTypes.Blubber,
-];
-const newEnergyTypes: Types[] = [EnergyTypes.Electricity, EnergyTypes.Heat];
-Resource.types.push(...newResourceTypes);
-Energy.types.push(...newEnergyTypes);
+// Activate the example Phormulae on import — which is why this module must never be
+// exported from the engine barrel (fixture leak, ADR 0014); the module-level example
+// instances below need these rules to be current right here
+export const phormulae = new Phormulae(
+  [ResourceTypes.Tumble, ResourceTypes.Salty, ResourceTypes.Blubber],
+  [EnergyTypes.Electricity, EnergyTypes.Heat],
+);
+Phormulae.use(phormulae);
 
 export class TumbleResource extends Resource<ResourceTypes.Tumble> {
   constructor(amount: number) {

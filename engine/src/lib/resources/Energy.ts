@@ -14,8 +14,8 @@ export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
   implements ComparableResource<Type>
 {
   /**
-   * @deprecated shim delegating to `Phormulae.current` (ADR 0014) — configuration still
-   * push-registers types here; inject a Phormulae instead once that path exists
+   * @deprecated read-only shim delegating to `Phormulae.current` (ADR 0014) —
+   * configuration activates its rules via `Phormulae.use()`; dies with injection
    */
   static get types(): ResourceIdentifier[] {
     return Phormulae.current.energyTypes;

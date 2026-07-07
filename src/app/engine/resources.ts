@@ -2,6 +2,7 @@ import {
   BaseResources,
   ComparableResource,
   Energy,
+  Phormulae,
   Resource,
   ResourceCollection,
   ResourceJSON,
@@ -45,15 +46,15 @@ export enum EnergyTypes {
 // export type Types = ResourceTypes | EnergyTypes | BaseResources;
 export type ResourceIdentifier = keyof typeof resources;
 
-// Add new resources to known resource types - only categories for now
-const newResourceTypes: ResourceIdentifier[] = [
-  ResourceTypes.Metallic,
-  ResourceTypes.Crystalline,
-  ResourceTypes.Liquid,
-];
-const newEnergyTypes: ResourceIdentifier[] = [EnergyTypes.Electricity]; // TODO? , EnergyTypes.Heat];
-Resource.types.push(...newResourceTypes);
-Energy.types.push(...newEnergyTypes);
+/**
+ * The game's Phormulae (ADR 0014) - only resource categories for now;
+ * activated as the current rules on import (until injection replaces `Phormulae.current`)
+ */
+export const phormulae = new Phormulae(
+  [ResourceTypes.Metallic, ResourceTypes.Crystalline, ResourceTypes.Liquid],
+  [EnergyTypes.Electricity], // TODO? EnergyTypes.Heat
+);
+Phormulae.use(phormulae);
 
 export class MetallicResource extends Resource<ResourceTypes.Metallic> {
   constructor(amount: number) {
