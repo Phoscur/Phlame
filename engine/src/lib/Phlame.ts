@@ -1,18 +1,18 @@
 import type { TimeUnit, ResourceIdentifier, StockJSON } from './resources';
-import type { BuildingIdentifier, BuildingJSON } from './Building';
+import type { PhelopmentIdentifier, PhelopmentJSON } from './Phelopment';
 import { Action, ActionType, ActionTypes, Entity, ID } from './Action';
 import { Economy } from './Economy';
 
 export interface PhlameJSON<
   ResourceType extends ResourceIdentifier,
-  UnitType extends BuildingIdentifier,
+  UnitType extends PhelopmentIdentifier,
 > {
   id: ID;
   tick: TimeUnit;
   stock: StockJSON<ResourceType>;
-  buildings: BuildingJSON<UnitType>[];
+  phelopments: PhelopmentJSON<UnitType>[];
 }
-export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends BuildingIdentifier>
+export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends PhelopmentIdentifier>
   implements Entity
 {
   constructor(
@@ -62,15 +62,15 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
       if (action.consequence.type === ActionTypes.UPDATE) {
         // TODO make action polymorphic?
         // TODO validate payload
-        // TODO handle invalid buildingID
-        const { buildingID, grade } = action.consequence.payload as {
-          buildingID: BuildingIdentifier;
+        // TODO handle invalid phelopmentID
+        const { phelopmentID, grade } = action.consequence.payload as {
+          phelopmentID: PhelopmentIdentifier;
           grade: 'up' | 'down';
         };
         if (grade === 'up') {
-          this.economy = this.economy.upgrade(buildingID);
+          this.economy = this.economy.upgrade(phelopmentID);
         } else {
-          this.economy = this.economy.downgrade(buildingID);
+          this.economy = this.economy.downgrade(phelopmentID);
         }
       }
     }
@@ -83,7 +83,7 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Bu
   }
 
   toString(): string {
-    return `${this.id} (${this.economy.resources.toString()}) ${this.economy.buildings.join(', ')}`;
+    return `${this.id} (${this.economy.resources.toString()}) ${this.economy.phelopments.join(', ')}`;
   }
 
   toJSON(): PhlameJSON<ResourceType, UnitType> {

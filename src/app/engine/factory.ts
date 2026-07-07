@@ -8,33 +8,33 @@ import {
   ResourceCollection,
   Stock,
   type StockJSON,
-  type BuildingJSON,
+  type PhelopmentJSON,
   type ID,
   type ResourceJSON,
   type PhlameJSON,
   EmpireJSON,
 } from '@phlame/engine';
 import { ResourceFactory, type ResourceIdentifier } from './resources';
-import { BuildingFactory, phormulae, type BuildingIdentifier } from './buildings';
+import { PhelopmentFactory, phormulae, type PhelopmentIdentifier } from './phelopments';
 
-export type EmpireEntity = Empire<ResourceIdentifier, BuildingIdentifier>;
-export type PhlameEntity = Phlame<ResourceIdentifier, BuildingIdentifier>;
+export type EmpireEntity = Empire<ResourceIdentifier, PhelopmentIdentifier>;
+export type PhlameEntity = Phlame<ResourceIdentifier, PhelopmentIdentifier>;
 
 @injectable()
 export class EngineFactory {
   #resource = inject(ResourceFactory);
-  #building = inject(BuildingFactory);
+  #phelopment = inject(PhelopmentFactory);
 
   createEmpire(
-    json: EmpireJSON<ResourceIdentifier, BuildingIdentifier>,
-  ): Empire<ResourceIdentifier, BuildingIdentifier> {
+    json: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>,
+  ): Empire<ResourceIdentifier, PhelopmentIdentifier> {
     return new Empire(json.id, this.createEntities(json.entities));
   }
 
   createEntities(
-    es: PhlameJSON<ResourceIdentifier, BuildingIdentifier>[],
-  ): Phlame<ResourceIdentifier, BuildingIdentifier>[] {
-    return es.map((p) => this.createPhlame(p.id, p.tick, p.stock, p.buildings));
+    es: PhlameJSON<ResourceIdentifier, PhelopmentIdentifier>[],
+  ): Phlame<ResourceIdentifier, PhelopmentIdentifier>[] {
+    return es.map((p) => this.createPhlame(p.id, p.tick, p.stock, p.phelopments));
   }
 
   createPhlame(
@@ -42,14 +42,14 @@ export class EngineFactory {
     tick: number,
     stock: StockJSON<ResourceIdentifier>,
     // TODO actions
-    buildings: BuildingJSON<BuildingIdentifier>[] = [],
-  ): Phlame<ResourceIdentifier, BuildingIdentifier> {
+    phelopments: PhelopmentJSON<PhelopmentIdentifier>[] = [],
+  ): Phlame<ResourceIdentifier, PhelopmentIdentifier> {
     return new Phlame(
       id,
       this.createEconomy({
         name: `${id}`,
         stock,
-        buildings,
+        phelopments,
       }),
       [],
       tick,
@@ -59,21 +59,21 @@ export class EngineFactory {
   createEconomy({
     name,
     stock,
-    buildings,
-  }: EconomyJSON<ResourceIdentifier, BuildingIdentifier>): Economy<
+    phelopments,
+  }: EconomyJSON<ResourceIdentifier, PhelopmentIdentifier>): Economy<
     ResourceIdentifier,
-    BuildingIdentifier
+    PhelopmentIdentifier
   > {
     return new Economy(
       name,
       this.createStock(stock),
-      buildings.map((b) => this.createBuilding(b)),
+      phelopments.map((b) => this.createPhelopment(b)),
       phormulae,
     );
   }
 
-  createBuilding(json: BuildingJSON<BuildingIdentifier>) {
-    const factory = this.#building();
+  createPhelopment(json: PhelopmentJSON<PhelopmentIdentifier>) {
+    const factory = this.#phelopment();
     return factory.fromJSON(json);
   }
 

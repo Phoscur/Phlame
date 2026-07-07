@@ -5,17 +5,17 @@ import {
   ResourceTable,
   Stock,
 } from '@phlame/engine';
-import { emptyStock, defaultBuildings } from './buildings';
+import { emptyStock, defaultPhelopments } from './phelopments';
 import { CrystallineResource, LiquidResource, MetallicResource } from './resources';
 
-describe("Building's Economy", () => {
+describe("Phelopment's Economy", () => {
   it('should be console printable', () => {
     const empty = new Economy('Empty', emptyStock, []);
     expect(empty.toString()).to.eql('Empty (Processing energy&resources: ) []');
     expect(empty.resources.productionTable).to.eql([]);
     expect(empty.resources.validFor).to.be.eql(Infinity);
 
-    const factory = new Economy('Default', emptyStock, defaultBuildings);
+    const factory = new Economy('Default', emptyStock, defaultPhelopments);
     const table: ResourceTable<ResourceIdentifier> = [
       ['energy', 0, 20],
       ['metallic', 30, 0, Infinity, 0],
@@ -30,10 +30,10 @@ describe("Building's Economy", () => {
         '0crystalline(0, Infinity): +20, ' +
         '0liquid(0, Infinity): 0' +
         ') [' +
-        'Building(mine-metallic, 1, 100%), ' +
-        'Building(mine-crystalline, 1, 100%), ' +
-        'Building(mine-liquid, 0, 100%), ' +
-        'Building(power-solar, 1, 100%)' +
+        'Phelopment(mine-metallic, 1, 100%), ' +
+        'Phelopment(mine-crystalline, 1, 100%), ' +
+        'Phelopment(mine-liquid, 0, 100%), ' +
+        'Phelopment(power-solar, 1, 100%)' +
         ']',
     );
     expect(factory.stock.toString()).to.eql(
@@ -41,7 +41,7 @@ describe("Building's Economy", () => {
     );
   });
 
-  it('should have resources and buildings', () => {
+  it('should have resources and phelopments', () => {
     const stock = new Stock(
       ResourceCollection.fromArray([
         // Note: need to have all potential resources here initially
@@ -51,7 +51,7 @@ describe("Building's Economy", () => {
         new LiquidResource(30),
       ]),
     );
-    const factory = new Economy('Factory', stock, defaultBuildings);
+    const factory = new Economy('Factory', stock, defaultPhelopments);
     const table: ResourceTable<ResourceIdentifier> = [
       ['energy', 0, 20],
       ['metallic', 30, 0, Infinity, 0],
@@ -60,12 +60,12 @@ describe("Building's Economy", () => {
     ];
     expect(factory.resources.productionTable).to.eql(table);
     expect(factory.resources.validFor).to.be.eql(Infinity);
-    // TODO! a factory with minimal default buildings
+    // TODO! a factory with minimal default phelopments
     // TODO storage limits 22, 23, 24
-    // TODO buildings for build speed upgrades 14, 15
-    // TODO building space and expansion 33
+    // TODO phelopments for build speed upgrades 14, 15
+    // TODO phelopment space and expansion 33
     // TODO lab 31
-    // TODO And/Or (Building|Tech)Requirement
+    // TODO And/Or (Phelopment|Tech)Requirement
     // TODO hangar 21 able to produce other units like ships 202, 203 with cargo capacity
     // and misc
     // TODO tech lab requirement 113 <= 31L1
@@ -73,24 +73,24 @@ describe("Building's Economy", () => {
     // TODO lab network for tech speed up and tech share (with outsourcing cost)?
   });
 
-  it.todo('can upgrade buildings, in time', () => {
-    const factory = new Economy('Factory', emptyStock, defaultBuildings);
+  it.todo('can upgrade phelopments, in time', () => {
+    const factory = new Economy('Factory', emptyStock, defaultPhelopments);
     // TODO check substracted resources
     // TODO check build time
-    expect(factory.upgrade(factory.buildings[0].type).toString()).to.eql(
+    expect(factory.upgrade(factory.phelopments[0].type).toString()).to.eql(
       'Factory (Processing energy&resources: ' +
         '194/214 energy, 0/0 heat, ' +
         '3salties(0, Infinity): +20, ' +
         '15blubbs(0, Infinity): -33, ' +
         '3tumbles(0, Infinity): 0' +
         ') [' +
-        'Building(12, 2, 100%), ' +
-        'Building(3, 1, 100%), ' +
-        'Building(0, 1, 50%), ' +
-        'Building(2, 1, 100%)' +
+        'Phelopment(12, 2, 100%), ' +
+        'Phelopment(3, 1, 100%), ' +
+        'Phelopment(0, 1, 50%), ' +
+        'Phelopment(2, 1, 100%)' +
         ']',
     );
-    expect(factory.downgrade(factory.buildings[0].type).toString()).to.eql(
+    expect(factory.downgrade(factory.phelopments[0].type).toString()).to.eql(
       'Factory (Processing energy&resources: ' +
         '-20/0 energy, 0/0 heat, ' +
         'Degraded to 0%, ' +
@@ -98,10 +98,10 @@ describe("Building's Economy", () => {
         '15blubbs(0, Infinity): 0, ' +
         '3tumbles(0, Infinity): 0' +
         ') [' +
-        'Building(12, 0, 100%), ' +
-        'Building(3, 1, 100%), ' +
-        'Building(0, 1, 50%), ' +
-        'Building(2, 1, 100%)' +
+        'Phelopment(12, 0, 100%), ' +
+        'Phelopment(3, 1, 100%), ' +
+        'Phelopment(0, 1, 50%), ' +
+        'Phelopment(2, 1, 100%)' +
         ']',
     );
   });

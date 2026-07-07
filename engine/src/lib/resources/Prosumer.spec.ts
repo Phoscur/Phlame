@@ -11,12 +11,12 @@ describe('Prosumer ValueObject', () => {
 
   it('should have resource processes', () => {
     const speed = 50;
-    const building = new Prosumer('Scraper', processes.rt11s31, speed);
+    const phelopment = new Prosumer('Scraper', processes.rt11s31, speed);
     // rounding up
-    expect(building.toString()).to.eql(
+    expect(phelopment.toString()).to.eql(
       'Prosumer(Scraper, 50%, ResourceProcessCollection[1tumbles+1, 3salties+1])',
     );
-    expect(building.at(100).toString()).to.eql(
+    expect(phelopment.at(100).toString()).to.eql(
       'Prosumer(Scraper, 100%, ResourceProcessCollection[1tumbles+1, 3salties+1])',
     );
   });

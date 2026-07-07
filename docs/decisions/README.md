@@ -28,3 +28,4 @@ Reversing a decision gets a *new* ADR that supersedes the old one — don't rewr
 - [0013 — Stays open source (AGPL), monetization deferred](0013-open-source-monetization-deferred.md) `accepted`
 - [0014 — Rules as data (lift the engine statics)](0014-rules-as-data.md) `accepted`
 - [0015 — Phormula descriptors, Building becomes pure state](0015-phormula-descriptors-pure-building.md) `accepted`
+- [0016 — Building → Phelopment](0016-phelopment-rename.md) `accepted`

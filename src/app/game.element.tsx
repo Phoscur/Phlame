@@ -2,13 +2,13 @@
 //import { Debug } from './debug.element';
 import { I18n } from './i18n';
 import { ResourceIdentifier } from './engine/resources';
-import { BuildingIdentifier } from './engine/buildings';
+import { PhelopmentIdentifier } from './engine/phelopments';
 import { Empire } from '@phlame/engine';
 //import { raw } from 'hono/html';
 //import { EmpireService } from './engine/services';
 import { planetToJSX } from './planet.element';
 
-export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, BuildingIdentifier>) => (
+export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, PhelopmentIdentifier>) => (
   <>
     <empire-ctx id={empire.id} entities={JSON.stringify(empire.toJSON().entities)}>
       {/*<div class="hidden md:grid-cols-2 md:grid-cols-3">force md:grid-cols-x to be available</div>*/}

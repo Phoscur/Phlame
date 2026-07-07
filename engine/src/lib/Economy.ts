@@ -8,7 +8,7 @@ import {
   Stock,
   type ResourceIdentifier,
 } from './resources';
-import { Building, type BuildingIdentifier, type BuildingJSON } from './Building';
+import { Phelopment, type PhelopmentIdentifier, type PhelopmentJSON } from './Phelopment';
 import { Phormulae } from './Phormulae';
 import { ProsumerCollection } from './resources/ProsumerCollection';
 import type { StockJSON } from './resources/Stock';
@@ -16,22 +16,22 @@ import type { TimeUnit } from './resources/ResourceProcess';
 
 export interface EconomyJSON<
   ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
 > {
-  buildings: BuildingJSON<BuildingType>[];
+  phelopments: PhelopmentJSON<PhelopmentType>[];
   stock: StockJSON<ResourceType>;
   name: string;
 };
 
 /**
  * Economy is the sum of production and consumption of resources and energy
- * for a set of building prosumers
- * It interprets the Phormulae (ADR 0015): buildings are pure state, the economy
+ * for a set of phelopment prosumers
+ * It interprets the Phormulae (ADR 0015): phelopments are pure state, the economy
  * computes their prosumption, costs and build times from the rules.
  */
 export class Economy<
   ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
 > {
   readonly resources: EnergyCalculation<ResourceType>;
 
@@ -39,11 +39,11 @@ export class Economy<
     // TODO add/replace: readonly seed - binary or ID like/derived string
     readonly name: string, // TODO? remove unused - or use this as a type? - rather leave it to an actual entity
     resources: Stock<ResourceType>,
-    readonly buildings: Building<ResourceType, BuildingType>[] = [],
+    readonly phelopments: Phelopment<ResourceType, PhelopmentType>[] = [],
     // defaulting to the current Phormulae is the documented bridge until injection lands (ADR 0014)
     readonly phormulae: Phormulae = Phormulae.current,
   ) {
-    this.resources = this.getResourceCalculation(resources, buildings);
+    this.resources = this.getResourceCalculation(resources, phelopments);
   }
 
   get stock(): Stock<ResourceType> {
@@ -51,17 +51,17 @@ export class Economy<
   }
 
   /**
-   * Interpret the prosumption Phormulae of a building at its level and speed
+   * Interpret the prosumption Phormulae of a phelopment at its level and speed
    */
   prosumes(
-    building: Building<ResourceType, BuildingType>,
+    phelopment: Phelopment<ResourceType, PhelopmentType>,
     stock: Stock<ResourceType> = this.stock,
   ): Prosumer<ResourceType> {
-    const prosumption = this.phormulae.prosumptionFor(building.type);
+    const prosumption = this.phormulae.prosumptionFor(phelopment.type);
     const processes = Object.keys(prosumption).map((type) => {
       // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const phormula = prosumption[type as ResourceType]!; // keys are never undefined
-      const rate = phormula.at(building.level);
+      const rate = phormula.at(phelopment.level);
       const stocked = stock.has(type as ResourceType);
       // limit production for an optionally maximal stock
       // also for energy a zero resource resource can be created implicitly
@@ -71,30 +71,30 @@ export class Economy<
     });
 
     return new Prosumer<ResourceType>(
-      building.type,
+      phelopment.type,
       ResourceProcessCollection.fromArray<ResourceType>(processes),
-      building.speed,
+      phelopment.speed,
     );
   }
 
-  upgradeCost(building: Building<ResourceType, BuildingType>): ResourceCollection<ResourceType> {
+  upgradeCost(phelopment: Phelopment<ResourceType, PhelopmentType>): ResourceCollection<ResourceType> {
     return this.phormulae
-      .requirementFor(building.type)
-      .getUpgradeCost(building.level + 1) as ResourceCollection<ResourceType>;
+      .requirementFor(phelopment.type)
+      .getUpgradeCost(phelopment.level + 1) as ResourceCollection<ResourceType>;
   }
 
-  downgradeCost(building: Building<ResourceType, BuildingType>): ResourceCollection<ResourceType> {
+  downgradeCost(phelopment: Phelopment<ResourceType, PhelopmentType>): ResourceCollection<ResourceType> {
     return this.phormulae
-      .requirementFor(building.type)
-      .getDowngradeCost(building.level + 1, this.phormulae.downgradeCostDivisor) as ResourceCollection<ResourceType>;
+      .requirementFor(phelopment.type)
+      .getDowngradeCost(phelopment.level + 1, this.phormulae.downgradeCostDivisor) as ResourceCollection<ResourceType>;
   }
 
-  upgradeTime(building: Building<ResourceType, BuildingType>): TimeUnit {
-    return this.buildTime(this.upgradeCost(building));
+  upgradeTime(phelopment: Phelopment<ResourceType, PhelopmentType>): TimeUnit {
+    return this.buildTime(this.upgradeCost(phelopment));
   }
 
-  downgradeTime(building: Building<ResourceType, BuildingType>): TimeUnit {
-    return this.buildTime(this.downgradeCost(building));
+  downgradeTime(phelopment: Phelopment<ResourceType, PhelopmentType>): TimeUnit {
+    return this.buildTime(this.downgradeCost(phelopment));
   }
 
   protected buildTime(costs: ResourceCollection<ResourceType>): TimeUnit {
@@ -106,11 +106,11 @@ export class Economy<
 
   getResourceCalculation(
     resources: Stock<ResourceType>,
-    buildings: Building<ResourceType, BuildingType>[],
+    phelopments: Phelopment<ResourceType, PhelopmentType>[],
   ): EnergyCalculation<ResourceType> {
     const prosumers = new ProsumerCollection(
-      buildings.map((building) => {
-        return this.prosumes(building, resources);
+      phelopments.map((phelopment) => {
+        return this.prosumes(phelopment, resources);
       }),
     );
     return EnergyCalculation.newStock<ResourceType>(resources, prosumers);
@@ -118,92 +118,92 @@ export class Economy<
 
   protected new(
     resources: Stock<ResourceType>,
-    buildings: Building<ResourceType, BuildingType>[],
-  ): Economy<ResourceType, BuildingType> {
-    return new Economy(this.name, resources, buildings, this.phormulae);
+    phelopments: Phelopment<ResourceType, PhelopmentType>[],
+  ): Economy<ResourceType, PhelopmentType> {
+    return new Economy(this.name, resources, phelopments, this.phormulae);
   }
 
   /**
    * Adjust consumption of exhausted resources:
-   * Halt buildings
+   * Halt phelopments
    */
   recalculationStrategy(
     stock: Stock<ResourceType>,
     factor: number,
-    buildings: Building<ResourceType, BuildingType>[],
-  ): Building<ResourceType, BuildingType>[] {
+    phelopments: Phelopment<ResourceType, PhelopmentType>[],
+  ): Phelopment<ResourceType, PhelopmentType>[] {
     const prosumers = new ProsumerCollection<ResourceType>(
-      buildings.map((b) => this.prosumes(b, stock)),
+      phelopments.map((b) => this.prosumes(b, stock)),
     );
     const prosumption = factor < 1 ? prosumers.rebalancedResources(factor) : prosumers.reduced;
     const nextTickWithdrawal = prosumption.getNegativeResourcesFor(1);
     // if (stock.isFetchable(nextTickWithdrawal)) {
-    //   return buildings; // TODO how to cover this with a test?
+    //   return phelopments; // TODO how to cover this with a test?
     // }
     const missing = stock.getUnfetchable(nextTickWithdrawal);
-    return buildings.map((building) => {
+    return phelopments.map((phelopment) => {
       const halt = missing.asArray.some((resource) =>
-        this.prosumes(building, stock).consumes(resource),
+        this.prosumes(phelopment, stock).consumes(resource),
       );
       if (halt) {
-        // console.warn(`Halting ${building}`);
-        // halt building production if its prosumption includes consumption which can't be fulfilled
-        return building.disabled;
+        // console.warn(`Halting ${phelopment}`);
+        // halt phelopment production if its prosumption includes consumption which can't be fulfilled
+        return phelopment.disabled;
       }
-      return building;
+      return phelopment;
     });
   }
 
-  upgrade(buildingType: BuildingIdentifier): Economy<ResourceType, BuildingType> {
+  upgrade(phelopmentType: PhelopmentIdentifier): Economy<ResourceType, PhelopmentType> {
     return this.new(
       this.resources.stock,
-      this.buildings.map((building: Building<ResourceType, BuildingType>) => {
-        if (building.type === buildingType) {
-          return building.upgraded;
+      this.phelopments.map((phelopment: Phelopment<ResourceType, PhelopmentType>) => {
+        if (phelopment.type === phelopmentType) {
+          return phelopment.upgraded;
         }
-        return building;
+        return phelopment;
       }),
     );
   }
 
-  downgrade(buildingType: BuildingIdentifier): Economy<ResourceType, BuildingType> {
+  downgrade(phelopmentType: PhelopmentIdentifier): Economy<ResourceType, PhelopmentType> {
     return this.new(
       this.resources.stock,
-      this.buildings.map((building: Building<ResourceType, BuildingType>) => {
-        if (building.type === buildingType) {
-          return building.downgraded;
+      this.phelopments.map((phelopment: Phelopment<ResourceType, PhelopmentType>) => {
+        if (phelopment.type === phelopmentType) {
+          return phelopment.downgraded;
         }
-        return building;
+        return phelopment;
       }),
     );
   }
 
-  tick(cycles = 1): Economy<ResourceType, BuildingType> {
-    let { resources, buildings } = this;
+  tick(cycles = 1): Economy<ResourceType, PhelopmentType> {
+    let { resources, phelopments } = this;
     while (resources.validFor < cycles) {
       const advanceCycles = resources.validFor;
       cycles -= advanceCycles;
       resources = resources.calculate(advanceCycles);
-      buildings = this.recalculationStrategy(resources.stock, resources.balanceFactor, buildings);
-      resources = this.getResourceCalculation(resources.stock, buildings);
+      phelopments = this.recalculationStrategy(resources.stock, resources.balanceFactor, phelopments);
+      resources = this.getResourceCalculation(resources.stock, phelopments);
       if (!resources.validFor) {
         throw new Error('Invalid resource (re)calculation');
       }
     }
 
     resources = resources.calculate(cycles);
-    return this.new(resources.stock, buildings);
+    return this.new(resources.stock, phelopments);
   }
 
   toString(): string {
-    return `${this.name} (${this.resources.toString()}) [${this.buildings.join(', ')}]`;
+    return `${this.name} (${this.resources.toString()}) [${this.phelopments.join(', ')}]`;
   }
 
-  toJSON(): EconomyJSON<ResourceType, BuildingType> {
+  toJSON(): EconomyJSON<ResourceType, PhelopmentType> {
     return {
       name: this.name,
       stock: this.resources.stock.toJSON(),
-      buildings: this.buildings.map((b) => b.toJSON()),
+      phelopments: this.phelopments.map((b) => b.toJSON()),
     };
   }
 }

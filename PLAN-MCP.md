@@ -23,8 +23,8 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
 - [x] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md) /
       [0015](docs/decisions/0015-phormula-descriptors-pure-building.md), landed 2026-07):
       `Phormulae` value object carries registries, constants, requirements and
-      kind-discriminated `Phormula` descriptors; Building is pure state, Economy
-      interprets. A/B balancing (same types, different numbers) works per-instance;
+      kind-discriminated `Phormula` descriptors; Phelopment (ex-Building, ADR 0016) is
+      pure state, Economy interprets. A/B balancing (same types, different numbers) works per-instance;
       *differing type registries* still collide on `Phormulae.current` until injection
       (ADR 0014 step 4) — acceptable for MCP-0..2, revisit before MCP-3.
 - [ ] **DOM-free config imports**: `src/app/engine/index.ts` re-exports
@@ -90,7 +90,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
 ### MCP-1 — Playing moves
 
 - [ ] `upgrade_building(session, planet, type)` / `downgrade_building(...)` — validated
-      against `BuildingRequirement` costs; failures return clean tool errors (not throws).
+      against `PhelopmentRequirement` costs; failures return clean tool errors (not throws).
 - [ ] `list_buildings(session, planet)` with upgrade costs & times (the data the UI shows).
 
 ### MCP-2 — Event sourcing hooks (lands with M1's empire log)

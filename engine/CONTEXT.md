@@ -1,7 +1,7 @@
 # @phlame/engine — Context
 
 Pure, dependency-free TypeScript domain library for the Phlame game economy. Runs on client
-and server alike. It models resource flows between buildings and can fast-forward the whole
+and server alike. It models resource flows between phelopments (buildings/tech) and can fast-forward the whole
 economy any number of game ticks in one call — the foundation of the "lazy realtime" design:
 nothing is simulated in the background, state is recalculated from the last known tick.
 
@@ -21,9 +21,9 @@ See also: [../docs/tick-flow.md](../docs/tick-flow.md) (the tick loop with diagr
 - **Integer arithmetic**: amounts are int32 (`amount | 0` — fast in v8, avoids float drift);
   negative results clamp to zero; `Infinity` is allowed and explicitly guarded around the
   int32 cast (see `Resource.infinite` / `checkInfinity`).
-- **Types as generics**: `ResourceIdentifier` / `BuildingIdentifier` are string(/number)
+- **Types as generics**: `ResourceIdentifier` / `PhelopmentIdentifier` are string(/number)
   unions supplied by the consumer (the app defines metallic/crystalline/liquid/energy).
-- **Rules as data** (ADR 0014/0015): types, tuning constants, building requirements and
+- **Rules as data** (ADR 0014/0015): types, tuning constants, phelopment requirements and
   formulas live in the `Phormulae` value object (`lib/Phormulae.ts` — a universe's formula
   collection; canonical `toJSON` for the future rules hash). Formulas are
   kind-discriminated `Phormula` descriptors (`lib/Phormula.ts`: `zero`, `polynomial` =
@@ -57,19 +57,20 @@ Resource layer (`src/lib/resources/`), composed bottom-up:
 
 Game layer (`src/lib/`):
 
-- **Building** — pure state: type + level + speed, exactly its JSON (ADR 0015); costs,
-  build times and prosumption are computed by the Economy from the Phormulae
-  (**BuildingRequirement**: `costs * costFactor^level` plus dependency list;
+- **Phelopment** — pure state: type + level + speed, exactly its JSON (ADR 0015/0016 —
+  the engine name for what a player sees as a building/tech/module); costs, build times
+  and prosumption are computed by the Economy from the Phormulae
+  (**PhelopmentRequirement**: `costs * costFactor^level` plus dependency list;
   build time = cost sum / `buildTimeDivisor`).
-- **Economy** — Stock + Buildings + its Phormulae, which it interprets
-  (`prosumes(building)`, `upgradeCost/Time(building)`); `tick(cycles)` loops: advance
-  while rates stay valid, then apply `recalculationStrategy` (halt buildings whose
+- **Economy** — Stock + Phelopments + its Phormulae, which it interprets
+  (`prosumes(phelopment)`, `upgradeCost/Time(phelopment)`); `tick(cycles)` loops: advance
+  while rates stay valid, then apply `recalculationStrategy` (halt phelopments whose
   consumption can't be met — sets their speed to 0) and continue.
 - **Phlame** — a planet entity: id + Economy + Action list + last tick.
   `update(tick)` fast-forwards the economy. Actions/consequences are still skeletal
   (`Action.ts` is an interface only — timewarping actions are the next roadmap item).
 - **Empire** — id + list of Phlames (`lastTick` = max of entities).
-- **examples.ts** — shared fixtures for tests and app defaults (`emptyStock`, `buildings`).
+- **examples.ts** — shared fixtures for tests and app defaults (`emptyStock`, `phelopments`).
 
 ## Commands
 
@@ -80,7 +81,7 @@ Game layer (`src/lib/`):
 ## Known warts / open TODOs (from code comments & readme)
 
 - Resource vs Energy code duplication (deliberately unmerged so far; inheritance avoided).
-- Typecasts in `ResourceProcess.add` and `Building.prosumes` lookups marked "TODO fix".
+- Typecasts in `ResourceProcess.add` and `Economy.prosumes` lookups marked "TODO fix".
 - `Action`/consequence handling in `Phlame.recent`/`update` not implemented yet.
 - `Economy.name` may become a seed/ID; `ID = string | number` should probably settle on string.
 - Wish list: `as const` instead of enums, less OO/generics weight, maybe BigInt/WASM for

@@ -33,7 +33,8 @@ Small decisions that get expensive to change once actions & persistence formats 
       leak fixed, regression-tested), app & examples build their Phormulae explicitly,
       and the lookups moved in ([ADR 0015](docs/decisions/0015-phormula-descriptors-pure-building.md)):
       formulas are kind-discriminated `Phormula` descriptors (`zero`/`polynomial`),
-      `Building` is pure state (= its JSON), the `Economy` interprets the rules
+      `Phelopment` (renamed from Building, [ADR 0016](docs/decisions/0016-phelopment-rename.md))
+      is pure state (= its JSON), the `Economy` interprets the rules
       (`prosumes`/`upgradeCost`/`upgradeTime`), and `Phormulae.toJSON()` is complete.
       Still open: actual injection (kill `Phormulae.current`; moves constructor type
       validation to the config boundary), the rules hash itself (now unblocked).
@@ -116,7 +117,7 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       Replay orchestration in the empire-level update: fast-forward concerned entities
       to each action's tick, apply in `(tick, seq)` order.
 - [ ] Building queue as first action type — `upgradeTime`/costs already exist on
-      `Building`/`BuildingRequirement`; queue = actions with future consequences.
+      `Economy`/`PhelopmentRequirement`; queue = actions with future consequences.
       Semantics per the 2008 original: **Wartefunktion** — players may queue entries
       regardless of current resources; the queue waits until each becomes affordable
       (see docs/history.md, the Fusionskraftwerk post already shipped this design).
@@ -126,8 +127,8 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
 
 ## Milestone 2 — Gameplay depth
 
-- [ ] Tech/research: activate `BuildingRequirement.dependencies` (the `isSatisfied` TODO),
-      decide tech-as-building vs own entity (open question 5).
+- [ ] Tech/research: activate `PhelopmentRequirement.dependencies` (the `isSatisfied` TODO),
+      decide tech-as-phelopment vs own entity (open question 5).
 - [ ] Special buildings (build-faster etc.), better assets/building images.
 - [ ] Colonization + transports between Phlames (Empire already holds multiple planets;
       transports = paired actions on two entities — first cross-entity consistency test).
