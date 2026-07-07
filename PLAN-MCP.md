@@ -22,8 +22,8 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
 
 - [ ] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)): the engine's
       rule statics (`Resource.types`, `Energy.types`, tuning constants, lookups) become
-      an injectable `Ruleset` value object. Decided to pull this *before* the MCP server:
-      unblocks multi-ruleset processes (A/B balancing), gives ADR 0011 its hashable
+      an injectable `Phormulae` value object. Decided to pull this *before* the MCP server:
+      unblocks multi-Phormulae processes (A/B balancing), gives ADR 0011 its hashable
       object, and kills the fixture leak (engine `examples.ts` registers
       tumbles/salties/blubbs globally on import today).
 - [ ] **DOM-free config imports**: `src/app/engine/index.ts` re-exports
@@ -46,7 +46,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
   [zeitgeber.spec.ts](src/app/signals/zeitgeber.spec.ts) (injected time source + timer
   queue) is the prototype: game time belongs to the agent.
 - **In-memory sandbox, multi-session** (keyed by session id, so one agent can A/B two
-  empires — two *rulesets* additionally need ADR 0014 landed). **dump/restore from
+  empires — two *Phormulae* additionally need ADR 0014 landed). **dump/restore from
   MCP-0**: sessions are process-volatile (stdio restarts lose them), and
   `EmpireJSON` + tick already round-trip — `dump_session`/`restore_session` are nearly
   free insurance for long runs. The agent owns its saves.
@@ -104,7 +104,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
 - [ ] `run_scenario(session, plan, ticks)` — scripted build order, returns
       segment-boundary curves (see design) for plotting & regression comparison.
 - [ ] Snapshot/curve diffing between two sessions — A/B balance experiments across
-      two Rulesets in one process.
+      two Phormulae in one process.
 
 ## Open questions
 

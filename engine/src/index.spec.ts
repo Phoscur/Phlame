@@ -1,4 +1,5 @@
-import { Economy, emptyStock, buildings } from '.';
+import { Economy } from '.';
+import { emptyStock, buildings } from './lib/examples';
 
 describe('Engine', () => {
   it('should export an Economy engine', () => {

@@ -23,7 +23,13 @@ See also: [../docs/tick-flow.md](../docs/tick-flow.md) (the tick loop with diagr
   int32 cast (see `Resource.infinite` / `checkInfinity`).
 - **Types as generics**: `ResourceIdentifier` / `BuildingIdentifier` are string(/number)
   unions supplied by the consumer (the app defines metallic/crystalline/liquid/energy).
-  Valid types are registered at config time by pushing into `Resource.types` / `Energy.types`.
+- **Rules as data** (ADR 0014, in migration): valid types and tuning constants live in the
+  `Phormulae` value object (`lib/Phormulae.ts` — a universe's formula collection, singular
+  Phormula; canonical `toJSON` for the future rules hash). The old statics
+  (`Resource.types`, `Building.BUILD_TIME_DIVISOR`, ...) remain as deprecated shims over
+  `Phormulae.current`; config still push-registers through them until injection lands.
+  The engine barrel deliberately does NOT export `lib/examples` — its import registers
+  fixture types (that leak is fixed and regression-tested).
 - Everything is JSON round-trippable: `toJSON()` on each layer, revival is the consumer's
   job (the app's `EngineFactory`). `toString()` everywhere for debugging/console UI.
 

@@ -7,9 +7,15 @@ import type { ResourceProcessCollectionEntries } from './ResourceProcessCollecti
 import { ResourceProcessCollection } from './ResourceProcessCollection';
 import { Stock } from './Stock';
 import { ProsumerCollection } from './ProsumerCollection';
+import { Phormulae } from '../Phormulae';
 
 export class EnergyCalculation<Types extends ResourceIdentifier> {
-  static REBALANCING_EXPONENT = 1.1;
+  /**
+   * @deprecated shim delegating to `Phormulae.current` (ADR 0014)
+   */
+  static get REBALANCING_EXPONENT(): number {
+    return Phormulae.current.rebalancingExponent;
+  }
 
   readonly resources: ResourceCalculation<Types>;
 

@@ -8,6 +8,7 @@ import {
   ResourceCollection,
 } from './resources';
 import { BuildingRequirement } from './BuildingRequirement';
+import { Phormulae } from './Phormulae';
 import type { TimeUnit } from './resources/ResourceProcess';
 import type { ProsumerIdentifier } from './resources/Prosumer';
 
@@ -43,7 +44,12 @@ export class Building<
   ResourceType extends ResourceIdentifier,
   BuildingType extends BuildingIdentifier,
 > {
-  static BUILD_TIME_DIVISOR = 2500 / 60;
+  /**
+   * @deprecated shim delegating to `Phormulae.current` (ADR 0014)
+   */
+  static get BUILD_TIME_DIVISOR(): number {
+    return Phormulae.current.buildTimeDivisor;
+  }
 
   constructor(
     readonly type: BuildingType,
