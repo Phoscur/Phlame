@@ -23,14 +23,17 @@ See also: [../docs/tick-flow.md](../docs/tick-flow.md) (the tick loop with diagr
   int32 cast (see `Resource.infinite` / `checkInfinity`).
 - **Types as generics**: `ResourceIdentifier` / `BuildingIdentifier` are string(/number)
   unions supplied by the consumer (the app defines metallic/crystalline/liquid/energy).
-- **Rules as data** (ADR 0014, in migration): valid types and tuning constants live in the
-  `Phormulae` value object (`lib/Phormulae.ts` — a universe's formula collection, singular
-  Phormula; canonical `toJSON` for the future rules hash). Configuration builds and
-  activates its rules via `Phormulae.use()`; the old statics (`Resource.types`,
-  `Building.BUILD_TIME_DIVISOR`, ...) remain as deprecated read-only shims over
-  `Phormulae.current` until injection lands. The engine barrel deliberately does NOT
-  export `lib/examples` — its import activates the example Phormulae (that fixture leak
-  is fixed and regression-tested).
+- **Rules as data** (ADR 0014/0015): types, tuning constants, building requirements and
+  formulas live in the `Phormulae` value object (`lib/Phormulae.ts` — a universe's formula
+  collection; canonical `toJSON` for the future rules hash). Formulas are
+  kind-discriminated `Phormula` descriptors (`lib/Phormula.ts`: `zero`, `polynomial` =
+  `k·lvl·lvl^exp`) — data, not functions, so they hash. Phormulae stays runtime-import-free
+  (the rule document must not import its interpreter); the Economy interprets it.
+  Configuration builds and activates its rules via `Phormulae.use()`; the remaining statics
+  (`Resource.types`, `Energy.types`, `EnergyCalculation.REBALANCING_EXPONENT`) are
+  deprecated read-only shims over `Phormulae.current` until injection lands. The engine
+  barrel deliberately does NOT export `lib/examples` — its import activates the example
+  Phormulae (that fixture leak is fixed and regression-tested).
 - Everything is JSON round-trippable: `toJSON()` on each layer, revival is the consumer's
   job (the app's `EngineFactory`). `toString()` everywhere for debugging/console UI.
 
@@ -54,13 +57,14 @@ Resource layer (`src/lib/resources/`), composed bottom-up:
 
 Game layer (`src/lib/`):
 
-- **Building** — type + level + speed; maps to a Prosumer through `ProsumptionLookup`
-  (per-type `level -> rate` functions) and `RequirementLookup` (upgrade/downgrade costs via
-  **BuildingRequirement**: `costs * costFactor^level`, plus dependency list).
-  `upgradeTime` derives from cost sum / `BUILD_TIME_DIVISOR`.
-- **Economy** — Stock + Buildings; `tick(cycles)` loops: advance while rates stay valid,
-  then apply `recalculationStrategy` (halt buildings whose consumption can't be met — sets
-  their speed to 0) and continue. Named after the entity that owns it.
+- **Building** — pure state: type + level + speed, exactly its JSON (ADR 0015); costs,
+  build times and prosumption are computed by the Economy from the Phormulae
+  (**BuildingRequirement**: `costs * costFactor^level` plus dependency list;
+  build time = cost sum / `buildTimeDivisor`).
+- **Economy** — Stock + Buildings + its Phormulae, which it interprets
+  (`prosumes(building)`, `upgradeCost/Time(building)`); `tick(cycles)` loops: advance
+  while rates stay valid, then apply `recalculationStrategy` (halt buildings whose
+  consumption can't be met — sets their speed to 0) and continue.
 - **Phlame** — a planet entity: id + Economy + Action list + last tick.
   `update(tick)` fast-forwards the economy. Actions/consequences are still skeletal
   (`Action.ts` is an interface only — timewarping actions are the next roadmap item).

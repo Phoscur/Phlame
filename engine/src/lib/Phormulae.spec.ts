@@ -1,4 +1,13 @@
-import { BaseResources, Phormulae, Resource, Energy, Building, BuildingRequirement, EnergyCalculation } from '..';
+import {
+  BaseResources,
+  Phormula,
+  Phormulae,
+  Resource,
+  Energy,
+  BuildingRequirement,
+  EnergyCalculation,
+  ResourceCollection,
+} from '..';
 
 describe('Phormulae', () => {
   it('should default to the base rules', () => {
@@ -8,6 +17,8 @@ describe('Phormulae', () => {
     expect(rules.buildTimeDivisor).toBe(2500 / 60);
     expect(rules.downgradeCostDivisor).toBe(2);
     expect(rules.rebalancingExponent).toBe(1.1);
+    expect(rules.requirements).toEqual({});
+    expect(rules.prosumptions).toEqual({});
   });
 
   it('should register types immutably', () => {
@@ -26,26 +37,47 @@ describe('Phormulae', () => {
     expect(rules.energyTypes[0]).toBe(BaseResources.Null);
   });
 
+  it('should carry requirements and prosumption Phormulae (ADR 0015)', () => {
+    const requirement = new BuildingRequirement<string, string>(
+      'mine',
+      ResourceCollection.fromArray([]),
+      1.5,
+      [],
+    );
+    const rules = new Phormulae(['gold'])
+      .withRequirements({ mine: requirement })
+      .withProsumptions({ mine: { gold: Phormula.polynomial(30) } });
+
+    expect(rules.requirementFor('mine')).toBe(requirement);
+    expect(() => rules.requirementFor('lab')).toThrow(
+      'Unknown building requirement, BuildingType: lab',
+    );
+    expect(rules.prosumptionFor('mine').gold?.at(1)).toBe(30);
+    expect(rules.prosumptionFor('lab')).toEqual({});
+  });
+
   it('should serialize canonically for the rules hash', () => {
-    const rules = new Phormulae(['gold'], [], 40, 2, 1.1);
+    const rules = new Phormulae(['gold'], [], 40, 2, 1.1).withProsumptions({
+      mine: { gold: Phormula.polynomial(30) },
+    });
     expect(JSON.parse(JSON.stringify(rules))).toEqual({
       resourceTypes: ['null', 'gold'],
       energyTypes: ['null'],
       buildTimeDivisor: 40,
       downgradeCostDivisor: 2,
       rebalancingExponent: 1.1,
+      requirements: {},
+      prosumptions: {
+        mine: { gold: { kind: 'polynomial', coefficient: 30, exponent: 1.1 } },
+      },
     });
   });
 
   it('should back the deprecated static shims through Phormulae.current', () => {
-    const previous = Phormulae.use(
-      new Phormulae(['gold'], ['steam'], 100, 4, 1.5),
-    );
+    const previous = Phormulae.use(new Phormulae(['gold'], ['steam'], 100, 4, 1.5));
     try {
       expect(Resource.types).toEqual([BaseResources.Null, 'gold']);
       expect(Energy.types).toEqual([BaseResources.Null, 'steam']);
-      expect(Building.BUILD_TIME_DIVISOR).toBe(100);
-      expect(BuildingRequirement.DOWNGRADECOST_DIVISOR).toBe(4);
       expect(EnergyCalculation.REBALANCING_EXPONENT).toBe(1.5);
       // unknown types still fall back to Null, now Phormulae-driven
       expect(new Resource('silver', 5).type).toBe(BaseResources.Null);

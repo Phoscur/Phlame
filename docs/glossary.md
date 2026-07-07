@@ -25,8 +25,9 @@ Phlame's domain language, one line each. German loanwords are intentional.
 - **validFor** — how many ticks the current rates stay valid before some limit is hit; segment boundary of the tick loop.
 - **balanceFactor** — production degradation factor on energy deficit (`** 1.1` exponent); UI shows "Degraded to N%".
 - **recalculation strategy** — what happens at a segment boundary: buildings with unmeetable consumption are halted (speed 0).
-- **Phormulae** — a universe's formula collection (singular: Phormula): the game rules as data (type registries + tuning constants, ADR 0014); its canonical JSON is what the universe rules hash (ADR 0011) will hash. `Phormulae.current` backs the deprecated static shims until injection lands.
-- **Building** — type + level + speed; becomes a Prosumer via prosumption lookup; up/downgrade costs from BuildingRequirement.
+- **Phormula** — a single game formula as data: kind-discriminated descriptor (`zero`, `polynomial` = `k·lvl·lvl^exp`), evaluated via `at(level)` (ADR 0015). Functions don't hash; Phormulae do.
+- **Phormulae** — a universe's formula collection (plural of Phormula): the game rules as data (type registries, tuning constants, requirements, prosumption Phormulae — ADR 0014/0015); its canonical JSON is what the universe rules hash (ADR 0011) will hash. `Phormulae.current` backs the deprecated static shims until injection lands.
+- **Building** — pure state: type + level + speed, exactly its JSON (ADR 0015); the Economy computes its costs, build times and Prosumer from the Phormulae.
 - **BuildingRequirement** — costs (`base * costFactor^level`), build time and dependencies for up/downgrades.
 - **tumbles, salties, blubbs** — nonsense resource types used as fixtures in engine unit tests (no game meaning).
 
