@@ -1,3 +1,4 @@
+export * from './lib/Phingerprint';
 export * from './lib/Phormula';
 export * from './lib/Phormulae';
 export * from './lib/resources';
