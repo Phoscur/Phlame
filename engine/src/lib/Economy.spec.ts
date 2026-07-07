@@ -1,7 +1,7 @@
 import { Economy } from './Economy';
 import { ResourceCollection, ResourceProcess, Stock } from './resources';
 import { TumbleResource, BlubbResource, SaltyResource, ResourceTypes } from './resources/examples';
-import { stock, buildings, overconsumingBuildings, underBlubberBuildings } from './examples';
+import { stock, phelopments, overconsumingPhelopments, underBlubberPhelopments } from './examples';
 
 /**
  * At first glance, an Economy is like a Planet from our ancestorial game, however it covers edge cases differently:
@@ -11,10 +11,10 @@ import { stock, buildings, overconsumingBuildings, underBlubberBuildings } from 
  * It cannot be simply configured to allow for the "buggy" behaviour, maybe with negative infinity as lower limit, while resetting to 0 as needed.
  *
  * TODOs:
- * - queuing buildings, research (& units) - externally time delayed?
- * - buildings increasing build speed
- * - research unlocking features (buildings, units, speed improvements, ...)
- * - buildings producing units
+ * - queuing phelopments, research (& units) - externally time delayed?
+ * - phelopments increasing build speed
+ * - research unlocking features (phelopments, units, speed improvements, ...)
+ * - phelopments producing units
  * - (un-)loading units
  */
 describe('Economy', () => {
@@ -23,7 +23,7 @@ describe('Economy', () => {
     expect(empty.toString()).to.eql('Empty (Processing energy&resources: ) []');
     expect(empty.resources.productionTable).to.eql([]);
 
-    const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
+    const factory = new Economy('Console', stock, [phelopments[0], phelopments[2]]);
     expect(factory.toString()).to.eql(
       'Console (Processing energy&resources: ' +
         '50/50 energy, 0/0 heat, ' +
@@ -31,8 +31,8 @@ describe('Economy', () => {
         '3salties(0, Infinity): 0, ' +
         '15blubbs(0, Infinity): -10' +
         ') [' +
-        'Building(12, 1, 100%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 100%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     expect(factory.stock.toString()).to.eql(
@@ -50,7 +50,7 @@ describe('Economy', () => {
   it('should be serializable', () => {
     const empty = new Economy('Empty', stock, []);
     expect(empty.toJSON()).to.eql({
-      buildings: [],
+      phelopments: [],
       name: 'Empty',
       stock: {
         resources: [
@@ -61,9 +61,9 @@ describe('Economy', () => {
       },
     });
 
-    const factory = new Economy('Console', stock, [buildings[0], buildings[2]]);
+    const factory = new Economy('Console', stock, [phelopments[0], phelopments[2]]);
     expect(factory.toJSON()).to.eql({
-      buildings: [
+      phelopments: [
         {
           level: 1,
           speed: 100,
@@ -82,8 +82,8 @@ describe('Economy', () => {
     });
   });
 
-  it('should have resources and buildings', () => {
-    const factory = new Economy('Factory', stock, buildings);
+  it('should have resources and phelopments', () => {
+    const factory = new Economy('Factory', stock, phelopments);
     expect(factory.toString()).to.eql(
       'Factory (Processing energy&resources: ' +
         '30/50 energy, 0/0 heat, ' +
@@ -91,19 +91,19 @@ describe('Economy', () => {
         '15blubbs(0, Infinity): 0, ' + // -10+10
         '3tumbles(0, Infinity): 0' + // TODO? fix ordering for zero (missing) resource production
         ') [' +
-        'Building(12, 1, 100%), ' +
-        'Building(3, 1, 100%), ' +
-        'Building(0, 1, 50%), ' +
-        'Building(2, 1, 100%)' +
+        'Phelopment(12, 1, 100%), ' +
+        'Phelopment(3, 1, 100%), ' +
+        'Phelopment(0, 1, 50%), ' +
+        'Phelopment(2, 1, 100%)' +
         ']',
     );
     expect(factory.resources.validFor).to.be.eql(Infinity);
-    // TODO! a factory with minimal default buildings
+    // TODO! a factory with minimal default phelopments
     // TODO storage limits 22, 23, 24
-    // TODO buildings for build speed upgrades 14, 15
-    // TODO building space and expansion 33
+    // TODO phelopments for build speed upgrades 14, 15
+    // TODO phelopment space and expansion 33
     // TODO lab 31
-    // TODO And/Or (Building|Tech)Requirement
+    // TODO And/Or (Phelopment|Tech)Requirement
     // TODO hangar 21 able to produce other units like ships 202, 203 with cargo capacity
     // and misc
     // TODO tech lab requirement 113 <= 31L1
@@ -111,24 +111,24 @@ describe('Economy', () => {
     // TODO lab network for tech speed up and tech share (with outsourcing cost)?
   });
 
-  it('can upgrade buildings, in time', () => {
-    const factory = new Economy('Factory', stock, buildings);
+  it('can upgrade phelopments, in time', () => {
+    const factory = new Economy('Factory', stock, phelopments);
     // TODO check substracted resources
     // TODO check build time
-    expect(factory.upgrade(factory.buildings[0].type).toString()).to.eql(
+    expect(factory.upgrade(factory.phelopments[0].type).toString()).to.eql(
       'Factory (Processing energy&resources: ' +
         '194/214 energy, 0/0 heat, ' +
         '3salties(0, Infinity): +20, ' +
         '15blubbs(0, Infinity): -33, ' +
         '3tumbles(0, Infinity): 0' +
         ') [' +
-        'Building(12, 2, 100%), ' +
-        'Building(3, 1, 100%), ' +
-        'Building(0, 1, 50%), ' +
-        'Building(2, 1, 100%)' +
+        'Phelopment(12, 2, 100%), ' +
+        'Phelopment(3, 1, 100%), ' +
+        'Phelopment(0, 1, 50%), ' +
+        'Phelopment(2, 1, 100%)' +
         ']',
     );
-    expect(factory.downgrade(factory.buildings[0].type).toString()).to.eql(
+    expect(factory.downgrade(factory.phelopments[0].type).toString()).to.eql(
       'Factory (Processing energy&resources: ' +
         '-20/0 energy, 0/0 heat, ' +
         'Degraded to 0%, ' +
@@ -136,10 +136,10 @@ describe('Economy', () => {
         '15blubbs(0, Infinity): 0, ' +
         '3tumbles(0, Infinity): 0' +
         ') [' +
-        'Building(12, 0, 100%), ' +
-        'Building(3, 1, 100%), ' +
-        'Building(0, 1, 50%), ' +
-        'Building(2, 1, 100%)' +
+        'Phelopment(12, 0, 100%), ' +
+        'Phelopment(3, 1, 100%), ' +
+        'Phelopment(0, 1, 50%), ' +
+        'Phelopment(2, 1, 100%)' +
         ']',
     );
   });
@@ -147,7 +147,7 @@ describe('Economy', () => {
   it('should tick: simply exhausting fuel', () => {
     // burn resources for unused energy, which doesn't accumulate
     const stock = new Stock<ResourceTypes>(ResourceCollection.fromArray([new BlubbResource(30)]));
-    const factory = new Economy('Tick', stock, [buildings[0], buildings[2]]);
+    const factory = new Economy('Tick', stock, [phelopments[0], phelopments[2]]);
     expect(factory.toString()).to.eql(
       'Tick (Processing energy&resources: ' +
         '50/50 energy, 0/0 heat, ' +
@@ -155,8 +155,8 @@ describe('Economy', () => {
         '0salties(0, Infinity): 0, ' +
         '30blubbs(0, Infinity): -10' +
         ') [' +
-        'Building(12, 1, 100%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 100%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     const ft1 = factory.tick();
@@ -167,8 +167,8 @@ describe('Economy', () => {
         '0salties(0, Infinity): 0, ' +
         '20blubbs(0, Infinity): -10' +
         ') [' +
-        'Building(12, 1, 100%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 100%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     const ft2 = ft1.tick();
@@ -179,8 +179,8 @@ describe('Economy', () => {
         '0salties(0, Infinity): 0, ' +
         '10blubbs(0, Infinity): -10' +
         ') [' +
-        'Building(12, 1, 100%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 100%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     expect(ft2.resources.validFor).to.be.eql(1);
@@ -192,8 +192,8 @@ describe('Economy', () => {
         '0salties(0, Infinity): 0, ' +
         '0blubbs(0, Infinity): -10' +
         ') [' +
-        'Building(12, 1, 100%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 100%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     expect(ft3.resources.validFor).to.be.eql(0);
@@ -209,8 +209,8 @@ describe('Economy', () => {
           '0salties(0, Infinity): 0, ' +
           '0blubbs(0, Infinity): -10' +
           ') [' +
-          'Building(12, 1, 100%), ' +
-          'Building(0, 1, 50%)' +
+          'Phelopment(12, 1, 100%), ' +
+          'Phelopment(0, 1, 50%)' +
           ']',
       );
     }).to.throw('Invalid resource (re)calculation');
@@ -224,8 +224,8 @@ describe('Economy', () => {
         '0salties(0, Infinity): 0, ' +
         '0blubbs(0, Infinity): 0' +
         ') [' +
-        'Building(12, 1, 0%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 0%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     const ft5 = ft4.tick();
@@ -236,8 +236,8 @@ describe('Economy', () => {
         '0salties(0, Infinity): 0, ' +
         '0blubbs(0, Infinity): 0' +
         ') [' +
-        'Building(12, 1, 0%), ' +
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 0%), ' +
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     expect(ft5.resources.validFor).to.be.eql(Infinity);
@@ -245,14 +245,14 @@ describe('Economy', () => {
 
   // a) tumble plant (ID 1) is upgraded and now overconsumption slows everything, even more when blubber fuel runs out
   it('a series of ticks retriggering recalculations with different impacts', () => {
-    // first rates are already bad because e.g. recently upgraded building consumes more energy than solar provides
+    // first rates are already bad because e.g. recently upgraded phelopment consumes more energy than solar provides
     // then blubbs run out again, so the drop brings everything to a slow grind
     const tumbles = new TumbleResource(10);
     const blubbs = new BlubbResource(30);
     const stock = new Stock<ResourceTypes>(
       ResourceCollection.fromArray([tumbles, new SaltyResource(0), blubbs]),
     );
-    const factory = new Economy('Overtumbling', stock, overconsumingBuildings);
+    const factory = new Economy('Overtumbling', stock, overconsumingPhelopments);
     // full rate would be 129, but -13/50 energy degrades it
     const tumbleProcess = new ResourceProcess(tumbles.infinite, 129 * (50 / (13 + 50)) ** 1.1);
     const blubbProcess = new ResourceProcess(blubbs, 8 - 10);
@@ -277,11 +277,11 @@ describe('Economy', () => {
         '0salties(0, Infinity): +16, ' + // degraded from 20
         '30blubbs(0, Infinity): -2' + // degraded from 0
         ') [' +
-        'Building(12, 1, 100%), ' + // consumes blubbs for energy
-        'Building(1, 2, 100%), ' + // just upgraded tumbles
-        'Building(2, 1, 100%), ' + // salties
-        'Building(3, 1, 100%), ' + // produces blubbs
-        'Building(0, 1, 50%)' +
+        'Phelopment(12, 1, 100%), ' + // consumes blubbs for energy
+        'Phelopment(1, 2, 100%), ' + // just upgraded tumbles
+        'Phelopment(2, 1, 100%), ' + // salties
+        'Phelopment(3, 1, 100%), ' + // produces blubbs
+        'Phelopment(0, 1, 50%)' +
         ']',
     );
     expect(factory.resources.validFor).to.be.eql(15);
@@ -317,7 +317,7 @@ describe('Economy', () => {
         new BlubbResource(40),
       ]),
     );
-    const factory = new Economy('Underblubbling', stock, underBlubberBuildings);
+    const factory = new Economy('Underblubbling', stock, underBlubberPhelopments);
     expect(factory.resources.productionEntries).to.eql([
       '171/234 energy',
       '0/0 heat',
@@ -346,12 +346,12 @@ describe('Economy', () => {
         //+ "26salties(0, Infinity): +6, "
         //+ "10blubbs(0, Infinity): +3"
         ') [' +
-        'Building(12, 2, 0%), ' +
-        'Building(1, 2, 100%), ' + // just upgraded
-        'Building(2, 1, 100%), ' +
-        'Building(3, 1, 100%), ' +
-        'Building(0, 1, 50%), ' +
-        'Building(4, 1, 100%)' +
+        'Phelopment(12, 2, 0%), ' +
+        'Phelopment(1, 2, 100%), ' + // just upgraded
+        'Phelopment(2, 1, 100%), ' +
+        'Phelopment(3, 1, 100%), ' +
+        'Phelopment(0, 1, 50%), ' +
+        'Phelopment(4, 1, 100%)' +
         ']',
     );
   });

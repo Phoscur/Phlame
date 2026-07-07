@@ -1,6 +1,6 @@
 import type { ResourceIdentifier } from './resources/Resource';
 import type { ProsumerIdentifier } from './resources/Prosumer';
-import type { BuildingRequirement, BuildingRequirementJSON } from './BuildingRequirement';
+import type { PhelopmentRequirement, PhelopmentRequirementJSON } from './PhelopmentRequirement';
 import { Phormula, type PhormulaJSON } from './Phormula';
 
 export enum BaseResources {
@@ -8,7 +8,7 @@ export enum BaseResources {
   Energy = 'energy', // no plural, very special
 }
 
-export type BuildingIdentifier = ProsumerIdentifier;
+export type PhelopmentIdentifier = ProsumerIdentifier;
 
 export type ProsumptionEntries<Types extends ResourceIdentifier> = {
   [Type in Types]?: Phormula;
@@ -16,16 +16,16 @@ export type ProsumptionEntries<Types extends ResourceIdentifier> = {
 
 export type ProsumptionLookup<
   ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
 > = {
-  [Type in BuildingType]?: ProsumptionEntries<ResourceType>;
+  [Type in PhelopmentType]?: ProsumptionEntries<ResourceType>;
 };
 
 export type RequirementLookup<
   ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
 > = {
-  [Type in BuildingType]?: BuildingRequirement<ResourceType, BuildingType>;
+  [Type in PhelopmentType]?: PhelopmentRequirement<ResourceType, PhelopmentType>;
 };
 
 export interface PhormulaeJSON {
@@ -34,15 +34,15 @@ export interface PhormulaeJSON {
   buildTimeDivisor: number;
   downgradeCostDivisor: number;
   rebalancingExponent: number;
-  requirements: Partial<Record<BuildingIdentifier, BuildingRequirementJSON>>;
-  prosumptions: Partial<Record<BuildingIdentifier, Partial<Record<ResourceIdentifier, PhormulaJSON>>>>;
+  requirements: Partial<Record<PhelopmentIdentifier, PhelopmentRequirementJSON>>;
+  prosumptions: Partial<Record<PhelopmentIdentifier, Partial<Record<ResourceIdentifier, PhormulaJSON>>>>;
 }
 
 /**
  * Phormulae - the game rules as data (ADR 0014/0015); a universe's formula collection
  * (plural of Phormula, in the Ph tradition of Phlame).
- * Carries the type registries, tuning constants, building requirements and prosumption
- * Phormulae which historically lived as mutable statics and per-Building lookups.
+ * Carries the type registries, tuning constants, phelopment requirements and prosumption
+ * Phormulae which historically lived as mutable statics and per-Phelopment lookups.
  * Immutable like every value object: registration returns a new instance.
  * A universe is identified by the hash of the canonical `toJSON()` form (ADR 0011).
  *
@@ -59,8 +59,8 @@ export class Phormulae {
     readonly buildTimeDivisor = 2500 / 60,
     readonly downgradeCostDivisor = 2,
     readonly rebalancingExponent = 1.1,
-    readonly requirements: RequirementLookup<ResourceIdentifier, BuildingIdentifier> = {},
-    readonly prosumptions: ProsumptionLookup<ResourceIdentifier, BuildingIdentifier> = {},
+    readonly requirements: RequirementLookup<ResourceIdentifier, PhelopmentIdentifier> = {},
+    readonly prosumptions: ProsumptionLookup<ResourceIdentifier, PhelopmentIdentifier> = {},
   ) {
     // the Null type is an engine invariant (constructor fallback), not a balancing choice
     this.resourceTypes = resourceTypes.includes(BaseResources.Null)
@@ -74,8 +74,8 @@ export class Phormulae {
   protected new(
     resourceTypes: ResourceIdentifier[],
     energyTypes: ResourceIdentifier[],
-    requirements: RequirementLookup<ResourceIdentifier, BuildingIdentifier>,
-    prosumptions: ProsumptionLookup<ResourceIdentifier, BuildingIdentifier>,
+    requirements: RequirementLookup<ResourceIdentifier, PhelopmentIdentifier>,
+    prosumptions: ProsumptionLookup<ResourceIdentifier, PhelopmentIdentifier>,
   ): Phormulae {
     return new Phormulae(
       resourceTypes,
@@ -106,34 +106,34 @@ export class Phormulae {
     );
   }
 
-  withRequirements<R extends ResourceIdentifier, B extends BuildingIdentifier>(
+  withRequirements<R extends ResourceIdentifier, B extends PhelopmentIdentifier>(
     requirements: RequirementLookup<R, B>,
   ): Phormulae {
     return this.new(this.resourceTypes, this.energyTypes, requirements, this.prosumptions);
   }
 
-  withProsumptions<R extends ResourceIdentifier, B extends BuildingIdentifier>(
+  withProsumptions<R extends ResourceIdentifier, B extends PhelopmentIdentifier>(
     prosumptions: ProsumptionLookup<R, B>,
   ): Phormulae {
     return this.new(this.resourceTypes, this.energyTypes, this.requirements, prosumptions);
   }
 
   /**
-   * @throws on unknown building types - rules must be complete
+   * @throws on unknown phelopment types - rules must be complete
    */
-  requirementFor(type: BuildingIdentifier): BuildingRequirement<ResourceIdentifier, BuildingIdentifier> {
+  requirementFor(type: PhelopmentIdentifier): PhelopmentRequirement<ResourceIdentifier, PhelopmentIdentifier> {
     const requirement = this.requirements[type];
     if (!requirement) {
-      throw new Error(`Unknown building requirement, BuildingType: ${type}`);
+      throw new Error(`Unknown phelopment requirement, PhelopmentType: ${type}`);
     }
     return requirement;
   }
 
   /**
-   * Prosumption Phormulae of a building type (empty for unknown types - not every
-   * building produces or consumes)
+   * Prosumption Phormulae of a phelopment type (empty for unknown types - not every
+   * phelopment produces or consumes)
    */
-  prosumptionFor(type: BuildingIdentifier): ProsumptionEntries<ResourceIdentifier> {
+  prosumptionFor(type: PhelopmentIdentifier): ProsumptionEntries<ResourceIdentifier> {
     return this.prosumptions[type] ?? {};
   }
 

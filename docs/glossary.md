@@ -27,8 +27,9 @@ Phlame's domain language, one line each. German loanwords are intentional.
 - **recalculation strategy** — what happens at a segment boundary: buildings with unmeetable consumption are halted (speed 0).
 - **Phormula** — a single game formula as data: kind-discriminated descriptor (`zero`, `polynomial` = `k·lvl·lvl^exp`), evaluated via `at(level)` (ADR 0015). Functions don't hash; Phormulae do.
 - **Phormulae** — a universe's formula collection (plural of Phormula): the game rules as data (type registries, tuning constants, requirements, prosumption Phormulae — ADR 0014/0015); its canonical JSON is what the universe rules hash (ADR 0011) will hash. `Phormulae.current` backs the deprecated static shims until injection lands.
-- **Building** — pure state: type + level + speed, exactly its JSON (ADR 0015); the Economy computes its costs, build times and Prosumer from the Phormulae.
-- **BuildingRequirement** — costs (`base * costFactor^level`), build time and dependencies for up/downgrades.
+- **Phelopment** — the engine name (ADR 0016) for a leveled prosuming capability of a Phlame: pure state (type + level + speed, exactly its JSON, ADR 0015); the Economy computes its costs, build times and Prosumer from the Phormulae. On a planet the player sees it as a *building*, on an empire as *tech/research*, later on a fleet as a *module* — the real words live in i18n, not the engine.
+- **PhelopmentRequirement** — costs (`base * costFactor^level`), build time and dependencies for up/downgrades.
+- **Ph naming convention** — Ph replaces an F or V sound: Phlame←flame, Phormulae←formulae, Phelopment←de**v**elopment, Phanx←thanks (ADR 0016).
 - **tumbles, salties, blubbs** — nonsense resource types used as fixtures in engine unit tests (no game meaning).
 
 ## World & entities

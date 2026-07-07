@@ -7,53 +7,53 @@ import examples, {
   phormulae as resourcePhormulae,
 } from './resources/examples';
 import { Stock, ResourceCollection } from './resources';
-import { Building, BuildingIdentifier as BuildingID } from './Building';
+import { Phelopment, PhelopmentIdentifier as PhelopmentID } from './Phelopment';
 import {
   Phormulae,
   type ProsumptionLookup,
   type RequirementLookup,
 } from './Phormulae';
 import { Phormula } from './Phormula';
-import { BuildingRequirement } from './BuildingRequirement';
+import { PhelopmentRequirement } from './PhelopmentRequirement';
 import { Economy } from './Economy';
 import { Phlame } from './Phlame';
 import { Empire } from './Empire';
 
 export type Resources = ResourceTypes | EnergyTypes;
 
-// TODO better building type: const map
+// TODO better phelopment type: const map
 
-export const requirements: RequirementLookup<Resources, BuildingID> = {
+export const requirements: RequirementLookup<Resources, PhelopmentID> = {
   // tumble mine
-  1: new BuildingRequirement<Resources, BuildingID>(
+  1: new PhelopmentRequirement<Resources, PhelopmentID>(
     1,
     ResourceCollection.fromArray<Resources>([new TumbleResource(60), new SaltyResource(15)]),
     1.5,
     [],
   ),
   // salty mine
-  2: new BuildingRequirement<Resources, BuildingID>(
+  2: new PhelopmentRequirement<Resources, PhelopmentID>(
     2,
     ResourceCollection.fromArray<Resources>([new TumbleResource(48), new SaltyResource(24)]),
     1.6,
     [],
   ),
   // blubber mine
-  3: new BuildingRequirement<Resources, BuildingID>(
+  3: new PhelopmentRequirement<Resources, PhelopmentID>(
     3,
     ResourceCollection.fromArray<Resources>([new TumbleResource(225), new SaltyResource(75)]),
     1.5,
     [],
   ),
   // power
-  4: new BuildingRequirement<Resources, BuildingID>(
+  4: new PhelopmentRequirement<Resources, PhelopmentID>(
     4,
     ResourceCollection.fromArray<Resources>([new TumbleResource(75), new SaltyResource(30)]),
     1.5,
     [],
   ),
   // power based on blubber
-  12: new BuildingRequirement<Resources, BuildingID>(
+  12: new PhelopmentRequirement<Resources, PhelopmentID>(
     12,
     ResourceCollection.fromArray<Resources>([new TumbleResource(48), new SaltyResource(24)]),
     1.8,
@@ -68,8 +68,8 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
       },
     ],
   ),
-  // build buildings faster! TODO we need to add the time reducing factors
-  14: new BuildingRequirement<Resources, BuildingID>(
+  // build phelopments faster! TODO we need to add the time reducing factors
+  14: new PhelopmentRequirement<Resources, PhelopmentID>(
     14, // robots factor=1/(1+level)
     ResourceCollection.fromArray<Resources>([
       new TumbleResource(400),
@@ -79,7 +79,7 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
     2,
     [],
   ), // FASTER
-  15: new BuildingRequirement<Resources, BuildingID>(
+  15: new PhelopmentRequirement<Resources, PhelopmentID>(
     15, // nanites factor=1/2^level
     ResourceCollection.fromArray<Resources>([
       new TumbleResource(1000000),
@@ -99,7 +99,7 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
     ],
   ),
   // lab
-  31: new BuildingRequirement<Resources, BuildingID>(
+  31: new PhelopmentRequirement<Resources, PhelopmentID>(
     31,
     ResourceCollection.fromArray<Resources>([
       new TumbleResource(200),
@@ -110,7 +110,7 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
     [],
   ),
   // tech (above 100)
-  109: new BuildingRequirement<Resources, BuildingID>(
+  109: new PhelopmentRequirement<Resources, PhelopmentID>(
     113, // computer
     ResourceCollection.fromArray<Resources>([new SaltyResource(800), new BlubbResource(400)]),
     2,
@@ -121,7 +121,7 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
       },
     ],
   ),
-  113: new BuildingRequirement<Resources, BuildingID>(
+  113: new PhelopmentRequirement<Resources, PhelopmentID>(
     113, // energy
     ResourceCollection.fromArray<Resources>([new SaltyResource(800), new BlubbResource(400)]),
     2,
@@ -132,9 +132,9 @@ export const requirements: RequirementLookup<Resources, BuildingID> = {
       },
     ],
   ),
-  // TODO add the remaining buildings and tech aswell as fleet (with ids above 200)
+  // TODO add the remaining phelopments and tech aswell as fleet (with ids above 200)
 } as const;
-export const prosumption: ProsumptionLookup<Resources, BuildingID> = {
+export const prosumption: ProsumptionLookup<Resources, PhelopmentID> = {
   0: {
     [ResourceTypes.Tumble]: Phormula.zero(),
     [ResourceTypes.Salty]: Phormula.zero(),
@@ -170,16 +170,16 @@ export const phormulae = resourcePhormulae
   .withRequirements(requirements)
   .withProsumptions(prosumption);
 Phormulae.use(phormulae);
-const b = new Building<Resources, BuildingID>(12, 1, 100);
-const bUpgraded = new Building<Resources, BuildingID>(12, 2, 100);
-const b0 = new Building<Resources, BuildingID>(0, 1, 50); // 0 times 0,5 is still 0
-const b3 = new Building<Resources, BuildingID>(3, 1, 100);
-const b1 = new Building<Resources, BuildingID>(1, 2, 100);
-const b2 = new Building<Resources, BuildingID>(2, 1, 100);
-const b4 = new Building<Resources, BuildingID>(4, 1, 100);
-export const buildings: Building<Resources, BuildingID>[] = [b, b3, b0, b2];
-export const overconsumingBuildings: Building<Resources, BuildingID>[] = [b, b1, b2, b3, b0];
-export const underBlubberBuildings: Building<Resources, BuildingID>[] = [
+const b = new Phelopment<Resources, PhelopmentID>(12, 1, 100);
+const bUpgraded = new Phelopment<Resources, PhelopmentID>(12, 2, 100);
+const b0 = new Phelopment<Resources, PhelopmentID>(0, 1, 50); // 0 times 0,5 is still 0
+const b3 = new Phelopment<Resources, PhelopmentID>(3, 1, 100);
+const b1 = new Phelopment<Resources, PhelopmentID>(1, 2, 100);
+const b2 = new Phelopment<Resources, PhelopmentID>(2, 1, 100);
+const b4 = new Phelopment<Resources, PhelopmentID>(4, 1, 100);
+export const phelopments: Phelopment<Resources, PhelopmentID>[] = [b, b3, b0, b2];
+export const overconsumingPhelopments: Phelopment<Resources, PhelopmentID>[] = [b, b1, b2, b3, b0];
+export const underBlubberPhelopments: Phelopment<Resources, PhelopmentID>[] = [
   bUpgraded,
   b1,
   b2,
@@ -187,7 +187,7 @@ export const underBlubberBuildings: Building<Resources, BuildingID>[] = [
   b0,
   b4,
 ];
-export const defaultBuildings: Building<Resources, BuildingID>[] = [b1.downgraded, b2, b4];
+export const defaultPhelopments: Phelopment<Resources, PhelopmentID>[] = [b1.downgraded, b2, b4];
 const { t3, s3, b15 } = examples;
 export const resourceCollection = ResourceCollection.fromArray<ResourceTypes>([t3, s3, b15]);
 export const emptyResourceCollection = ResourceCollection.fromArray<ResourceTypes>([
@@ -197,6 +197,6 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
 ]);
 export const stock = new Stock<Resources>(resourceCollection);
 export const emptyStock = new Stock<Resources>(emptyResourceCollection);
-export const economy = new Economy<Resources, BuildingID>('Eco', stock, defaultBuildings, phormulae);
-export const phlame = new Phlame<Resources, BuildingID>('Phlame', economy);
-export const empire = new Empire<Resources, BuildingID>('Empire', [phlame]);
+export const economy = new Economy<Resources, PhelopmentID>('Eco', stock, defaultPhelopments, phormulae);
+export const phlame = new Phlame<Resources, PhelopmentID>('Phlame', economy);
+export const empire = new Empire<Resources, PhelopmentID>('Empire', [phlame]);

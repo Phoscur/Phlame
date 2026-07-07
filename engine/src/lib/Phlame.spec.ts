@@ -1,7 +1,7 @@
 import { Action, ActionType, ActionTypes } from './Action';
 
 import examples, { Types } from './resources/examples';
-import { stock, buildings, phlame } from './examples';
+import { stock, phelopments, phlame } from './examples';
 import { ResourceCollection } from './resources/ResourceCollection';
 import { Stock } from './resources/Stock';
 import { Phlame } from './Phlame';
@@ -11,16 +11,16 @@ describe('Phlame Entity', () => {
   it('should be console printable', () => {
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', exampleStock, buildings);
+    const eco = new Economy('Eco', exampleStock, phelopments);
     const phlame = new Phlame('Phlame', eco);
     expect(phlame.toString()).to.eql(
-      'Phlame (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'Phlame (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',
     );
   });
   it('should be serializable', () => {
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', exampleStock, buildings);
+    const eco = new Economy('Eco', exampleStock, phelopments);
     const phlame = new Phlame('Phlame', eco);
     expect(phlame.toJSON()).to.eql({
       id: 'Phlame',
@@ -33,10 +33,10 @@ describe('Phlame Entity', () => {
     // TODO should relate to an empire (and its economies)
     const { t3, s3 } = examples;
     const exampleStock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
-    const eco = new Economy('Eco', exampleStock, buildings);
+    const eco = new Economy('Eco', exampleStock, phelopments);
     const world = new Phlame('Planet', eco);
     expect(world.toString()).to.eql(
-      'Planet (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'Planet (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',
     );
   });
 
@@ -53,10 +53,10 @@ describe('Phlame Entity', () => {
   });
 
   it('should queue and execute actions', () => {
-    const eco = new Economy('Eco', stock, buildings);
+    const eco = new Economy('Eco', stock, phelopments);
     const phlame = new Phlame('InAction', eco);
     expect(phlame.toString()).to.eql(
-      'InAction (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 15blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 1, 100%)',
+      'InAction (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 15blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',
     );
     const action: Action<ActionType> = {
       type: ActionTypes.CREATE,
@@ -65,7 +65,7 @@ describe('Phlame Entity', () => {
         type: ActionTypes.UPDATE,
         at: 15,
         payload: {
-          buildingID: 2,
+          phelopmentID: 2,
           grade: 'up',
         },
       },
@@ -84,7 +84,7 @@ describe('Phlame Entity', () => {
     // TODO?! clean recent expect(phlame.recent).to.be.empty;
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: -3/50 energy, 0/0 heat, Degraded to 94%, 303salties(0, Infinity): +81, 15blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
-        'Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
+        'Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 2, 100%)',
     );
 
     // energy limit is the production capacity (50), even when the net rate is negative
@@ -95,7 +95,7 @@ describe('Phlame Entity', () => {
     expect(phlame.lastTick).to.eql(20);
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: -3/50 energy, 0/0 heat, Degraded to 94%, 708salties(0, Infinity): +81, 10blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
-        'Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
+        'Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 2, 100%)',
     );
 
     // uh oh - out of energy
@@ -103,7 +103,7 @@ describe('Phlame Entity', () => {
     expect(phlame.lastTick).to.eql(30);
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: -3/50 energy, 0/0 heat, Degraded to 94%, 1518salties(0, Infinity): +81, 0blubbs(0, Infinity): -1, 3tumbles(0, Infinity): 0) ' +
-        'Building(12, 1, 100%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
+        'Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 2, 100%)',
     );
 
     // halting now
@@ -111,7 +111,7 @@ describe('Phlame Entity', () => {
     expect(phlame.lastTick).to.eql(31);
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: -53/0 energy, 0/0 heat, Degraded to 0%, 1518salties(0, Infinity): 0, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) ' +
-        'Building(12, 1, 0%), Building(3, 1, 100%), Building(0, 1, 50%), Building(2, 2, 100%)',
+        'Phelopment(12, 1, 0%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 2, 100%)',
     );
   });
 

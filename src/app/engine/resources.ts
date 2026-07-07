@@ -47,7 +47,7 @@ export enum EnergyTypes {
 export type ResourceIdentifier = keyof typeof resources;
 
 /**
- * The resource-types half of the game's Phormulae (ADR 0014) - buildings.ts extends
+ * The resource-types half of the game's Phormulae (ADR 0014) - phelopments.ts extends
  * this with requirements + prosumptions into the complete `phormulae`;
  * activated on import so the module-level resource instances below validate
  */

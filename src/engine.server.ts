@@ -4,7 +4,7 @@ import { Zeit, Zeitgeber } from './app/signals/zeitgeber';
 import { ConsoleDebug, Debug } from './app/debug.element';
 import { Data, NanoID } from './data.server';
 import {
-  BuildingIdentifier,
+  PhelopmentIdentifier,
   EmpireEntity,
   EmpireService,
   emptyEmpire,
@@ -20,7 +20,7 @@ export interface Session {
 export interface PersistedSession {
   sid: SID;
   zeit: Zeit;
-  empire: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
+  empire: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>;
 }
 @injectable({
   providers: [

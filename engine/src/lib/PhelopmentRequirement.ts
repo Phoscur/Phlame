@@ -7,7 +7,7 @@ export interface Dependency<RequirementType extends RequirementTypes> {
   level: number;
 }
 
-export interface BuildingRequirementJSON {
+export interface PhelopmentRequirementJSON {
   type: RequirementTypes;
   costs: ResourceJSON<ResourceIdentifier>[];
   costFactor: number;
@@ -15,11 +15,11 @@ export interface BuildingRequirementJSON {
 }
 
 /**
- * BuildingRequirement to up- or downgrade something
+ * PhelopmentRequirement to up- or downgrade something
  * also stores the costs for the action
  * Pure rule data living inside the Phormulae (ADR 0015) - hence serializable
  */
-export class BuildingRequirement<
+export class PhelopmentRequirement<
   ResourceType extends ResourceIdentifier,
   RequirementType extends RequirementTypes,
 > {
@@ -58,10 +58,10 @@ export class BuildingRequirement<
   }
 
   toString(): string {
-    return `BuildingRequirement(${this.type})`;
+    return `PhelopmentRequirement(${this.type})`;
   }
 
-  toJSON(): BuildingRequirementJSON {
+  toJSON(): PhelopmentRequirementJSON {
     const { type, costFactor, dependencies } = this;
     return {
       type,

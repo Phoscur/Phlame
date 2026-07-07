@@ -1,4 +1,4 @@
-import { BuildingIdentifier } from './Building';
+import { PhelopmentIdentifier } from './Phelopment';
 import { TimeUnit } from './resources';
 
 // it is a bit unwise to loosen the identifier type to string or number
@@ -48,16 +48,16 @@ export class ActionFactory {
     };
   }
 
-  createBuilding(at: TimeUnit, concerns: Entity, buildingID: BuildingIdentifier) {
-    return this.create(ActionTypes.CREATE, at, concerns, { buildingID });
+  createPhelopment(at: TimeUnit, concerns: Entity, phelopmentID: PhelopmentIdentifier) {
+    return this.create(ActionTypes.CREATE, at, concerns, { phelopmentID });
   }
-  updateBuilding(
+  updatePhelopment(
     at: TimeUnit,
     concerns: Entity,
-    buildingID: BuildingIdentifier,
+    phelopmentID: PhelopmentIdentifier,
     grade: 'up' | 'down',
   ) {
-    return this.create(ActionTypes.UPDATE, at, concerns, { buildingID, grade });
+    return this.create(ActionTypes.UPDATE, at, concerns, { phelopmentID, grade });
   }
 }
 
