@@ -23,7 +23,7 @@ phlame/                  <- this repo: the game app ("phlame" package)
 │   └── app/             <- client app (also the Vite root!)
 │       ├── main.ts      <- defines all custom elements, attaches DOMInjector
 │       ├── engine/      <- game config + services bridging @phlame/engine into the app:
-│       │                   resources.ts (resource types), buildings.ts (building defs/lookups),
+│       │                   resources.ts (resource types), phelopments.ts (phelopment defs/lookups),
 │       │                   factory.ts (JSON -> entities), services.ts (EmpireService, EconomyService)
 │       ├── signals/     <- zeitgeber.ts: the Zeitgeber (game-tick clock, Signal-based)
 │       ├── tick/        <- clock/tick/percent/slider elements (Zeit debugging UI)

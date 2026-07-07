@@ -4,7 +4,7 @@ import {
   Phormulae,
   Resource,
   Energy,
-  BuildingRequirement,
+  PhelopmentRequirement,
   EnergyCalculation,
   ResourceCollection,
 } from '..';
@@ -38,7 +38,7 @@ describe('Phormulae', () => {
   });
 
   it('should carry requirements and prosumption Phormulae (ADR 0015)', () => {
-    const requirement = new BuildingRequirement<string, string>(
+    const requirement = new PhelopmentRequirement<string, string>(
       'mine',
       ResourceCollection.fromArray([]),
       1.5,
@@ -50,7 +50,7 @@ describe('Phormulae', () => {
 
     expect(rules.requirementFor('mine')).toBe(requirement);
     expect(() => rules.requirementFor('lab')).toThrow(
-      'Unknown building requirement, BuildingType: lab',
+      'Unknown phelopment requirement, PhelopmentType: lab',
     );
     expect(rules.prosumptionFor('mine').gold?.at(1)).toBe(30);
     expect(rules.prosumptionFor('lab')).toEqual({});

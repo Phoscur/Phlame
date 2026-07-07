@@ -1,25 +1,25 @@
 import type { ResourceIdentifier } from './resources';
-import type { BuildingIdentifier } from './Building';
+import type { PhelopmentIdentifier } from './Phelopment';
 import { Phlame, PhlameJSON } from './Phlame';
 import { Entity, Event, ID } from './Action';
 
 export interface EmpireJSON<
   ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
 > {
   id: ID;
-  entities: PhlameJSON<ResourceType, BuildingType>[];
+  entities: PhlameJSON<ResourceType, PhelopmentType>[];
   events: Event[];
 }
 
 export class Empire<
   ResourceType extends ResourceIdentifier,
-  BuildingType extends BuildingIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
 > implements Entity
 {
   constructor(
     public id: ID,
-    public entities: Phlame<ResourceType, BuildingType>[],
+    public entities: Phlame<ResourceType, PhelopmentType>[],
     public events: Event[] = [],
   ) {}
 

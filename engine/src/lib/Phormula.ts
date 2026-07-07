@@ -40,7 +40,7 @@ export class Phormula {
   }
 
   /**
-   * Evaluate the formula at a building level (rate per tick, not yet rounded -
+   * Evaluate the formula at a phelopment level (rate per tick, not yet rounded -
    * ResourceProcess owns the integer cast, ADR 0003)
    */
   at(level: number): number {

@@ -1,24 +1,24 @@
 import { inject, injectable } from '@joist/di';
 import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable } from '@phlame/engine';
 import { Empire } from '@phlame/engine';
-import { type BuildingIdentifier, defaultBuildings, emptyStock, phormulae } from './buildings';
+import { type PhelopmentIdentifier, defaultPhelopments, emptyStock, phormulae } from './phelopments';
 import type { ResourceIdentifier } from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
 
 export function emptyEconomy(name: string) {
-  return new Economy<ResourceIdentifier, BuildingIdentifier>(
+  return new Economy<ResourceIdentifier, PhelopmentIdentifier>(
     name,
     emptyStock,
-    defaultBuildings,
+    defaultPhelopments,
     phormulae,
   );
 }
 export function emptyPlanet(id: ID, tick?: number) {
-  return new Phlame<ResourceIdentifier, BuildingIdentifier>(id, emptyEconomy(`E${id}`), [], tick);
+  return new Phlame<ResourceIdentifier, PhelopmentIdentifier>(id, emptyEconomy(`E${id}`), [], tick);
 }
 
 export function emptyEmpire(id: ID, planetID: ID, tick?: number) {
-  return new Empire<ResourceIdentifier, BuildingIdentifier>(id, [emptyPlanet(planetID, tick)]);
+  return new Empire<ResourceIdentifier, PhelopmentIdentifier>(id, [emptyPlanet(planetID, tick)]);
 }
 
 export class Repository<T extends Entity> {
@@ -46,20 +46,20 @@ export class Repository<T extends Entity> {
 export class EmpireService {
   #engine = inject(EngineFactory);
 
-  #empires = new Repository<Empire<ResourceIdentifier, BuildingIdentifier>>();
-  #entities = new Repository<Phlame<ResourceIdentifier, BuildingIdentifier>>();
-  #jsonBackup?: EmpireJSON<ResourceIdentifier, BuildingIdentifier>;
+  #empires = new Repository<Empire<ResourceIdentifier, PhelopmentIdentifier>>();
+  #entities = new Repository<Phlame<ResourceIdentifier, PhelopmentIdentifier>>();
+  #jsonBackup?: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>;
 
   #current = emptyEmpire('Preset', 'defaultPhlame');
   get current() {
     return this.#current;
   }
 
-  getEntity(id: ID): Phlame<ResourceIdentifier, BuildingIdentifier> {
+  getEntity(id: ID): Phlame<ResourceIdentifier, PhelopmentIdentifier> {
     return this.#entities.find(id);
   }
 
-  setupFromJSON(json: EmpireJSON<ResourceIdentifier, BuildingIdentifier>) {
+  setupFromJSON(json: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>) {
     this.#jsonBackup = json;
     const factory = this.#engine();
     const empire = factory.createEmpire(json);
