@@ -29,7 +29,7 @@ Phlame's domain language, one line each. German loanwords are intentional.
 - **Phormulae** — a universe's formula collection (plural of Phormula): the game rules as data (type registries, tuning constants, requirements, prosumption Phormulae — ADR 0014/0015); its canonical JSON is what the universe rules hash (ADR 0011) will hash. `Phormulae.current` backs the deprecated static shims until injection lands.
 - **Phelopment** — the engine name (ADR 0016) for a leveled prosuming capability of a Phlame: pure state (type + level + speed, exactly its JSON, ADR 0015); the Economy computes its costs, build times and Prosumer from the Phormulae. On a planet the player sees it as a *building*, on an empire as *tech/research*, later on a fleet as a *module* — the real words live in i18n, not the engine.
 - **PhelopmentRequirement** — costs (`base * costFactor^level`), build time and dependencies for up/downgrades.
-- **Ph naming convention** — Ph replaces an F or V sound: Phlame←flame, Phormulae←formulae, Phelopment←de**v**elopment, Phanx←thanks (ADR 0016).
+- **Ph naming convention** — Ph replaces an F or V sound: Phlame←flame, Phormulae←formulae, Phelopment←de**v**elopment, Phingerprint←fingerprint, Phanx←thanks (ADR 0016).
 - **tumbles, salties, blubbs** — nonsense resource types used as fixtures in engine unit tests (no game meaning).
 
 ## World & entities
@@ -43,6 +43,8 @@ Phlame's domain language, one line each. German loanwords are intentional.
 
 ## Universe (vision, 2.0+)
 
+- **Phingerprint** — a universe's identity: the content hash (canonical JSON, FNV-1a) of its Phormulae (ADR 0011, `Phormulae.phingerprint`). Same rules → same Phingerprint; any rule change → a new universe.
+- **Sigil** — deferred/reserved: an *immutable* universe handle (origin/lineage reference, or a short stable prefix of the genesis Phingerprint) for when a universe evolves its rules yet stays "the same" (ADR 0011).
 - **α (alpha) universe** — every (git) repo is its own universe.
 - **Ω (omega) universe** — accepts all compatible worlds/empires, even pre-cheated ones.
 - **β/γ universes** — more serious or distantly forked variants.
