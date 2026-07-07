@@ -2,6 +2,7 @@ import type { ResourceIdentifier } from './resources/Resource';
 import type { ProsumerIdentifier } from './resources/Prosumer';
 import type { PhelopmentRequirement, PhelopmentRequirementJSON } from './PhelopmentRequirement';
 import { Phormula, type PhormulaJSON } from './Phormula';
+import { phingerprint } from './Phingerprint';
 
 export enum BaseResources {
   Null = 'null', // no plural
@@ -135,6 +136,21 @@ export class Phormulae {
    */
   prosumptionFor(type: PhelopmentIdentifier): ProsumptionEntries<ResourceIdentifier> {
     return this.prosumptions[type] ?? {};
+  }
+
+  /**
+   * The universe's Phingerprint (ADR 0011): the content hash of these rules.
+   * A universe is identified by it; changing any rule changes the Phingerprint.
+   * The type registries are hashed as *sets* (sorted) - listing the same types in a
+   * different order is the same universe. Cost arrays inside requirements stay ordered.
+   */
+  get phingerprint(): string {
+    const json = this.toJSON();
+    return phingerprint({
+      ...json,
+      resourceTypes: [...json.resourceTypes].sort(),
+      energyTypes: [...json.energyTypes].sort(),
+    });
   }
 
   toString(): string {

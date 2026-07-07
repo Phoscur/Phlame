@@ -25,9 +25,11 @@ See also: [../docs/tick-flow.md](../docs/tick-flow.md) (the tick loop with diagr
   unions supplied by the consumer (the app defines metallic/crystalline/liquid/energy).
 - **Rules as data** (ADR 0014/0015): types, tuning constants, phelopment requirements and
   formulas live in the `Phormulae` value object (`lib/Phormulae.ts` — a universe's formula
-  collection; canonical `toJSON` for the future rules hash). Formulas are
-  kind-discriminated `Phormula` descriptors (`lib/Phormula.ts`: `zero`, `polynomial` =
-  `k·lvl·lvl^exp`) — data, not functions, so they hash. Phormulae stays runtime-import-free
+  collection). Formulas are kind-discriminated `Phormula` descriptors (`lib/Phormula.ts`:
+  `zero`, `polynomial` = `k·lvl·lvl^exp`) — data, not functions, so they hash. A universe's
+  identity is its **Phingerprint** (`Phormulae.phingerprint`, `lib/Phingerprint.ts`: FNV-1a
+  over canonical key-sorted JSON — ADR 0011). Phormulae stays runtime-import-free
+  (the rule document must not import its interpreter); the Economy interprets it. Phormulae stays runtime-import-free
   (the rule document must not import its interpreter); the Economy interprets it.
   Configuration builds and activates its rules via `Phormulae.use()`; the remaining statics
   (`Resource.types`, `Energy.types`, `EnergyCalculation.REBALANCING_EXPONENT`) are

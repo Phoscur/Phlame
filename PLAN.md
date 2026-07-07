@@ -22,9 +22,9 @@ Small decisions that get expensive to change once actions & persistence formats 
 - [ ] Fix `ID` to string (drop `string | number`) — engine-wide, mini-ADR.
 - [ ] Define the Action schema — empire-scoped per
       [ADR 0012](docs/decisions/0012-empire-owns-the-log.md):
-      `{ universe: rulesHash, genesis, actions: [{ seq, tick, type, concerns: ID[], payload }] }`,
-      total order = `(tick, seq)`; rules-hash per
-      [ADR 0011](docs/decisions/0011-universe-rules-hash.md).
+      `{ universe: phingerprint, genesis, actions: [{ seq, tick, type, concerns: ID[], payload }] }`,
+      total order = `(tick, seq)`; the universe Phingerprint (`Phormulae.phingerprint`)
+      per [ADR 0011](docs/decisions/0011-universe-rules-hash.md) — implemented.
 - [ ] Define genesis: a new empire must be derivable deterministically (seed on
       `Economy` — the existing TODO), so a save can be `genesis + action log`.
 - [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
@@ -36,8 +36,10 @@ Small decisions that get expensive to change once actions & persistence formats 
       `Phelopment` (renamed from Building, [ADR 0016](docs/decisions/0016-phelopment-rename.md))
       is pure state (= its JSON), the `Economy` interprets the rules
       (`prosumes`/`upgradeCost`/`upgradeTime`), and `Phormulae.toJSON()` is complete.
-      Still open: actual injection (kill `Phormulae.current`; moves constructor type
-      validation to the config boundary), the rules hash itself (now unblocked).
+      The universe **Phingerprint** ([ADR 0011](docs/decisions/0011-universe-rules-hash.md))
+      is implemented: `Phormulae.phingerprint` = FNV-1a over canonical JSON. Still open:
+      actual injection (kill `Phormulae.current`; moves constructor type validation to the
+      config boundary), and wiring the Phingerprint into save/action-schema when M1 lands.
 - [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
