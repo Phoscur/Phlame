@@ -1,4 +1,9 @@
+import { BaseResources, Phormulae } from '../Phormulae';
+
 export type ResourceIdentifier = string; // i wish^^ = symbol;
+
+// BaseResources moved to Phormulae.ts (ADR 0014), re-exported here for compatibility
+export { BaseResources };
 
 export interface ResourceJSON<Type extends ResourceIdentifier> {
   type: Type;
@@ -27,10 +32,6 @@ export interface ComparableResource<Type extends ResourceIdentifier> extends Res
   readonly isEnergy: boolean;
 }
 
-export enum BaseResources {
-  Null = 'null', // no plural
-  Energy = 'energy', // no plural, very special
-}
 /**
  * Resource
  * An integer amount of a certain type
@@ -41,7 +42,13 @@ export enum BaseResources {
  * - comparison
  */
 export class Resource<Type extends ResourceIdentifier> implements ComparableResource<Type> {
-  static types: ResourceIdentifier[] = [BaseResources.Null]; // Types are appended in configuration
+  /**
+   * @deprecated shim delegating to `Phormulae.current` (ADR 0014) — configuration still
+   * push-registers types here; inject a Phormulae instead once that path exists
+   */
+  static get types(): ResourceIdentifier[] {
+    return Phormulae.current.resourceTypes;
+  }
 
   static Null = new Resource(BaseResources.Null, 0);
 

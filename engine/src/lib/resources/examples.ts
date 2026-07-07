@@ -24,7 +24,9 @@ export enum EnergyTypes {
 
 export type Types = ResourceTypes | EnergyTypes | BaseResources;
 
-// Add new resources to known resource types
+// Register example types in the current Phormulae on import — which is why this module
+// must never be exported from the engine barrel (fixture leak, ADR 0014); the
+// module-level example instances below need the registration to happen right here
 const newResourceTypes: Types[] = [
   ResourceTypes.Tumble,
   ResourceTypes.Salty,
