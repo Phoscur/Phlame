@@ -24,6 +24,7 @@
     "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "engine/**/*.ts"
+    "engine/**/*.ts",
+    "tools/**/*.ts"
   ]
 }
