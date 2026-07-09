@@ -3,6 +3,7 @@
 Read [CONTEXT.md](./CONTEXT.md) for the big picture and [engine/CONTEXT.md](./engine/CONTEXT.md)
 for the domain library before touching game logic. [docs/tick-flow.md](./docs/tick-flow.md)
 explains the core tick mechanism, [docs/glossary.md](./docs/glossary.md) the domain terms.
+[docs/styleguide.md](./docs/styleguide.md) is binding for any UI/styling work.
 Architecture decisions live in [docs/decisions/](./docs/decisions/README.md) — check them
 before proposing structural changes, and record new decisions as ADRs there.
 [PLAN.md](./PLAN.md) is the living roadmap: pick up work from there, tick off what lands,
