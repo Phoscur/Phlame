@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "phlame-mcp": {
+      "command": "npx",
+      "args": ["tsx", "tools/mcp/server.ts"]
+    }
+  }
+}

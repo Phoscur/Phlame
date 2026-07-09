@@ -95,9 +95,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // scan all of src (vite root is src/app, which would miss e.g. src/actions.spec.ts)
-    dir: path.resolve('src'),
-    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    // scan src + tools (vite root is src/app, which would miss e.g. src/actions.spec.ts);
+    // the engine library keeps its own node-environment suite in engine/
+    dir: path.resolve('.'),
+    include: [
+      'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'tools/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+    ],
 
     reporters: ['default'],
     coverage: {

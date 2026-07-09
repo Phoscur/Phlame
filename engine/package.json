@@ -1,6 +1,7 @@
 {
   "name": "@phlame/engine",
   "version": "0.0.1",
+  "type": "module",
   "dependencies": {},
   "scripts": {
     "tsc": "tsc --noEmit -p tsconfig.lib.json",
