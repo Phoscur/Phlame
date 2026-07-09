@@ -17,7 +17,9 @@
     "ci": "playwright test",
     "lint": "oxlint && eslint",
     "tsc": "tsc -p tsconfig.spec.json --noEmit",
-    "preview": "tsx src/server"
+    "preview": "tsx src/server",
+    "console": "tsx tools/console/main.ts",
+    "mcp": "tsx tools/mcp/server.ts"
   },
   "private": true,
   "resolutions": {},
