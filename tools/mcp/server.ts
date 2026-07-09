@@ -122,7 +122,7 @@ server.registerTool(
   },
   ({ session: id, type, direction, planet }) => {
     try {
-      const { at, duration, cost } = session(id).grade(type, direction, planet);
+      const { at, duration, cost } = session(id).grade(type as any, direction, planet);
       return ok(`queued ${type} ${direction}grade: done at tick ${at} (${duration} ticks, cost ${cost})`);
     } catch (error) {
       return fail(error);
