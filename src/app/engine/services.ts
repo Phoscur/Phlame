@@ -1,8 +1,10 @@
 import { inject, injectable } from '@joist/di';
 import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable, ActionFactory, Empire } from '@phlame/engine';
+import type { GenesisJSON } from '@phlame/engine';
 import { type PhelopmentIdentifier, defaultPhelopments, phormulae } from './phelopments';
 import { type ResourceIdentifier, MetallicResource, CrystallineResource, LiquidResource } from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
+import { generateID } from './ids';
 import { Stock, ResourceCollection } from '@phlame/engine';
 
 export function emptyEconomy(name: string) {
@@ -26,6 +28,31 @@ export function emptyPlanet(id: ID, tick?: number) {
 
 export function emptyEmpire(id: ID, planetID: ID, tick?: number) {
   return new Empire<ResourceIdentifier, PhelopmentIdentifier>(id, [emptyPlanet(planetID, tick)]);
+}
+
+/**
+ * The genesis of a new empire under the current rules (M0 schema, ADR 0012)
+ */
+export function genesisFor(empire: ID, planets: ID[], tick = 0, seed = ''): GenesisJSON {
+  return { universe: phormulae.phingerprint, seed, empire, planets, tick };
+}
+
+/**
+ * Deterministic birth: the same genesis always derives the same starting empire -
+ * a save can be just genesis + action log (ADR 0012/0018)
+ * @throws on a Phingerprint mismatch (different rules = different universe, ADR 0011)
+ */
+export function fromGenesis(genesis: GenesisJSON): EmpireEntity {
+  if (genesis.universe !== phormulae.phingerprint) {
+    throw new Error(
+      `Phingerprint mismatch: genesis is from universe ${genesis.universe}, ` +
+        `current rules are ${phormulae.phingerprint}`,
+    );
+  }
+  return new Empire<ResourceIdentifier, PhelopmentIdentifier>(
+    genesis.empire,
+    genesis.planets.map((planetID) => emptyPlanet(planetID, genesis.tick)),
+  );
 }
 
 export class Repository<T extends Entity> {
@@ -104,7 +131,7 @@ export class EmpireService {
     const startTick = lastQueued ? lastQueued.consequence.at : planet.lastTick;
     const at = startTick + duration;
 
-    const actionId = Math.random().toString(36).substring(2, 9);
+    const actionId = generateID();
     planet.add(new ActionFactory().updatePhelopment(at, planet, type, direction, actionId));
     return { at, duration, actionId };
   }

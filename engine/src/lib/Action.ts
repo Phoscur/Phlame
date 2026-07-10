@@ -1,10 +1,9 @@
 import { PhelopmentIdentifier } from './Phelopment';
 import { TimeUnit } from './resources';
 
-// it is a bit unwise to loosen the identifier type to string or number
-// TODO? use nanoID: string xor number - I'm leaning towards strings for readability
-// or just leave it to be constrained by the app to either...
-export type ID = string | number;
+// Entity ids are strings (ADR 0019): readable, nanoid-friendly, JSON-stable.
+// PhelopmentIdentifier stays string|number separately until the M2 naming pass.
+export type ID = string;
 export interface Entity {
   id: ID;
 }
