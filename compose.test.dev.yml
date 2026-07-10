@@ -1,0 +1,41 @@
+# Local-iteration overlay: bind-mounts source read-only over the baked tree, so edits
+# run without an image rebuild. NOT used by CI (which wants the self-contained image).
+#
+#   docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm test
+#
+# Unlike heavier monorepo setups there is no "rebuild upstream dist first" caveat:
+# Phlame has no build step — Vite serves source and @phlame/engine resolves to
+# engine/src via alias, and `tsc --noEmit` writes nothing, so read-only mounts are
+# safe everywhere. Config files NOT listed here (eslint.config.js, .oxlintrc.json,
+# Dockerfiles) are baked — editing those needs an image rebuild.
+x-source-mounts: &source-mounts
+  - ./src:/phlame/src:ro
+  # Vite's cacheDir resolves to src/app/node_modules (root-relative) — shadow it
+  # with a writable anonymous volume inside the read-only src mount, or Vite and
+  # vitest die with EROFS on first cache write.
+  - /phlame/src/app/node_modules
+  - ./engine/src:/phlame/engine/src:ro
+  - ./tests:/phlame/tests:ro
+  - ./tools:/phlame/tools:ro
+  - ./public:/phlame/public:ro
+  - ./vite.config.ts:/phlame/vite.config.ts:ro
+  - ./playwright.config.ts:/phlame/playwright.config.ts:ro
+  - ./tsconfig.json:/phlame/tsconfig.json:ro
+  - ./tsconfig.app.json:/phlame/tsconfig.app.json:ro
+  - ./tsconfig.spec.json:/phlame/tsconfig.spec.json:ro
+  - ./tsconfig.vite.json:/phlame/tsconfig.vite.json:ro
+  - ./engine/vite.config.ts:/phlame/engine/vite.config.ts:ro
+  - ./engine/tsconfig.json:/phlame/engine/tsconfig.json:ro
+  - ./engine/tsconfig.lib.json:/phlame/engine/tsconfig.lib.json:ro
+  - ./engine/tsconfig.spec.json:/phlame/engine/tsconfig.spec.json:ro
+  - ./engine/package.json:/phlame/engine/package.json:ro
+
+services:
+  runner:
+    volumes: *source-mounts
+
+  phlame:
+    volumes: *source-mounts
+
+  playwright:
+    volumes: *source-mounts

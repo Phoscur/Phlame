@@ -49,7 +49,10 @@ export default defineConfig({
 
   server: {
     port: 4200,
-    host: 'localhost',
+    host: 'localhost', // the containerized runner overrides via `--host 0.0.0.0` (compose.test.yml)
+    // 'phlame' is the compose service name the playwright runner targets (not 'app' —
+    // the .app TLD is HSTS-preloaded, Chromium would force https).
+    allowedHosts: ['phlame'],
     watch: {
       ignored: [path.resolve('playwright-report') + '/**', '.vscode/**', '.github/**'],
     },

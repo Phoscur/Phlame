@@ -1,0 +1,23 @@
+# Light test runner: Alpine, browser-less — vitest (app jsdom + engine node), tsc,
+# oxlint/eslint. Also serves as the `app` image (Vite/Hono dev server) in
+# compose.test.yml. Self-contained: deps AND source are baked in, so CI can run a
+# fresh checkout with zero host state; compose.test.dev.yml overlays live source
+# for local edit-rerun iteration. Concept adapted from Hyphe's runner
+# (see PLAN-CONTAINERS.md).
+FROM node:24-alpine AS base
+RUN apk update && apk upgrade
+
+WORKDIR /phlame
+
+# Deps first: this layer keys on the lockfile only, so source edits don't
+# re-install. --ignore-scripts: no lifecycle script from any dependency runs
+# during install (esbuild/lightningcss ship binaries via optionalDependencies,
+# no postinstall needed). engine/ has no lockfile and no own node_modules —
+# its vitest resolves from the root install.
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+COPY . .
+
+# No CMD: invoked ephemerally, e.g.
+#   docker compose -f compose.test.yml run --rm runner npm test

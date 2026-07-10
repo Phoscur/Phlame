@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 test('has title', async ({ page }) => {
-  await page.goto('http://localhost:4200');
+  await page.goto('/');
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/Phlame/);
 });
 
 test('i18n', async ({ page }) => {
-  await page.goto('http://localhost:4200/');
+  await page.goto('/');
   // Expects the heading to exist
   await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
 

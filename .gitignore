@@ -26,7 +26,9 @@ node_modules
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.claude
+# Claude Code: personal state stays local, the shared permission policy is committed
+.claude/*
+!.claude/settings.json
 
 # misc
 /.sass-cache
@@ -44,3 +46,4 @@ Thumbs.db
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/screenshots/

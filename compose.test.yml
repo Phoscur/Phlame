@@ -1,0 +1,78 @@
+# Ephemeral test runners — everything here is invoked with `run --rm`, nothing is a
+# long-running service, and a plain `docker compose up` never starts a test container
+# (this file is separate from any future deployment compose for exactly that reason).
+#
+#   docker compose -f compose.test.yml run --rm runner npm test
+#   docker compose -f compose.test.yml run --rm runner npm run tsc
+#   docker compose -f compose.test.yml run --rm runner npm run lint
+#   docker compose -f compose.test.yml run --rm playwright npx playwright test
+#
+# SELF-CONTAINED by default: the code under test is baked into the images (what CI
+# wants — a fresh checkout, no host state). For local edit-rerun iteration add the
+# dev overlay, which bind-mounts source read-only over the baked tree:
+#   docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm test
+#
+# The npm scripts (test:docker, e2e:docker, ...) include the overlay already.
+#
+# `run --rm playwright` starts `phlame` (the app) as a dependency and leaves it running
+# afterwards —
+# deliberate: a warm server speeds up the next run and keeps logs inspectable after a
+# failure. `npm run containers:down` stops it.
+services:
+  # Light runner: vitest, tsc, lint. No network — unit tests need none, and test code
+  # (arbitrary code by definition) gets no way to phone home.
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    network_mode: none
+    volumes:
+      # WRITABLE: the declarative dependency manifests. An in-container
+      # `npm install <pkg>` persists package.json/lockfile to the repo while the
+      # installed node_modules stays image-local and is discarded; the change
+      # materializes on the next image rebuild (the npm ci layer keys on the lockfile).
+      - ./package.json:/phlame/package.json:rw
+      - ./package-lock.json:/phlame/package-lock.json:rw
+      # Writable artifact sink.
+      - ./coverage:/phlame/coverage
+
+  # The app under test: Vite dev server + Hono SSR, same baked image as the runner.
+  # No `data/` mount — sessions are ephemeral in the container, real saves on the
+  # host are physically unreachable. No host port mapping — compose-network only
+  # (add one ad hoc with `docker compose run -p 4200:4200 phlame` if you must look).
+  # NOT named `app`: the entire .app TLD is HSTS-preloaded in Chromium, which then
+  # force-upgrades http://app/ to https:// (ERR_SSL_PROTOCOL_ERROR). Same for `dev`.
+  phlame:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    command: npm start -- --host 0.0.0.0
+    environment:
+      NODE_ENV: test
+    expose:
+      - '4200'
+    healthcheck:
+      # /sum instead of / — probing / would create a session file per poll
+      # (same reasoning as playwright.config.ts webServer.url). 127.0.0.1, not
+      # localhost: busybox wget prefers ::1 but Vite binds IPv4-only (0.0.0.0).
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4200/sum']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  # Browser runner (glibc image, see Dockerfile.playwright). BASE_URL makes
+  # playwright.config.ts skip its own webServer and target the phlame service.
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.playwright
+    environment:
+      BASE_URL: http://phlame:4200
+    depends_on:
+      phlame:
+        condition: service_healthy
+    volumes:
+      # Writable artifact sinks — reports survive the --rm container.
+      - ./playwright-report:/phlame/playwright-report
+      - ./test-results:/phlame/test-results
+      - ./screenshots:/phlame/screenshots

@@ -6,6 +6,10 @@ import { defineConfig, devices } from '@playwright/test';
  */
 // require('dotenv').config();
 
+/* Set by the containerized runner (compose.test.yml): points at the `phlame` service
+ * and disables the local webServer — the compose stack owns the server there. */
+const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -24,7 +28,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:4200',
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -71,12 +75,17 @@ export default defineConfig({
   /* Run the dev server before starting the tests (replaces start-server-and-test).
    * NODE_ENV=test is passed here directly (replaces cross-env), prefixing e2e session
    * files as data/session/test-*.json. Readiness probes /sum because / would create a
-   * session file per poll. Locally a running dev server is reused; CI starts its own. */
-  webServer: {
-    command: 'npm start',
-    url: 'http://localhost:4200/sum',
-    reuseExistingServer: !process.env.CI,
-    env: { NODE_ENV: 'test' },
-    timeout: 60_000,
-  },
+   * session file per poll. Locally a running dev server is reused; CI starts its own.
+   * Skipped entirely when BASE_URL is set — the compose stack runs the app service. */
+  ...(process.env.BASE_URL
+    ? {}
+    : {
+        webServer: {
+          command: 'npm start',
+          url: 'http://localhost:4200/sum',
+          reuseExistingServer: !process.env.CI,
+          env: { NODE_ENV: 'test' },
+          timeout: 60_000,
+        },
+      }),
 });

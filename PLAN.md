@@ -103,6 +103,13 @@ the game deterministically — useful for the M0 invariant test, M1 queue debugg
 and M2 balancing runs ("play 10k ticks, show me the curves"). Not on the 1.0
 critical path; build alongside M1.
 
+## Side quest — containerized test & browser runners
+
+Detailed plan: [PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md) — ephemeral Docker runners
+(Alpine for vitest/tsc/lint, official Playwright image for browsers) so agent-driven
+test and browser runs never execute ad hoc on the host. C0 (infra) on this branch;
+C1 (CI switch) is a separate PR.
+
 ## Milestone 1 — Actions & building queue (the 1.0 core)
 
 Started on the `game-actions` branch (2026-02): ActionFactory/EventFactory,
