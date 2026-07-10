@@ -1,11 +1,11 @@
 # PLAN-CONTAINERS.md — containerized test & browser runners
 
 Companion plan to [PLAN.md](./PLAN.md). Concept adapted from the Hyphe monorepo's
-runner design (its PLAN-MCP §4) — stripped to what Phlame needs: no Go toolchain, no
-command-gateway security workstream (Phlame's own [PLAN-MCP.md](./PLAN-MCP.md) MCP is a
-pure engine sandbox — no shell, no Docker socket — so Hyphe's §3/§6/§7 hardening has no
-counterpart here). **Revisit trigger**: should the Phlame MCP ever grow a
-command-executing tool, read Hyphe's security workstream first.
+runner design (its PLAN-MCP §4) — stripped to what Phlame needs: no Go toolchain, and
+the game MCP ([PLAN-MCP.md](./PLAN-MCP.md), server `phlame-game`) stays a pure engine
+sandbox — no shell, no Docker socket. Command execution lives exclusively in **Phorge**
+(see Orchestration below), which inherits Hyphe's executor lessons (argv/spawn, closed
+verbs, bounded output) from day one instead of retrofitting them.
 
 ## Why
 
@@ -40,7 +40,7 @@ command-executing tool, read Hyphe's security workstream first.
   found & handled: Vite's `cacheDir` resolves to `src/app/node_modules` — the overlay
   shadows it with a writable anonymous volume.
 - **Writable mounts are the exception**: dependency manifests (`package.json`,
-  lockfile — so an in-container `npm install` persists the *declaration*, while the
+  lockfile — so an in-container `npm install` persists the _declaration_, while the
   installed bytes die with the container) and artifact sinks (`coverage/`,
   `playwright-report/`, `test-results/`, `screenshots/`).
 - **Isolation details**: no `data/` mount — real saves are physically unreachable from
@@ -57,22 +57,67 @@ command-executing tool, read Hyphe's security workstream first.
   (`screenshots/` is gitignored output; curated shots for docs get committed
   elsewhere deliberately).
 
-## Orchestration (decided 2026-07-10): no second MCP
+## Orchestration: Phorge (revised 2026-07-10)
 
-The agent-facing orchestration layer is **Claude Code's permission system, not a new
-MCP**. The checked-in npm scripts are the fixed verb vocabulary (Hyphe's `orchestrate`
-enum, minus the code); `.claude/settings.json` (committed) allowlists exactly those
-verbs plus `docker compose -f compose.test.yml *`, so agents run tests, probe logs and
-smoke-test freely — while anything outside the verb set still prompts. A dedicated
-orchestration MCP would duplicate that gate with more code to maintain, and Hyphe's
-gateway exists for a problem Phlame doesn't have (multiple agents over SSE across
-nodes). The Phlame MCP stays a pure engine sandbox (PLAN-MCP.md).
+First take ("no second MCP, Claude Code's permission allowlist is the gate") was
+silently conditioned on _the agent running on the host_. The moment agents themselves
+are banned into containers, that layer sits **inside** the container and gates nothing
+that matters — the boundary is the container wall, and crossing it needs a controlled
+channel. That channel is **Phorge** (`tools/phorge/`), the orchestration MCP: a closed
+verb vocabulary over `compose.test.yml`, argv-spawned (no shell, Hyphe's executor
+lessons: bounded output, timeout kill). The engine sandbox stays its own server,
+renamed **`phlame-game`** (tools/mcp, PLAN-MCP.md) — pure, host-independent, may even
+run _inside_ an agent container.
 
-Honest caveat (Hyphe §3.1 applies here too): the allowlist validates the *command*,
-but the script bodies live in package.json — agent-writable, reviewed via diff. The
-container is the blast-radius boundary, the diff review is the intent boundary. If
-that ever stops being enough, the answer is host-owned out-of-repo tooling (Hyphe §6),
-not an in-repo MCP.
+Discovery/probe/smoke are **tools, not scripts**: `status` (services, states, verb
+list), `run(test|tsc|lint|e2e|screenshot)`, `screenshot` (returns the PNG inline as
+MCP image content), `logs(service, tail)`, `build`, `down`. No new scripts multiply —
+verbs invoke the same checked-in compose units.
+
+Transport truth (the hard part of the agent ban): a stdio MCP spawned by a
+containerized agent lives _in that container_ — it could only reach Docker via a
+mounted socket, which is root-equivalent and would make the ban decorative. So:
+
+- **O0 (this branch, shipped 2026-07-10)** — Phorge as stdio MCP on the host;
+  Claude-on-host uses it today. Verb table and executor TDD'd (`plan.spec.ts` +
+  `exec.spec.ts`, 15 specs),
+  `.mcp.json` registers both servers, `.claude/settings.json` allowlists them.
+  Verified: stdio handshake, tools/list, and a live `status` call through the
+  argv executor. Bash verbs stay as fallback.
+- **O1** — host-owned Phorge over streamable HTTP (`@hono/mcp` fits the stack) +
+  token auth (Hyphe §7.2: identity must not be a self-asserted string). No Docker
+  socket ever enters an agent container.
+- **O2** — the ban: agents (Claude & co.) run in their own container, `phlame-game`
+  inside with them, Phorge's URL as the only door out. Concurrency control moves
+  into Phorge when more than one agent knocks (Hyphe §7.4).
+
+Honest caveat (Hyphe §3.1/§7.1 applies until O1+): Phorge's verb table lives in the
+repo — agent-writable, reviewed via diff. The container is the blast-radius boundary,
+the diff review is the intent boundary. O1's host-owned deployment (run from a
+git-clean checkout, not the working tree) is what actually closes it.
+
+**Inheritance boundary vs. hyphe-mcp (decided 2026-07-10)** — compared side by side:
+
+- **Inherited**: the executor lessons (argv/`shell:false`, byte cap, timeout kill) —
+  now spec'd (`exec.spec.ts`: cap-kill, timeout-kill, non-zero-exit, spawn-error paths)
+  instead of merely copied. Plus a fix Hyphe shares but hadn't closed either: killing a
+  timed-out `docker compose run` kills only the CLI client, the container survives in
+  the daemon. Run containers are therefore **named** (`phorge-<verb>`) and reaped with
+  `docker rm -f` on timeout; the name doubles as a same-verb concurrency guard
+  (fail-fast on conflict).
+- **Rejected — `cli-rules.ts`**: Hyphe's regex allowlist is a compensating control for
+  its free-form `execute_command` surface. Its own comment trail (quoted-argument
+  substitution holes, `$`/backtick/backslash bans re-fixed per call site) is the
+  evidence that guarding open strings is a maintenance treadmill. Phorge's closed verb
+  enum + argv tables make the entire gate unnecessary — free-form commands stay out,
+  permanently. The regex lessons do transfer to the one place Phlame still has such a
+  gate: the Bash-fallback allowlist in `.claude/settings.json`.
+- **Deferred to O1**: the `McpTool` registry + `tools/index` split and the
+  server/proxy/cli separation — worth adopting exactly when the HTTP transport forces
+  transport and tool definitions apart, overhead before that.
+- **Not applicable**: compose-topology discovery (`resolve.ts`) — one compose file,
+  nothing to resolve; in-process grep/head/tail pipe emulation — `tail()` on a
+  verdict-oriented output is enough.
 
 ## Milestones
 
@@ -92,7 +137,7 @@ not an in-repo MCP.
 ### C1 — CI switch (separate PR)
 
 - [ ] `playwright.yml` builds the images and runs `docker compose -f compose.test.yml
-      run --rm playwright npx playwright test` (no dev overlay — self-contained).
+    run --rm playwright npx playwright test` (no dev overlay — self-contained).
 - [ ] `testCoverage.yml` likewise via `runner`.
 - [ ] Then: bare-host `e2e`/`ci` scripts become the exception, not the rule.
 

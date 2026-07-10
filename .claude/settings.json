@@ -7,7 +7,9 @@
       "Bash(npm run e2e:docker*)",
       "Bash(npm run screenshot:docker*)",
       "Bash(npm run containers:*)",
-      "Bash(docker compose -f compose.test.yml *)"
+      "Bash(docker compose -f compose.test.yml *)",
+      "mcp__phorge",
+      "mcp__phlame-game"
     ]
   }
 }

@@ -1,8 +1,12 @@
 {
   "mcpServers": {
-    "phlame": {
+    "phlame-game": {
       "command": "npx",
       "args": ["tsx", "tools/mcp/server.ts"]
+    },
+    "phorge": {
+      "command": "npx",
+      "args": ["tsx", "tools/phorge/server.ts"]
     }
   }
 }

@@ -5,6 +5,10 @@ lets AI agents (and, via inspector, humans) actually *play* the Phlame engine �
 deterministically, headless, no browser, no dev server. The spiritual successor of the
 old `engine-ui` readline experiments (see [docs/history.md](docs/history.md)).
 
+Server name: **`phlame-game`** (renamed 2026-07-10) — *this server plays, it never
+executes commands*. Orchestration (containers, test runs, screenshots) is its sibling
+**Phorge**, see [PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md).
+
 Not on the 1.0 critical path. Build alongside M1; every piece here must stay a consumer
 of the engine's public API — if the MCP server needs engine internals, that's an engine
 API smell worth fixing instead (the review already surfaced one: ADR 0014).
