@@ -115,8 +115,9 @@ for await (const line of rl) {
       case 'down': {
         const type = args[0];
         if (!type) throw new Error(`usage: ${command} <type> [planet]`);
-        const { at, duration, cost } = session.grade(type as any, command as 'up' | 'down', args[1]);
-        console.log(`queued ${type} ${command}grade: done at tick ${at} (${duration} ticks, cost ${cost})`);
+        const { at, duration, wait, cost } = session.grade(type, command as 'up' | 'down', args[1]);
+        const waiting = wait === Infinity ? 'waiting for production, ' : wait > 0 ? `wait ~${wait} + ` : '';
+        console.log(`queued ${type} ${command}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`);
         break;
       }
       case 'save': {

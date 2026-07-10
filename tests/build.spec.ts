@@ -1,15 +1,25 @@
 import { test, expect } from '@playwright/test';
 
-// TDD spec for the M1 building queue (see PLAN.md) — the Upgrade buttons render but
-// have no action wired up yet, so this cannot pass. Flip fixme -> test when the queue
-// UI lands.
-test.fixme('queue build action', async ({ page }) => {
+// TDD spec for the M1 building queue (see PLAN.md)
+test('queue build action', async ({ page }) => {
+  page.on('console', msg => console.log(msg.text()));
+  await page.clock.install();
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Planet', exact: true })).toBeVisible();
 
-  // first building in the list: the metallic mine (level 2)
+  // first building in the list: the metallic mine (starts at level 1)
   await page.getByRole('button', { name: 'Upgrade' }).first().click();
 
   // expect the queued upgrade to show up in the building queue
-  await expect(page.getByRole('list', { name: 'Level 3' })).toBeVisible();
+  await expect(page.locator('.buildingQueue li').filter({ hasText: 'Level 2' })).toBeVisible();
+
+  // Fast-forward time to complete the building
+  // Duration is 4 ticks (40 seconds default msPerIteration)
+  await page.clock.fastForward(50000); // Fast forward 50 seconds
+
+  // expect the queue to be empty (unqueued)
+  await expect(page.locator('.buildingQueue li')).toHaveCount(0);
+  
+  // expect the building list to show the new level
+  await expect(page.locator('.buildingList li').filter({ hasText: 'mine-metallic - Level 2' })).toBeVisible();
 });

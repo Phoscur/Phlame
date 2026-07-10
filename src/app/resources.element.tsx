@@ -195,9 +195,8 @@ export class ResourcesElement extends HTMLElement {
 
     const c = new zeit.Computed(() => {
       //if (zeit.holdingTick) return eco.production;
-      const { tick } = zeit;
-      eco.current.update(tick);
-      return eco.production;
+      const _tick = zeit.tick;
+      return eco.current.productionTable;
     });
 
     this.#cleanup = zeit.effect(() => {

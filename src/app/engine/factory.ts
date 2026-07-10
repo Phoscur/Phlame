@@ -34,17 +34,17 @@ export class EngineFactory {
   createEntities(
     es: PhlameJSON<ResourceIdentifier, PhelopmentIdentifier>[],
   ): Phlame<ResourceIdentifier, PhelopmentIdentifier>[] {
-    return es.map((p) => this.createPhlame(p.id, p.tick, p.stock, p.phelopments));
+    return es.map((p) => this.createPhlame(p.id, p.tick, p.stock, p.phelopments, p.actions));
   }
 
   createPhlame(
     id: ID,
     tick: number,
     stock: StockJSON<ResourceIdentifier>,
-    // TODO actions
     phelopments: PhelopmentJSON<PhelopmentIdentifier>[] = [],
+    actions: PhlameJSON<ResourceIdentifier, PhelopmentIdentifier>['actions'] = [],
   ): Phlame<ResourceIdentifier, PhelopmentIdentifier> {
-    return new Phlame(
+    const phlame = new Phlame(
       id,
       this.createEconomy({
         name: `${id}`,
@@ -54,6 +54,11 @@ export class EngineFactory {
       [],
       tick,
     );
+    // rehydrate the circular concerns reference (actions are stored chronologically)
+    for (const action of actions) {
+      phlame.add({ ...action, concerns: phlame });
+    }
+    return phlame;
   }
 
   createEconomy({

@@ -63,6 +63,7 @@ describe('Phormulae', () => {
       buildTimeDivisor: 40,
       downgradeCostDivisor: 2,
       rebalancingExponent: 1.1,
+      minBuildTime: 2,
       requirements: {},
       prosumptions: {
         mine: { gold: { kind: 'polynomial', coefficient: 30, exponent: 1.1 } },

@@ -30,6 +30,9 @@ Inspector: `npx @modelcontextprotocol/inspector npx tsx tools/mcp/server.ts`
 
 ## Known limits (honest edges)
 
-- Cost deduction on upgrades is pending M1 engine work — queuing is free for now.
-- Queued-but-unapplied actions are not serialized in saves yet (M1 empire log).
+- The queue is a FIFO Wartefunktion (2008 semantics): costs are fetched once affordable,
+  then the build runs; `at` on a queued action is an estimate that `Phlame.update`
+  self-corrects. Queued actions serialize with the save.
+- `Phlame.update` mutates action payloads (`startedAt`, corrected `at`) — fine for
+  snapshots, but a tension with the pure event log of ADR 0009 (M1 design debt).
 - `advance` iterates entities (provisional until ADR 0012's empire-level update lands).
