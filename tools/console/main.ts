@@ -30,8 +30,9 @@ flags:    --name <empire>   new empire name (default Sandbox)
 commands: s, state            show empire, stock, production, queue
           ls, list            phelopments with upgrade costs & build times
           t, tick <n>         advance n ticks (also in realtime: timewarp ahead)
-          up <type> [planet]  queue an upgrade (applies after build time)
+          up <type> [planet]  queue an upgrade (waits for costs, then builds)
           down <type> [planet]  queue a downgrade
+          cancel <id> [planet]  remove a queued action (ids show in state)
           save [name]         save to data/console/<name>.json
           load <name>         load from data/console/<name>.json
           id, phingerprint    show the universe identity (ADR 0011)
@@ -115,9 +116,20 @@ for await (const line of rl) {
       case 'down': {
         const type = args[0];
         if (!type) throw new Error(`usage: ${command} <type> [planet]`);
-        const { at, duration, wait, cost } = session.grade(type, command as 'up' | 'down', args[1]);
+        const { id, at, duration, wait, cost } = session.grade(type, command as 'up' | 'down', args[1]);
         const waiting = wait === Infinity ? 'waiting for production, ' : wait > 0 ? `wait ~${wait} + ` : '';
-        console.log(`queued ${type} ${command}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`);
+        console.log(
+          `queued [${id}] ${type} ${command}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
+        );
+        break;
+      }
+      case 'cancel': {
+        if (!args[0]) throw new Error('usage: cancel <actionId> [planet] (ids show in state/queued)');
+        console.log(
+          session.cancel(args[0], args[1])
+            ? `cancelled [${args[0]}]`
+            : `nothing queued under [${args[0]}]`,
+        );
         break;
       }
       case 'save': {

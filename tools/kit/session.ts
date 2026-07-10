@@ -110,7 +110,7 @@ export class GameSession {
     type: string,
     direction: 'up' | 'down',
     planetID?: string,
-  ): { at: TimeUnit; duration: TimeUnit; wait: TimeUnit; cost: string } {
+  ): { id: string; at: TimeUnit; duration: TimeUnit; wait: TimeUnit; cost: string } {
     const planet = this.planet(planetID);
     const economy = this.economyView(planet);
     const phelopment = economy.phelopments.find((p) => p.type === type);
@@ -126,8 +126,17 @@ export class GameSession {
     const wait = economy.ticksUntilAffordable(cost);
     const at = this.currentTick + (wait === Infinity ? duration : wait + duration);
     // ids are generated here at the tool boundary - the engine stays pure (ADR 0009)
-    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction, generateID()));
-    return { at, duration, wait, cost: cost.prettyAmount };
+    const id = generateID();
+    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction, id));
+    return { id, at, duration, wait, cost: cost.prettyAmount };
+  }
+
+  /** Remove a queued action by its id; false if nothing was queued under it */
+  cancel(actionId: string, planetID?: string): boolean {
+    const planet = this.planet(planetID);
+    const before = planet.upcoming.length;
+    planet.cancel(actionId);
+    return planet.upcoming.length < before;
   }
 
   list(planetID?: string): PhelopmentRow[] {
@@ -175,7 +184,10 @@ export class GameSession {
       if (queued.length) {
         lines.push(
           `  queued: ${queued
-            .map((a) => `${String(a.consequence.payload.phelopmentID)} ${String(a.consequence.payload.grade)} @${a.consequence.at}`)
+            .map(
+              (a) =>
+                `[${String(a.consequence.payload.id)}] ${String(a.consequence.payload.phelopmentID)} ${String(a.consequence.payload.grade)} ~@${a.consequence.at}`,
+            )
             .join(', ')}`,
         );
       }

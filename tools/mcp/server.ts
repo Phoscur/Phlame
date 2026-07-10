@@ -122,10 +122,34 @@ server.registerTool(
   },
   ({ session: id, type, direction, planet }) => {
     try {
-      const { at, duration, wait, cost } = session(id).grade(type, direction, planet);
+      const { id: actionId, at, duration, wait, cost } = session(id).grade(type, direction, planet);
       const waiting = wait === Infinity ? 'waiting for production' : wait > 0 ? `wait ~${wait} + ` : '';
       return ok(
-        `queued ${type} ${direction}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
+        `queued [${actionId}] ${type} ${direction}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
+      );
+    } catch (error) {
+      return fail(error);
+    }
+  },
+);
+
+server.registerTool(
+  'cancel_action',
+  {
+    description:
+      'Remove a queued (not yet completed) action by its id - ids show in state and in the grade_phelopment response.',
+    inputSchema: {
+      session: z.string(),
+      action: z.string().describe('the action id, e.g. K7NQRSTV'),
+      planet: z.string().optional(),
+    },
+  },
+  ({ session: id, action, planet }) => {
+    try {
+      return ok(
+        session(id).cancel(action, planet)
+          ? `cancelled [${action}]`
+          : `nothing queued under [${action}]`,
       );
     } catch (error) {
       return fail(error);
