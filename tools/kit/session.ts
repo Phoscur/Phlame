@@ -2,18 +2,19 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Injector } from '@joist/di';
 import {
-  ActionFactory,
+  ActionTypes,
   Economy,
   type Action,
   type ActionType,
   type EmpireJSON,
+  type GenesisJSON,
   type TimeUnit,
 } from '@phlame/engine';
 // deliberately NOT the app barrel (it exports DOM custom elements) - config modules only
 import { phormulae, type PhelopmentIdentifier, type Resources } from '../../src/app/engine/phelopments';
 import type { ResourceIdentifier } from '../../src/app/engine/resources';
-import { emptyEmpire } from '../../src/app/engine/services';
-import { generateID } from '../../src/app/engine/ids';
+import { fromGenesis, genesisFor } from '../../src/app/engine/services';
+import { actionID } from '../../src/app/engine/ids';
 import { EngineFactory, type EmpireEntity, type PhlameEntity } from '../../src/app/engine/factory';
 
 export interface SessionSave {
@@ -21,6 +22,8 @@ export interface SessionSave {
   tick: TimeUnit;
   /** universe identity (ADR 0011) - refuses to load under different rules */
   phingerprint: string;
+  /** genesis + empire.log is the authoritative save; the snapshot is its cache (ADR 0012/0018) */
+  genesis: GenesisJSON;
   empire: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>;
 }
 
@@ -38,15 +41,15 @@ const SAVE_FOLDER = join('data', 'console');
  * GameSession - the MCP-agnostic core shared by the console REPL and the MCP server
  * (PLAN-MCP: "engine-ui reborn"). Deterministic: time only advances via advance()/
  * advanceTo(); a realtime driver (console --realtime) owns its own Zeitgeber.
- * Plays through the real M1 action path: ActionFactory -> Phlame.add -> Phlame.update.
+ * Plays through the real M1 path: Empire.enqueue -> projection -> Phlame.update.
  */
 export class GameSession {
   private currentTick: TimeUnit;
-  private actionFactory = new ActionFactory();
   private engineFactory = new Injector().inject(EngineFactory);
 
   constructor(
     readonly name: string,
+    readonly genesis: GenesisJSON,
     readonly empire: EmpireEntity,
     tick: TimeUnit = 0,
   ) {
@@ -54,7 +57,8 @@ export class GameSession {
   }
 
   static create(name = 'Sandbox', planetID = `${name}-1`, tick: TimeUnit = 0): GameSession {
-    return new GameSession(name, emptyEmpire(name, planetID, tick), tick);
+    const genesis = genesisFor(name, [planetID], tick);
+    return new GameSession(name, genesis, fromGenesis(genesis), tick);
   }
 
   static fromJSON(save: SessionSave): GameSession {
@@ -65,7 +69,7 @@ export class GameSession {
       );
     }
     const factory = new Injector().inject(EngineFactory);
-    return new GameSession(`${save.name}`, factory.createEmpire(save.empire), save.tick);
+    return new GameSession(`${save.name}`, save.genesis, factory.createEmpire(save.empire), save.tick);
   }
 
   get tick(): TimeUnit {
@@ -86,7 +90,7 @@ export class GameSession {
     return planet;
   }
 
-  /** Advance all entities by n ticks (provisional entity loop until M1's empire-level update) */
+  /** Advance the empire by n ticks on the shared timeline */
   advance(ticks: TimeUnit): this {
     return this.advanceTo(this.currentTick + ticks);
   }
@@ -96,10 +100,19 @@ export class GameSession {
       return this; // time only moves forward
     }
     this.currentTick = tick;
-    for (const entity of this.empire.entities) {
-      entity.update(tick);
-    }
+    this.empire.update(tick);
     return this;
+  }
+
+  /**
+   * The standing M0 invariant as a callable check (PLAN-MCP flagship):
+   * derive a fresh empire from genesis, apply the command log, compare snapshots.
+   */
+  replayCheck(): { ok: boolean; expected: string; actual: string } {
+    const expected = JSON.stringify(this.empire.toJSON());
+    const replayed = fromGenesis(this.genesis).applyLog(this.empire.log, this.currentTick);
+    const actual = JSON.stringify(replayed.toJSON());
+    return { ok: actual === expected, expected, actual };
   }
 
   /**
@@ -124,10 +137,17 @@ export class GameSession {
     const duration =
       direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
     const wait = economy.ticksUntilAffordable(cost);
+    // display estimate only - actual start/completion are consequence echoes (ADR 0018)
     const at = this.currentTick + (wait === Infinity ? duration : wait + duration);
     // ids are generated here at the tool boundary - the engine stays pure (ADR 0009)
-    const id = generateID();
-    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction, id));
+    const id = actionID();
+    // commands enter through the empire's trusted log (ADR 0012)
+    this.empire.enqueue(
+      ActionTypes.UPDATE,
+      { id, phelopmentID: type, grade: direction },
+      [planet],
+      this.currentTick,
+    );
     return { id, at, duration, wait, cost: cost.prettyAmount };
   }
 
@@ -184,10 +204,13 @@ export class GameSession {
       if (queued.length) {
         lines.push(
           `  queued (${queued.length}/${planet.queueSlots}): ${queued
-            .map(
-              (a) =>
-                `[${String(a.consequence.payload.id)}] ${String(a.consequence.payload.phelopmentID)} ${String(a.consequence.payload.grade)} ~@${a.consequence.at}`,
-            )
+            .map((a) => {
+              const actionId = String(a.consequence.payload.id);
+              // consequence.at is the orderedAt tick; build progress is an echo (ADR 0018)
+              const started = planet.echoes.find((c) => c.id === `${actionId}:started`);
+              const status = started ? `building since ${started.at}` : 'waiting';
+              return `[${actionId}] ${String(a.consequence.payload.phelopmentID)} ${String(a.consequence.payload.grade)} ordered@${a.consequence.at} (${status})`;
+            })
             .join(', ')}`,
         );
       }
@@ -200,6 +223,7 @@ export class GameSession {
       name: this.name,
       tick: this.currentTick,
       phingerprint: this.phingerprint,
+      genesis: this.genesis,
       empire: this.empire.toJSON(),
     };
   }

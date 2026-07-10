@@ -28,13 +28,16 @@ export class EngineFactory {
   createEmpire(
     json: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>,
   ): Empire<ResourceIdentifier, PhelopmentIdentifier> {
-    return new Empire(json.id, this.createEntities(json.entities));
+    // the log is data only here - its projections are already inside entities[].actions
+    return new Empire(json.id, this.createEntities(json.entities), json.log ?? []);
   }
 
   createEntities(
     es: PhlameJSON<ResourceIdentifier, PhelopmentIdentifier>[],
   ): Phlame<ResourceIdentifier, PhelopmentIdentifier>[] {
-    return es.map((p) => this.createPhlame(p.id, p.tick, p.stock, p.phelopments, p.actions));
+    return es.map((p) =>
+      this.createPhlame(p.id, p.tick, p.stock, p.phelopments, p.actions, p.consequences),
+    );
   }
 
   createPhlame(
@@ -43,6 +46,8 @@ export class EngineFactory {
     stock: StockJSON<ResourceIdentifier>,
     phelopments: PhelopmentJSON<PhelopmentIdentifier>[] = [],
     actions: PhlameJSON<ResourceIdentifier, PhelopmentIdentifier>['actions'] = [],
+    // open consequences are state while saves are snapshot-based (ADR 0018)
+    consequences: PhlameJSON<ResourceIdentifier, PhelopmentIdentifier>['consequences'] = [],
   ): Phlame<ResourceIdentifier, PhelopmentIdentifier> {
     const phlame = new Phlame(
       id,
@@ -53,6 +58,7 @@ export class EngineFactory {
       }),
       [],
       tick,
+      consequences,
     );
     // rehydrate the circular concerns reference (actions are stored chronologically)
     for (const action of actions) {

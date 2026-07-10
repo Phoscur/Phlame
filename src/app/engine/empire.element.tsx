@@ -16,9 +16,9 @@ export class EmpireElement extends HTMLElement {
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
       const entities = JSON.parse(this.attributes.getNamedItem('entities')?.value ?? '[]');
       logger.log(`Empire[${id}] initializing...`, entities);
-      // TODO hydrate events (game.element.tsx renders no events attribute yet)
+      // TODO hydrate the command log (game.element.tsx renders no log attribute yet)
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
-      engine.setupFromJSON({ id, entities, events: [] });
+      engine.setupFromJSON({ id, entities, log: [] });
     } catch (ex) {
       console.error(ex);
     }

@@ -29,3 +29,8 @@ on strings with the M2 naming pass (the app already uses `mine-metallic` style n
   arguments and never contains randomness (ADR 0009). The previous ad-hoc
   `Math.random().toString(36)` generators (weak, duplicated, and silently shorter on
   trailing zeros) are gone.
+- **Type prefixes** (2026-07): generated entity ids are self-explaining —
+  `E-XXXXXXXX` empire, `P-XXXXXXXX` planet, `A-XXXXXXXX` action (echo ids become
+  `A-XXXXXXXX:started`). A session's empire/planet share its stem (`E-<sid>`/`P-<sid>`).
+  Session ids stay bare on purpose: `isValidSID` accepts exactly 8 alphabet chars
+  (cookie → file path), so typed entity ids can never pose as sessions.

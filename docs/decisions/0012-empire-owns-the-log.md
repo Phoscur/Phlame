@@ -1,6 +1,8 @@
 # 0012 — Empire owns the action log ("everything is a Phlame")
 
-Status: accepted (2026-07)
+Status: accepted (2026-07; **implemented** the same month: `Empire.enqueue`/`applyLog`
+with `(tick, seq)` ordering, `Phlame.actions` as projection, `consequence.at` = orderedAt;
+the structural "everything is a Phlame" unification still lands with M2 tech)
 
 ## Context
 

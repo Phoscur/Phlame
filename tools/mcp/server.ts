@@ -158,6 +158,25 @@ server.registerTool(
 );
 
 server.registerTool(
+  'replay_check',
+  {
+    description:
+      'The M0 invariant as a tool: derive a fresh empire from the session genesis, apply the command log, compare with the live state. ok=false means a determinism bug.',
+    inputSchema: { session: z.string() },
+  },
+  ({ session: id }) => {
+    try {
+      const { ok } = session(id).replayCheck();
+      return ok
+        ? { content: [{ type: 'text' as const, text: 'ok: replay(genesis, log) ≡ live state' }] }
+        : fail('MISMATCH: replay diverged from live state - determinism bug, please report');
+    } catch (error) {
+      return fail(error);
+    }
+  },
+);
+
+server.registerTool(
   'dump_session',
   {
     description:

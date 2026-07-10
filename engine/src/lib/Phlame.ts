@@ -1,6 +1,7 @@
 import { type TimeUnit, type ResourceIdentifier, type StockJSON } from './resources';
 import type { PhelopmentIdentifier, PhelopmentJSON } from './Phelopment';
-import { Action, ActionType, Entity, ID } from './Action';
+import { Action, ActionType, Entity, EventTypes, ID } from './Action';
+import type { ConsequenceJSON } from './EmpireLog';
 import { Economy } from './Economy';
 
 export interface PhlameJSON<
@@ -12,7 +13,14 @@ export interface PhlameJSON<
   stock: StockJSON<ResourceType>;
   phelopments: PhelopmentJSON<UnitType>[];
   actions: (Omit<Action<ActionType>, 'concerns'> & { concerns: ID })[];
+  consequences: ConsequenceJSON[];
 }
+
+/** the command id every queue action carries in its payload (generated at the app boundary) */
+function actionID(action: Action<ActionType>): string {
+  return String(action.consequence.payload['id']);
+}
+
 export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends PhelopmentIdentifier>
   implements Entity
 {
@@ -21,16 +29,47 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
     private economy: Economy<ResourceType, UnitType>,
     private actions: Action<ActionType>[] = [],
     private tick: TimeUnit = 0,
+    private consequences: ConsequenceJSON[] = [],
   ) {}
 
   /**
-   * Access only relevant actions: consequences strictly after lastTick
-   * (a consequence at lastTick has already been applied by update).
+   * The open build queue: commands without a terminal consequence echo (ADR 0018).
    * Actions are stored chronologically (append), so this IS the FIFO queue.
    */
   get upcoming(): Action<ActionType>[] {
     // TODO drop actions (keep full count on the entity, then - after persistence - paginate long history?)
-    return this.actions.filter((a) => a.consequence.at > this.lastTick);
+    return this.actions.filter((a) => !this.echoOf(actionID(a), 'completed'));
+  }
+
+  /** the consequence echo log - derived facts, never edits of the commands (ADR 0018) */
+  get echoes(): ConsequenceJSON[] {
+    return this.consequences;
+  }
+
+  protected echoOf(actionId: string, event: 'started' | 'completed'): ConsequenceJSON | undefined {
+    return this.consequences.find((c) => c.id === `${actionId}:${event}`);
+  }
+
+  /**
+   * Append a consequence echo - deterministic derived id, idempotent (replay-safe)
+   */
+  protected echo(
+    action: Action<ActionType>,
+    event: 'started' | 'completed' | 'voided',
+    at: TimeUnit,
+  ) {
+    const id = `${actionID(action)}:${event === 'voided' ? 'completed' : event}`;
+    if (this.consequences.some((c) => c.id === id)) {
+      return;
+    }
+    const { phelopmentID, grade } = action.consequence.payload;
+    this.consequences.push({
+      id,
+      at,
+      type: EventTypes.CONSEQUENCE,
+      concerns: [this.id],
+      payload: { action: actionID(action), event, phelopmentID, grade },
+    });
   }
 
   get lastTick(): TimeUnit {
@@ -58,96 +97,83 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
     return this;
   }
 
+  /**
+   * Remove a queued command that has not started building yet
+   * @throws once the build started - costs are fetched, cancelling needs a refund (M2)
+   */
   cancel(actionId: string) {
-    this.actions = this.actions.filter(a => a.consequence.payload['id'] !== actionId);
+    const started = this.echoOf(actionId, 'started');
+    if (started && !this.echoOf(actionId, 'completed')) {
+      throw new Error(`Cannot cancel [${actionId}]: already building (refunds are M2 work)`);
+    }
+    this.actions = this.actions.filter((a) => actionID(a) !== actionId);
     return this;
   }
 
   /**
-   * Fast forward the economy to the target tick,
-   * applying due action consequences in chronological order on the way
+   * Fast forward the economy to the target tick, working the FIFO build queue
+   * (Wartefunktion): wait until affordable, fetch the cost, build, apply the grade.
+   * State transitions are appended as consequence echoes - the commands themselves
+   * are never touched (ADR 0018).
    * @param tick target game cycle to update to
    */
   update(tick: TimeUnit) {
     while (this.tick < tick) {
-      const list = this.upcoming;
-      if (list.length === 0) {
+      const [active] = this.upcoming;
+      if (!active) {
         break;
       }
-      const active = list[0];
       const payload = active.consequence.payload;
-      const activePhelopment = this.economy.phelopments.find(p => p.type === payload['phelopmentID']);
-      
+      const phelopmentID = payload['phelopmentID'] as UnitType;
+      const grade = payload['grade'] as 'up' | 'down';
+      const activePhelopment = this.economy.phelopments.find((p) => p.type === phelopmentID);
       if (!activePhelopment) {
-        active.consequence.at = this.tick;
+        // unknown target: void the command (echoed, so the queue moves on)
+        this.echo(active, 'voided', this.tick);
         continue;
       }
 
-      const cost = payload['grade'] === 'up'
-        ? this.economy.upgradeCost(activePhelopment)
-        : this.economy.downgradeCost(activePhelopment);
+      const cost =
+        grade === 'up'
+          ? this.economy.upgradeCost(activePhelopment)
+          : this.economy.downgradeCost(activePhelopment);
+      const duration =
+        grade === 'up'
+          ? this.economy.upgradeTime(activePhelopment)
+          : this.economy.downgradeTime(activePhelopment);
 
-      const duration = payload['grade'] === 'up'
-        ? this.economy.upgradeTime(activePhelopment)
-        : this.economy.downgradeTime(activePhelopment);
-
-      if (typeof payload['startedAt'] === 'number') {
-        const completionTick = payload['startedAt'] + duration;
-        if (completionTick <= tick) {
-          const cycles = completionTick - this.tick;
-          if (cycles > 0) {
-            this.economy = this.economy.tick(cycles);
-            this.tick = completionTick;
-          }
-          if (payload['grade'] === 'up') {
-            this.economy = this.economy.upgrade(payload['phelopmentID'] as PhelopmentIdentifier);
-          } else {
-            this.economy = this.economy.downgrade(payload['phelopmentID'] as PhelopmentIdentifier);
-          }
-          active.consequence.at = completionTick;
-        } else {
-          const cycles = tick - this.tick;
-          if (cycles > 0) {
-            this.economy = this.economy.tick(cycles);
-            this.tick = tick;
-          }
-          break;
+      const started = this.echoOf(actionID(active), 'started');
+      if (started) {
+        const completionTick = started.at + duration;
+        if (completionTick > tick) {
+          break; // still building past the target
         }
-      } else {
-        if (this.economy.resources.stock.isFetchable(cost)) {
-          this.economy = this.economy.fetch(cost);
-          payload['startedAt'] = this.tick;
-          active.consequence.at = this.tick + duration;
-        } else {
-          const waitTicks = this.economy.ticksUntilAffordable(cost);
-          if (waitTicks === Infinity) {
-            // nothing produces the missing resource - keep the action queued past the
-            // target tick (`upcoming` filters at > lastTick), it re-checks next update
-            active.consequence.at = tick + 1;
-            const cycles = tick - this.tick;
-            if (cycles > 0) {
-              this.economy = this.economy.tick(cycles);
-              this.tick = tick;
-            }
-            break;
-          }
-          const startTick = this.tick + waitTicks;
-          // lift the estimate so the waiting action neither expires out of the
-          // `upcoming` filter while time passes it by, nor lies about its finish
-          active.consequence.at = startTick + duration;
-          if (startTick <= tick) {
-            this.economy = this.economy.tick(waitTicks);
-            this.tick = startTick;
-          } else {
-            const cycles = tick - this.tick;
-            if (cycles > 0) {
-              this.economy = this.economy.tick(cycles);
-              this.tick = tick;
-            }
-            break;
-          }
+        const cycles = completionTick - this.tick;
+        if (cycles > 0) {
+          this.economy = this.economy.tick(cycles);
+          this.tick = completionTick;
         }
+        this.economy =
+          grade === 'up' ? this.economy.upgrade(phelopmentID) : this.economy.downgrade(phelopmentID);
+        this.echo(active, 'completed', completionTick);
+        continue;
       }
+
+      if (this.economy.resources.stock.isFetchable(cost)) {
+        this.economy = this.economy.fetch(cost);
+        this.echo(active, 'started', this.tick);
+        continue;
+      }
+
+      // Wartefunktion: wait for production to afford the cost
+      const waitTicks = this.economy.ticksUntilAffordable(cost);
+      const startTick = this.tick + waitTicks;
+      if (waitTicks === Infinity || startTick > tick) {
+        break; // keeps waiting (upcoming is echo-based, the command cannot expire)
+      }
+      this.economy = this.economy.tick(waitTicks);
+      this.tick = startTick;
+      // affordability is re-checked next iteration (production may be throttled)
     }
 
     if (tick > this.tick) {
@@ -162,12 +188,14 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
   }
 
   toJSON(): PhlameJSON<ResourceType, UnitType> {
-    const { id, economy, tick, actions } = this;
+    const { id, economy, tick, actions, consequences } = this;
     return {
       id,
       tick,
       ...economy.toJSON(),
-      actions: actions.map(a => ({ ...a, concerns: a.concerns.id })),
+      actions: actions.map((a) => ({ ...a, concerns: a.concerns.id })),
+      // open consequences are state while saves are snapshot-based (ADR 0018)
+      consequences,
     };
   }
 }

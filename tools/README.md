@@ -23,7 +23,8 @@ In realtime mode `tick n` timewarps ahead of the clock. Saves live in `data/cons
 
 stdio server, registered in [.mcp.json](../.mcp.json) — Claude Code picks it up as
 `phlame` after approval. Tools: `new_session`, `state`, `advance_ticks`,
-`list_phelopments`, `grade_phelopment`, `cancel_action`, `dump_session`, `restore_session`.
+`list_phelopments`, `grade_phelopment`, `cancel_action`, `replay_check`,
+`dump_session`, `restore_session`.
 Sessions are in-memory (dump/restore is the insurance across restarts). Never
 `console.log` in the server — stdout is the protocol channel, diagnostics go to stderr.
 
@@ -32,9 +33,9 @@ Inspector: `npx @modelcontextprotocol/inspector npx tsx tools/mcp/server.ts`
 ## Known limits (honest edges)
 
 - The queue is a FIFO Wartefunktion (2008 semantics): costs are fetched once affordable,
-  then the build runs; `at` on a queued action is an estimate that `Phlame.update`
-  self-corrects. Queued actions serialize with the save.
-- `Phlame.update` still mutates action payloads (`startedAt`, corrected `at`) — the
-  decided fix is ADR 0018 (separate `actions[]`/`consequences[]` logs), landing with
-  the empire-log rework.
-- `advance` iterates entities (provisional until ADR 0012's empire-level update lands).
+  then the build runs. Commands live in the empire's trusted log (ADR 0012), start and
+  completion are consequence echoes (ADR 0018) — `verify`/`replay_check` proves
+  `replay(genesis, log) ≡ live state` at any time.
+- `cancel` refuses builds that already started (costs are fetched; refunds are M2 work).
+- Saves are `{genesis, empire}` — genesis + the log inside `empire` are authoritative,
+  the snapshot is their cache.

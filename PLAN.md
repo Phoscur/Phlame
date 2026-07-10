@@ -117,22 +117,29 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       Un-blocking the spec exposed two more `Phlame.update` bugs, also fixed: applied
       actions re-applied on the next update (boundary in `upcoming`), and ticks after
       the last action were not fast-forwarded; actions now apply in chronological order.
-- [ ] Implement Action/Consequence in the engine (replace interface-only `Action.ts`);
-      the log lives on the Empire (ADR 0012), `Phlame.actions` becomes a projection.
-      Replay orchestration in the empire-level update: fast-forward concerned entities
-      to each action's tick, apply in `(tick, seq)` order.
+- [x] **Empire log landed 2026-07** (ADR 0012/0018): commands enter through
+      `Empire.enqueue` — appends the trusted `LogEntryJSON` (`(tick, seq)` order,
+      `concerns: ID[]`) and projects an Action into each concerned entity's queue
+      (`Phlame.actions` is the projection; `consequence.at` = orderedAt, one meaning).
+      `Phlame.update` appends **consequence echoes** (`${actionId}:started/:completed`,
+      idempotent, deterministic) instead of mutating payloads — the ADR 0018 debt is
+      paid. `Empire.applyLog(entries, tick)` replays in `(tick, seq)` order;
+      `replay(genesis, log) ≡ interactive play` is green incl. regenerated echoes
+      (replay.spec), callable as `replayCheck` (kit), `verify` (console) and
+      `replay_check` (MCP). `cancel` refuses started builds (refunds are M2).
+      Old `Event`/`EventFactory` shapes removed (superseded by `ConsequenceJSON`).
 - [x] Building queue as first action type — **Wartefunktion landed 2026-07**
       (`phlame-mcp` branch): FIFO queue in `Phlame.update` waits until costs become
       affordable (`Economy.ticksUntilAffordable`), fetches them, builds for
       `upgradeTime` (with `minBuildTime` floor in the Phormulae), applies the grade;
       queued actions serialize with the save and rehydrate (`EngineFactory`); UI queue
-      + cancel + e2e `build.spec` green. Known design debt: `Phlame.update` mutates
-      action payloads (`startedAt`, corrected `at`) — decided resolution:
-      [ADR 0018](docs/decisions/0018-actions-and-consequences.md), actions[] (trusted
-      commands) and consequences[] (verifiable echo) as separate append-only logs;
-      migrate together with the empire log (above).
+      + cancel + e2e `build.spec` green. The payload-mutation debt was paid with the
+      empire log (above): [ADR 0018](docs/decisions/0018-actions-and-consequences.md)
+      echoes replaced `startedAt`/`at` edits.
 - [ ] Persistence v2: save = genesis + empire action log (+ snapshot as cache);
       file/localStorage backends behind one interface. Supersedes parts of ADR 0008.
+      The console kit already saves `{genesis, empire}` with the log inside and
+      restores replay-verified (2026-07); the app's `PersistedSession` follows.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
       Queue capacity is ruled by `Phormulae.queueSlots` (a `constant` Phormula, 2026-07;
       enforced in `Phlame.add`) — NOTE: it counts *all* open actions; differentiate per

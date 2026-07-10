@@ -1,10 +1,10 @@
 import { inject, injectable } from '@joist/di';
-import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable, ActionFactory, Empire } from '@phlame/engine';
+import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable, ActionTypes, Empire } from '@phlame/engine';
 import type { GenesisJSON } from '@phlame/engine';
 import { type PhelopmentIdentifier, defaultPhelopments, phormulae } from './phelopments';
 import { type ResourceIdentifier, MetallicResource, CrystallineResource, LiquidResource } from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
-import { generateID } from './ids';
+import { actionID } from './ids';
 import { Stock, ResourceCollection } from '@phlame/engine';
 
 export function emptyEconomy(name: string) {
@@ -23,7 +23,9 @@ export function emptyEconomy(name: string) {
   );
 }
 export function emptyPlanet(id: ID, tick?: number) {
-  return new Phlame<ResourceIdentifier, PhelopmentIdentifier>(id, emptyEconomy(`E${id}`), [], tick);
+  // economy name === planet id, so genesis-derived and snapshot-rehydrated empires
+  // serialize identically (the replay invariant compares full JSON)
+  return new Phlame<ResourceIdentifier, PhelopmentIdentifier>(id, emptyEconomy(`${id}`), [], tick);
 }
 
 export function emptyEmpire(id: ID, planetID: ID, tick?: number) {
@@ -125,14 +127,18 @@ export class EmpireService {
     }
     const duration =
       direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
-    // estimate: chain behind the newest queued action (chronological FIFO queue);
-    // Phlame.update corrects `at` once waiting/start times are actually known
-    const lastQueued = planet.upcoming.at(-1);
-    const startTick = lastQueued ? lastQueued.consequence.at : planet.lastTick;
-    const at = startTick + duration;
+    // display estimate only - actual start/completion are consequence echoes (ADR 0018)
+    const at = planet.lastTick + economy.ticksUntilAffordable(
+      direction === 'up' ? economy.upgradeCost(phelopment) : economy.downgradeCost(phelopment),
+    ) + duration;
 
-    const actionId = generateID();
-    planet.add(new ActionFactory().updatePhelopment(at, planet, type, direction, actionId));
+    const actionId = actionID();
+    // the command enters through the empire's trusted log (ADR 0012)
+    this.#current.enqueue(
+      ActionTypes.UPDATE,
+      { id: actionId, phelopmentID: type, grade: direction },
+      [planet],
+    );
     return { at, duration, actionId };
   }
 

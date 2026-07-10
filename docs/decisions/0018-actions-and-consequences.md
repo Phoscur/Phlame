@@ -1,6 +1,8 @@
 # 0018 — Actions and consequences are separate logs
 
-Status: accepted (2026-07; implementation folds into the empire-log work, ADR 0012)
+Status: accepted (2026-07; **implemented** with the empire log the same month —
+`Phlame.update` appends idempotent echoes, payload mutation is gone, and the replay
+self-test runs as kit `replayCheck` / console `verify` / MCP `replay_check`)
 
 ## Context
 
