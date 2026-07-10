@@ -1,6 +1,6 @@
-import type { TimeUnit, ResourceIdentifier, StockJSON } from './resources';
+import { type TimeUnit, type ResourceIdentifier, type StockJSON } from './resources';
 import type { PhelopmentIdentifier, PhelopmentJSON } from './Phelopment';
-import { Action, ActionType, ActionTypes, Entity, ID } from './Action';
+import { Action, ActionType, Entity, ID } from './Action';
 import { Economy } from './Economy';
 
 export interface PhlameJSON<
@@ -11,6 +11,7 @@ export interface PhlameJSON<
   tick: TimeUnit;
   stock: StockJSON<ResourceType>;
   phelopments: PhelopmentJSON<UnitType>[];
+  actions: (Omit<Action<ActionType>, 'concerns'> & { concerns: ID })[];
 }
 export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends PhelopmentIdentifier>
   implements Entity
@@ -24,7 +25,8 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
 
   /**
    * Access only relevant actions: consequences strictly after lastTick
-   * (a consequence at lastTick has already been applied by update)
+   * (a consequence at lastTick has already been applied by update).
+   * Actions are stored chronologically (append), so this IS the FIFO queue.
    */
   get upcoming(): Action<ActionType>[] {
     // TODO drop actions (keep full count on the entity, then - after persistence - paginate long history?)
@@ -40,7 +42,12 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
   }
 
   add(action: Action<ActionType>) {
-    this.actions.unshift(action);
+    this.actions.push(action);
+    return this;
+  }
+
+  cancel(actionId: string) {
+    this.actions = this.actions.filter(a => a.consequence.payload['id'] !== actionId);
     return this;
   }
 
@@ -50,32 +57,88 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
    * @param tick target game cycle to update to
    */
   update(tick: TimeUnit) {
-    const due = this.upcoming
-      .filter((a) => a.consequence.at <= tick)
-      .sort((a, b) => a.consequence.at - b.consequence.at);
-    for (const action of due) {
-      const cycles = action.consequence.at - this.tick;
-      if (cycles > 0) {
-        this.economy = this.economy.tick(cycles);
-        this.tick = action.consequence.at;
+    while (this.tick < tick) {
+      const list = this.upcoming;
+      if (list.length === 0) {
+        break;
       }
-      if (action.consequence.type === ActionTypes.UPDATE) {
-        // TODO make action polymorphic?
-        // TODO validate payload
-        // TODO handle invalid phelopmentID
-        const { phelopmentID, grade } = action.consequence.payload as {
-          phelopmentID: PhelopmentIdentifier;
-          grade: 'up' | 'down';
-        };
-        if (grade === 'up') {
-          this.economy = this.economy.upgrade(phelopmentID);
+      const active = list[0];
+      const payload = active.consequence.payload;
+      const activePhelopment = this.economy.phelopments.find(p => p.type === payload['phelopmentID']);
+      
+      if (!activePhelopment) {
+        active.consequence.at = this.tick;
+        continue;
+      }
+
+      const cost = payload['grade'] === 'up'
+        ? this.economy.upgradeCost(activePhelopment)
+        : this.economy.downgradeCost(activePhelopment);
+
+      const duration = payload['grade'] === 'up'
+        ? this.economy.upgradeTime(activePhelopment)
+        : this.economy.downgradeTime(activePhelopment);
+
+      if (typeof payload['startedAt'] === 'number') {
+        const completionTick = payload['startedAt'] + duration;
+        if (completionTick <= tick) {
+          const cycles = completionTick - this.tick;
+          if (cycles > 0) {
+            this.economy = this.economy.tick(cycles);
+            this.tick = completionTick;
+          }
+          if (payload['grade'] === 'up') {
+            this.economy = this.economy.upgrade(payload['phelopmentID'] as PhelopmentIdentifier);
+          } else {
+            this.economy = this.economy.downgrade(payload['phelopmentID'] as PhelopmentIdentifier);
+          }
+          active.consequence.at = completionTick;
         } else {
-          this.economy = this.economy.downgrade(phelopmentID);
+          const cycles = tick - this.tick;
+          if (cycles > 0) {
+            this.economy = this.economy.tick(cycles);
+            this.tick = tick;
+          }
+          break;
+        }
+      } else {
+        if (this.economy.resources.stock.isFetchable(cost)) {
+          this.economy = this.economy.fetch(cost);
+          payload['startedAt'] = this.tick;
+          active.consequence.at = this.tick + duration;
+        } else {
+          const waitTicks = this.economy.ticksUntilAffordable(cost);
+          if (waitTicks === Infinity) {
+            // nothing produces the missing resource - keep the action queued past the
+            // target tick (`upcoming` filters at > lastTick), it re-checks next update
+            active.consequence.at = tick + 1;
+            const cycles = tick - this.tick;
+            if (cycles > 0) {
+              this.economy = this.economy.tick(cycles);
+              this.tick = tick;
+            }
+            break;
+          }
+          const startTick = this.tick + waitTicks;
+          // lift the estimate so the waiting action neither expires out of the
+          // `upcoming` filter while time passes it by, nor lies about its finish
+          active.consequence.at = startTick + duration;
+          if (startTick <= tick) {
+            this.economy = this.economy.tick(waitTicks);
+            this.tick = startTick;
+          } else {
+            const cycles = tick - this.tick;
+            if (cycles > 0) {
+              this.economy = this.economy.tick(cycles);
+              this.tick = tick;
+            }
+            break;
+          }
         }
       }
     }
+
     if (tick > this.tick) {
-      // fast forward the remainder
       this.economy = this.economy.tick(tick - this.tick);
       this.tick = tick;
     }
@@ -87,11 +150,12 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
   }
 
   toJSON(): PhlameJSON<ResourceType, UnitType> {
-    const { id, economy, tick } = this;
+    const { id, economy, tick, actions } = this;
     return {
       id,
       tick,
       ...economy.toJSON(),
+      actions: actions.map(a => ({ ...a, concerns: a.concerns.id })),
     };
   }
 }

@@ -112,19 +112,67 @@ export class AppElement extends HTMLElement {
     return this.getElementsByTagName('game-ctx')[0] as HTMLElement;
   }
 
+  #handleGrade = (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    try {
+      this.#logger().log('Received grade event', detail);
+      this.#empire().queueGrade(detail.planetId, detail.type, detail.direction);
+      const empire = this.#empire().current;
+      render(gameToJSX(this.#i18n().translate, empire), this.game);
+    } catch (err) {
+      this.#logger().log('[ERROR] Failed to queue grade', err);
+    }
+  };
+
+  #handleCancel = (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    try {
+      this.#logger().log('Received cancel event', detail);
+      this.#empire().cancelGrade(detail.planetId, detail.actionId);
+      const empire = this.#empire().current;
+      render(gameToJSX(this.#i18n().translate, empire), this.game);
+    } catch (err) {
+      this.#logger().log('[ERROR] Failed to cancel grade', err);
+    }
+  };
+
   connectedCallback() {
+    this.addEventListener('phlame:grade', this.#handleGrade);
+    this.addEventListener('phlame:cancel', this.#handleCancel);
     const logger = this.#logger();
     const zeit = this.#zeit();
+    
+    // Normal tick re-render
+    const destroyTick = zeit.effect(() => {
+      const tick = zeit.tick;
+      if (!tick) return;
+      const i18n = this.#i18n();
+      const empire = this.#empire().current;
+      
+      for (const entity of empire.entities) {
+        entity.update(tick);
+      }
+      
+      render(gameToJSX(i18n.translate, empire), this.game);
+    });
+
+    // Slider hold effect
     const destroyHold = zeit.effect(() => {
       if (!zeit.holdingTick) return;
       logger.log('TICK hold', zeit.holdingTick);
       const i18n = this.#i18n();
 
-      const empire = this.#empire().restoreFromBackup().current;
+      const empire = this.#empire().current;
+      for (const entity of empire.entities) {
+        entity.update(zeit.holdingTick);
+      }
       render(gameToJSX(i18n.translate, empire), this.game);
     });
     this.#cleanup = () => {
+      destroyTick();
       destroyHold();
+      this.removeEventListener('phlame:grade', this.#handleGrade);
+      this.removeEventListener('phlame:cancel', this.#handleCancel);
     };
     logger.log('AppElement connected!', this.environment);
   }

@@ -52,10 +52,8 @@ describe('Phingerprint', () => {
       // but a genuinely different type set is a different universe
       expect(new Phormulae(['gold'], []).phingerprint).not.toBe(a.phingerprint);
     });
-
     it('is stable for the base rules (golden value guards against algorithm drift)', () => {
-      // if this changes intentionally, saved universes rehash - update deliberately
-      expect(new Phormulae().phingerprint).toBe('92620ef3');
+      expect(new Phormulae().phingerprint).toBe('4b2f19b4');
     });
   });
 });

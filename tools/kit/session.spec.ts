@@ -43,7 +43,7 @@ describe('GameSession (console/MCP kit)', () => {
 
   it('rejects unknown phelopments and planets with helpful errors', () => {
     const session = GameSession.create('Errors');
-    expect(() => session.grade('warp-gate' as any, 'up')).toThrow('Unknown phelopment: warp-gate');
+    expect(() => session.grade('warp-gate', 'up')).toThrow('Unknown phelopment: warp-gate');
     expect(() => session.planet('Nirvana')).toThrow('Unknown planet: Nirvana');
   });
 

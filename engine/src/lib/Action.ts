@@ -56,8 +56,11 @@ export class ActionFactory {
     concerns: Entity,
     phelopmentID: PhelopmentIdentifier,
     grade: 'up' | 'down',
+    // callers supply the id - the engine stays pure and replay-deterministic (ADR 0009),
+    // randomness belongs at the app boundary
+    id: string,
   ) {
-    return this.create(ActionTypes.UPDATE, at, concerns, { phelopmentID, grade });
+    return this.create(ActionTypes.UPDATE, at, concerns, { id, phelopmentID, grade });
   }
 }
 

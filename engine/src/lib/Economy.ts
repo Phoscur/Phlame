@@ -105,10 +105,38 @@ export class Economy<
   }
 
   protected buildTime(costs: ResourceCollection<ResourceType>): TimeUnit {
-    return Math.floor(
-      costs.map((resource) => resource.amount).reduce((sum, amount) => sum + amount, 0) /
-        this.phormulae.buildTimeDivisor,
+    return Math.max(
+      this.phormulae.minBuildTime,
+      Math.floor(
+        costs.map((resource) => resource.amount).reduce((sum, amount) => sum + amount, 0) /
+          this.phormulae.buildTimeDivisor,
+      )
     );
+  }
+
+  fetch(cost: ResourceCollection<ResourceType>): Economy<ResourceType, PhelopmentType> {
+    return this.new(this.resources.stock.fetch(cost), this.phelopments);
+  }
+
+  ticksUntilAffordable(cost: ResourceCollection<ResourceType>): number {
+    if (this.resources.stock.isFetchable(cost)) {
+      return 0;
+    }
+    const missing = this.resources.stock.getUnfetchable(cost);
+    let maxTicks = 0;
+    for (const res of missing.asArray) {
+      const tableEntry = this.resources.productionTable.find(t => t[0] === res.type);
+      if (!tableEntry) return Infinity;
+      const rate = tableEntry[1];
+      if (rate <= 0) {
+        return Infinity;
+      }
+      const ticks = Math.ceil(res.amount / rate);
+      if (ticks > maxTicks) {
+        maxTicks = ticks;
+      }
+    }
+    return maxTicks;
   }
 
   getResourceCalculation(

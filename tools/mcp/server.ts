@@ -112,7 +112,7 @@ server.registerTool(
   'grade_phelopment',
   {
     description:
-      'Queue a phelopment up- or downgrade; the consequence applies after the build duration (cost deduction is pending M1 engine work).',
+      'Queue a phelopment up- or downgrade (Wartefunktion: waits until the cost is affordable, fetches it, then builds; the estimate self-corrects as ticks pass).',
     inputSchema: {
       session: z.string(),
       type: z.string().describe('phelopment type, e.g. mine-metallic'),
@@ -122,8 +122,11 @@ server.registerTool(
   },
   ({ session: id, type, direction, planet }) => {
     try {
-      const { at, duration, cost } = session(id).grade(type as any, direction, planet);
-      return ok(`queued ${type} ${direction}grade: done at tick ${at} (${duration} ticks, cost ${cost})`);
+      const { at, duration, wait, cost } = session(id).grade(type, direction, planet);
+      const waiting = wait === Infinity ? 'waiting for production' : wait > 0 ? `wait ~${wait} + ` : '';
+      return ok(
+        `queued ${type} ${direction}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
+      );
     } catch (error) {
       return fail(error);
     }

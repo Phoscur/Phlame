@@ -115,11 +115,14 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       the log lives on the Empire (ADR 0012), `Phlame.actions` becomes a projection.
       Replay orchestration in the empire-level update: fast-forward concerned entities
       to each action's tick, apply in `(tick, seq)` order.
-- [ ] Building queue as first action type — `upgradeTime`/costs already exist on
-      `Economy`/`PhelopmentRequirement`; queue = actions with future consequences.
-      Semantics per the 2008 original: **Wartefunktion** — players may queue entries
-      regardless of current resources; the queue waits until each becomes affordable
-      (see docs/history.md, the Fusionskraftwerk post already shipped this design).
+- [x] Building queue as first action type — **Wartefunktion landed 2026-07**
+      (`phlame-mcp` branch): FIFO queue in `Phlame.update` waits until costs become
+      affordable (`Economy.ticksUntilAffordable`), fetches them, builds for
+      `upgradeTime` (with `minBuildTime` floor in the Phormulae), applies the grade;
+      queued actions serialize with the save and rehydrate (`EngineFactory`); UI queue
+      + cancel + e2e `build.spec` green. Known design debt: `Phlame.update` mutates
+      action payloads (`startedAt`, corrected `at`) — snapshot-friendly, but a tension
+      with the pure event log of ADR 0009; resolve when the empire log lands (above).
 - [ ] Persistence v2: save = genesis + empire action log (+ snapshot as cache);
       file/localStorage backends behind one interface. Supersedes parts of ADR 0008.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).

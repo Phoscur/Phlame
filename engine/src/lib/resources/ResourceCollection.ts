@@ -135,9 +135,9 @@ export class ResourceCollection<Types extends ResourceIdentifier> {
       const sameType = this.getByType(resource.type);
       return !!sameType && sameType.isMoreOrEquals(resource);
     }
-    return this.asArray.reduce((isMore: boolean, entry) => {
-      const sameType = resource.getByType(entry.type);
-      return isMore && !!sameType && entry.isMoreOrEquals(sameType);
+    return resource.asArray.reduce((isMore: boolean, entry) => {
+      const sameType = this.getByType(entry.type);
+      return isMore && !!sameType && sameType.isMoreOrEquals(entry);
     }, true);
   }
 

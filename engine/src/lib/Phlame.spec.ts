@@ -1,7 +1,7 @@
-import { Action, ActionType, ActionTypes } from './Action';
+import { Action, ActionType, ActionTypes, ActionFactory } from './Action';
 
 import examples, { Types } from './resources/examples';
-import { stock, phelopments, phlame, phormulae } from './examples';
+import { stock, phelopments, defaultPhelopments, phlame, phormulae } from './examples';
 import { ResourceCollection } from './resources/ResourceCollection';
 import { Stock } from './resources/Stock';
 import { Phlame } from './Phlame';
@@ -25,6 +25,7 @@ describe('Phlame Entity', () => {
     expect(phlame.toJSON()).to.eql({
       id: 'Phlame',
       tick: 0,
+      actions: [],
       ...eco.toJSON(),
     });
   });
@@ -67,6 +68,7 @@ describe('Phlame Entity', () => {
         payload: {
           phelopmentID: 2,
           grade: 'up',
+          startedAt: 11,
         },
       },
     };
@@ -113,6 +115,27 @@ describe('Phlame Entity', () => {
       'InAction (Processing energy&resources: -53/0 energy, 0/0 heat, Degraded to 0%, 1518salties(0, Infinity): 0, 0blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) ' +
         'Phelopment(12, 1, 0%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 2, 100%)',
     );
+  });
+
+  it('should wait for affordable costs before starting a build (Wartefunktion)', () => {
+    // L1 mines produce 30 tumbles + 20 salties/tick, stock starts at 3/3 -
+    // upgrading mine 1 costs 135 tumbles/33 salties: 5 ticks of waiting, then 4 ticks of building
+    const eco = new Economy('Eco', stock, defaultPhelopments, phormulae);
+    const waiting = new Phlame('Waiting', eco);
+    // a naive `at` estimate (duration only, like the service's initial guess) must NOT
+    // make the queued action silently expire while it waits to become affordable
+    waiting.add(new ActionFactory().updatePhelopment(4, waiting, 1, 'up', 'wartefunktion'));
+
+    waiting.update(9);
+
+    expect(waiting.lastTick).to.eql(9);
+    const { phelopments: built, stock: stocked, actions } = waiting.toJSON();
+    expect(built.find((p) => p.type === 1)?.level).to.eql(2);
+    expect(waiting.upcoming).to.have.length(0);
+    // costs were fetched at start (tick 5): 3 + 5*30 - 135 + 4*30 = 138 tumbles
+    expect(stocked.resources.find((r) => r.type === 'tumbles')?.amount).to.eql(138);
+    expect(stocked.resources.find((r) => r.type === 'salties')?.amount).to.eql(150);
+    expect(actions[0].consequence.payload['startedAt']).to.eql(5);
   });
 
   // TODO? it("should queue a maximum of a type of actions");

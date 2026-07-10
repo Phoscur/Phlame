@@ -1,14 +1,21 @@
 import { inject, injectable } from '@joist/di';
-import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable } from '@phlame/engine';
-import { Empire } from '@phlame/engine';
-import { type PhelopmentIdentifier, defaultPhelopments, emptyStock, phormulae } from './phelopments';
-import type { ResourceIdentifier } from './resources';
+import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable, ActionFactory, Empire } from '@phlame/engine';
+import { type PhelopmentIdentifier, defaultPhelopments, phormulae } from './phelopments';
+import { type ResourceIdentifier, MetallicResource, CrystallineResource, LiquidResource } from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
+import { Stock, ResourceCollection } from '@phlame/engine';
 
 export function emptyEconomy(name: string) {
+  const startStock = new Stock<ResourceIdentifier>(
+    ResourceCollection.fromArray([
+      new MetallicResource(10000),
+      new CrystallineResource(10000),
+      new LiquidResource(10000),
+    ])
+  );
   return new Economy<ResourceIdentifier, PhelopmentIdentifier>(
     name,
-    emptyStock,
+    startStock,
     defaultPhelopments,
     phormulae,
   );
@@ -78,6 +85,33 @@ export class EmpireService {
     this.#empires.add([this.#current]);
     this.#entities.add(empire.entities);
     return this;
+  }
+
+  queueGrade(planetId: ID, type: PhelopmentIdentifier, direction: 'up' | 'down') {
+    const planet = this.getEntity(planetId);
+    const { stock, phelopments } = planet.toJSON();
+    const economy = this.#engine().createEconomy({ name: `${planet.id}`, stock, phelopments });
+
+    const phelopment = economy.phelopments.find((p) => p.type === type);
+    if (!phelopment) {
+      throw new Error(`Unknown phelopment: ${type}`);
+    }
+    const duration =
+      direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
+    // estimate: chain behind the newest queued action (chronological FIFO queue);
+    // Phlame.update corrects `at` once waiting/start times are actually known
+    const lastQueued = planet.upcoming.at(-1);
+    const startTick = lastQueued ? lastQueued.consequence.at : planet.lastTick;
+    const at = startTick + duration;
+
+    const actionId = Math.random().toString(36).substring(2, 9);
+    planet.add(new ActionFactory().updatePhelopment(at, planet, type, direction, actionId));
+    return { at, duration, actionId };
+  }
+
+  cancelGrade(planetId: ID, actionId: string) {
+    const planet = this.getEntity(planetId);
+    planet.cancel(actionId);
   }
 }
 

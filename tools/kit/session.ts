@@ -102,15 +102,14 @@ export class GameSession {
   }
 
   /**
-   * Queue an up-/downgrade action (Wartefunktion semantics arrive with M1;
-   * for now the consequence lands after the build duration - cost deduction
-   * is still open engine work, see PLAN M1)
+   * Queue an up-/downgrade action (Wartefunktion: costs are fetched once affordable,
+   * the build starts then - Phlame.update corrects the estimate as time passes)
    */
   grade(
-    type: PhelopmentIdentifier,
+    type: string,
     direction: 'up' | 'down',
     planetID?: string,
-  ): { at: TimeUnit; duration: TimeUnit; cost: string } {
+  ): { at: TimeUnit; duration: TimeUnit; wait: TimeUnit; cost: string } {
     const planet = this.planet(planetID);
     const economy = this.economyView(planet);
     const phelopment = economy.phelopments.find((p) => p.type === type);
@@ -123,9 +122,12 @@ export class GameSession {
       direction === 'up' ? economy.upgradeCost(phelopment) : economy.downgradeCost(phelopment);
     const duration =
       direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
-    const at = this.currentTick + duration;
-    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction));
-    return { at, duration, cost: cost.prettyAmount };
+    const wait = economy.ticksUntilAffordable(cost);
+    const at = this.currentTick + (wait === Infinity ? duration : wait + duration);
+    // ids are generated here at the tool boundary - the engine stays pure (ADR 0009)
+    const id = Math.random().toString(36).substring(2, 9);
+    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction, id));
+    return { at, duration, wait, cost: cost.prettyAmount };
   }
 
   list(planetID?: string): PhelopmentRow[] {

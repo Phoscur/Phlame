@@ -35,6 +35,7 @@ export interface PhormulaeJSON {
   buildTimeDivisor: number;
   downgradeCostDivisor: number;
   rebalancingExponent: number;
+  minBuildTime: number;
   requirements: Partial<Record<PhelopmentIdentifier, PhelopmentRequirementJSON>>;
   prosumptions: Partial<Record<PhelopmentIdentifier, Partial<Record<ResourceIdentifier, PhormulaJSON>>>>;
 }
@@ -60,6 +61,7 @@ export class Phormulae {
     readonly buildTimeDivisor = 2500 / 60,
     readonly downgradeCostDivisor = 2,
     readonly rebalancingExponent = 1.1,
+    readonly minBuildTime = 2,
     readonly requirements: RequirementLookup<ResourceIdentifier, PhelopmentIdentifier> = {},
     readonly prosumptions: ProsumptionLookup<ResourceIdentifier, PhelopmentIdentifier> = {},
   ) {
@@ -84,6 +86,7 @@ export class Phormulae {
       this.buildTimeDivisor,
       this.downgradeCostDivisor,
       this.rebalancingExponent,
+      this.minBuildTime,
       requirements,
       prosumptions,
     );
@@ -162,13 +165,14 @@ export class Phormulae {
    * Canonical serialization - the future universe rules hash (ADR 0011) hashes this
    */
   toJSON(): PhormulaeJSON {
-    const { resourceTypes, energyTypes, buildTimeDivisor, downgradeCostDivisor, rebalancingExponent } = this;
+    const { resourceTypes, energyTypes, buildTimeDivisor, downgradeCostDivisor, rebalancingExponent, minBuildTime } = this;
     return {
       resourceTypes,
       energyTypes,
       buildTimeDivisor,
       downgradeCostDivisor,
       rebalancingExponent,
+      minBuildTime,
       requirements: Object.fromEntries(
         Object.entries(this.requirements).map(([type, requirement]) => [
           type,
