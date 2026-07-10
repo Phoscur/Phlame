@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { ActionFactory } from '@phlame/engine';
+import { ActionTypes } from '@phlame/engine';
 import { fromGenesis, genesisFor } from './services';
-import type { PhlameEntity } from './factory';
+import type { EmpireEntity } from './factory';
 import { phormulae } from './phelopments';
 
 /**
- * The standing M0 invariant (PLAN, ADR 0009/0012): deriving an empire from its genesis
- * and playing the same actions must yield the same state - no matter how the elapsed
- * time is split into update() calls. Lazy realtime (ADR 0002) depends on this: skipping
- * 100 ticks at once must equal 100 single ticks, through waiting queues and all.
+ * The standing M0 invariant (PLAN, ADR 0009/0012/0018): deriving an empire from its
+ * genesis and applying the command log must equal incremental play - for any tick
+ * split, through the waiting build queue. Lazy realtime (ADR 0002) depends on this:
+ * skipping 100 ticks at once must equal 100 single ticks.
  */
 const TARGET_TICK = 100;
 
@@ -16,14 +16,14 @@ function genesis() {
   return genesisFor('Determinismus', ['P1']);
 }
 
-function playbook(planet: PhlameEntity): PhlameEntity {
-  const factory = new ActionFactory();
-  // three queued builds at tick 0 - the FIFO Wartefunktion waits, fetches, builds;
-  // deterministic action ids, as the engine demands (ADR 0009/0019)
-  planet.add(factory.updatePhelopment(4, planet, 'mine-metallic', 'up', 'a1'));
-  planet.add(factory.updatePhelopment(8, planet, 'mine-crystalline', 'up', 'a2'));
-  planet.add(factory.updatePhelopment(12, planet, 'power-solar', 'up', 'a3'));
-  return planet;
+function enqueueGrade(empire: EmpireEntity, id: string, type: string, at?: number) {
+  const [planet] = empire.entities;
+  return empire.enqueue(
+    ActionTypes.UPDATE,
+    { id, phelopmentID: type, grade: 'up' },
+    [planet],
+    at,
+  );
 }
 
 describe('replay invariant (M0)', () => {
@@ -37,7 +37,14 @@ describe('replay invariant (M0)', () => {
   });
 
   it('replay ≡ incremental play, any tick split', () => {
-    const reference = playbook(fromGenesis(genesis()).entities[0]);
+    const playbook = (empire: EmpireEntity) => {
+      // three queued builds at tick 0 - the FIFO Wartefunktion waits, fetches, builds
+      enqueueGrade(empire, 'a1', 'mine-metallic');
+      enqueueGrade(empire, 'a2', 'mine-crystalline');
+      enqueueGrade(empire, 'a3', 'power-solar');
+      return empire;
+    };
+    const reference = playbook(fromGenesis(genesis()));
     reference.update(TARGET_TICK);
     const expected = JSON.stringify(reference.toJSON());
 
@@ -48,14 +55,31 @@ describe('replay invariant (M0)', () => {
       Array.from({ length: TARGET_TICK }, () => 1), // the hardest case: every single tick
     ];
     for (const split of splits) {
-      const planet = playbook(fromGenesis(genesis()).entities[0]);
+      const empire = playbook(fromGenesis(genesis()));
       let tick = 0;
       for (const step of split) {
         tick += step;
-        planet.update(tick);
+        empire.update(tick);
       }
       expect(tick).toBe(TARGET_TICK);
-      expect(JSON.stringify(planet.toJSON())).toBe(expected);
+      expect(JSON.stringify(empire.toJSON())).toBe(expected);
     }
+  });
+
+  it('replay(genesis, log) ≡ interactive play with commands over time (ADR 0012/0018)', () => {
+    // an interactive session: commands arrive at different ticks on the shared timeline
+    const live = fromGenesis(genesis());
+    enqueueGrade(live, 'b1', 'mine-metallic', 0);
+    live.update(10);
+    enqueueGrade(live, 'b2', 'power-solar', 10);
+    live.update(25);
+    enqueueGrade(live, 'b3', 'mine-metallic', 25);
+    live.update(TARGET_TICK);
+
+    // the authoritative save is genesis + command log; the snapshot is its cache
+    const replayed = fromGenesis(genesis()).applyLog(live.log, TARGET_TICK);
+    expect(JSON.stringify(replayed.toJSON())).toBe(JSON.stringify(live.toJSON()));
+    // including the regenerated consequence echoes - the verifiable echo (ADR 0018)
+    expect(replayed.echoes).toEqual(live.echoes);
   });
 });

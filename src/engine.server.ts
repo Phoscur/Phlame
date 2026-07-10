@@ -3,6 +3,7 @@ import type { EmpireJSON } from '@phlame/engine';
 import { Zeit, Zeitgeber } from './app/signals/zeitgeber';
 import { ConsoleDebug, Debug } from './app/debug.element';
 import { Data, NanoID } from './data.server';
+import { empireID, phlameID } from './app/engine/ids';
 import {
   PhelopmentIdentifier,
   EmpireEntity,
@@ -119,7 +120,8 @@ export class EngineService {
     const zeit = this.#zeit();
     const persistence = this.#persistence();
     const sid = persistence.generateID();
-    const session = this.createSession(sid, 'E-' + sid, 'P-' + sid, zeit.tick);
+    // empire and planet share the session's stem, typed by prefix (see ids.ts)
+    const session = this.createSession(sid, empireID(sid), phlameID(sid), zeit.tick);
     await this.saveSession(session);
     this.#empire().setup(session.empire);
     return session;

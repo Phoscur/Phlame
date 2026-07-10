@@ -26,6 +26,7 @@ describe('Phlame Entity', () => {
       id: 'Phlame',
       tick: 0,
       actions: [],
+      consequences: [],
       ...eco.toJSON(),
     });
   });
@@ -55,7 +56,17 @@ describe('Phlame Entity', () => {
 
   it('should queue and execute actions', () => {
     const eco = new Economy('Eco', stock, phelopments, phormulae);
-    const phlame = new Phlame('InAction', eco);
+    // the build started at tick 11 - recorded as a consequence echo, never written
+    // into the command itself (ADR 0018)
+    const phlame = new Phlame('InAction', eco, [], 0, [
+      {
+        id: 'legacy:started',
+        at: 11,
+        type: 'consequence',
+        concerns: ['InAction'],
+        payload: { action: 'legacy', event: 'started', phelopmentID: 2, grade: 'up' },
+      },
+    ]);
     expect(phlame.toString()).to.eql(
       'InAction (Processing energy&resources: 30/50 energy, 0/0 heat, 3salties(0, Infinity): +20, 15blubbs(0, Infinity): 0, 3tumbles(0, Infinity): 0) Phelopment(12, 1, 100%), Phelopment(3, 1, 100%), Phelopment(0, 1, 50%), Phelopment(2, 1, 100%)',
     );
@@ -66,9 +77,9 @@ describe('Phlame Entity', () => {
         type: ActionTypes.UPDATE,
         at: 15,
         payload: {
+          id: 'legacy',
           phelopmentID: 2,
           grade: 'up',
-          startedAt: 11,
         },
       },
     };
@@ -129,13 +140,16 @@ describe('Phlame Entity', () => {
     waiting.update(9);
 
     expect(waiting.lastTick).to.eql(9);
-    const { phelopments: built, stock: stocked, actions } = waiting.toJSON();
+    const { phelopments: built, stock: stocked, actions, consequences } = waiting.toJSON();
     expect(built.find((p) => p.type === 1)?.level).to.eql(2);
     expect(waiting.upcoming).to.have.length(0);
     // costs were fetched at start (tick 5): 3 + 5*30 - 135 + 4*30 = 138 tumbles
     expect(stocked.resources.find((r) => r.type === 'tumbles')?.amount).to.eql(138);
     expect(stocked.resources.find((r) => r.type === 'salties')?.amount).to.eql(150);
-    expect(actions[0].consequence.payload['startedAt']).to.eql(5);
+    // the command is untouched; start and completion are consequence echoes (ADR 0018)
+    expect(actions[0].consequence.payload['startedAt']).to.eql(undefined);
+    expect(consequences.find((c) => c.id === 'wartefunktion:started')?.at).to.eql(5);
+    expect(consequences.find((c) => c.id === 'wartefunktion:completed')?.at).to.eql(9);
   });
 
   it('should refuse to queue beyond the Phormulae-ruled slots', () => {

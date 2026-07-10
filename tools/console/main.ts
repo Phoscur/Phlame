@@ -36,6 +36,7 @@ commands: s, state            show empire, stock, production, queue
           save [name]         save to data/console/<name>.json
           load <name>         load from data/console/<name>.json
           id, phingerprint    show the universe identity (ADR 0011)
+          verify              replay(genesis, log) and compare with the live state
           q, quit             exit`;
 
 if (flags.help) {
@@ -148,6 +149,15 @@ for await (const line of rl) {
       case 'phingerprint':
         console.log(`universe ${session.phingerprint}`);
         break;
+      case 'verify': {
+        const { ok } = session.replayCheck();
+        console.log(
+          ok
+            ? 'ok: replay(genesis, log) ≡ live state'
+            : 'MISMATCH: replay diverged from live state - determinism bug, please report',
+        );
+        break;
+      }
       case 'q':
       case 'quit':
       case 'exit':

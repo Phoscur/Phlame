@@ -67,10 +67,16 @@ Game layer (`src/lib/`):
   (`prosumes(phelopment)`, `upgradeCost/Time(phelopment)`); `tick(cycles)` loops: advance
   while rates stay valid, then apply `recalculationStrategy` (halt phelopments whose
   consumption can't be met — sets their speed to 0) and continue.
-- **Phlame** — a planet entity: id + Economy + Action list + last tick.
-  `update(tick)` fast-forwards the economy. Actions/consequences are still skeletal
-  (`Action.ts` is an interface only — timewarping actions are the next roadmap item).
-- **Empire** — id + list of Phlames (`lastTick` = max of entities).
+- **Phlame** — a planet entity: id + Economy + its projected command queue + the
+  consequence echo log. `update(tick)` fast-forwards the economy while working the FIFO
+  build queue (Wartefunktion: wait until affordable, fetch the cost, build, apply) —
+  state transitions are appended as echoes (`${actionId}:started/:completed`, ADR 0018),
+  the commands themselves are never touched.
+- **Empire** — the aggregate root (ADR 0012): owns the trusted command log
+  (`enqueue` appends a `LogEntryJSON` in `(tick, seq)` order and projects Actions into
+  the concerned entities), `update(tick)` drives the shared timeline, and
+  `applyLog(entries, tick)` replays — `replay(genesis, log)` ≡ incremental play is the
+  standing invariant (see `EmpireLog.ts` for the save schema).
 - **examples.ts** — shared fixtures for tests and app defaults (`emptyStock`, `phelopments`).
 
 ## Commands

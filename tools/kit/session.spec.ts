@@ -73,10 +73,22 @@ describe('GameSession (console/MCP kit)', () => {
     const restored = GameSession.fromJSON(save);
     expect(restored.tick).toBe(10);
     expect(restored.state()).toContain('Saver');
-    // NOTE: queued (not yet applied) actions are not serialized yet - M1 log work
+    // the save is genesis + command log with the snapshot as cache (ADR 0012/0018) -
+    // a restored session still verifies against its own replay
+    expect(save.genesis.universe).toBe(phormulae.phingerprint);
+    expect(restored.replayCheck().ok).toBe(true);
 
     expect(() => GameSession.fromJSON({ ...save, phingerprint: 'deadbeef' })).toThrow(
       'Phingerprint mismatch',
     );
+  });
+
+  it('verifies itself: replay(genesis, log) matches the live state (flagship check)', () => {
+    const session = GameSession.create('Verified');
+    session.grade('mine-metallic', 'up');
+    session.advance(3);
+    session.grade('power-solar', 'up');
+    session.advance(47);
+    expect(session.replayCheck().ok).toBe(true);
   });
 });

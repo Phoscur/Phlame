@@ -70,23 +70,5 @@ export const EventTypes = {
 } as const;
 
 export type EventType = (typeof EventTypes)[keyof typeof EventTypes];
-export interface Event {
-  at: TimeUnit;
-  type: EventType;
-  concerns: ID;
-  action: Action<ActionType>;
-}
-
-export class EventFactory {
-  create(type: EventType, at: TimeUnit, concerns: ID, action: Action<ActionType>): Event {
-    return {
-      at,
-      type,
-      concerns,
-      action,
-    };
-  }
-  fromAction(at: TimeUnit, action: Action<ActionType>): Event {
-    return this.create(EventTypes.ACTION, at, action.concerns.id, action);
-  }
-}
+// the old Event/EventFactory shapes are superseded by ConsequenceJSON (EmpireLog.ts,
+// ADR 0018): consequences are appended echoes derived by update(), never wrapped actions

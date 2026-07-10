@@ -6,7 +6,7 @@ import { Empire } from './Empire';
 import examples, { Types } from './resources/examples';
 import { phelopments, phormulae } from './examples';
 import type { PhelopmentIdentifier } from './Phelopment';
-import { ActionFactory, EventFactory } from './Action';
+import { ActionTypes } from './Action';
 
 describe('Empire Entity', () => {
   it('should be console printable', () => {
@@ -27,7 +27,7 @@ describe('Empire Entity', () => {
     expect(empire.toJSON()).to.eql({
       id: 'Empirial',
       entities: [phlame.toJSON()],
-      events: [],
+      log: [],
     });
   });
 
@@ -42,12 +42,31 @@ describe('Empire Entity', () => {
     // thanks copilot
   });
 
-  it('should add events', () => {
-    const empire = new Empire('Empire', []);
-    const action = new ActionFactory().createPhelopment(1, empire, 4);
-    const event = new EventFactory().fromAction(0, action);
-    empire.addEvent(event);
-    expect(empire.events).to.have.lengthOf(1);
-    expect(empire.events[0]).to.eql(event);
+  it('owns the trusted command log and projects into entities (ADR 0012)', () => {
+    const { t3, s3 } = examples;
+    const stock = new Stock<Types>(ResourceCollection.fromArray([t3, s3]));
+    const eco = new Economy('Eco', stock, phelopments, phormulae);
+    const phlame = new Phlame<Types, PhelopmentIdentifier>('P1', eco);
+    const empire = new Empire('Empire', [phlame]);
+
+    const entry = empire.enqueue(ActionTypes.UPDATE, { id: 'a1', phelopmentID: 2, grade: 'up' }, [
+      phlame,
+    ]);
+    expect(entry.seq).to.eql(0);
+    expect(entry.concerns).to.eql(['P1']);
+    expect(empire.log).to.have.lengthOf(1);
+    // the projection landed in the concerned entity's queue
+    expect(phlame.upcoming).to.have.lengthOf(1);
+    expect(phlame.upcoming[0].consequence.payload['id']).to.eql('a1');
+    // seq grows strictly monotonic
+    const second = empire.enqueue(ActionTypes.UPDATE, { id: 'a2', phelopmentID: 2, grade: 'up' }, [
+      phlame,
+    ]);
+    expect(second.seq).to.eql(1);
+    // commands for unknown entities are refused
+    const stranger = new Phlame<Types, PhelopmentIdentifier>('Ghost', eco);
+    expect(() =>
+      empire.enqueue(ActionTypes.UPDATE, { id: 'a3', phelopmentID: 2, grade: 'up' }, [stranger]),
+    ).to.throw('Unknown entity: Ghost');
   });
 });
