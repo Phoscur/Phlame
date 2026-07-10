@@ -14,7 +14,8 @@ npm run console -- --tickms 200 --realtime
 npm run console -- --load mygame   # resume from data/console/mygame.json
 ```
 
-REPL: `state`, `list`, `tick 100`, `up mine-metallic`, `save mygame`, `help`, `quit`.
+REPL: `state`, `list`, `tick 100`, `up mine-metallic`, `cancel <id>`, `save mygame`,
+`help`, `quit`.
 In realtime mode `tick n` timewarps ahead of the clock. Saves live in `data/console/`
 (runtime folder, never committed).
 
@@ -22,7 +23,7 @@ In realtime mode `tick n` timewarps ahead of the clock. Saves live in `data/cons
 
 stdio server, registered in [.mcp.json](../.mcp.json) — Claude Code picks it up as
 `phlame` after approval. Tools: `new_session`, `state`, `advance_ticks`,
-`list_phelopments`, `grade_phelopment`, `dump_session`, `restore_session`.
+`list_phelopments`, `grade_phelopment`, `cancel_action`, `dump_session`, `restore_session`.
 Sessions are in-memory (dump/restore is the insurance across restarts). Never
 `console.log` in the server — stdout is the protocol channel, diagnostics go to stderr.
 

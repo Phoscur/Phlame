@@ -17,16 +17,15 @@ jobs:
       - run: npx --yes oxlint@1.72.0 --deny-warnings
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [24.x]
+    # no version matrix: a single Node version keeps the check name stable
+    # ("Test & Typecheck") for the required-checks branch protection on master
     name: Test & Typecheck
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Typecheck - TSC

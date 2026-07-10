@@ -41,6 +41,21 @@ describe('GameSession (console/MCP kit)', () => {
     expect(session.upcoming()).toHaveLength(0);
   });
 
+  it('cancels a queued action by id, but not twice', () => {
+    const session = GameSession.create('Canceller');
+    const { id } = session.grade('mine-metallic', 'up');
+    expect(session.upcoming()).toHaveLength(1);
+    expect(session.state()).toContain(`[${id}] mine-metallic up`);
+
+    expect(session.cancel(id)).toBe(true);
+    expect(session.upcoming()).toHaveLength(0);
+    expect(session.cancel(id)).toBe(false);
+
+    // the cancelled build never happens
+    session.advance(50);
+    expect(session.list().find((r) => r.type === 'mine-metallic')?.level).toBe(1);
+  });
+
   it('rejects unknown phelopments and planets with helpful errors', () => {
     const session = GameSession.create('Errors');
     expect(() => session.grade('warp-gate', 'up')).toThrow('Unknown phelopment: warp-gate');

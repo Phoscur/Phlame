@@ -40,10 +40,10 @@ Small decisions that get expensive to change once actions & persistence formats 
       JSON; and injection is done — `Phormulae.current` and all static shims are gone,
       every `Economy` takes its Phormulae explicitly. No hidden global state remains.
       Still open (M1): wire the Phingerprint into the save/action-schema.
-- [ ] CI green ✓ (both workflows pass on the PR, Node 24, oxlint fast-fail;
-      `npm ci` aligned 2026-07) — but not *enforced*: master has no branch protection,
-      so nothing requires the checks. Decide: protect master with required checks
-      (changes the direct-push-to-master flow for docs commits) or accept trust-based.
+- [x] CI green and **enforced** (2026-07): both workflows pass; master branch protection
+      requires "Lint (fast fail)", "Test & Typecheck" and "e2e (playwright)" with
+      `enforce_admins` — no direct pushes to master anymore, everything lands via green
+      PRs. Check names hardened (matrix suffix removed, playwright job named).
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
 - [ ] **License guardrail**: decide whether `engine/` switches to Apache-2.0 *before*
