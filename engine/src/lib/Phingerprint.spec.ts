@@ -53,7 +53,8 @@ describe('Phingerprint', () => {
       expect(new Phormulae(['gold'], []).phingerprint).not.toBe(a.phingerprint);
     });
     it('is stable for the base rules (golden value guards against algorithm drift)', () => {
-      expect(new Phormulae().phingerprint).toBe('4b2f19b4');
+      // changed 2026-07: queueSlots joined the rules - new rules, new universe (ADR 0011)
+      expect(new Phormulae().phingerprint).toBe('a63662e2');
     });
   });
 });

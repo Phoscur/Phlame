@@ -64,11 +64,19 @@ describe('Phormulae', () => {
       downgradeCostDivisor: 2,
       rebalancingExponent: 1.1,
       minBuildTime: 2,
+      queueSlots: { kind: 'constant', value: 5 },
       requirements: {},
       prosumptions: {
         mine: { gold: { kind: 'polynomial', coefficient: 30, exponent: 1.1 } },
       },
     });
+  });
+
+  it('rules the build queue capacity as a Phormula', () => {
+    expect(new Phormulae().queueSlots.at(0)).toBe(5);
+    // a future phelopment can drive it: e.g. constant base via level-polynomial config
+    const roomy = new Phormulae([], [], 40, 2, 1.1, 2, Phormula.constant(9));
+    expect(roomy.queueSlots.at(0)).toBe(9);
   });
 
   it('carries the rebalancing exponent as data (no static shim)', () => {

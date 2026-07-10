@@ -16,13 +16,22 @@ describe('Phormula', () => {
     expect(Phormula.zero().toString()).to.eql('Phormula[0]');
   });
 
+  it('should hold level-independent rule values as constants', () => {
+    const slots = Phormula.constant(5);
+    expect(slots.at(0)).to.eql(5);
+    expect(slots.at(42)).to.eql(5);
+    expect(slots.toString()).to.eql('Phormula[5]');
+  });
+
   it('should serialize canonically and round-trip', () => {
     const polynomial = Phormula.polynomial(20, 1.2);
     expect(polynomial.toJSON()).to.eql({ kind: 'polynomial', coefficient: 20, exponent: 1.2 });
     expect(Phormula.zero().toJSON()).to.eql({ kind: 'zero' });
+    expect(Phormula.constant(5).toJSON()).to.eql({ kind: 'constant', value: 5 });
 
     const revived = Phormula.fromJSON(polynomial.toJSON());
     expect(revived.at(3)).to.eql(polynomial.at(3));
     expect(Phormula.fromJSON({ kind: 'zero' }).at(3)).to.eql(0);
+    expect(Phormula.fromJSON({ kind: 'constant', value: 7 }).at(3)).to.eql(7);
   });
 });

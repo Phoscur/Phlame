@@ -183,7 +183,7 @@ export class GameSession {
       const queued = planet.upcoming;
       if (queued.length) {
         lines.push(
-          `  queued: ${queued
+          `  queued (${queued.length}/${planet.queueSlots}): ${queued
             .map(
               (a) =>
                 `[${String(a.consequence.payload.id)}] ${String(a.consequence.payload.phelopmentID)} ${String(a.consequence.payload.grade)} ~@${a.consequence.at}`,

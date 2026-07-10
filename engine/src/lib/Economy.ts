@@ -104,6 +104,14 @@ export class Economy<
     return this.buildTime(this.downgradeCost(phelopment));
   }
 
+  /**
+   * Build queue capacity from the Phormulae - evaluated at level 0 until a
+   * phelopment drives it (robots/command center, M2); at least one slot
+   */
+  get queueSlots(): number {
+    return Math.max(1, Math.floor(this.phormulae.queueSlots.at(0)));
+  }
+
   protected buildTime(costs: ResourceCollection<ResourceType>): TimeUnit {
     return Math.max(
       this.phormulae.minBuildTime,

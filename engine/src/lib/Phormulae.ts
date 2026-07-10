@@ -36,6 +36,7 @@ export interface PhormulaeJSON {
   downgradeCostDivisor: number;
   rebalancingExponent: number;
   minBuildTime: number;
+  queueSlots: PhormulaJSON;
   requirements: Partial<Record<PhelopmentIdentifier, PhelopmentRequirementJSON>>;
   prosumptions: Partial<Record<PhelopmentIdentifier, Partial<Record<ResourceIdentifier, PhormulaJSON>>>>;
 }
@@ -62,6 +63,9 @@ export class Phormulae {
     readonly downgradeCostDivisor = 2,
     readonly rebalancingExponent = 1.1,
     readonly minBuildTime = 2,
+    // build queue capacity - a Phormula so it can grow with a phelopment level later
+    // (robots/command center, M2); evaluated at level 0 until something drives it
+    readonly queueSlots: Phormula = Phormula.constant(5),
     readonly requirements: RequirementLookup<ResourceIdentifier, PhelopmentIdentifier> = {},
     readonly prosumptions: ProsumptionLookup<ResourceIdentifier, PhelopmentIdentifier> = {},
   ) {
@@ -87,6 +91,7 @@ export class Phormulae {
       this.downgradeCostDivisor,
       this.rebalancingExponent,
       this.minBuildTime,
+      this.queueSlots,
       requirements,
       prosumptions,
     );
@@ -173,6 +178,7 @@ export class Phormulae {
       downgradeCostDivisor,
       rebalancingExponent,
       minBuildTime,
+      queueSlots: this.queueSlots.toJSON(),
       requirements: Object.fromEntries(
         Object.entries(this.requirements).map(([type, requirement]) => [
           type,
