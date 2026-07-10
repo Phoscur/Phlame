@@ -13,7 +13,13 @@ import { timingSafeEqual } from 'node:crypto';
 
 function authMiddleware(token: string) {
   const expected = Buffer.from(token, 'utf8');
-  return async (c: { req: { header: (name: string) => string | undefined }; json: (body: unknown, status: number) => Response }, next: () => Promise<void>) => {
+  return async (
+    c: {
+      req: { header: (name: string) => string | undefined };
+      json: (body: unknown, status: number) => Response;
+    },
+    next: () => Promise<void>,
+  ) => {
     const auth = c.req.header('Authorization');
     if (!auth?.startsWith('Bearer ')) {
       return c.json({ error: 'missing or malformed Authorization header' }, 401);

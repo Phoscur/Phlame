@@ -193,6 +193,11 @@ export const emptyResourceCollection = ResourceCollection.fromArray<ResourceType
 ]);
 export const stock = new Stock<Resources>(resourceCollection);
 export const emptyStock = new Stock<Resources>(emptyResourceCollection);
-export const economy = new Economy<Resources, PhelopmentID>('Eco', stock, defaultPhelopments, phormulae);
+export const economy = new Economy<Resources, PhelopmentID>(
+  'Eco',
+  stock,
+  defaultPhelopments,
+  phormulae,
+);
 export const phlame = new Phlame<Resources, PhelopmentID>('Phlame', economy);
 export const empire = new Empire<Resources, PhelopmentID>('Empire', [phlame]);

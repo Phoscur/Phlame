@@ -8,7 +8,7 @@ export interface PhelopmentJSON<Type extends PhelopmentIdentifier> {
   type: Type;
   level: number;
   speed: number;
-};
+}
 
 /**
  * Phelopment - pure state, exactly its JSON: type, level, speed (ADR 0015)

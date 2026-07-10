@@ -18,12 +18,7 @@ function genesis() {
 
 function enqueueGrade(empire: EmpireEntity, id: string, type: string, at?: number) {
   const [planet] = empire.entities;
-  return empire.enqueue(
-    ActionTypes.UPDATE,
-    { id, phelopmentID: type, grade: 'up' },
-    [planet],
-    at,
-  );
+  return empire.enqueue(ActionTypes.UPDATE, { id, phelopmentID: type, grade: 'up' }, [planet], at);
 }
 
 describe('replay invariant (M0)', () => {

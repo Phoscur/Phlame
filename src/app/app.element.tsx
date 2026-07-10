@@ -141,18 +141,18 @@ export class AppElement extends HTMLElement {
     this.addEventListener('phlame:cancel', this.#handleCancel);
     const logger = this.#logger();
     const zeit = this.#zeit();
-    
+
     // Normal tick re-render
     const destroyTick = zeit.effect(() => {
       const tick = zeit.tick;
       if (!tick) return;
       const i18n = this.#i18n();
       const empire = this.#empire().current;
-      
+
       for (const entity of empire.entities) {
         entity.update(tick);
       }
-      
+
       render(gameToJSX(i18n.translate, empire), this.game);
     });
 

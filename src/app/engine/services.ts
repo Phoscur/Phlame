@@ -1,8 +1,22 @@
 import { inject, injectable } from '@joist/di';
-import { Economy, type EmpireJSON, Entity, Phlame, type ID, ResourceTable, ActionTypes, Empire } from '@phlame/engine';
+import {
+  Economy,
+  type EmpireJSON,
+  Entity,
+  Phlame,
+  type ID,
+  ResourceTable,
+  ActionTypes,
+  Empire,
+} from '@phlame/engine';
 import type { GenesisJSON } from '@phlame/engine';
 import { type PhelopmentIdentifier, defaultPhelopments, phormulae } from './phelopments';
-import { type ResourceIdentifier, MetallicResource, CrystallineResource, LiquidResource } from './resources';
+import {
+  type ResourceIdentifier,
+  MetallicResource,
+  CrystallineResource,
+  LiquidResource,
+} from './resources';
 import { type EmpireEntity, EngineFactory } from './factory';
 import { actionID } from './ids';
 import { Stock, ResourceCollection } from '@phlame/engine';
@@ -13,7 +27,7 @@ export function emptyEconomy(name: string) {
       new MetallicResource(10000),
       new CrystallineResource(10000),
       new LiquidResource(10000),
-    ])
+    ]),
   );
   return new Economy<ResourceIdentifier, PhelopmentIdentifier>(
     name,
@@ -128,9 +142,12 @@ export class EmpireService {
     const duration =
       direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
     // display estimate only - actual start/completion are consequence echoes (ADR 0018)
-    const at = planet.lastTick + economy.ticksUntilAffordable(
-      direction === 'up' ? economy.upgradeCost(phelopment) : economy.downgradeCost(phelopment),
-    ) + duration;
+    const at =
+      planet.lastTick +
+      economy.ticksUntilAffordable(
+        direction === 'up' ? economy.upgradeCost(phelopment) : economy.downgradeCost(phelopment),
+      ) +
+      duration;
 
     const actionId = actionID();
     // the command enters through the empire's trusted log (ADR 0012)

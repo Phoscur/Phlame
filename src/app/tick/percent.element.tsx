@@ -21,7 +21,7 @@ export class PercentElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const percent = this.getElementsByClassName('percent')[0] as HTMLElement|undefined;
+    const percent = this.getElementsByClassName('percent')[0] as HTMLElement | undefined;
     if (!percent) {
       return;
     }

@@ -21,8 +21,7 @@ export interface EmpireJSON<
 export class Empire<
   ResourceType extends ResourceIdentifier,
   PhelopmentType extends PhelopmentIdentifier,
-> implements Entity
-{
+> implements Entity {
   constructor(
     public id: ID,
     public entities: Phlame<ResourceType, PhelopmentType>[],

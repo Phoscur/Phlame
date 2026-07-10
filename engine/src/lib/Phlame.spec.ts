@@ -160,9 +160,9 @@ describe('Phlame Entity', () => {
     for (let i = 0; i < 5; i++) {
       crowded.add(factory.updatePhelopment(90 + i, crowded, 1, 'up', `q${i}`));
     }
-    expect(() =>
-      crowded.add(factory.updatePhelopment(99, crowded, 1, 'up', 'overflow')),
-    ).to.throw('Queue is full (5/5)');
+    expect(() => crowded.add(factory.updatePhelopment(99, crowded, 1, 'up', 'overflow'))).to.throw(
+      'Queue is full (5/5)',
+    );
     // a slot frees up once a consequence applies
     crowded.update(50);
     expect(crowded.upcoming.length).to.be.lessThan(5);

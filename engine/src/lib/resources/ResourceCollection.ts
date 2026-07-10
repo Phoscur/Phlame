@@ -13,8 +13,7 @@ export type ResourceCollectionEntries<Types extends ResourceIdentifier> = {
 };
 
 export type ResourcesLike<Types extends ResourceIdentifier> =
-  | ComparableResource<Types>
-  | ResourceCollection<Types>;
+  ComparableResource<Types> | ResourceCollection<Types>;
 
 // Cannot use <Types extends BaseResources>, because
 // TypeScript enums are finite/closed: https://github.com/microsoft/TypeScript/issues/17592#issuecomment-528993663

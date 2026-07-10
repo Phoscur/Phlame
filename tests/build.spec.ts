@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // TDD spec for the M1 building queue (see PLAN.md)
 test('queue build action', async ({ page }) => {
-  page.on('console', msg => console.log(msg.text()));
+  page.on('console', (msg) => console.log(msg.text()));
   await page.clock.install();
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Planet', exact: true })).toBeVisible();
@@ -19,7 +19,9 @@ test('queue build action', async ({ page }) => {
 
   // expect the queue to be empty (unqueued)
   await expect(page.locator('.buildingQueue li')).toHaveCount(0);
-  
+
   // expect the building list to show the new level
-  await expect(page.locator('.buildingList li').filter({ hasText: 'mine-metallic - Level 2' })).toBeVisible();
+  await expect(
+    page.locator('.buildingList li').filter({ hasText: 'mine-metallic - Level 2' }),
+  ).toBeVisible();
 });

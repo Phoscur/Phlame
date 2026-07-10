@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'hono/jsx';
 
 export interface Icon {
   className?: string;
-};
+}
 
 export const MetallicIcon = ({ className }: PropsWithChildren<Icon> = { className: '' }) => (
   <>

@@ -1,4 +1,11 @@
-import { phingerprint, canonicalJSON, Phormulae, Phormula, PhelopmentRequirement, ResourceCollection } from '..';
+import {
+  phingerprint,
+  canonicalJSON,
+  Phormulae,
+  Phormula,
+  PhelopmentRequirement,
+  ResourceCollection,
+} from '..';
 
 describe('Phingerprint', () => {
   it('should sort object keys but keep array order', () => {
