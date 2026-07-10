@@ -25,11 +25,13 @@ older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two part
 - `npm run tsc` && `npm run lint` — typecheck + eslint (run both before considering work done)
 - `npm run e2e` — Playwright; starts the dev server itself (reuses a running one locally)
 
-**Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)): use the
-`:docker` variants — `test:docker`, `tsc:docker`, `lint:docker`, `e2e:docker`,
-`screenshot:docker` (first run: `npm run containers:build`). Browser automation NEVER
-runs ad hoc on the host — no generated one-off scripts; screenshots go through
-`tests/screenshot.spec.ts`.
+**Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)):
+preferred interface is the **phorge** MCP (`status`, `run(test|tsc|lint|e2e|screenshot)`,
+`screenshot`, `logs`, `build`, `down`); the npm `:docker` variants (`test:docker` etc.,
+first run: `npm run containers:build`) are the fallback. Browser automation NEVER runs
+ad hoc on the host — no generated one-off scripts; screenshots go through
+`tests/screenshot.spec.ts`. The game sandbox is the separate **phlame-game** MCP
+([PLAN-MCP.md](./PLAN-MCP.md)).
 
 ## Hard rules
 

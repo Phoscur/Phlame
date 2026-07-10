@@ -8,7 +8,7 @@ import { GameSession, type SessionSave } from '../kit/session';
  * stdio transport - stdout is the protocol channel, so never console.log here;
  * diagnostics go to stderr.
  */
-const server = new McpServer({ name: 'phlame', version: '0.1.0' });
+const server = new McpServer({ name: 'phlame-game', version: '0.1.0' });
 
 // in-memory multi-session sandbox (process-volatile by design; dump/restore is the insurance)
 const sessions = new Map<string, GameSession>();
@@ -213,4 +213,4 @@ server.registerTool(
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error('phlame mcp server ready (stdio)');
+console.error('phlame-game mcp server ready (stdio)');
