@@ -14,12 +14,43 @@ import { PhlameEntity } from './engine';
 import { ActionTypes } from '@phlame/engine';
 
 function getIconFor(type: string) {
-  if (type === 'mine-metallic') return <><MetallicIcon /><MineIcon /></>;
-  if (type === 'mine-crystalline') return <><CrystallineIcon className="text-crystalline-dark" /><MineIcon /></>;
-  if (type === 'synthesizer-liquid') return <><BubblesIcon /><MineIcon /></>;
-  if (type === 'plant-solar') return <><EnergyIcon className="text-energy-dark" /><PowerPlantSolarIcon className="text-energy-primary" /></>;
-  if (type === 'plant-fusion') return <><EnergyIcon className="text-energy-dark" /><PowerPlantFusionIcon className="text-energy-primary" /></>;
-  if (type === 'silo-metallic' || type === 'silo-crystalline' || type === 'tank-liquid') return <SiloIcon />;
+  if (type === 'mine-metallic')
+    return (
+      <>
+        <MetallicIcon />
+        <MineIcon />
+      </>
+    );
+  if (type === 'mine-crystalline')
+    return (
+      <>
+        <CrystallineIcon className="text-crystalline-dark" />
+        <MineIcon />
+      </>
+    );
+  if (type === 'synthesizer-liquid')
+    return (
+      <>
+        <BubblesIcon />
+        <MineIcon />
+      </>
+    );
+  if (type === 'plant-solar')
+    return (
+      <>
+        <EnergyIcon className="text-energy-dark" />
+        <PowerPlantSolarIcon className="text-energy-primary" />
+      </>
+    );
+  if (type === 'plant-fusion')
+    return (
+      <>
+        <EnergyIcon className="text-energy-dark" />
+        <PowerPlantFusionIcon className="text-energy-primary" />
+      </>
+    );
+  if (type === 'silo-metallic' || type === 'silo-crystalline' || type === 'tank-liquid')
+    return <SiloIcon />;
   return <MineIcon />;
 }
 
@@ -34,7 +65,7 @@ function getColorClassFor(type: string) {
 export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
   const phelopments = planet.toJSON().phelopments;
   // find queued update phelopment actions
-  const queue = planet.upcoming.filter(a => a.type === ActionTypes.UPDATE);
+  const queue = planet.upcoming.filter((a) => a.type === ActionTypes.UPDATE);
 
   return (
     <>
@@ -70,9 +101,10 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
         </div>
         <br class="mb-[200px]" />
         <ul class="buildingQueue">
-          {queue.map(a => {
-            const payload = a.consequence.payload as { phelopmentID: string, grade: 'up'|'down' };
-            const currentLevel = phelopments.find(p => p.type === payload.phelopmentID)?.level ?? 0;
+          {queue.map((a) => {
+            const payload = a.consequence.payload as { phelopmentID: string; grade: 'up' | 'down' };
+            const currentLevel =
+              phelopments.find((p) => p.type === payload.phelopmentID)?.level ?? 0;
             const level = payload.grade === 'up' ? currentLevel + 1 : currentLevel - 1;
             return (
               <li class={`${getColorClassFor(payload.phelopmentID)} flex flex-columns`}>
@@ -91,7 +123,7 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
           })}
         </ul>
         <ul class="buildingList">
-          {phelopments.map(p => (
+          {phelopments.map((p) => (
             <li class={`${getColorClassFor(p.type)} flex flex-columns`}>
               {getIconFor(p.type)}
               {p.type} - {t('building.level')} {p.level}
@@ -125,7 +157,7 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
 
 export class PlanetElement extends HTMLElement {
   public static observedAttributes = [];
-  
+
   connectedCallback() {
     this.addEventListener('click', (e: Event) => {
       const target = e.target as HTMLElement;
@@ -135,11 +167,13 @@ export class PlanetElement extends HTMLElement {
         const direction = gradeBtn.dataset.direction;
         const planetId = gradeBtn.dataset.planet;
         if (type && direction && planetId) {
-          this.dispatchEvent(new CustomEvent('phlame:grade', {
-            bubbles: true,
-            composed: true,
-            detail: { type, direction, planetId }
-          }));
+          this.dispatchEvent(
+            new CustomEvent('phlame:grade', {
+              bubbles: true,
+              composed: true,
+              detail: { type, direction, planetId },
+            }),
+          );
         }
         return;
       }
@@ -148,14 +182,15 @@ export class PlanetElement extends HTMLElement {
         const actionId = cancelBtn.dataset.actionId;
         const planetId = cancelBtn.dataset.planet;
         if (actionId && planetId) {
-          this.dispatchEvent(new CustomEvent('phlame:cancel', {
-            bubbles: true,
-            composed: true,
-            detail: { actionId, planetId }
-          }));
+          this.dispatchEvent(
+            new CustomEvent('phlame:cancel', {
+              bubbles: true,
+              composed: true,
+              detail: { actionId, planetId },
+            }),
+          );
         }
       }
     });
   }
 }
-

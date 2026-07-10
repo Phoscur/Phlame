@@ -1,7 +1,13 @@
 import { Economy } from './Economy';
 import { ResourceCollection, ResourceProcess, Stock } from './resources';
 import { TumbleResource, BlubbResource, SaltyResource, ResourceTypes } from './resources/examples';
-import { stock, phelopments, overconsumingPhelopments, underBlubberPhelopments, phormulae } from './examples';
+import {
+  stock,
+  phelopments,
+  overconsumingPhelopments,
+  underBlubberPhelopments,
+  phormulae,
+} from './examples';
 
 /**
  * At first glance, an Economy is like a Planet from our ancestorial game, however it covers edge cases differently:

@@ -123,7 +123,8 @@ server.registerTool(
   ({ session: id, type, direction, planet }) => {
     try {
       const { id: actionId, at, duration, wait, cost } = session(id).grade(type, direction, planet);
-      const waiting = wait === Infinity ? 'waiting for production' : wait > 0 ? `wait ~${wait} + ` : '';
+      const waiting =
+        wait === Infinity ? 'waiting for production' : wait > 0 ? `wait ~${wait} + ` : '';
       return ok(
         `queued [${actionId}] ${type} ${direction}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
       );

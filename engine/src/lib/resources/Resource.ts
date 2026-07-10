@@ -8,7 +8,7 @@ export { BaseResources };
 export interface ResourceJSON<Type extends ResourceIdentifier> {
   type: Type;
   amount: number;
-};
+}
 
 export interface ResourceValue<Type extends ResourceIdentifier> {
   readonly type: Type;

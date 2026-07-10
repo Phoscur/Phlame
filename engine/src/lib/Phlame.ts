@@ -21,9 +21,10 @@ function actionID(action: Action<ActionType>): string {
   return String(action.consequence.payload['id']);
 }
 
-export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends PhelopmentIdentifier>
-  implements Entity
-{
+export class Phlame<
+  ResourceType extends ResourceIdentifier,
+  UnitType extends PhelopmentIdentifier,
+> implements Entity {
   constructor(
     public readonly id: ID,
     private economy: Economy<ResourceType, UnitType>,
@@ -154,7 +155,9 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
           this.tick = completionTick;
         }
         this.economy =
-          grade === 'up' ? this.economy.upgrade(phelopmentID) : this.economy.downgrade(phelopmentID);
+          grade === 'up'
+            ? this.economy.upgrade(phelopmentID)
+            : this.economy.downgrade(phelopmentID);
         this.echo(active, 'completed', completionTick);
         continue;
       }

@@ -1,10 +1,4 @@
-import {
-  BaseResources,
-  Phormula,
-  Phormulae,
-  PhelopmentRequirement,
-  ResourceCollection,
-} from '..';
+import { BaseResources, Phormula, Phormulae, PhelopmentRequirement, ResourceCollection } from '..';
 
 describe('Phormulae', () => {
   it('should default to the base rules', () => {

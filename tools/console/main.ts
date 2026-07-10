@@ -66,7 +66,9 @@ function catchUp() {
   if (zeit) session.advanceTo(zeit.tick);
 }
 
-console.log(`Phlame [universe ${session.phingerprint}]${zeit ? ` - realtime, ${msPerTick}ms/tick` : ' - manual ticks'}`);
+console.log(
+  `Phlame [universe ${session.phingerprint}]${zeit ? ` - realtime, ${msPerTick}ms/tick` : ' - manual ticks'}`,
+);
 console.log(`type "help" for commands\n`);
 console.log(session.state());
 
@@ -104,7 +106,8 @@ for await (const line of rl) {
       case 't':
       case 'tick': {
         const n = Number(args[0] ?? 1);
-        if (!Number.isInteger(n) || n <= 0) throw new Error(`tick needs a positive integer, got: ${args[0]}`);
+        if (!Number.isInteger(n) || n <= 0)
+          throw new Error(`tick needs a positive integer, got: ${args[0]}`);
         if (zeit) {
           // timewarp ahead of realtime: hold the Zeitgeber's view, keep counting from there
           zeit.start(zeit.now, session.tick + n);
@@ -117,15 +120,21 @@ for await (const line of rl) {
       case 'down': {
         const type = args[0];
         if (!type) throw new Error(`usage: ${command} <type> [planet]`);
-        const { id, at, duration, wait, cost } = session.grade(type, command as 'up' | 'down', args[1]);
-        const waiting = wait === Infinity ? 'waiting for production, ' : wait > 0 ? `wait ~${wait} + ` : '';
+        const { id, at, duration, wait, cost } = session.grade(
+          type,
+          command as 'up' | 'down',
+          args[1],
+        );
+        const waiting =
+          wait === Infinity ? 'waiting for production, ' : wait > 0 ? `wait ~${wait} + ` : '';
         console.log(
           `queued [${id}] ${type} ${command}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
         );
         break;
       }
       case 'cancel': {
-        if (!args[0]) throw new Error('usage: cancel <actionId> [planet] (ids show in state/queued)');
+        if (!args[0])
+          throw new Error('usage: cancel <actionId> [planet] (ids show in state/queued)');
         console.log(
           session.cancel(args[0], args[1])
             ? `cancelled [${args[0]}]`

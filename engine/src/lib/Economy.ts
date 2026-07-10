@@ -22,7 +22,7 @@ export interface EconomyJSON<
   phelopments: PhelopmentJSON<PhelopmentType>[];
   stock: StockJSON<ResourceType>;
   name: string;
-};
+}
 
 /**
  * Economy is the sum of production and consumption of resources and energy
@@ -84,16 +84,23 @@ export class Economy<
     );
   }
 
-  upgradeCost(phelopment: Phelopment<ResourceType, PhelopmentType>): ResourceCollection<ResourceType> {
+  upgradeCost(
+    phelopment: Phelopment<ResourceType, PhelopmentType>,
+  ): ResourceCollection<ResourceType> {
     return this.phormulae
       .requirementFor(phelopment.type)
       .getUpgradeCost(phelopment.level + 1) as ResourceCollection<ResourceType>;
   }
 
-  downgradeCost(phelopment: Phelopment<ResourceType, PhelopmentType>): ResourceCollection<ResourceType> {
+  downgradeCost(
+    phelopment: Phelopment<ResourceType, PhelopmentType>,
+  ): ResourceCollection<ResourceType> {
     return this.phormulae
       .requirementFor(phelopment.type)
-      .getDowngradeCost(phelopment.level + 1, this.phormulae.downgradeCostDivisor) as ResourceCollection<ResourceType>;
+      .getDowngradeCost(
+        phelopment.level + 1,
+        this.phormulae.downgradeCostDivisor,
+      ) as ResourceCollection<ResourceType>;
   }
 
   upgradeTime(phelopment: Phelopment<ResourceType, PhelopmentType>): TimeUnit {
@@ -118,7 +125,7 @@ export class Economy<
       Math.floor(
         costs.map((resource) => resource.amount).reduce((sum, amount) => sum + amount, 0) /
           this.phormulae.buildTimeDivisor,
-      )
+      ),
     );
   }
 
@@ -133,7 +140,7 @@ export class Economy<
     const missing = this.resources.stock.getUnfetchable(cost);
     let maxTicks = 0;
     for (const res of missing.asArray) {
-      const tableEntry = this.resources.productionTable.find(t => t[0] === res.type);
+      const tableEntry = this.resources.productionTable.find((t) => t[0] === res.type);
       if (!tableEntry) return Infinity;
       const rate = tableEntry[1];
       if (rate <= 0) {
@@ -231,7 +238,11 @@ export class Economy<
       const advanceCycles = resources.validFor;
       cycles -= advanceCycles;
       resources = resources.calculate(advanceCycles);
-      phelopments = this.recalculationStrategy(resources.stock, resources.balanceFactor, phelopments);
+      phelopments = this.recalculationStrategy(
+        resources.stock,
+        resources.balanceFactor,
+        phelopments,
+      );
       resources = this.getResourceCalculation(resources.stock, phelopments);
       if (!resources.validFor) {
         throw new Error('Invalid resource (re)calculation');

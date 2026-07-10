@@ -9,9 +9,9 @@ const MAX_VALUE = Number.POSITIVE_INFINITY; // if we want Number.MAX_VALUE here 
  * like Resource, however substraction allows for negative amounts for edge cases
  * also Limits in ResourceProcesses work differently than for Resource
  */
-export class Energy<Type extends ResourceIdentifier = BaseResources.Energy>
-  implements ComparableResource<Type>
-{
+export class Energy<
+  Type extends ResourceIdentifier = BaseResources.Energy,
+> implements ComparableResource<Type> {
   static MAX_VALUE = MAX_VALUE;
 
   readonly type: Type;

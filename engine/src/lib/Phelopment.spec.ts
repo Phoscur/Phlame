@@ -30,7 +30,12 @@ describe('Phelopment', () => {
   });
 
   it('should have costs and build times, computed by the economy from the Phormulae', () => {
-    const economy = new Economy<Resources, PhelopmentIdentifier>('Interpreter', stock, [], phormulae);
+    const economy = new Economy<Resources, PhelopmentIdentifier>(
+      'Interpreter',
+      stock,
+      [],
+      phormulae,
+    );
     const unknown = new Phelopment<Resources, PhelopmentIdentifier>('Scraper', 5, 50);
     const mine = new Phelopment<Resources, PhelopmentIdentifier>(1, 5, 50);
 
@@ -52,7 +57,12 @@ describe('Phelopment', () => {
   });
 
   it('should be a prosumer, interpreted by the economy', () => {
-    const economy = new Economy<Resources, PhelopmentIdentifier>('Interpreter', stock, [], phormulae);
+    const economy = new Economy<Resources, PhelopmentIdentifier>(
+      'Interpreter',
+      stock,
+      [],
+      phormulae,
+    );
     const b = new Phelopment<Resources, PhelopmentIdentifier>(12, 1, 50);
     expect(economy.prosumes(b).toString()).to.eql(
       'Prosumer(12, 50%, ResourceProcessCollection[15blubbs-5, 0energy+25])',

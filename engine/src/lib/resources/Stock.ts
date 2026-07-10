@@ -5,7 +5,7 @@ export interface StockJSON<Types extends ResourceIdentifier> {
   resources: ResourceJSON<Types>[];
   max?: ResourceJSON<Types>[];
   min?: ResourceJSON<Types>[];
-};
+}
 export class Stock<Types extends ResourceIdentifier> {
   constructor(
     readonly resources: ResourceCollection<Types>,

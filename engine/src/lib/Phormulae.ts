@@ -38,7 +38,9 @@ export interface PhormulaeJSON {
   minBuildTime: number;
   queueSlots: PhormulaJSON;
   requirements: Partial<Record<PhelopmentIdentifier, PhelopmentRequirementJSON>>;
-  prosumptions: Partial<Record<PhelopmentIdentifier, Partial<Record<ResourceIdentifier, PhormulaJSON>>>>;
+  prosumptions: Partial<
+    Record<PhelopmentIdentifier, Partial<Record<ResourceIdentifier, PhormulaJSON>>>
+  >;
 }
 
 /**
@@ -130,7 +132,9 @@ export class Phormulae {
   /**
    * @throws on unknown phelopment types - rules must be complete
    */
-  requirementFor(type: PhelopmentIdentifier): PhelopmentRequirement<ResourceIdentifier, PhelopmentIdentifier> {
+  requirementFor(
+    type: PhelopmentIdentifier,
+  ): PhelopmentRequirement<ResourceIdentifier, PhelopmentIdentifier> {
     const requirement = this.requirements[type];
     if (!requirement) {
       throw new Error(`Unknown phelopment requirement, PhelopmentType: ${type}`);
@@ -165,12 +169,18 @@ export class Phormulae {
     return `Phormulae[${this.resourceTypes.join(', ')}|${this.energyTypes.join(', ')}]`;
   }
 
-
   /**
    * Canonical serialization - the future universe rules hash (ADR 0011) hashes this
    */
   toJSON(): PhormulaeJSON {
-    const { resourceTypes, energyTypes, buildTimeDivisor, downgradeCostDivisor, rebalancingExponent, minBuildTime } = this;
+    const {
+      resourceTypes,
+      energyTypes,
+      buildTimeDivisor,
+      downgradeCostDivisor,
+      rebalancingExponent,
+      minBuildTime,
+    } = this;
     return {
       resourceTypes,
       energyTypes,

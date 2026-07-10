@@ -11,7 +11,11 @@ import {
   type TimeUnit,
 } from '@phlame/engine';
 // deliberately NOT the app barrel (it exports DOM custom elements) - config modules only
-import { phormulae, type PhelopmentIdentifier, type Resources } from '../../src/app/engine/phelopments';
+import {
+  phormulae,
+  type PhelopmentIdentifier,
+  type Resources,
+} from '../../src/app/engine/phelopments';
 import type { ResourceIdentifier } from '../../src/app/engine/resources';
 import { fromGenesis, genesisFor } from '../../src/app/engine/services';
 import { actionID } from '../../src/app/engine/ids';
@@ -69,7 +73,12 @@ export class GameSession {
       );
     }
     const factory = new Injector().inject(EngineFactory);
-    return new GameSession(`${save.name}`, save.genesis, factory.createEmpire(save.empire), save.tick);
+    return new GameSession(
+      `${save.name}`,
+      save.genesis,
+      factory.createEmpire(save.empire),
+      save.tick,
+    );
   }
 
   get tick(): TimeUnit {
@@ -85,7 +94,9 @@ export class GameSession {
       ? this.empire.entities.find((e) => `${e.id}` === id)
       : this.empire.entities[0];
     if (!planet) {
-      throw new Error(`Unknown planet: ${id} (have: ${this.empire.entities.map((e) => e.id).join(', ')})`);
+      throw new Error(
+        `Unknown planet: ${id} (have: ${this.empire.entities.map((e) => e.id).join(', ')})`,
+      );
     }
     return planet;
   }
