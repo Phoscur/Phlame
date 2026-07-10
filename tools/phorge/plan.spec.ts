@@ -2,12 +2,13 @@ import { describe, it, expect } from 'vitest';
 import {
   planRun,
   planRm,
+  planUp,
+  planRestart,
   planLogs,
   planPs,
   planBuild,
   planDown,
   runContainerName,
-  RUN_VERBS,
   COMPOSE_FILE,
   DEV_OVERLAY,
   type RunVerb,
@@ -15,37 +16,72 @@ import {
 } from './plan';
 
 describe('phorge verb table', () => {
-  it('plans every run verb as a named compose run with the dev overlay', () => {
-    for (const verb of RUN_VERBS) {
-      const argv = planRun(verb);
+  const runId = 'test1234';
+
+  it('plans runner verbs as named compose run with the dev overlay', () => {
+    for (const verb of ['test', 'tsc', 'lint'] as const) {
+      const argv = planRun(verb, runId);
       expect(argv.slice(0, 5)).toEqual(['compose', '-f', COMPOSE_FILE, '-f', DEV_OVERLAY]);
-      expect(argv.slice(5, 9)).toEqual(['run', '--rm', '--name', runContainerName(verb)]);
+      expect(argv.slice(5, 9)).toEqual(['run', '--rm', '--name', runContainerName(verb, runId)]);
     }
   });
 
-  it('reaps the matching named container after a timeout', () => {
-    for (const verb of RUN_VERBS) {
-      expect(planRm(verb)).toEqual(['rm', '-f', runContainerName(verb)]);
-      expect(planRun(verb)).toContain(runContainerName(verb));
+  it('plans playwright verbs as compose exec with the dev overlay', () => {
+    for (const verb of ['e2e', 'screenshot'] as const) {
+      const argv = planRun(verb, runId);
+      expect(argv.slice(0, 5)).toEqual(['compose', '-f', COMPOSE_FILE, '-f', DEV_OVERLAY]);
+      expect(argv.slice(5, 7)).toEqual(['exec', 'playwright']);
+    }
+  });
+
+  it('warms the sleeping service with the dev overlay and restarts it to reap', () => {
+    expect(planUp('playwright')).toEqual([
+      'compose',
+      '-f',
+      COMPOSE_FILE,
+      '-f',
+      DEV_OVERLAY,
+      'up',
+      '-d',
+      'playwright',
+    ]);
+    expect(planRestart('playwright')).toEqual([
+      'compose',
+      '-f',
+      COMPOSE_FILE,
+      'restart',
+      'playwright',
+    ]);
+  });
+
+  it('reaps the matching named container after a timeout for runner verbs only', () => {
+    for (const verb of ['test', 'tsc', 'lint'] as const) {
+      expect(planRm(verb, runId)).toEqual(['rm', '-f', runContainerName(verb, runId)]);
+      expect(planRun(verb, runId)).toContain(runContainerName(verb, runId));
+    }
+    for (const verb of ['e2e', 'screenshot'] as const) {
+      expect(planRm(verb, runId)).toEqual([]);
     }
   });
 
   it('maps test/tsc/lint to the runner and e2e/screenshot to playwright', () => {
-    expect(planRun('test')).toContain('runner');
-    expect(planRun('tsc')).toContain('runner');
-    expect(planRun('lint')).toContain('runner');
-    expect(planRun('e2e')).toContain('playwright');
-    expect(planRun('screenshot')).toContain('playwright');
+    expect(planRun('test', runId)).toContain('runner');
+    expect(planRun('tsc', runId)).toContain('runner');
+    expect(planRun('lint', runId)).toContain('runner');
+    expect(planRun('e2e', runId)).toContain('playwright');
+    expect(planRun('screenshot', runId)).toContain('playwright');
   });
 
   it('screenshot runs only the screenshot spec on chromium', () => {
-    const argv = planRun('screenshot');
+    const argv = planRun('screenshot', runId);
     expect(argv).toContain('screenshot.spec.ts');
     expect(argv).toContain('--project=chromium');
   });
 
   it('rejects unknown verbs, naming the known ones', () => {
-    expect(() => planRun('deploy' as RunVerb)).toThrow(/Unknown verb: deploy.*test.*screenshot/);
+    expect(() => planRun('deploy' as RunVerb, runId)).toThrow(
+      /Unknown verb: deploy.*test.*screenshot/,
+    );
   });
 
   it('plans logs without the dev overlay, clamped and uncolored', () => {

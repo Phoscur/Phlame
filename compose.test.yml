@@ -66,6 +66,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.playwright
+    init: true
+    command: sleep infinity
     environment:
       BASE_URL: http://phlame:4200
     depends_on:

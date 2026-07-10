@@ -86,7 +86,10 @@ mounted socket, which is root-equivalent and would make the ban decorative. So:
   argv executor. Bash verbs stay as fallback.
 - **O1** — host-owned Phorge over streamable HTTP (`@hono/mcp` fits the stack) +
   token auth (Hyphe §7.2: identity must not be a self-asserted string). No Docker
-  socket ever enters an agent container.
+  socket ever enters an agent container. O1 hardens from "should" to **prerequisite**
+  the moment any GitHub-touching verbs appear (PLAN.md open question 2: repo creation
+  as game mechanic): a GitHub token next to an agent-writable verb table is an exfil
+  channel — host-owned, git-clean checkout first, token never in an agent container.
 - **O2** — the ban: agents (Claude & co.) run in their own container, `phlame-game`
   inside with them, Phorge's URL as the only door out. Concurrency control moves
   into Phorge when more than one agent knocks (Hyphe §7.4).
@@ -98,9 +101,10 @@ git-clean checkout, not the working tree) is what actually closes it.
 
 **O2 Design Resolutions (2026-07-10)**:
 - **Pre-built Phorge**: Phorge must run from a compiled `dist/` or a clean checkout, not via `tsx` on the active working tree. The agent can modify `tools/phorge/**/*.ts` all it wants, but the running orchestrator ignores those changes until a human rebuilds and restarts it.
-- **Harden the run verbs**: If an agent modifies `package.json` (e.g. changing the `test` script) or `compose.test.dev.yml` in the workspace, a naïve `npm test` via compose could either execute arbitrary code in the runner container or escape to the host (via a malicious bind mount). Phorge must parse/execute these strictly or bypass `npm` scripts entirely (e.g. calling `vitest` directly).
-- **Concurrency**: Spin up ephemeral `phorge-<verb>-<nanoid>` containers up to a concurrency limit instead of a singleton name, returning HTTP 429 when maxed out.
-- **Local Fast Path**: The agent is encouraged to run `npm test` locally inside its own container for rapid TDD, only calling Phorge for heavy lifting (cross-browser e2e) or guaranteed clean-room runs.
+- **Harden the run verbs**: If an agent modifies `package.json` (e.g. changing the `test` script) or `compose.test.dev.yml` in the workspace, a naïve `npm test` via compose could either execute arbitrary code in the runner container or escape to the host (via a malicious bind mount). Phorge must parse/execute these strictly or bypass `npm` scripts entirely (e.g. calling `vitest` directly). *Landed 2026-07-11*: run plans call `npx vitest/tsc/oxlint/eslint` directly; the two-step test/lint chains use a `sh -c '<constant>'` inside the disposable runner — compile-time constants from the closed table, the documented exception in plan.ts.
+- **Concurrency Limit & MCP "429"**: To prevent agents from melting the host, Phorge will enforce a strict concurrency limit (e.g. max 4 active runs). Since Phorge tools are invoked via MCP, hitting the limit won't return a raw HTTP 429; instead, the tool handler will return an explicit MCP error (`isError: true`) instructing the agent to wait.
+- **Worker Pools & Sleeping Containers**: Instead of spinning up ephemeral `phorge-<verb>-<nanoid>` containers via `run --rm` every time (which incurs startup/install penalties), we can transition to warm "sleeping" containers defined in `compose.test.yml` (e.g., a standing `playwright` service). Phorge will `docker compose exec` into them for instant test execution. *Landed 2026-07-11*: playwright sleeps (`sleep infinity` + `init`), exec verbs are ensured-up first (`planUp`, dev overlay — idempotent lazy warm-up; compose recreates on config drift, so an overlay-less container heals instead of silently testing baked source). Measured: e2e 12/12 in 11s, screenshot 7s warm.
+- **Local Fast Path**: The agent is encouraged to run `npm test` locally inside its own container for rapid TDD, only calling Phorge for heavy lifting (cross-browser e2e via the sleeping Playwright container) or guaranteed clean-room runs.
 
 **Inheritance boundary vs. hyphe-mcp (decided 2026-07-10)** — compared side by side:
 
@@ -108,9 +112,12 @@ git-clean checkout, not the working tree) is what actually closes it.
   now spec'd (`exec.spec.ts`: cap-kill, timeout-kill, non-zero-exit, spawn-error paths)
   instead of merely copied. Plus a fix Hyphe shares but hadn't closed either: killing a
   timed-out `docker compose run` kills only the CLI client, the container survives in
-  the daemon. Run containers are therefore **named** (`phorge-<verb>`) and reaped with
-  `docker rm -f` on timeout; the name doubles as a same-verb concurrency guard
-  (fail-fast on conflict).
+  the daemon. Run containers are therefore **named** (`phorge-<verb>-<runId>`) and
+  reaped with `docker rm -f` on timeout; concurrency is bounded by in-process counters
+  (runner 4, playwright 1) returning an MCP error at the limit. NOTE the exec variant
+  of the same hole: a timed-out `compose exec` (e2e/screenshot in the sleeping
+  playwright container) also only kills the client — the test process keeps running
+  inside the container; reaped via `compose restart playwright` (`reap` in tools.ts).
 - **Rejected — `cli-rules.ts`**: Hyphe's regex allowlist is a compensating control for
   its free-form `execute_command` surface. Its own comment trail (quoted-argument
   substitution holes, `$`/backtick/backslash bans re-fixed per call site) is the

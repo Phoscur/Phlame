@@ -1,7 +1,11 @@
 /**
  * Phorge verb table (PLAN-CONTAINERS): pure functions mapping the closed verb
- * vocabulary to docker argv arrays. No shell strings anywhere — every command is
- * spawned as `docker <argv>` with shell:false, so metacharacters are inert.
+ * vocabulary to docker argv arrays. Every command is spawned as `docker <argv>`
+ * with shell:false on the host, so metacharacters are inert. One documented
+ * exception: the test/lint plans chain two steps via `sh -c '<constant>'` INSIDE
+ * the disposable runner — the string is a compile-time constant from this closed
+ * table, never interpolated; revisit (split into sequential argv steps) if a
+ * step ever becomes dynamic.
  * Pattern adapted from Hyphe's orchestrate plan.ts (argv tables, TDD without Docker).
  */
 
@@ -20,9 +24,9 @@ export const SERVICES = ['phlame', 'runner', 'playwright'] as const;
 export type Service = (typeof SERVICES)[number];
 
 const RUN_PLANS: Record<RunVerb, string[]> = {
-  test: ['runner', 'npm', 'test'],
-  tsc: ['runner', 'npm', 'run', 'tsc'],
-  lint: ['runner', 'npm', 'run', 'lint'],
+  test: ['runner', 'sh', '-c', 'npx vitest run && cd engine && npx vitest run'],
+  tsc: ['runner', 'npx', 'tsc', '-p', 'tsconfig.spec.json', '--noEmit'],
+  lint: ['runner', 'sh', '-c', 'npx oxlint && npx eslint'],
   e2e: ['playwright', 'npx', 'playwright', 'test'],
   screenshot: [
     'playwright',
@@ -35,26 +39,60 @@ const RUN_PLANS: Record<RunVerb, string[]> = {
 };
 
 /**
- * Deterministic one-off container name. Killing a timed-out `docker compose run`
- * kills only the CLI client — the container survives in the daemon; the name makes
- * the orphan addressable for `docker rm -f` (planRm). Side effect accepted: two
- * concurrent runs of the same verb fail fast on the name conflict instead of racing.
+ * Deterministic one-off container name for a specific run execution. Killing a
+ * timed-out `docker compose run` kills only the CLI client — the container
+ * survives in the daemon; the unique name makes the orphan addressable for
+ * `docker rm -f` (planRm). The unique id enables concurrent runs without name
+ * conflicts.
  */
-export function runContainerName(verb: RunVerb): string {
-  return `phorge-${verb}`;
+export function runContainerName(verb: RunVerb, runId: string): string {
+  return `phorge-${verb}-${runId}`;
 }
 
-export function planRun(verb: RunVerb): string[] {
+export function planRun(verb: RunVerb, runId: string): string[] {
   const plan = RUN_PLANS[verb];
   if (!plan) {
     throw new Error(`Unknown verb: ${verb} (known: ${RUN_VERBS.join(', ')})`);
   }
-  return [...composeDev, 'run', '--rm', '--name', runContainerName(verb), ...plan];
+  
+  if (verb === 'e2e' || verb === 'screenshot') {
+    // Playwright is a sleeping container, execute inside the running service.
+    // plan is [service, ...command]
+    const [service, ...cmd] = plan;
+    return [...composeDev, 'exec', service, ...cmd];
+  } else {
+    // Runner is ephemeral, spin up a new named container.
+    return [...composeDev, 'run', '--rm', '--name', runContainerName(verb, runId), ...plan];
+  }
 }
 
 /** Reap the orphaned run container after a timeout kill (plain docker, not compose). */
-export function planRm(verb: RunVerb): string[] {
-  return ['rm', '-f', runContainerName(verb)];
+export function planRm(verb: RunVerb, runId: string): string[] {
+  if (verb === 'e2e' || verb === 'screenshot') {
+    return []; // No container to reap for 'exec' — that orphan needs planRestart
+  }
+  return ['rm', '-f', runContainerName(verb, runId)];
+}
+
+/**
+ * Idempotent warm-up for the exec verbs: `up -d` starts the sleeping playwright
+ * service (and its phlame dependency, gated on its healthcheck) when the stack is
+ * cold, and is a fast no-op when warm. Uses the dev overlay so the mounts are live
+ * source; compose recreates a running container whose config drifted (e.g. started
+ * without the overlay), so a stale container heals here instead of silently
+ * testing baked source.
+ */
+export function planUp(service: Service): string[] {
+  return [...composeDev, 'up', '-d', service];
+}
+
+/**
+ * Reap a timed-out exec: killing the docker CLI client leaves the test process
+ * running inside the sleeping container — restarting the service is what
+ * actually ends it.
+ */
+export function planRestart(service: Service): string[] {
+  return [...composeBase, 'restart', service];
 }
 
 export function planLogs(service: Service, tail: number): string[] {

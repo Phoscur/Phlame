@@ -203,7 +203,16 @@ entity re-creation).
    (`buildings.ts`) or data (`phlame-data` repo)? Must end up canonical + hashable
    (ADR 0011).
 2. **Share transport**: file only, URL fragment, gist/repo push? Auth story for
-   git-based sharing (PAT in browser is ugly)?
+   git-based sharing (PAT in browser is ugly)? Direction set 2026-07: GitHub side
+   effects (repo creation is game mechanic — Phlame is open source, universes can live
+   in repos) never run free-form and never from client/agent context. They go through
+   a **closed verb vocabulary** on a host-owned MCP (Phorge sibling; the pattern from
+   [PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md) Orchestration): dedicated machine
+   account/org, fine-grained token (repo write only), **no delete verb** (archive
+   instead — irreversible actions stay undefined), rate-limited and idempotent naming
+   (replay-safe, fits the empire log). Hard prerequisite: PLAN-CONTAINERS **O1** — a
+   GitHub token next to an agent-writable verb table is an exfil channel, so this MCP
+   must be host-owned from a git-clean checkout before any token exists.
 3. **Tech tree shape**: direction set by ADR 0012 (research = empire-level buildings on
    the Empire's own economy) — confirm against reality when M2 starts: one research
    queue or several? research points as a resource or plain cost deduction?
