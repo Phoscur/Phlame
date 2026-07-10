@@ -1,4 +1,8 @@
 # Add files here to ignore them from prettier formatting
 /dist
 /coverage
-/.nx/cache
+/playwright-report
+/test-results
+/screenshots
+/data
+package-lock.json
