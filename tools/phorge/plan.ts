@@ -26,7 +26,17 @@ export type Service = (typeof SERVICES)[number];
 const RUN_PLANS: Record<RunVerb, string[]> = {
   test: ['runner', 'sh', '-c', 'npx vitest run && cd engine && npx vitest run'],
   tsc: ['runner', 'npx', 'tsc', '-p', 'tsconfig.spec.json', '--noEmit'],
-  lint: ['runner', 'sh', '-c', 'npx oxlint && npx eslint'],
+  // prettier is --check only: the dev overlay mounts source read-only, so the
+  // container verifies formatting, writing happens host-side while editing. The
+  // scope is the mounted dirs — everything else in the container is baked (stale).
+  // Both stages always run (`;`), but each failure still fails the verb: a bare
+  // `;` would report only the LAST exit code, letting green prettier mask red eslint.
+  lint: [
+    'runner',
+    'sh',
+    '-c',
+    'npx oxlint && npx eslint; l=$?; npx prettier --check src engine/src tools tests; p=$?; exit $((l || p))',
+  ],
   e2e: ['playwright', 'npx', 'playwright', 'test'],
   screenshot: [
     'playwright',
@@ -54,7 +64,7 @@ export function planRun(verb: RunVerb, runId: string): string[] {
   if (!plan) {
     throw new Error(`Unknown verb: ${verb} (known: ${RUN_VERBS.join(', ')})`);
   }
-  
+
   if (verb === 'e2e' || verb === 'screenshot') {
     // Playwright is a sleeping container, execute inside the running service.
     // plan is [service, ...command]

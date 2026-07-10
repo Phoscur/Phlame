@@ -72,6 +72,10 @@ describe('phorge verb table', () => {
     expect(planRun('screenshot', runId)).toContain('playwright');
   });
 
+  it('lint chains the format check (read-only mounts: check, never write)', () => {
+    expect(planRun('lint', runId).at(-1)).toContain('prettier --check');
+  });
+
   it('screenshot runs only the screenshot spec on chromium', () => {
     const argv = planRun('screenshot', runId);
     expect(argv).toContain('screenshot.spec.ts');
