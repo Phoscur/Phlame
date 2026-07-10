@@ -121,8 +121,10 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       `upgradeTime` (with `minBuildTime` floor in the Phormulae), applies the grade;
       queued actions serialize with the save and rehydrate (`EngineFactory`); UI queue
       + cancel + e2e `build.spec` green. Known design debt: `Phlame.update` mutates
-      action payloads (`startedAt`, corrected `at`) — snapshot-friendly, but a tension
-      with the pure event log of ADR 0009; resolve when the empire log lands (above).
+      action payloads (`startedAt`, corrected `at`) — decided resolution:
+      [ADR 0018](docs/decisions/0018-actions-and-consequences.md), actions[] (trusted
+      commands) and consequences[] (verifiable echo) as separate append-only logs;
+      migrate together with the empire log (above).
 - [ ] Persistence v2: save = genesis + empire action log (+ snapshot as cache);
       file/localStorage backends behind one interface. Supersedes parts of ADR 0008.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
