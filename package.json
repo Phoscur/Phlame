@@ -21,6 +21,7 @@
     "console": "tsx tools/console/main.ts",
     "mcp": "tsx tools/mcp/server.ts",
     "phorge": "tsx tools/phorge/server.ts",
+    "phorge:http": "tsx tools/phorge/server.http.ts",
     "containers:build": "docker compose -f compose.test.yml build",
     "containers:down": "docker compose -f compose.test.yml down",
     "test:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm test",

@@ -1,8 +1,12 @@
 {
   "mcpServers": {
-    "phlame-mcp": {
+    "phlame-game": {
       "command": "npx",
       "args": ["tsx", "tools/mcp/server.ts"]
+    },
+    "phorge": {
+      "url": "http://127.0.0.1:4201/mcp",
+      "headers": { "Authorization": "Bearer ${PHORGE_TOKEN}" }
     }
   }
 }
