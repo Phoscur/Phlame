@@ -41,7 +41,19 @@ export class Phlame<ResourceType extends ResourceIdentifier, UnitType extends Ph
     return this.economy.resources.productionTable;
   }
 
+  /** build queue capacity, ruled by the Phormulae (interpreted by the economy) */
+  get queueSlots(): number {
+    return this.economy.queueSlots;
+  }
+
+  /**
+   * @throws when the build queue is full - the queue capacity is a rule (Phormulae)
+   */
   add(action: Action<ActionType>) {
+    const slots = this.queueSlots;
+    if (this.upcoming.length >= slots) {
+      throw new Error(`Queue is full (${this.upcoming.length}/${slots})`);
+    }
     this.actions.push(action);
     return this;
   }

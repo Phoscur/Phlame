@@ -134,6 +134,9 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
 - [ ] Persistence v2: save = genesis + empire action log (+ snapshot as cache);
       file/localStorage backends behind one interface. Supersedes parts of ADR 0008.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
+      Queue capacity is ruled by `Phormulae.queueSlots` (a `constant` Phormula, 2026-07;
+      enforced in `Phlame.add`) — NOTE: it counts *all* open actions; differentiate per
+      queue kind once non-build actions exist (transports, M2).
 
 ## Milestone 2 — Gameplay depth
 
