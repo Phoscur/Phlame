@@ -33,6 +33,7 @@ Inspector: `npx @modelcontextprotocol/inspector npx tsx tools/mcp/server.ts`
 - The queue is a FIFO Wartefunktion (2008 semantics): costs are fetched once affordable,
   then the build runs; `at` on a queued action is an estimate that `Phlame.update`
   self-corrects. Queued actions serialize with the save.
-- `Phlame.update` mutates action payloads (`startedAt`, corrected `at`) — fine for
-  snapshots, but a tension with the pure event log of ADR 0009 (M1 design debt).
+- `Phlame.update` still mutates action payloads (`startedAt`, corrected `at`) — the
+  decided fix is ADR 0018 (separate `actions[]`/`consequences[]` logs), landing with
+  the empire-log rework.
 - `advance` iterates entities (provisional until ADR 0012's empire-level update lands).

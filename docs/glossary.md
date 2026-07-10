@@ -37,7 +37,8 @@ Phlame's domain language, one line each. German loanwords are intentional.
 - **Phlame** — (1) the project/game, (2) `@phlame/engine`, (3) *the* entity class: a planet with id, Economy, actions and lastTick. Context decides.
 - **Empire** — a player's collection of Phlames; the unit that gets persisted per session.
 - **Economy** — Stock + Buildings of one Phlame; owns the tick fast-forward loop.
-- **Action / Consequence** — planned event system (queued action → consequence at a future tick); interface-only so far.
+- **Action / Consequence** — two separate append-only logs (ADR 0018): `actions[]` are the trusted, immutable *commands* (hashed, shared, verified); `consequences[]` are the *verifiable echo* — deterministically produced by `update()` (started/completed, correlated via `actionId`), never believed by a verifier, always recomputable. Replay regenerating the same consequences is the standing invariant check.
+- **Wartefunktion** — the 2008 queue semantics (docs/history.md): players queue builds regardless of current resources; the queue waits until each becomes affordable, fetches the cost, then builds.
 - **Empire log** — the one totally ordered action log per Empire (`(tick, seq)`, `concerns: ID[]` tags); source of truth under event sourcing (ADR 0012).
 - **Session / sid** — 8-char nanoid cookie identifying a saved `{ sid, zeit, empire }` snapshot in `data/session/`.
 
