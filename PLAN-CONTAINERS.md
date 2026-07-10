@@ -96,6 +96,12 @@ repo — agent-writable, reviewed via diff. The container is the blast-radius bo
 the diff review is the intent boundary. O1's host-owned deployment (run from a
 git-clean checkout, not the working tree) is what actually closes it.
 
+**O2 Design Resolutions (2026-07-10)**:
+- **Pre-built Phorge**: Phorge must run from a compiled `dist/` or a clean checkout, not via `tsx` on the active working tree. The agent can modify `tools/phorge/**/*.ts` all it wants, but the running orchestrator ignores those changes until a human rebuilds and restarts it.
+- **Harden the run verbs**: If an agent modifies `package.json` (e.g. changing the `test` script) or `compose.test.dev.yml` in the workspace, a naïve `npm test` via compose could either execute arbitrary code in the runner container or escape to the host (via a malicious bind mount). Phorge must parse/execute these strictly or bypass `npm` scripts entirely (e.g. calling `vitest` directly).
+- **Concurrency**: Spin up ephemeral `phorge-<verb>-<nanoid>` containers up to a concurrency limit instead of a singleton name, returning HTTP 429 when maxed out.
+- **Local Fast Path**: The agent is encouraged to run `npm test` locally inside its own container for rapid TDD, only calling Phorge for heavy lifting (cross-browser e2e) or guaranteed clean-room runs.
+
 **Inheritance boundary vs. hyphe-mcp (decided 2026-07-10)** — compared side by side:
 
 - **Inherited**: the executor lessons (argv/`shell:false`, byte cap, timeout kill) —
