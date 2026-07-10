@@ -1,0 +1,19 @@
+# Keep images small and hermetic — and NEVER bake user save files into an image.
+node_modules
+engine/node_modules
+# Vite's cacheDir resolves relative to root src/app — never bake the cache.
+src/app/node_modules
+.git
+.claude
+.vscode
+data
+dist
+out-tsc
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache
+screenshots
+Dockerfile.*
+compose.test*.yml

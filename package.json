@@ -19,7 +19,14 @@
     "tsc": "tsc -p tsconfig.spec.json --noEmit",
     "preview": "tsx src/server",
     "console": "tsx tools/console/main.ts",
-    "mcp": "tsx tools/mcp/server.ts"
+    "mcp": "tsx tools/mcp/server.ts",
+    "containers:build": "docker compose -f compose.test.yml build",
+    "containers:down": "docker compose -f compose.test.yml down",
+    "test:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm test",
+    "tsc:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm run tsc",
+    "lint:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm run lint",
+    "e2e:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test",
+    "screenshot:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test screenshot.spec.ts --project=chromium"
   },
   "private": true,
   "resolutions": {},

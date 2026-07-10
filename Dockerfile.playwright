@@ -1,0 +1,15 @@
+# Playwright runner. Deliberate exception to the Alpine preference: Playwright's
+# browser builds need glibc, so this is the official Ubuntu-based image — pinned
+# to the exact @playwright/test version in package-lock.json (image and npm
+# package MUST stay in lockstep or Playwright refuses to run).
+FROM mcr.microsoft.com/playwright:v1.61.1-noble
+
+WORKDIR /phlame
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+COPY . .
+
+# No CMD: invoked ephemerally, e.g.
+#   docker compose -f compose.test.yml run --rm playwright npx playwright test

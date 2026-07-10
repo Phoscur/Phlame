@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run test:docker*)",
+      "Bash(npm run tsc:docker*)",
+      "Bash(npm run lint:docker*)",
+      "Bash(npm run e2e:docker*)",
+      "Bash(npm run screenshot:docker*)",
+      "Bash(npm run containers:*)",
+      "Bash(docker compose -f compose.test.yml *)"
+    ]
+  }
+}
