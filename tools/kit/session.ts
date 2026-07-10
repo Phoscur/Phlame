@@ -13,6 +13,7 @@ import {
 import { phormulae, type PhelopmentIdentifier, type Resources } from '../../src/app/engine/phelopments';
 import type { ResourceIdentifier } from '../../src/app/engine/resources';
 import { emptyEmpire } from '../../src/app/engine/services';
+import { generateID } from '../../src/app/engine/ids';
 import { EngineFactory, type EmpireEntity, type PhlameEntity } from '../../src/app/engine/factory';
 
 export interface SessionSave {
@@ -125,8 +126,7 @@ export class GameSession {
     const wait = economy.ticksUntilAffordable(cost);
     const at = this.currentTick + (wait === Infinity ? duration : wait + duration);
     // ids are generated here at the tool boundary - the engine stays pure (ADR 0009)
-    const id = Math.random().toString(36).substring(2, 9);
-    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction, id));
+    planet.add(this.actionFactory.updatePhelopment(at, planet, type, direction, generateID()));
     return { at, duration, wait, cost: cost.prettyAmount };
   }
 

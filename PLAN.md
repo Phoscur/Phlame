@@ -19,15 +19,18 @@ catch-up formalized, not per-session time).
 
 Small decisions that get expensive to change once actions & persistence formats spread:
 
-- [ ] Fix `ID` to string (drop `string | number`) — engine-wide, mini-ADR.
-- [ ] Define the Action schema — empire-scoped per
-      [ADR 0012](docs/decisions/0012-empire-owns-the-log.md):
-      `{ universe: phingerprint, genesis, actions: [{ seq, tick, type, concerns: ID[], payload }] }`,
-      total order = `(tick, seq)`; the universe Phingerprint (`Phormulae.phingerprint`)
-      per [ADR 0011](docs/decisions/0011-universe-rules-hash.md) — implemented.
-- [ ] Define genesis: a new empire must be derivable deterministically (seed on
-      `Economy` — the existing TODO), so a save can be `genesis + action log`.
-- [ ] Standing invariant test: `replay(genesis, log)` ≡ incremental play, any tick split.
+- [x] Fix `ID` to string — done 2026-07, [ADR 0019](docs/decisions/0019-string-ids.md);
+      compiled without a single fix (`PhelopmentIdentifier` converges separately at M2).
+- [x] Action schema defined — `engine/src/lib/EmpireLog.ts` (2026-07): `GenesisJSON`,
+      `LogEntryJSON` (`{ seq, tick, type, concerns: ID[], payload }`, total order
+      `(tick, seq)`), `ConsequenceJSON` (the ADR 0018 echo), `EmpireLogJSON` carrying the
+      universe Phingerprint. Types now; the empire-log implementation fills them at M1.
+- [x] Genesis defined — `genesisFor`/`fromGenesis` in `src/app/engine/services.ts`
+      (2026-07): deterministic birth under the current Phormulae, Phingerprint-guarded;
+      `seed` reserved in the schema for future env derivations (Economy seed TODO).
+- [x] Standing invariant test — `src/app/engine/replay.spec.ts` (2026-07):
+      same genesis + same actions ⇒ same state for any tick split (incl. 100×1, through
+      the waiting build queue). Grows into full `replay(genesis, log)` with M1's log.
 - [x] **Rules as data** ([ADR 0014](docs/decisions/0014-rules-as-data.md)) — **complete**
       2026-07: `Phormulae` value object; lookups are kind-discriminated `Phormula`
       descriptors ([ADR 0015](docs/decisions/0015-phormula-descriptors-pure-building.md));
@@ -37,7 +40,10 @@ Small decisions that get expensive to change once actions & persistence formats 
       JSON; and injection is done — `Phormulae.current` and all static shims are gone,
       every `Economy` takes its Phormulae explicitly. No hidden global state remains.
       Still open (M1): wire the Phingerprint into the save/action-schema.
-- [ ] CI green and enforced (playwright.yml, testCoverage.yml) — e2e smoke as gate.
+- [ ] CI green ✓ (both workflows pass on the PR, Node 24, oxlint fast-fail;
+      `npm ci` aligned 2026-07) — but not *enforced*: master has no branch protection,
+      so nothing requires the checks. Decide: protect master with required checks
+      (changes the direct-push-to-master flow for docs commits) or accept trust-based.
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
 - [ ] **License guardrail**: decide whether `engine/` switches to Apache-2.0 *before*

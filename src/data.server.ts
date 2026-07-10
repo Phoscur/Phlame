@@ -1,12 +1,9 @@
-import { customAlphabet } from 'nanoid';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { Zeit } from './app/signals/zeitgeber';
 import { PersistedSession } from './engine.server';
+import { generateID as nanoid, NANOID_ALPHABET, NANOID_LENGTH } from './app/engine/ids';
 
-const NANOID_ALPHABET = '123456789ABCDFGHJKLMNQRSTVWXYZ'; // 3M IDs 1% - check collision chances https://zelark.github.io/nano-id-cc/
-const NANOID_LENGTH = 8;
-const nanoid = customAlphabet(NANOID_ALPHABET, NANOID_LENGTH);
 const SID_REGEX = new RegExp(`^[${NANOID_ALPHABET}]{${NANOID_LENGTH}}$`);
 
 /** SIDs come from cookies — anything but a plain nanoid must be rejected before it reaches a file path */

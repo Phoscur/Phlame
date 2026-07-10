@@ -31,3 +31,4 @@ Reversing a decision gets a *new* ADR that supersedes the old one — don't rewr
 - [0016 — Building → Phelopment](0016-phelopment-rename.md) `accepted`
 - [0017 — Keep Tailwind 4, style via domain tokens](0017-keep-tailwind-domain-tokens.md) `accepted`
 - [0018 — Actions and consequences are separate logs](0018-actions-and-consequences.md) `accepted`
+- [0019 — Entity ids are strings](0019-string-ids.md) `accepted`
