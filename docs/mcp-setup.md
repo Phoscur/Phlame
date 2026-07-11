@@ -76,49 +76,22 @@ npm run containers:build # test runner stack (phorge verbs run in these)
 
 ---
 
-## Quick Start (Interactive Foreground Mode)
+## Running the stack
 
-By default, the scripts run Phorge in the **foreground**, meaning logs are printed directly to the console and hitting `CTRL+C` will automatically stop Phorge and stop the Docker agent containers for you.
-
-### Under WSL / Linux
-
-```bash
-chmod +x mcp.sh
-./mcp.sh
-```
-
-### Under Windows PowerShell
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\mcp.ps1
-```
-
----
-
-## Detached Background Mode
-
-If you prefer to run Phorge in the background and write outputs/errors to log files, pass the `-d` or `--detached` switch:
-
-### Under WSL / Linux
+One cross-platform launcher, [`tools/phorge/stack.ts`](../tools/phorge/stack.ts)
+(Windows, WSL and Linux alike): it bundles the Phorge server, builds + starts
+the agent container, then runs Phorge.
 
 ```bash
-./mcp.sh -d
+npm run phorge:stack   # foreground — CTRL+C stops Phorge AND the agent stack
+npm run phorge:up      # detached — logs/phorge.log + logs/phorge.pid
+npm run phorge:down    # stop the detached Phorge (by pidfile) + agent stack
 ```
 
-- Logs are written to `logs/phorge.log` and `logs/phorge.err.log`.
-- To follow the logs: `tail -f logs/phorge.log`
-- To stop: `npm run agents:down && kill $(cat logs/phorge.pid)`
-
-### Under Windows PowerShell
-
-```powershell
-.\mcp.ps1 -Detached
-```
-
-- Logs are written to `logs/phorge.log` and `logs/phorge.err.log`.
-- To follow the logs: `Get-Content -Path logs/phorge.log, logs/phorge.err.log -Wait`
-- To stop: `npm run agents:down; Stop-Process -Id (Get-Content logs/phorge.pid) -Force`
+- Detached logs: `tail -f logs/phorge.log` (startup message lands in
+  `logs/phorge.err.log` — Phorge logs to stderr).
+- `npm run phorge:http` remains the server-only entry (bundle + run, no agent
+  container).
 
 ---
 
@@ -160,3 +133,42 @@ The same run is available as a **phorge MCP tool**: `agy(prompt)` — warm-up,
 one-at-a-time concurrency, 6-minute timeout, bounded output. That closes the
 loop both ways: agy-in-the-container calls phorge verbs, and any phorge client
 (e.g. Claude on the host) can dispatch a containerized agy run.
+
+---
+
+## Host-owned deployment (O1)
+
+Running Phorge with `tsx`/`npm` from the agent worktree is fine for
+development, but it voids the trust boundary the moment agents live in
+containers: the agent can edit `tools/phorge/**` and the compose files, and
+the next restart executes them. The O1 answer (see PLAN-CONTAINERS) is a
+**second, git-clean checkout that only a human updates**:
+
+```bash
+# once:
+git clone <repo> ../phlame-deploy
+cd ../phlame-deploy
+npm ci
+cp /secure/location/.env .   # deployment-owned: PHORGE_TOKEN etc. — NOT the worktree .env
+echo "PHLAME_WORKTREE=C:\\Users\\you\\Projects\\phlame" >> .env   # the agent worktree
+
+npm run phorge:up
+
+# update = human pull + restart:
+git pull && npm ci && npm run phorge:up
+```
+
+What this buys, concretely:
+
+- **Code, verb tables and compose files** load from the clean checkout — agent
+  edits to the worktree copies are inert until a human reviews, merges and
+  pulls them here.
+- **The worktree enters only as data**: `${PHLAME_WORKTREE:-.}` is the source
+  of every bind mount the clean compose files declare (code under test,
+  artifact sinks, the agent's rw workspace). Without the variable everything
+  resolves to `.` — the dev setup is unchanged.
+- **Tokens live with the deployment**: the deployment `.env` feeds Phorge and
+  the compose interpolation (`PHORGE_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN`); the
+  worktree `.env` is only needed when running Phorge from the worktree in dev.
+- The compose project names are pinned (`phlame`, `phlame-agents`), so the
+  deployed Phorge addresses the same container stack the dev setup does.
