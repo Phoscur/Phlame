@@ -7,6 +7,8 @@ import {
   planAgentUp,
   planAgentRestart,
   planAgyModels,
+  planWorktreeCheck,
+  planWorktreeAdd,
   COMPOSE_AGENTS,
   getAgentContainer,
   planUp,
@@ -117,6 +119,23 @@ describe('phorge verb table', () => {
     // situational awareness: the yolo rules live in AGENTS.md, versioned
     expect(argv[argv.indexOf('--append-system-prompt') + 1]).toContain('AGENTS.md');
     expect(argv[argv.indexOf('--model') + 1]).toBe('sonnet');
+  });
+
+  it('plans task worktrees: check, add, and exec -w into the workdir', () => {
+    expect(planWorktreeCheck(1, 'fix-foo')).toEqual([
+      'exec',
+      getAgentContainer(1),
+      'test',
+      '-d',
+      '/phlame/.worktrees/fix-foo',
+    ]);
+    const add = planWorktreeAdd(2, 'fix-foo');
+    expect(add).toContain('worktree');
+    expect(add).toContain('agent/fix-foo');
+    expect(add.at(-1)).toBe('/phlame/.worktrees/fix-foo');
+    // the run itself starts INSIDE the worktree
+    const argv = planClaude(1, 'do it', undefined, '/phlame/.worktrees/fix-foo');
+    expect(argv.slice(0, 3)).toEqual(['exec', '-w', '/phlame/.worktrees/fix-foo']);
   });
 
   it('plans agent warm-up, restart and model listing', () => {

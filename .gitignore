@@ -7,6 +7,9 @@
 
 /logs
 
+# agent task worktrees (phorge agy/claude verbs, worktree parameter)
+/.worktrees
+
 # compiled output
 dist
 tmp

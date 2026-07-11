@@ -11,6 +11,13 @@ set -eu
 
 mkdir -p ~/.gemini/config ~/.gemini/antigravity-cli/implicit
 
+# Git identity + trust for agent commits (task worktrees under
+# /phlame/.worktrees/<slug> are separate working dirs — the Dockerfile's
+# safe.directory=/phlame does not cover them; '*' is fine inside the wall).
+git config --global user.name 'phlame-agent'
+git config --global user.email 'agent@phlame.internal'
+git config --global --replace-all safe.directory '*'
+
 cat > ~/.gemini/mcp_config.json <<EOF
 {
   "mcpServers": {

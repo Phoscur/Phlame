@@ -9,6 +9,9 @@ import {
   planAgy,
   planClaude,
   planAgentRestart,
+  planWorktreeCheck,
+  planWorktreeAdd,
+  agentWorktree,
   type RunVerb,
 } from './plan';
 import { execDocker, type ExecLimits, type ExecResult } from './exec';
@@ -23,7 +26,10 @@ export const MAX_AGENT_CONCURRENCY = 2;
 /** agy's own print-mode timeout is 5min — give the verbs a minute of headroom */
 export const AGENT_TIMEOUT_MS = 6 * 60_000;
 
-const AGENT_PLANS: Record<AgentCli, (slot: number, prompt: string, model?: string) => string[]> = {
+const AGENT_PLANS: Record<
+  AgentCli,
+  (slot: number, prompt: string, model?: string, workdir?: string) => string[]
+> = {
   agy: planAgy,
   claude: planClaude,
 };
@@ -119,6 +125,7 @@ export function createRunner(exec: Exec = execDocker) {
     cli: AgentCli,
     prompt: string,
     model?: string,
+    worktree?: string,
   ): Promise<{ result: ExecResult; note: string }> {
     if (freeAgentSlots.size === 0) {
       throw new Error(
@@ -132,20 +139,37 @@ export function createRunner(exec: Exec = execDocker) {
       if (up.code !== 0) {
         return { result: up, note: 'compose up -d agent failed' };
       }
-      const result = await exec(AGENT_PLANS[cli](slot, prompt, model), {
+      let workdir: string | undefined;
+      let note = '';
+      if (worktree) {
+        // Idempotent: create the task worktree on first use, reuse it after —
+        // repeat dispatches accumulate commits on the same agent/<slug> branch.
+        const check = await exec(planWorktreeCheck(slot, worktree), { timeoutMs: 30_000 });
+        if (check.code !== 0) {
+          const add = await exec(planWorktreeAdd(slot, worktree), { timeoutMs: 60_000 });
+          if (add.code !== 0) {
+            return { result: add, note: `git worktree add failed for ${worktree}` };
+          }
+          note = `worktree ${agentWorktree(worktree).path} created (branch ${agentWorktree(worktree).branch})`;
+        } else {
+          note = `worktree ${agentWorktree(worktree).path} reused`;
+        }
+        workdir = agentWorktree(worktree).path;
+      }
+      const result = await exec(AGENT_PLANS[cli](slot, prompt, model, workdir), {
         timeoutMs: AGENT_TIMEOUT_MS,
         logFile: join(process.cwd(), 'logs', `agent-${slot}.log`),
       });
       if (!result.timedOut) {
-        return { result, note: '' };
+        return { result, note };
       }
       try {
         await exec(planAgentRestart(slot), { timeoutMs: 60_000 });
-        return { result, note: `agent restarted — timed-out ${cli} process reaped` };
+        return { result, note: `${note} agent restarted — timed-out ${cli} process reaped`.trim() };
       } catch {
         return {
           result,
-          note: `timed-out ${cli} NOT reaped — run: docker restart phlame-agents-agent-${slot}`,
+          note: `${note} timed-out ${cli} NOT reaped — run: docker restart phlame-agents-agent-${slot}`.trim(),
         };
       }
     } finally {

@@ -166,8 +166,12 @@ export function planAgentUp(): string[] {
  * the agent container the container wall is the permission boundary
  * (PLAN-CONTAINERS O2); the same flag on a host agy would be reckless.
  */
-export function planAgy(slot: number, prompt: string, model?: string): string[] {
-  const args = ['exec', getAgentContainer(slot), 'agy', '--dangerously-skip-permissions'];
+export function planAgy(slot: number, prompt: string, model?: string, workdir?: string): string[] {
+  const args = ['exec'];
+  if (workdir) {
+    args.push('-w', workdir);
+  }
+  args.push(getAgentContainer(slot), 'agy', '--dangerously-skip-permissions');
   if (model) {
     args.push('--model', model);
   }
@@ -185,9 +189,17 @@ export function planAgy(slot: number, prompt: string, model?: string): string[] 
  * after -p by convention (some claude flags are variadic and would swallow a
  * trailing prompt).
  */
-export function planClaude(slot: number, prompt: string, model?: string): string[] {
-  const args = [
-    'exec',
+export function planClaude(
+  slot: number,
+  prompt: string,
+  model?: string,
+  workdir?: string,
+): string[] {
+  const args = ['exec'];
+  if (workdir) {
+    args.push('-w', workdir);
+  }
+  args.push(
     getAgentContainer(slot),
     'claude',
     '-p',
@@ -198,7 +210,7 @@ export function planClaude(slot: number, prompt: string, model?: string): string
     '/root/.claude-phorge-mcp.json',
     '--append-system-prompt',
     CLAUDE_SYSTEM_PROMPT,
-  ];
+  );
   if (model) {
     args.push('--model', model);
   }
@@ -208,6 +220,41 @@ export function planClaude(slot: number, prompt: string, model?: string): string
 /** List agy's selectable models (read-only, no yolo flag needed). */
 export function planAgyModels(): string[] {
   return ['exec', getAgentContainer(1), 'agy', 'models'];
+}
+
+/**
+ * Task worktrees — the COLLECT mechanism for agent runs: the agent works in
+ * /phlame/.worktrees/<slug> on branch agent/<slug>; the shared .git makes
+ * every commit instantly visible on the host, where the conductor reviews
+ * (`git diff <base>...agent/<slug>`), merges, and removes the worktree.
+ * Repeat dispatches with the same slug reuse worktree + branch, so commits
+ * accumulate across runs. The slug feeds a PATH and a BRANCH — callers
+ * validate it (tools.ts zod regex) before it reaches this table.
+ */
+export const WORKTREES_DIR = '/phlame/.worktrees';
+
+export function agentWorktree(slug: string): { path: string; branch: string } {
+  return { path: `${WORKTREES_DIR}/${slug}`, branch: `agent/${slug}` };
+}
+
+export function planWorktreeCheck(slot: number, slug: string): string[] {
+  return ['exec', getAgentContainer(slot), 'test', '-d', agentWorktree(slug).path];
+}
+
+export function planWorktreeAdd(slot: number, slug: string): string[] {
+  const { path, branch } = agentWorktree(slug);
+  return [
+    'exec',
+    getAgentContainer(slot),
+    'git',
+    '-C',
+    '/phlame',
+    'worktree',
+    'add',
+    '-b',
+    branch,
+    path,
+  ];
 }
 
 /**

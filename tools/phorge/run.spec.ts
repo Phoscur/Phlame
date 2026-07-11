@@ -139,6 +139,30 @@ describe('phorge runner orchestration', () => {
     await expect(execAgent('claude', 'four')).resolves.toMatchObject({ note: '' });
   });
 
+  it('creates the task worktree on first use and reuses it after', async () => {
+    let worktreeExists = false;
+    const { exec, calls } = scriptedExec((argv) => {
+      if (argv.includes('test')) return worktreeExists ? undefined : { code: 1 };
+      if (argv.includes('worktree')) {
+        worktreeExists = true;
+        return undefined;
+      }
+      return undefined;
+    });
+    const { execAgent } = createRunner(exec);
+
+    const first = await execAgent('claude', 'slice one', undefined, 'fix-foo');
+    expect(first.note).toContain('created');
+    const addCall = calls.find((argv) => argv.includes('worktree'));
+    expect(addCall).toContain('agent/fix-foo');
+    const runCall = calls.find((argv) => argv.includes('claude'));
+    expect(runCall!.slice(0, 3)).toEqual(['exec', '-w', '/phlame/.worktrees/fix-foo']);
+
+    const second = await execAgent('claude', 'slice two', undefined, 'fix-foo');
+    expect(second.note).toContain('reused');
+    expect(calls.filter((argv) => argv.includes('worktree'))).toHaveLength(1);
+  });
+
   it('pools runner and playwright separately', async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => (release = resolve));
