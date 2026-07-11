@@ -40,7 +40,7 @@ to M2 balancing.
   Phormulae (or a context owning one). Migrate stepwise — bundle registries + constants
   first, keep the statics as a deprecated delegation shim until the app is converted,
   then delete the shim.
-- `src/app/engine/resources.ts`/`buildings.ts` stop push-mutating and instead *build*
+- `src/app/engine/resources.ts`/`buildings.ts` stop push-mutating and instead _build_
   the app's Phormulae — which is then also the natural answer to "where do balancing
   tables live" (open question: the Phormulae is the canonical, hashable form; code or
   data file is just its storage).
@@ -62,11 +62,11 @@ Killing `Phormulae.current` took four clean cuts plus one insight:
   construction passes it.
 - The one genuinely hard reader was `ResourceCollection.createByType` classifying a bare
   type string as energy, deep in the pure algebra with no Phormulae in scope. Insight:
-  the *only* place that synthesizes an energy placeholder is `Economy.prosumes` (empty
+  the _only_ place that synthesizes an energy placeholder is `Economy.prosumes` (empty
   stock, energy prosumption) — and the Economy has the rules. So `createByType` defaults
   to Resource and the Economy builds energy placeholders from `phormulae.energyTypes`.
   No rule-context had to be threaded through the value-object algebra.
 
 Result: the fixture leak is structurally impossible (no global to leak into), and A/B
-with *differing type registries* now works (no shared global) — the last caveat noted in
+with _differing type registries_ now works (no shared global) — the last caveat noted in
 PLAN-MCP is resolved.

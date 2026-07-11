@@ -19,5 +19,5 @@ server-pushed subscriptions; htmx-ws is the candidate for future server pushes.
 ## Consequences
 
 - No schema layer to keep in sync — the `*JSON` interfaces in the engine are the contract.
-- Explicitly noted in 2021: React+GraphQL wasn't a *bad* fit, just too much complexity —
+- Explicitly noted in 2021: React+GraphQL wasn't a _bad_ fit, just too much complexity —
   this is a scope decision, not a verdict on the tech.

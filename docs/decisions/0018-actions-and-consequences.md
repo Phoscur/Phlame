@@ -7,9 +7,9 @@ self-test runs as kit `replayCheck` / console `verify` / MCP `replay_check`)
 ## Context
 
 The Wartefunktion build queue (M1 WIP) made `Phlame.update` write derived runtime state
-*into* the stored actions (`payload.startedAt`, corrected `consequence.at`). That breaks
+_into_ the stored actions (`payload.startedAt`, corrected `consequence.at`). That breaks
 the event-sourcing contract of ADR 0009: the log is no longer the immutable record of
-what was *ordered* — replaying a log rewrites it, log hashes become ambiguous, and the
+what was _ordered_ — replaying a log rewrites it, log hashes become ambiguous, and the
 `at` field carried three meanings at once (order estimate, queue filter, actual finish) —
 the root of a real expiring-action bug. Mixing system events into one stream (plain
 option b) was considered, but derived events inside the trusted log are a cheat gateway:
@@ -27,7 +27,7 @@ Two append-only logs, side by side, structurally separated:
   while interpreting the rules (started/completed/…, the existing `Event` /
   `EventTypes.CONSEQUENCE` shape), correlated to their order via `actionId`, with
   derived ids (e.g. `${actionId}:started`) — no randomness in the engine.
-  A verifier never *believes* consequences; it recomputes them.
+  A verifier never _believes_ consequences; it recomputes them.
 
 Derived definitions:
 
@@ -40,13 +40,13 @@ Derived definitions:
 
 ## Consequences
 
-- **Transition truth**: while saves are snapshot + log-rest (today), *open* consequences
+- **Transition truth**: while saves are snapshot + log-rest (today), _open_ consequences
   are state, not cache — a running build's `started` tick is not recoverable from the
   stock snapshot. They must be serialized until saves become genesis + full log (M1);
   only then do they degrade to a pure derivation. Do not strip them earlier.
 - Full chronology views ("planet history") need a merge of both arrays over `at`
   (+ tiebreak) — the price of separation.
-- The migration must *replace* the payload mutations entirely, not add alongside
+- The migration must _replace_ the payload mutations entirely, not add alongside
   (no double bookkeeping of `startedAt`).
 - Implementation lands together with the empire log (ADR 0012), where `upcoming`,
   `cancel` and serialization are reworked anyway — decided now so the M1 WIP stops

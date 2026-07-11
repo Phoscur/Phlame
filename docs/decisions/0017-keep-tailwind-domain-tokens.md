@@ -13,7 +13,7 @@ raised the question whether to keep it.
 
 ## Decision
 
-Keep Tailwind 4. Precisely *because* UI work is AI-delegated: LLMs produce more
+Keep Tailwind 4. Precisely _because_ UI work is AI-delegated: LLMs produce more
 consistent, idiomatic Tailwind than hand-rolled CSS, and utility classes are locally
 readable in diffs without Tailwind expertise. Tailwind 4 is build-time only (Vite
 plugin + CSS), no runtime dependency — compatible with the no-framework stance

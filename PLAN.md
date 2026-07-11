@@ -46,7 +46,7 @@ Small decisions that get expensive to change once actions & persistence formats 
       PRs. Check names hardened (matrix suffix removed, playwright job named).
 - [x] DCO sign-off required for contributions — see CONTRIBUTING.md
       ([ADR 0013](docs/decisions/0013-open-source-monetization-deferred.md)).
-- [ ] **License guardrail**: decide whether `engine/` switches to Apache-2.0 *before*
+- [ ] **License guardrail**: decide whether `engine/` switches to Apache-2.0 _before_
       merging the first substantial external engine contribution — after that,
       unilateral relicensing is off the table. Game stays AGPL either way (ADR 0013).
 
@@ -58,7 +58,7 @@ Bumped everything to max and dropped babel. Notes for whoever touches the build 
   Vite 8 / Vitest 4 transpile with **Oxc, which does not transform standard decorators at
   any target or option** (verified: only `decorator.legacy` exists, wrong semantics for
   joist; upstream deliberately deferred until the spec stabilizes —
-  https://github.com/oxc-project/oxc/issues/9170, no ETA). esbuild *does* (at a target
+  https://github.com/oxc-project/oxc/issues/9170, no ETA). esbuild _does_ (at a target
   below esnext) and ships with the toolchain anyway (tsx bundles it) — so
   `vite.config.ts` has a tiny `esbuildDecorators` pre-plugin, **scoped to files that
   contain decorator syntax** (line-leading `@identifier`); everything else stays on the
@@ -118,7 +118,7 @@ SDK gate.
 The old console engine-ui returns as agent tooling: a small stdio MCP server
 (`@modelcontextprotocol/sdk`, one tsx script, e.g. `tools/mcp/`) wrapping
 `EngineService`/`EmpireService` with tools like `new_session`, `advance_ticks(n)`,
-`production_table`, `upgrade_building`, `show_log`. Lets AI agents actually *play*
+`production_table`, `upgrade_building`, `show_log`. Lets AI agents actually _play_
 the game deterministically — useful for the M0 invariant test, M1 queue debugging,
 and M2 balancing runs ("play 10k ticks, show me the curves"). Not on the 1.0
 critical path; build alongside M1.
@@ -139,7 +139,7 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
 (see below).
 
 - [x] Energy limit bug fixed (2026-07): `EnergyCalculation.energies` sums rates first
-      and applies the production *capacity* directly as limit, instead of routing limits
+      and applies the production _capacity_ directly as limit, instead of routing limits
       through `add()`, whose negative-net branch applies stock-withdrawal semantics
       (summing limits — 50 became 100; also mispinned as 40 in two other specs).
       Un-blocking the spec exposed two more `Phlame.update` bugs, also fixed: applied
@@ -160,8 +160,7 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       (`phlame-mcp` branch): FIFO queue in `Phlame.update` waits until costs become
       affordable (`Economy.ticksUntilAffordable`), fetches them, builds for
       `upgradeTime` (with `minBuildTime` floor in the Phormulae), applies the grade;
-      queued actions serialize with the save and rehydrate (`EngineFactory`); UI queue
-      + cancel + e2e `build.spec` green. The payload-mutation debt was paid with the
+      queued actions serialize with the save and rehydrate (`EngineFactory`); UI queue + cancel + e2e `build.spec` green. The payload-mutation debt was paid with the
       empire log (above): [ADR 0018](docs/decisions/0018-actions-and-consequences.md)
       echoes replaced `startedAt`/`at` edits.
 - [ ] Persistence v2: save = genesis + empire action log (+ snapshot as cache);
@@ -170,7 +169,7 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       restores replay-verified (2026-07); the app's `PersistedSession` follows.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
       Queue capacity is ruled by `Phormulae.queueSlots` (a `constant` Phormula, 2026-07;
-      enforced in `Phlame.add`) — NOTE: it counts *all* open actions; differentiate per
+      enforced in `Phlame.add`) — NOTE: it counts _all_ open actions; differentiate per
       queue kind once non-build actions exist (transports, M2).
 
 ## Milestone 2 — Gameplay depth

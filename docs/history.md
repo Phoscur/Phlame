@@ -45,7 +45,7 @@ the code rests in the GitLab history.
 
 - `@live`/`@stream` GraphQL queries over resources, console & React component consumers.
 - Decided against GraphQL (and with it React) for the complexity it adds — explicitly
-  *not* a verdict on the tech ([ADR 0007](decisions/0007-no-graphql.md)).
+  _not_ a verdict on the tech ([ADR 0007](decisions/0007-no-graphql.md)).
 - Early game-model draft from that era: resources (iron/silicon/hydrogen/electricity,
   later lithium/heat), buildings (mines, silos, research, build-faster, fusion) —
   since evolved into the category types in `src/app/engine/resources.ts`.

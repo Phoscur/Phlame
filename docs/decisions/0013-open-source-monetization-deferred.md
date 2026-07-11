@@ -6,7 +6,7 @@ Status: accepted (2026-07)
 
 Honest stocktake: commercial value of a hobby idle game is near zero; the project's real
 value is craft, portfolio and playground. The 2.0 architecture (α universes = forks,
-Ω sharing) *is* open source as game mechanics. Legal exposure toward Gameforge/OGame is
+Ω sharing) _is_ open source as game mechanics. Legal exposure toward Gameforge/OGame is
 low and shrinking: full rewrite, own name, own assets, own balance (M2 decision).
 
 ## Decision
@@ -21,7 +21,7 @@ low and shrinking: full rewrite, own name, own assets, own balance (M2 decision)
   author, so the decision deadline is **before merging the first substantial external
   engine contribution** — a standing M0 guardrail in PLAN.md.
 - Contributions require a **DCO sign-off** (see CONTRIBUTING.md). Chosen deliberately
-  over a CLA: a DCO only certifies origin and inbound licensing (AGPL) — it does *not*
+  over a CLA: a DCO only certifies origin and inbound licensing (AGPL) — it does _not_
   grant relicensing rights, so practical dual-licensing ends once substantial outside
   contributions land. Accepted trade-off: the realistic monetization paths (donations,
   hosted/signed universes, content) don't need dual-licensing, and a CLA's friction

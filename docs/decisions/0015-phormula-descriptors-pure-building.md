@@ -25,7 +25,7 @@ descriptors from the start.**
   plus lookup accessors and complete canonical `toJSON()`. This is deliberate module
   topology, not taste: `Resource`'s static initializer reads the shim during class
   init — any runtime import from Phormulae into the resources layer creates a
-  load-order-dependent TDZ crash. The rule *document* must not import its *interpreter*.
+  load-order-dependent TDZ crash. The rule _document_ must not import its _interpreter_.
 - **`Building` becomes a pure state value object**: `(type, level, speed)` — exactly its
   JSON — keeping only the state operations (`upgraded`, `downgraded`, `at`, `disabled`).
   Costs, times and prosumption move out.

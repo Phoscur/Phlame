@@ -44,7 +44,7 @@ diagrams), [docs/glossary.md](docs/glossary.md) (domain terms), and
   attributes on the client. `.tsx` files are Hono JSX (`jsxImportSource: hono/jsx`), NOT React.
 - **Zeitgeber** (`src/app/signals/zeitgeber.ts`): the time-giver. Emits game ticks
   (default 10s per tick, ~334ms iteration) as Signals; runs on both server and client.
-  The economy is *lazy realtime*: state stores the last tick, and `Phlame.update(tick)`
+  The economy is _lazy realtime_: state stores the last tick, and `Phlame.update(tick)`
   fast-forwards the economy by the elapsed ticks on demand.
 - **Dependency injection** via `@joist/di`: services are `@injectable()` classes using
   `inject(...)`; server uses `Injector` (see `startup()` in engine.server.ts), client uses
