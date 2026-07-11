@@ -24,7 +24,7 @@ import { registerTools } from './tools';
  * response body blocks the reply until the stream ends (that exact bug held
  * back the GET stream and hung agy's client).
  */
-const MAX_SESSIONS = 32;
+export const MAX_SESSIONS = 32;
 
 export function createMcpApp(token: string): Hono {
   const transports = new Map<string, WebStandardStreamableHTTPServerTransport>();
