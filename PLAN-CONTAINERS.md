@@ -280,7 +280,10 @@ run --rm playwright npx playwright test` (no dev overlay — self-contained).
       (HTTP) + workspace trust, headless runs go `--strict-mcp-config` so the repo
       `.mcp.json` stdio entries (host-side, can't work behind the wall) are
       skipped. `claude(prompt)` phorge verb added, sharing the single agent slot
-      with `agy(prompt)` — verified: claude calls phorge `status` from inside.
+      with `agy(prompt)`, same yolo mode (IS_SANDBOX=1 lifts claude's as-root
+      refusal of --dangerously-skip-permissions); agent verbs exec via plain
+      `docker exec` (compose exec keeps stdin open — claude stalls 3s per run).
+      Verified: claude calls phorge `status`/`run(tsc)` from inside.
 
 ### C2 — Later / on demand
 
