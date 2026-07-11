@@ -132,6 +132,14 @@ export function planLogs(service: Service, tail: number): string[] {
 const composeAgents = ['compose', '-f', COMPOSE_AGENTS] as const;
 
 /**
+ * Deterministic: the project name is pinned (`name: phlame-agents`), single
+ * replica. Agent prompts exec via plain `docker exec` (not compose exec) on
+ * purpose: without -i stdin is CLOSED — compose exec keeps it open and claude
+ * then stalls 3s "waiting for stdin" on every run.
+ */
+export const AGENT_CONTAINER = 'phlame-agents-agent-1';
+
+/**
  * Idempotent warm-up for the agent container. Its start command runs
  * tools/agent/setup.sh (agy MCP config from env, credential seeding), so a
  * cold container comes up ready for the agy verb.
@@ -149,41 +157,30 @@ export function planAgentUp(): string[] {
  * (PLAN-CONTAINERS O2); the same flag on a host agy would be reckless.
  */
 export function planAgy(prompt: string): string[] {
-  return [
-    ...composeAgents,
-    'exec',
-    '-T',
-    'agent',
-    'agy',
-    '--dangerously-skip-permissions',
-    '-p',
-    prompt,
-  ];
+  return ['exec', AGENT_CONTAINER, 'agy', '--dangerously-skip-permissions', '-p', prompt];
 }
 
 /**
- * Headless claude prompt inside the agent container. Differences to agy, both
- * learned the hard way: the prompt sits directly after -p BEFORE the flags
- * (--allowedTools is variadic and swallows trailing args), and there is no
- * --dangerously-skip-permissions (claude refuses it as root) — the narrowly
- * scoped --allowedTools mcp__phorge is all the verb needs. --strict-mcp-config
- * skips the repo .mcp.json, whose stdio phorge entry cannot work behind the
- * container wall; tools/agent/setup.sh generates the HTTP config at start.
+ * Headless claude prompt inside the agent container — same yolo mode as agy
+ * (--dangerously-skip-permissions; claude refuses it as root unless
+ * IS_SANDBOX=1, which compose.agents.yml sets deliberately — the container
+ * wall is the boundary). --strict-mcp-config skips the repo .mcp.json, whose
+ * stdio phorge entry cannot work behind the wall; tools/agent/setup.sh
+ * generates the HTTP config at container start. The prompt stays directly
+ * after -p by convention (some claude flags are variadic and would swallow a
+ * trailing prompt).
  */
 export function planClaude(prompt: string): string[] {
   return [
-    ...composeAgents,
     'exec',
-    '-T',
-    'agent',
+    AGENT_CONTAINER,
     'claude',
     '-p',
     prompt,
+    '--dangerously-skip-permissions',
     '--strict-mcp-config',
     '--mcp-config',
     '/root/.claude-phorge-mcp.json',
-    '--allowedTools',
-    'mcp__phorge',
   ];
 }
 

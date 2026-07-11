@@ -10,6 +10,26 @@ This guide describes how to run the Phorge MCP HTTP server and the agent contain
 
 ---
 
+## The two .env files
+
+There is one `.env` per phorge location — same template (`.env.dist`),
+different roles:
+
+|                           | worktree `.env` (this repo)                                                            | deployment `.env` (`../phlame-phorge`)                                          |
+| ------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| used by                   | phorge run from the worktree (dev: `npm run phorge:stack`/`:up`) and host-side tooling | the deployed phorge AND the compose variable interpolation (containers, mounts) |
+| visibility                | **visible to the agent** through the repo mount — only what the agent may see          | never inside a container                                                        |
+| `PHORGE_TOKEN`            | yes                                                                                    | yes — **must match** the worktree value while both modes are in use             |
+| `CLAUDE_CODE_OAUTH_TOKEN` | yes (dev-mode compose runs)                                                            | yes — must match likewise                                                       |
+| `PHLAME_WORKTREE`         | no (defaults to `.`)                                                                   | **yes** — absolute path to the agent worktree                                   |
+| `PHORGE_URL`              | optional (host-side agy)                                                               | no                                                                              |
+
+The match requirement exists because the agent container's generated MCP
+config must carry the token of whichever phorge answers on port 4201 — a
+mismatch shows up as 401s after a rotation. Rotation order: both `.env` files
+→ restart phorge (deployment) → `docker compose -f compose.agents.yml up -d
+--force-recreate agent`.
+
 ## First-time setup (one-time, on the host)
 
 Copy `.env.dist` to `.env`, then fill in the three values below. `.env` is
@@ -25,8 +45,9 @@ Any random secret; the server fails closed without it. Generate one:
 node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
 ```
 
-To **rotate** it later: change `.env`, restart Phorge (`./mcp.sh` / `.\mcp.ps1`),
-then recreate the agent container so its generated config picks it up:
+To **rotate** it later: change BOTH `.env` files (see "The two .env files"),
+restart Phorge (`npm run phorge:up`), then recreate the agent container so its
+generated config picks it up:
 `docker compose -f compose.agents.yml up -d --force-recreate agent`.
 
 ### 2. agy — login on the host, credentials are seeded automatically
@@ -137,25 +158,29 @@ loop both ways: agy-in-the-container calls phorge verbs, and any phorge client
 ## Headless claude runs
 
 claude authenticates via `CLAUDE_CODE_OAUTH_TOKEN` (see First-time setup) and
-needs three quirks handled — `tools/agent/setup.sh` and the `claude(prompt)`
-phorge tool take care of all of them:
+runs in the **same yolo mode as agy** — permissions auto-approved inside the
+container, the wall is the boundary. Two quirks are handled by
+`tools/agent/setup.sh`, `compose.agents.yml` and the `claude(prompt)` phorge
+tool:
 
+- claude refuses `--dangerously-skip-permissions` when running as root (the
+  container user) — `IS_SANDBOX=1`, set in `compose.agents.yml`, is its
+  official container escape hatch and lifts that check for headless AND
+  interactive sessions.
 - The repo `.mcp.json` carries the **host-side stdio** phorge entry, which
   cannot work behind the container wall — headless runs use
   `--strict-mcp-config --mcp-config ~/.claude-phorge-mcp.json` (generated from
   env at container start) to reach phorge over HTTP instead.
-- `--dangerously-skip-permissions` is refused when running as root (the
-  container user) — the narrowly scoped `--allowedTools mcp__phorge` replaces
-  it.
-- The prompt goes directly after `-p`, BEFORE the flags: `--allowedTools` is
-  variadic and swallows trailing arguments.
 
 ```bash
 # inside the container:
-claude -p "Call the phorge status tool" \
-  --strict-mcp-config --mcp-config ~/.claude-phorge-mcp.json \
-  --allowedTools mcp__phorge
+claude -p "Call the phorge status tool" --dangerously-skip-permissions \
+  --strict-mcp-config --mcp-config ~/.claude-phorge-mcp.json
 ```
+
+Both agent verbs exec via plain `docker exec` (stdin closed) — `compose exec`
+keeps stdin open and claude then stalls three seconds "waiting for stdin" on
+every run.
 
 ---
 

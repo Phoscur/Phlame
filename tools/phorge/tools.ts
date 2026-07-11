@@ -113,7 +113,7 @@ export function registerTools(server: McpServer): void {
     'claude',
     {
       description:
-        'Run a headless claude (Claude Code) prompt inside the agent container (compose.agents.yml) and return its answer. It talks to phorge over HTTP (--strict-mcp-config, generated config) and is limited to the phorge tools (--allowedTools). Shares the one-at-a-time agent slot with agy; 6-minute timeout; returns the output tail, pass verbose for more.',
+        'Run a headless claude (Claude Code) prompt inside the agent container (compose.agents.yml) and return its answer. Same yolo mode as agy (permissions auto-approved INSIDE the container — the wall is the boundary); phorge is wired over HTTP (--strict-mcp-config, generated config). Shares the one-at-a-time agent slot with agy; 6-minute timeout; returns the output tail, pass verbose for more.',
       inputSchema: {
         prompt: z.string().min(1).describe('the task/question for the containerized claude run'),
         verbose: z

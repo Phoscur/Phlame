@@ -7,6 +7,7 @@ import {
   planAgentUp,
   planAgentRestart,
   COMPOSE_AGENTS,
+  AGENT_CONTAINER,
   planUp,
   planRestart,
   planLogs,
@@ -88,26 +89,28 @@ describe('phorge verb table', () => {
     expect(planRun('lint', runId).at(-1)).toContain('vp fmt --check');
   });
 
-  it('plans agy as an exec into the agents project with the prompt as one inert argv', () => {
+  it('plans agy as a plain docker exec (stdin closed) with the prompt as one inert argv', () => {
     const hostile = 'run lint; $(rm -rf /) `evil` && echo pwned';
     const argv = planAgy(hostile);
-    expect(argv.slice(0, 3)).toEqual(['compose', '-f', COMPOSE_AGENTS]);
-    expect(argv).toContain('exec');
-    expect(argv).toContain('agent');
+    // plain `docker exec` on the pinned container name — compose exec keeps
+    // stdin open and stalls the CLIs; without -i it is closed.
+    expect(argv.slice(0, 2)).toEqual(['exec', AGENT_CONTAINER]);
+    expect(argv).not.toContain('-i');
     expect(argv).toContain('--dangerously-skip-permissions'); // container wall is the boundary
     // The prompt stays ONE argv element — metacharacters never meet a shell.
     expect(argv.at(-1)).toBe(hostile);
     expect(argv.at(-2)).toBe('-p');
   });
 
-  it('plans claude with the prompt BEFORE the flags (variadic --allowedTools swallows trailing args)', () => {
+  it('plans claude in the same yolo mode, prompt directly after -p', () => {
     const argv = planClaude('call phorge status');
-    expect(argv.slice(0, 3)).toEqual(['compose', '-f', COMPOSE_AGENTS]);
+    expect(argv.slice(0, 2)).toEqual(['exec', AGENT_CONTAINER]);
     expect(argv[argv.indexOf('-p') + 1]).toBe('call phorge status');
+    // Yolo like agy — IS_SANDBOX=1 in compose.agents.yml lifts claude's
+    // as-root refusal; the container wall is the permission boundary.
+    expect(argv).toContain('--dangerously-skip-permissions');
     expect(argv).toContain('--strict-mcp-config'); // repo .mcp.json stdio entry cannot work in-container
-    expect(argv.at(-2)).toBe('--allowedTools'); // narrow tool scope instead of skip-permissions (root)
-    expect(argv.at(-1)).toBe('mcp__phorge');
-    expect(argv).not.toContain('--dangerously-skip-permissions'); // claude refuses it as root
+    expect(argv).toContain('/root/.claude-phorge-mcp.json');
   });
 
   it('plans agent warm-up and restart against the agents compose file', () => {
