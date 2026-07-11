@@ -16,11 +16,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# 1. Kill any process running on port 4201
-echo "Checking for running processes on port 4201..."
-if lsof -pi :4201 -t >/dev/null 2>&1; then
-  echo "Killing process on port 4201..."
-  kill -9 $(lsof -t -i:4201) || true
+# 1. Stop a previous detached phorge (pidfile only — never blind-kill a port)
+if [ -f logs/phorge.pid ]; then
+  echo "Stopping previous phorge (pid $(cat logs/phorge.pid))..."
+  kill "$(cat logs/phorge.pid)" 2>/dev/null || true
+  rm -f logs/phorge.pid
 fi
 
 # 2. Compile Phorge server
