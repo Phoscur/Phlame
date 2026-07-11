@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { bearerAuth } from './auth';
-import { createMcpApp } from './http-app';
+import { createMcpApp, MAX_SESSIONS } from './http-app';
 
 /**
  * Phorge HTTP auth tests (PLAN-CONTAINERS O1): the REAL middleware from auth.ts
@@ -166,5 +166,46 @@ describe('phorge HTTP transport (stateful, session map)', () => {
     const app = createMcpApp(TOKEN);
     const res = await app.request('/mcp', { method: 'POST' });
     expect(res.status).toBe(401);
+  });
+
+  // Bounded map: past MAX_SESSIONS the oldest transport is evicted (closed +
+  // dropped) so a follow-up on it gets 404, while the newest session still
+  // routes to a live transport.
+  it('evicts the oldest session once MAX_SESSIONS is exceeded', async () => {
+    const app = createMcpApp(TOKEN);
+
+    const sessionIds: string[] = [];
+    for (let i = 0; i < MAX_SESSIONS + 1; i++) {
+      const res = await app.request('/mcp', initializeRequest(TOKEN));
+      expect(res.status).toBe(200);
+      sessionIds.push(res.headers.get('mcp-session-id')!);
+    }
+
+    const firstSession = sessionIds[0];
+    const newestSession = sessionIds[sessionIds.length - 1];
+
+    const evicted = await app.request('/mcp', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+        accept: 'application/json, text/event-stream',
+        'mcp-session-id': firstSession,
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'tools/list' }),
+    });
+    expect(evicted.status).toBe(404);
+
+    const alive = await app.request('/mcp', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+        accept: 'application/json, text/event-stream',
+        'mcp-session-id': newestSession,
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'tools/list' }),
+    });
+    expect(alive.status).toBe(200);
   });
 });
