@@ -6,18 +6,26 @@ import {
   planRestart,
   planAgentUp,
   planAgy,
+  planClaude,
   planAgentRestart,
   type RunVerb,
 } from './plan';
 import { execDocker, type ExecLimits, type ExecResult } from './exec';
 
 export type Exec = (argv: string[], limits?: ExecLimits) => Promise<ExecResult>;
+export type AgentCli = 'agy' | 'claude';
 
 export const MAX_RUNNER_CONCURRENCY = 4;
 export const MAX_PLAYWRIGHT_CONCURRENCY = 1;
-export const MAX_AGY_CONCURRENCY = 1;
-/** agy's own print-mode timeout is 5min — give the verb a minute of headroom */
-export const AGY_TIMEOUT_MS = 6 * 60_000;
+/** one agent run at a time — agy and claude share the same container */
+export const MAX_AGENT_CONCURRENCY = 1;
+/** agy's own print-mode timeout is 5min — give the verbs a minute of headroom */
+export const AGENT_TIMEOUT_MS = 6 * 60_000;
+
+const AGENT_PLANS: Record<AgentCli, (prompt: string) => string[]> = {
+  agy: planAgy,
+  claude: planClaude,
+};
 
 /**
  * Run-verb orchestration: concurrency limits, warm-up for the exec verbs and
@@ -28,7 +36,7 @@ export const AGY_TIMEOUT_MS = 6 * 60_000;
 export function createRunner(exec: Exec = execDocker) {
   let activeRunnerRuns = 0;
   let activePlaywrightRuns = 0;
-  let activeAgyRuns = 0;
+  let activeAgentRuns = 0;
 
   /**
    * Reap after a timeout kill — which only reaches the docker CLI client. For
@@ -99,40 +107,44 @@ export function createRunner(exec: Exec = execDocker) {
   }
 
   /**
-   * Headless agy run in the agent container (compose.agents.yml): warm-up
-   * first (the container's start command seeds config/credentials), then the
-   * exec — one at a time, a timed-out agy is reaped via service restart (the
-   * same client-only-kill hole as the playwright exec verbs).
+   * Headless agent run (agy or claude) in the agent container
+   * (compose.agents.yml): warm-up first (the container's start command seeds
+   * config/credentials), then the exec — one at a time across both CLIs, a
+   * timed-out run is reaped via service restart (the same client-only-kill
+   * hole as the playwright exec verbs).
    */
-  async function execAgy(prompt: string): Promise<{ result: ExecResult; note: string }> {
-    if (activeAgyRuns >= MAX_AGY_CONCURRENCY) {
+  async function execAgent(
+    cli: AgentCli,
+    prompt: string,
+  ): Promise<{ result: ExecResult; note: string }> {
+    if (activeAgentRuns >= MAX_AGENT_CONCURRENCY) {
       throw new Error(
-        `Max concurrency reached for agy (limit: ${MAX_AGY_CONCURRENCY}). Please wait.`,
+        `Max concurrency reached for the agent container (limit: ${MAX_AGENT_CONCURRENCY}). Please wait.`,
       );
     }
-    activeAgyRuns++;
+    activeAgentRuns++;
     try {
       const up = await exec(planAgentUp());
       if (up.code !== 0) {
         return { result: up, note: 'compose up -d agent failed' };
       }
-      const result = await exec(planAgy(prompt), { timeoutMs: AGY_TIMEOUT_MS });
+      const result = await exec(AGENT_PLANS[cli](prompt), { timeoutMs: AGENT_TIMEOUT_MS });
       if (!result.timedOut) {
         return { result, note: '' };
       }
       try {
         await exec(planAgentRestart(), { timeoutMs: 60_000 });
-        return { result, note: 'agent restarted — timed-out agy process reaped' };
+        return { result, note: `agent restarted — timed-out ${cli} process reaped` };
       } catch {
         return {
           result,
-          note: 'timed-out agy NOT reaped — run: docker compose -f compose.agents.yml restart agent',
+          note: `timed-out ${cli} NOT reaped — run: docker compose -f compose.agents.yml restart agent`,
         };
       }
     } finally {
-      activeAgyRuns--;
+      activeAgentRuns--;
     }
   }
 
-  return { execRun, execAgy };
+  return { execRun, execAgent };
 }

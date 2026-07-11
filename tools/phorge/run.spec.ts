@@ -90,10 +90,10 @@ describe('phorge runner orchestration', () => {
     await expect(execRun('screenshot')).resolves.toMatchObject({ note: '' });
   });
 
-  it('ensures the agent is up before an agy run', async () => {
+  it('ensures the agent is up before an agent run', async () => {
     const { exec, calls } = scriptedExec(() => undefined);
-    const { execAgy } = createRunner(exec);
-    const { result, note } = await execAgy('say hi');
+    const { execAgent } = createRunner(exec);
+    const { result, note } = await execAgent('agy', 'say hi');
     expect(result.code).toBe(0);
     expect(note).toBe('');
     expect(calls).toHaveLength(2);
@@ -103,29 +103,31 @@ describe('phorge runner orchestration', () => {
     expect(calls[1].at(-1)).toBe('say hi');
   });
 
-  it('restarts the agent when an agy run times out', async () => {
+  it('restarts the agent when an agent run times out', async () => {
     const { exec, calls } = scriptedExec((argv) =>
       argv.includes('agy') ? { timedOut: true, code: -1 } : undefined,
     );
-    const { execAgy } = createRunner(exec);
-    const { note } = await execAgy('hang forever');
+    const { execAgent } = createRunner(exec);
+    const { note } = await execAgent('agy', 'hang forever');
     expect(note).toContain('agent restarted');
+    expect(note).toContain('agy');
     expect(calls[2]).toContain('restart');
   });
 
-  it('limits agy to one concurrent run and frees the slot after', async () => {
+  it('agy and claude share the single agent slot', async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => (release = resolve));
     const exec: Exec = async (argv) => {
       if (argv.includes('agy')) await gate;
       return { code: 0, output: '', truncated: false, timedOut: false };
     };
-    const { execAgy } = createRunner(exec);
-    const first = execAgy('one');
-    await expect(execAgy('two')).rejects.toThrow(/Max concurrency.*agy/);
+    const { execAgent } = createRunner(exec);
+    const first = execAgent('agy', 'one');
+    // the OTHER cli is rejected too — same container, same slot
+    await expect(execAgent('claude', 'two')).rejects.toThrow(/Max concurrency.*agent container/);
     release();
     await first;
-    await expect(execAgy('three')).resolves.toMatchObject({ note: '' });
+    await expect(execAgent('claude', 'three')).resolves.toMatchObject({ note: '' });
   });
 
   it('pools runner and playwright separately', async () => {

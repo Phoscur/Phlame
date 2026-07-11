@@ -41,7 +41,7 @@ function verdict(label: string, result: ExecResult, note = '', chars = TAIL_CHAR
 }
 
 // Orchestration (concurrency, warm-up, reaping) lives in run.ts — spec'd there.
-const { execRun, execAgy } = createRunner();
+const { execRun, execAgent } = createRunner();
 
 export function registerTools(server: McpServer): void {
   server.registerTool(
@@ -101,8 +101,31 @@ export function registerTools(server: McpServer): void {
     },
     async ({ prompt, verbose }) => {
       try {
-        const { result, note } = await execAgy(prompt);
+        const { result, note } = await execAgent('agy', prompt);
         return verdict('agy', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
+      } catch (error) {
+        return fail(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    'claude',
+    {
+      description:
+        'Run a headless claude (Claude Code) prompt inside the agent container (compose.agents.yml) and return its answer. It talks to phorge over HTTP (--strict-mcp-config, generated config) and is limited to the phorge tools (--allowedTools). Shares the one-at-a-time agent slot with agy; 6-minute timeout; returns the output tail, pass verbose for more.',
+      inputSchema: {
+        prompt: z.string().min(1).describe('the task/question for the containerized claude run'),
+        verbose: z
+          .boolean()
+          .optional()
+          .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
+      },
+    },
+    async ({ prompt, verbose }) => {
+      try {
+        const { result, note } = await execAgent('claude', prompt);
+        return verdict('claude', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);
       }

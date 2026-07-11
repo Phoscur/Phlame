@@ -28,4 +28,27 @@ cp ~/.gemini/mcp_config.json ~/.gemini/config/mcp_config.json
 # Copy the ro-mounted host credential seed into agy's live store (rw).
 cp -f ~/.gemini/antigravity-cli/implicit-host/*.pb ~/.gemini/antigravity-cli/implicit/ 2>/dev/null || true
 
-echo "[agent-setup] agy mcp config generated, credentials seeded"
+# claude: authenticates via CLAUDE_CODE_OAUTH_TOKEN (env) — no files needed.
+# The repo .mcp.json carries the HOST-side stdio phorge entry, which cannot work
+# in here (no Docker behind the wall) — headless runs therefore use
+# `--strict-mcp-config --mcp-config ~/.claude-phorge-mcp.json` with the HTTP
+# endpoint instead:
+cat > ~/.claude-phorge-mcp.json <<EOF
+{
+  "mcpServers": {
+    "phorge": {
+      "type": "http",
+      "url": "${PHORGE_URL}",
+      "headers": { "Authorization": "Bearer ${PHORGE_TOKEN}" }
+    }
+  }
+}
+EOF
+
+# Pre-trust the workspace for claude (fresh volume = fresh ~/.claude.json):
+# without it, headless runs ignore .claude/settings.json permissions.
+if [ ! -f ~/.claude.json ]; then
+  echo '{"projects":{"/phlame":{"hasTrustDialogAccepted":true}}}' > ~/.claude.json
+fi
+
+echo "[agent-setup] agy + claude mcp configs generated, credentials seeded"
