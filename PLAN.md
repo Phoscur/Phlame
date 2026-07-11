@@ -89,6 +89,26 @@ Bumped everything to max and dropped babel. Notes for whoever touches the build 
 - [ ] `npm run build` still fails on the missing `src/app/index.html` entry
       (pre-existing; ties into the M3 static build story).
 
+### Vite+ migration (decided 2026-07-11, containers branch)
+
+Vite+ (`vite-plus`, CLI `vp`) went **MIT / fully open source** with the 2026-03 alpha
+(the initially considered company licensing was dropped) and bundles
+Vite/Vitest/Oxlint/Oxfmt/Rolldown/tsdown behind one CLI (`vp check` =
+fmt + lint + typecheck). Beta as of 2026-07 (v0.2.x — young, expect sharp edges).
+The oxfmt reformat churn is acceptable on this branch — it already carries the
+Prettify commit.
+
+- [ ] Migrate: `vite-plus` + `@voidzero-dev/vite-plus-core` devDeps, npm overrides
+      alias `vite` → vite-plus-core, vitest pinned to the bundled version
+      (`vp migrate` first, manual fallback)
+- [ ] prettier → oxfmt as a **separate pure-reformat commit**; prettier(+eslint) deps
+      drop — CI only ever gated on oxlint anyway
+- [ ] Update package.json scripts, Phorge verb table (`tools/phorge/plan.ts` — that
+      diff is security-relevant, review it as such), CLAUDE.md commands, CI workflows
+- [ ] Watch: the standard-decorators esbuild pre-plugin (see Toolchain notes above,
+      oxc#9170) must survive the vite-plus core swap; engine's own `npx vitest` run
+      must keep resolving from the root install
+
 ## Side quest — MCP CLI (engine-ui reborn)
 
 Detailed plan: [PLAN-MCP.md](./PLAN-MCP.md) — prerequisites: rules-as-data (ADR 0014),
@@ -107,8 +127,9 @@ critical path; build alongside M1.
 
 Detailed plan: [PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md) — ephemeral Docker runners
 (Alpine for vitest/tsc/lint, official Playwright image for browsers) so agent-driven
-test and browser runs never execute ad hoc on the host. C0 (infra) on this branch;
-C1 (CI switch) is a separate PR.
+test and browser runs never execute ad hoc on the host. C0 (infra) and C3 (agent
+container: agy + claude themselves run containerized, Phorge HTTP as the only door
+out) on this branch; C1 (CI switch) is a separate PR.
 
 ## Milestone 1 — Actions & building queue (the 1.0 core)
 
