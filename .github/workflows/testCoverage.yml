@@ -6,9 +6,10 @@ on:
   pull_request:
 
 jobs:
-  # Fail-fast lint gate: oxlint runs in seconds with no install step, so a lint
-  # regression surfaces almost immediately — well before the slower test job below
-  # finishes. Pinned version + --deny-warnings keeps it identical to local `oxlint`.
+  # Fail-fast lint gate: standalone oxlint runs in seconds with no install step, so a
+  # lint regression surfaces almost immediately — well before the slower test job
+  # below finishes. It reads the same .oxlintrc.json as `vp lint -c .oxlintrc.json`;
+  # the pin matches the oxlint version bundled by vite-plus — bump them together.
   oxlint:
     name: Lint (fast fail)
     runs-on: ubuntu-latest
@@ -30,7 +31,7 @@ jobs:
         run: npm ci
       - name: Typecheck - TSC
         run: npm run tsc
-      - name: ESLint
+      - name: Lint & Format check (vp)
         run: npm run lint
       - name: Unit tests with coverage (app + engine) - Vitest
         run: npm run coverage

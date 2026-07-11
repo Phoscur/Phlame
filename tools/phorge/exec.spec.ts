@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { execCapture, stripAnsi, tail } from './exec';
 
 // The current node binary: guaranteed present on host and in the runner image,

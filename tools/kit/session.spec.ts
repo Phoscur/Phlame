@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { GameSession } from './session';
 import { phormulae } from '../../src/app/engine/phelopments';
 

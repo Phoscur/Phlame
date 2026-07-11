@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { ActionTypes } from '@phlame/engine';
 import { fromGenesis, genesisFor } from './services';
 import type { EmpireEntity } from './factory';

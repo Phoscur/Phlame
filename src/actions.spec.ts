@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { createActionsRoute } from './actions';
 import { ActionTypes } from '@phlame/engine';

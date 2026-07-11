@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { Data, isValidSID } from './data.server';
 import type { PersistedSession } from './engine.server';
 
