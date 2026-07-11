@@ -71,8 +71,11 @@ run _inside_ an agent container.
 
 Discovery/probe/smoke are **tools, not scripts**: `status` (services, states, verb
 list), `run(test|tsc|lint|e2e|screenshot)`, `screenshot` (returns the PNG inline as
-MCP image content), `logs(service, tail)`, `build`, `down`. No new scripts multiply —
-verbs invoke the same checked-in compose units.
+MCP image content), `agy(prompt)` (headless Antigravity run in the agent container —
+the first verb with a free-text parameter: the prompt stays one argv element,
+shell-inert; `--dangerously-skip-permissions` is container-scoped by design, the
+container wall is the boundary), `logs(service, tail)`, `build`, `down`. No new
+scripts multiply — verbs invoke the same checked-in compose units.
 
 Transport truth (the hard part of the agent ban): a stdio MCP spawned by a
 containerized agent lives _in that container_ — it could only reach Docker via a
@@ -247,6 +250,20 @@ run --rm playwright npx playwright test` (no dev overlay — self-contained).
       initialize with the bearer token — Docker Desktop reaches the 127.0.0.1
       binding; node_modules volume seeds linux binaries from the image (vitest runs)
 - [x] Credential seeding decided (`:ro` file/folder mounts used to share host credentials securely)
+- [x] **E2E verified (2026-07-11)**: agy inside the agent container calls
+      `run(lint)` through Phorge HTTP and reports the real verdict (first run
+      honestly red on an unformatted file). Took two stacked fixes: session-map
+      transport (one SDK transport per session — a singleton collides on the
+      second client; stateless drops the GET SSE stream real agents open) and
+      never reading a clone of an SSE response body for logging (blocks the
+      reply until the stream ends — that hung agy's Go client in "waiting").
+      @hono/node-server replaced the hand-rolled node↔web bridge.
+- [x] `agy(prompt)` phorge verb (2026-07-11): containerized headless agy as a
+      bounded tool (concurrency 1, 6-min timeout, restart-reap) — closes the
+      loop both ways: agents in the container call verbs, phorge clients on the
+      host dispatch containerized agent runs. Session setup moved into the
+      container start command (tools/agent/setup.sh), so the verb needs no
+      wrapper to have run first.
 - [ ] **Blocker for real use**: O1 host-owned Phorge (clean checkout/dist) before an
       agent container gets `PHORGE_TOKEN`
 - [ ] MCP wiring for in-container claude: HTTP phorge entry (repo `.mcp.json` still

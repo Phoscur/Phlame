@@ -2,6 +2,10 @@ import { describe, it, expect } from 'vite-plus/test';
 import {
   planRun,
   planRm,
+  planAgy,
+  planAgentUp,
+  planAgentRestart,
+  COMPOSE_AGENTS,
   planUp,
   planRestart,
   planLogs,
@@ -81,6 +85,23 @@ describe('phorge verb table', () => {
 
   it('lint chains the format check (read-only mounts: check, never write)', () => {
     expect(planRun('lint', runId).at(-1)).toContain('vp fmt --check');
+  });
+
+  it('plans agy as an exec into the agents project with the prompt as one inert argv', () => {
+    const hostile = 'run lint; $(rm -rf /) `evil` && echo pwned';
+    const argv = planAgy(hostile);
+    expect(argv.slice(0, 3)).toEqual(['compose', '-f', COMPOSE_AGENTS]);
+    expect(argv).toContain('exec');
+    expect(argv).toContain('agent');
+    expect(argv).toContain('--dangerously-skip-permissions'); // container wall is the boundary
+    // The prompt stays ONE argv element — metacharacters never meet a shell.
+    expect(argv.at(-1)).toBe(hostile);
+    expect(argv.at(-2)).toBe('-p');
+  });
+
+  it('plans agent warm-up and restart against the agents compose file', () => {
+    expect(planAgentUp()).toEqual(['compose', '-f', COMPOSE_AGENTS, 'up', '-d', 'agent']);
+    expect(planAgentRestart()).toEqual(['compose', '-f', COMPOSE_AGENTS, 'restart', 'agent']);
   });
 
   it('screenshot runs only the screenshot spec on chromium', () => {
