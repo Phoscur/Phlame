@@ -18,6 +18,16 @@
 # afterwards —
 # deliberate: a warm server speeds up the next run and keeps logs inspectable after a
 # failure. `npm run containers:down` stops it.
+# Pinned project name: behavior must not depend on the directory this file is
+# run from — the O1 deployment runs compose from a clean checkout while the
+# warm stack was possibly started from the worktree; same name = same stack.
+name: phlame
+
+# ${PHLAME_WORKTREE:-.} on every bind-mount SOURCE is the O1 seam: compose
+# files, images and verb tables come from wherever phorge runs (worktree during
+# dev, the host-owned clean checkout once deployed) — but the code under test
+# and the artifact sinks are ALWAYS the agent worktree, passed as data at
+# exactly these declared paths (PLAN-CONTAINERS, O1 invariant).
 services:
   # Light runner: vitest, tsc, lint. No network — unit tests need none, and test code
   # (arbitrary code by definition) gets no way to phone home.
@@ -31,10 +41,10 @@ services:
       # `npm install <pkg>` persists package.json/lockfile to the repo while the
       # installed node_modules stays image-local and is discarded; the change
       # materializes on the next image rebuild (the npm ci layer keys on the lockfile).
-      - ./package.json:/phlame/package.json:rw
-      - ./package-lock.json:/phlame/package-lock.json:rw
+      - ${PHLAME_WORKTREE:-.}/package.json:/phlame/package.json:rw
+      - ${PHLAME_WORKTREE:-.}/package-lock.json:/phlame/package-lock.json:rw
       # Writable artifact sink.
-      - ./coverage:/phlame/coverage
+      - ${PHLAME_WORKTREE:-.}/coverage:/phlame/coverage
 
   # The app under test: Vite dev server + Hono SSR, same baked image as the runner.
   # No `data/` mount — sessions are ephemeral in the container, real saves on the
@@ -75,6 +85,6 @@ services:
         condition: service_healthy
     volumes:
       # Writable artifact sinks — reports survive the --rm container.
-      - ./playwright-report:/phlame/playwright-report
-      - ./test-results:/phlame/test-results
-      - ./screenshots:/phlame/screenshots
+      - ${PHLAME_WORKTREE:-.}/playwright-report:/phlame/playwright-report
+      - ${PHLAME_WORKTREE:-.}/test-results:/phlame/test-results
+      - ${PHLAME_WORKTREE:-.}/screenshots:/phlame/screenshots

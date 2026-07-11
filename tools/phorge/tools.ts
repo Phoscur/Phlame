@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { planLogs, planPs, planBuild, planDown, RUN_VERBS, SERVICES } from './plan';
@@ -121,7 +122,11 @@ export function registerTools(server: McpServer): void {
         if (result.code !== 0) {
           return verdict('screenshot', result, note);
         }
-        const png = await readFile('screenshots/home.png');
+        // The artifact sink is the agent worktree (compose mounts it there) —
+        // resolve against it, not phorge's own cwd (clean checkout under O1).
+        const png = await readFile(
+          join(process.env.PHLAME_WORKTREE ?? '.', 'screenshots', 'home.png'),
+        );
         return {
           content: [
             { type: 'text' as const, text: 'screenshots/home.png' },
