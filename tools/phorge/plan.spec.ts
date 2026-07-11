@@ -18,19 +18,26 @@ import {
 describe('phorge verb table', () => {
   const runId = 'test1234';
 
-  it('plans runner verbs as named compose run with the dev overlay', () => {
+  it('plans runner verbs as named, uncolored compose run with the dev overlay', () => {
     for (const verb of ['test', 'tsc', 'lint'] as const) {
       const argv = planRun(verb, runId);
       expect(argv.slice(0, 5)).toEqual(['compose', '-f', COMPOSE_FILE, '-f', DEV_OVERLAY]);
-      expect(argv.slice(5, 9)).toEqual(['run', '--rm', '--name', runContainerName(verb, runId)]);
+      expect(argv.slice(5, 11)).toEqual([
+        'run',
+        '--rm',
+        '--name',
+        runContainerName(verb, runId),
+        '-e',
+        'NO_COLOR=1',
+      ]);
     }
   });
 
-  it('plans playwright verbs as compose exec with the dev overlay', () => {
+  it('plans playwright verbs as uncolored compose exec with the dev overlay', () => {
     for (const verb of ['e2e', 'screenshot'] as const) {
       const argv = planRun(verb, runId);
       expect(argv.slice(0, 5)).toEqual(['compose', '-f', COMPOSE_FILE, '-f', DEV_OVERLAY]);
-      expect(argv.slice(5, 7)).toEqual(['exec', 'playwright']);
+      expect(argv.slice(5, 9)).toEqual(['exec', '-e', 'NO_COLOR=1', 'playwright']);
     }
   });
 

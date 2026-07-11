@@ -80,3 +80,12 @@ export function execCapture(
 export function tail(output: string, chars = 4000): string {
   return output.length <= chars ? output : `…[truncated]…\n${output.slice(-chars)}`;
 }
+
+/**
+ * Remove ANSI escape sequences (colors, cursor moves). NO_COLOR at the source
+ * (plan.ts) is the first line of defense; this catches tools that ignore it.
+ */
+export function stripAnsi(output: string): string {
+  // eslint-disable-next-line no-control-regex
+  return output.replace(/\x1b\[[0-9;]*[A-Za-z]/g, '');
+}
