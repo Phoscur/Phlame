@@ -28,7 +28,9 @@
     "tsc:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm run tsc",
     "lint:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm run lint",
     "e2e:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test",
-    "screenshot:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test screenshot.spec.ts --project=chromium"
+    "screenshot:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test screenshot.spec.ts --project=chromium",
+    "agents:build": "docker compose -f compose.agents.yml build",
+    "agent": "docker compose -f compose.agents.yml run --rm agent"
   },
   "private": true,
   "resolutions": {},

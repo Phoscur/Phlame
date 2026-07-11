@@ -207,11 +207,14 @@ git-clean checkout, not the working tree) is what actually closes it.
 
 ### C3 — Agent container (O2 infra, started 2026-07-11)
 
-- [ ] `Dockerfile.agent` (bookworm-slim, baked deps, agy + pinned claude-code) +
-      `compose.agents.yml` (named volumes for config/creds + node_modules shadow,
-      repo rw, no socket, no `data/`) + npm scripts
-- [ ] Verified: image builds; agy + claude binaries run; Phorge HTTP reachable from
-      inside a container via `host.docker.internal` with the bearer token
+- [x] `Dockerfile.agent` (bookworm-slim, baked deps, agy + pinned claude-code) +
+      `compose.agents.yml` (own project `phlame-agents`; named volumes for
+      config/creds + node_modules shadow, repo rw, no socket, no `data/`) +
+      npm scripts (`agents:build`, `agent`)
+- [x] Verified (2026-07-11): image builds (agy 1.1.1, claude-code 2.1.207); Phorge
+      HTTP from inside the container via `host.docker.internal` → 401 without / MCP
+      initialize with the bearer token — Docker Desktop reaches the 127.0.0.1
+      binding; node_modules volume seeds linux binaries from the image (vitest runs)
 - [ ] Credential seeding decided (`:ro` file mounts vs in-container login — see the
       O2 concretization checkboxes)
 - [ ] **Blocker for real use**: O1 host-owned Phorge (clean checkout/dist) before an

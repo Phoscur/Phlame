@@ -8,6 +8,7 @@
       "Bash(npm run screenshot:docker*)",
       "Bash(npm run containers:*)",
       "Bash(docker compose -f compose.test.yml *)",
+      "Bash(npm run agents:build*)",
       "mcp__phorge",
       "mcp__phlame-game"
     ]

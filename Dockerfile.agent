@@ -1,0 +1,42 @@
+# Agent container (PLAN-CONTAINERS C3/O2): agy (Antigravity CLI) and claude-code run
+# in here, never on the host. Second deliberate Alpine exception (after Playwright):
+# prebuilt agent binaries lean glibc — node:24-bookworm-slim. Deps are baked with the
+# same lockfile-keyed layer as Dockerfile.test, which doubles as the copy-up seed for
+# the node_modules named volume in compose.agents.yml (the host tree carries win32
+# binaries and must be shadowed) and leaves a warm npm cache for in-container `npm ci`
+# after lockfile changes. No source is baked: an agent without the rw-mounted working
+# tree is useless, and stale baked source would only mislead.
+FROM node:24-bookworm-slim
+
+# git: the agent works the repo; curl + certs: installers below and agy's
+# self-update; procps: agents probe processes.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl ca-certificates procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# The mounted working tree is owned by the host user — without this, git inside the
+# container refuses with "dubious ownership".
+RUN git config --system --add safe.directory /phlame
+
+WORKDIR /phlame
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+# agy — NOT pinnable (manifest is always latest, sha512 same-origin; installer checked
+# 2026-07-11) and the binary self-updates in the background during regular runs.
+# Log the version so at least the build history records what we got; self-updates
+# stay confined to the container-private volumes (see compose.agents.yml).
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash \
+    && /root/.local/bin/agy --version
+ENV PATH="/root/.local/bin:${PATH}"
+
+# claude-code IS pinnable — bump deliberately:
+#   docker compose -f compose.agents.yml build --build-arg CLAUDE_CODE_VERSION=x.y.z
+ARG CLAUDE_CODE_VERSION=latest
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
+    && claude --version
+
+# Interactive by default; agents are started explicitly, e.g.
+#   docker compose -f compose.agents.yml run --rm agent claude
+CMD ["bash"]
