@@ -28,8 +28,8 @@ older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two part
 
 **Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)):
 preferred interface is the **phorge** MCP (`status`, `run(test|tsc|lint|e2e|screenshot)`,
-`screenshot`, `agy(prompt)` — headless Antigravity run in the agent container —,
-`logs`, `build`, `down`); the npm `:docker` variants (`test:docker` etc.,
+`screenshot`, `agy(prompt)`/`claude(prompt)` — headless agent runs in the agent
+container —, `logs`, `build`, `down`); the npm `:docker` variants (`test:docker` etc.,
 first run: `npm run containers:build`) are the fallback. Browser automation NEVER runs
 ad hoc on the host — no generated one-off scripts; screenshots go through
 `tests/screenshot.spec.ts`. The game sandbox is the separate **phlame-game** MCP

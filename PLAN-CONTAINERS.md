@@ -275,8 +275,12 @@ run --rm playwright npx playwright test` (no dev overlay — self-contained).
       the boundary only holds while Phorge is actually run from there — the
       worktree entries (`phorge:stack`/`phorge:up`) stay for dev, don't hand an
       agent container the token while one of those serves port 4201.
-- [ ] MCP wiring for in-container claude: HTTP phorge entry (repo `.mcp.json` still
-      carries the host-side stdio entries)
+- [x] MCP wiring for in-container claude (2026-07-11): `CLAUDE_CODE_OAUTH_TOKEN`
+      auth verified in-container; setup.sh generates `~/.claude-phorge-mcp.json`
+      (HTTP) + workspace trust, headless runs go `--strict-mcp-config` so the repo
+      `.mcp.json` stdio entries (host-side, can't work behind the wall) are
+      skipped. `claude(prompt)` phorge verb added, sharing the single agent slot
+      with `agy(prompt)` — verified: claude calls phorge `status` from inside.
 
 ### C2 — Later / on demand
 

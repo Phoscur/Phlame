@@ -134,6 +134,29 @@ one-at-a-time concurrency, 6-minute timeout, bounded output. That closes the
 loop both ways: agy-in-the-container calls phorge verbs, and any phorge client
 (e.g. Claude on the host) can dispatch a containerized agy run.
 
+## Headless claude runs
+
+claude authenticates via `CLAUDE_CODE_OAUTH_TOKEN` (see First-time setup) and
+needs three quirks handled — `tools/agent/setup.sh` and the `claude(prompt)`
+phorge tool take care of all of them:
+
+- The repo `.mcp.json` carries the **host-side stdio** phorge entry, which
+  cannot work behind the container wall — headless runs use
+  `--strict-mcp-config --mcp-config ~/.claude-phorge-mcp.json` (generated from
+  env at container start) to reach phorge over HTTP instead.
+- `--dangerously-skip-permissions` is refused when running as root (the
+  container user) — the narrowly scoped `--allowedTools mcp__phorge` replaces
+  it.
+- The prompt goes directly after `-p`, BEFORE the flags: `--allowedTools` is
+  variadic and swallows trailing arguments.
+
+```bash
+# inside the container:
+claude -p "Call the phorge status tool" \
+  --strict-mcp-config --mcp-config ~/.claude-phorge-mcp.json \
+  --allowedTools mcp__phorge
+```
+
 ---
 
 ## Host-owned deployment (O1)

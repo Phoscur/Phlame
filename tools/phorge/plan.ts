@@ -162,8 +162,34 @@ export function planAgy(prompt: string): string[] {
 }
 
 /**
- * Reap a timed-out agy exec — same hole as the playwright exec verbs: killing
- * the docker CLI client leaves agy running inside the sleeping container.
+ * Headless claude prompt inside the agent container. Differences to agy, both
+ * learned the hard way: the prompt sits directly after -p BEFORE the flags
+ * (--allowedTools is variadic and swallows trailing args), and there is no
+ * --dangerously-skip-permissions (claude refuses it as root) — the narrowly
+ * scoped --allowedTools mcp__phorge is all the verb needs. --strict-mcp-config
+ * skips the repo .mcp.json, whose stdio phorge entry cannot work behind the
+ * container wall; tools/agent/setup.sh generates the HTTP config at start.
+ */
+export function planClaude(prompt: string): string[] {
+  return [
+    ...composeAgents,
+    'exec',
+    '-T',
+    'agent',
+    'claude',
+    '-p',
+    prompt,
+    '--strict-mcp-config',
+    '--mcp-config',
+    '/root/.claude-phorge-mcp.json',
+    '--allowedTools',
+    'mcp__phorge',
+  ];
+}
+
+/**
+ * Reap a timed-out agent exec — same hole as the playwright exec verbs: killing
+ * the docker CLI client leaves the agent running inside the sleeping container.
  */
 export function planAgentRestart(): string[] {
   return [...composeAgents, 'restart', 'agent'];

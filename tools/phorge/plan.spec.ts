@@ -3,6 +3,7 @@ import {
   planRun,
   planRm,
   planAgy,
+  planClaude,
   planAgentUp,
   planAgentRestart,
   COMPOSE_AGENTS,
@@ -97,6 +98,16 @@ describe('phorge verb table', () => {
     // The prompt stays ONE argv element — metacharacters never meet a shell.
     expect(argv.at(-1)).toBe(hostile);
     expect(argv.at(-2)).toBe('-p');
+  });
+
+  it('plans claude with the prompt BEFORE the flags (variadic --allowedTools swallows trailing args)', () => {
+    const argv = planClaude('call phorge status');
+    expect(argv.slice(0, 3)).toEqual(['compose', '-f', COMPOSE_AGENTS]);
+    expect(argv[argv.indexOf('-p') + 1]).toBe('call phorge status');
+    expect(argv).toContain('--strict-mcp-config'); // repo .mcp.json stdio entry cannot work in-container
+    expect(argv.at(-2)).toBe('--allowedTools'); // narrow tool scope instead of skip-permissions (root)
+    expect(argv.at(-1)).toBe('mcp__phorge');
+    expect(argv).not.toContain('--dangerously-skip-permissions'); // claude refuses it as root
   });
 
   it('plans agent warm-up and restart against the agents compose file', () => {
