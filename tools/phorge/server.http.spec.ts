@@ -1,41 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
-import { timingSafeEqual } from 'node:crypto';
+import { bearerAuth } from './auth';
 
 /**
- * Phorge HTTP transport + auth tests (PLAN-CONTAINERS O1). Tests the bearer
- * token middleware and transport wiring via Hono's app.request() test helper —
- * no real HTTP listener or Docker needed.
+ * Phorge HTTP auth tests (PLAN-CONTAINERS O1): the REAL middleware from auth.ts
+ * mounted on a stub endpoint, exercised via Hono's app.request() test helper —
+ * no HTTP listener, no Docker, no env needed (server.http.ts is wiring only).
  */
-
-// --- Auth middleware under test (extracted inline to avoid the module-level
-// process.exit guard in server.http.ts) -----------------------------------------
-
-function authMiddleware(token: string) {
-  const expected = Buffer.from(token, 'utf8');
-  return async (
-    c: {
-      req: { header: (name: string) => string | undefined };
-      json: (body: unknown, status: number) => Response;
-    },
-    next: () => Promise<void>,
-  ) => {
-    const auth = c.req.header('Authorization');
-    if (!auth?.startsWith('Bearer ')) {
-      return c.json({ error: 'missing or malformed Authorization header' }, 401);
-    }
-    const candidate = Buffer.from(auth.slice(7), 'utf8');
-    if (candidate.length !== expected.length || !timingSafeEqual(candidate, expected)) {
-      return c.json({ error: 'invalid token' }, 401);
-    }
-    await next();
-  };
-}
 
 function createTestApp(token: string) {
   const app = new Hono();
-  app.use('/mcp', authMiddleware(token));
-  // Stub MCP endpoint — real transport tested separately; auth is the unit here
+  app.use('/mcp', bearerAuth(token));
+  // Stub MCP endpoint — the transport is SDK territory; auth is the unit here
   app.all('/mcp', (c) => c.json({ jsonrpc: '2.0', result: 'ok' }));
   return app;
 }
@@ -68,7 +44,7 @@ describe('phorge HTTP auth', () => {
   it('rejects requests with a wrong token → 401', async () => {
     const res = await app.request('/mcp', {
       method: 'POST',
-      headers: { Authorization: 'Bearer wrong-token' },
+      headers: { Authorization: 'Bearer wrong-token-but-same-l' },
     });
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -99,16 +75,5 @@ describe('phorge HTTP auth', () => {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
     expect(res.status).toBe(200);
-  });
-});
-
-describe('phorge HTTP server startup', () => {
-  it('requires PHORGE_TOKEN — the module-level guard exits if missing', async () => {
-    // We can't import server.http.ts directly (it calls process.exit(1) at
-    // module level). Instead, verify the pattern: the token must be non-empty.
-    expect(process.env.PHORGE_TOKEN ?? '').toBeDefined();
-    // The actual guard is: if (!PHORGE_TOKEN) process.exit(1)
-    // This test documents the contract — the integration test (manual curl)
-    // validates the live behavior.
   });
 });
