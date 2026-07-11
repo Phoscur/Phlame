@@ -30,7 +30,7 @@ container class of its own or "a special Phlame", and must entity history be por
   Empire becomes a Phlame with its own economy (research = empire-level buildings via
   the existing Building/Requirement machinery), fleets later become Phlames too
   (cargo hold = Stock with max limits, fuel burn = negative ResourceProcess).
-  Aggregate root is a *role*, not a type — exactly one entity per log holds it.
+  Aggregate root is a _role_, not a type — exactly one entity per log holds it.
 - Cross-empire interaction (2.0) stays protocol-level: correlated entries in both logs,
   ordered by the global tick, deterministic within-tick tiebreak (= the roadmap's
   "action collision resolution"). Empire-internal total order is unaffected.

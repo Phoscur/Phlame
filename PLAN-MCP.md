@@ -1,12 +1,12 @@
 # PLAN-MCP.md — the MCP CLI (engine-ui reborn)
 
 Companion plan to [PLAN.md](./PLAN.md)'s side quest: a small **stdio MCP server** that
-lets AI agents (and, via inspector, humans) actually *play* the Phlame engine —
+lets AI agents (and, via inspector, humans) actually _play_ the Phlame engine —
 deterministically, headless, no browser, no dev server. The spiritual successor of the
 old `engine-ui` readline experiments (see [docs/history.md](docs/history.md)).
 
-Server name: **`phlame-game`** (renamed 2026-07-10) — *this server plays, it never
-executes commands*. Orchestration (containers, test runs, screenshots) is its sibling
+Server name: **`phlame-game`** (renamed 2026-07-10) — _this server plays, it never
+executes commands_. Orchestration (containers, test runs, screenshots) is its sibling
 **Phorge**, see [PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md).
 
 Not on the 1.0 critical path. Build alongside M1; every piece here must stay a consumer
@@ -29,7 +29,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
       `Phormulae` value object carries registries, constants, requirements and
       kind-discriminated `Phormula` descriptors; Phelopment (ex-Building, ADR 0016) is
       pure state, Economy interprets. Injection is complete (no `Phormulae.current`), so
-      A/B balancing works fully per-instance — even with *differing type registries* in
+      A/B balancing works fully per-instance — even with _differing type registries_ in
       one process.
 - [ ] **DOM-free config imports**: `src/app/engine/index.ts` re-exports
       `empire.element.tsx` (`extends HTMLElement`) — importing the barrel in plain Node
@@ -38,7 +38,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
 - [ ] **Toolchain reach**: `tools/**` is outside `tsconfig.spec.json` include and the
       oxlint scope — add it, so the server is typechecked and linted like everything else.
 - [ ] **zod version gate**: repo is on zod 4 (post-upgrade); verify the chosen
-      `@modelcontextprotocol/sdk` version supports zod v4 peer-wise *before* installing —
+      `@modelcontextprotocol/sdk` version supports zod v4 peer-wise _before_ installing —
       otherwise pin/alias.
 
 ## Design (settled 2026-07 unless marked open)
@@ -51,7 +51,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
   [zeitgeber.spec.ts](src/app/signals/zeitgeber.spec.ts) (injected time source + timer
   queue) is the prototype: game time belongs to the agent.
 - **In-memory sandbox, multi-session** (keyed by session id, so one agent can A/B two
-  empires — two *Phormulae* additionally need ADR 0014 landed). **dump/restore from
+  empires — two _Phormulae_ additionally need ADR 0014 landed). **dump/restore from
   MCP-0**: sessions are process-volatile (stdio restarts lose them), and
   `EmpireJSON` + tick already round-trip — `dump_session`/`restore_session` are nearly
   free insurance for long runs. The agent owns its saves.
@@ -70,7 +70,7 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
   move must never leave a half-updated session.
 - **Curve output = segment boundaries, not tick samples.** Rates only change at
   `validFor` boundaries, so all curves are piecewise linear — reporting the breakpoints
-  is lossless *and* fits agent context windows. 10k-tick dumps are a bug, not a feature.
+  is lossless _and_ fits agent context windows. 10k-tick dumps are a bug, not a feature.
 - **Not part of the rules hash** (ADR 0011): this is tooling, not game rules. Tool
   additions never invalidate saves.
 - **Console-UI seed**: the session wrapper (create/load, advance, act, render tables)

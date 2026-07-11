@@ -27,17 +27,17 @@ Phlame's domain language, one line each. German loanwords are intentional.
 - **recalculation strategy** — what happens at a segment boundary: buildings with unmeetable consumption are halted (speed 0).
 - **Phormula** — a single game formula as data: kind-discriminated descriptor (`zero`, `polynomial` = `k·lvl·lvl^exp`), evaluated via `at(level)` (ADR 0015). Functions don't hash; Phormulae do.
 - **Phormulae** — a universe's formula collection (plural of Phormula): the game rules as data (type registries, tuning constants, requirements, prosumption Phormulae — ADR 0014/0015); its canonical JSON is hashed into the universe **Phingerprint** (ADR 0011). Injected explicitly into every Economy — no global.
-- **Phelopment** — the engine name (ADR 0016) for a leveled prosuming capability of a Phlame: pure state (type + level + speed, exactly its JSON, ADR 0015); the Economy computes its costs, build times and Prosumer from the Phormulae. On a planet the player sees it as a *building*, on an empire as *tech/research*, later on a fleet as a *module* — the real words live in i18n, not the engine.
+- **Phelopment** — the engine name (ADR 0016) for a leveled prosuming capability of a Phlame: pure state (type + level + speed, exactly its JSON, ADR 0015); the Economy computes its costs, build times and Prosumer from the Phormulae. On a planet the player sees it as a _building_, on an empire as _tech/research_, later on a fleet as a _module_ — the real words live in i18n, not the engine.
 - **PhelopmentRequirement** — costs (`base * costFactor^level`), build time and dependencies for up/downgrades.
 - **Ph naming convention** — Ph replaces an F or V sound: Phlame←flame, Phormulae←formulae, Phelopment←de**v**elopment, Phingerprint←fingerprint, Phanx←thanks (ADR 0016).
 - **tumbles, salties, blubbs** — nonsense resource types used as fixtures in engine unit tests (no game meaning).
 
 ## World & entities
 
-- **Phlame** — (1) the project/game, (2) `@phlame/engine`, (3) *the* entity class: a planet with id, Economy, actions and lastTick. Context decides.
+- **Phlame** — (1) the project/game, (2) `@phlame/engine`, (3) _the_ entity class: a planet with id, Economy, actions and lastTick. Context decides.
 - **Empire** — a player's collection of Phlames; the unit that gets persisted per session.
 - **Economy** — Stock + Buildings of one Phlame; owns the tick fast-forward loop.
-- **Action / Consequence** — two separate append-only logs (ADR 0018): `actions[]` are the trusted, immutable *commands* (hashed, shared, verified); `consequences[]` are the *verifiable echo* — deterministically produced by `update()` (started/completed, correlated via `actionId`), never believed by a verifier, always recomputable. Replay regenerating the same consequences is the standing invariant check.
+- **Action / Consequence** — two separate append-only logs (ADR 0018): `actions[]` are the trusted, immutable _commands_ (hashed, shared, verified); `consequences[]` are the _verifiable echo_ — deterministically produced by `update()` (started/completed, correlated via `actionId`), never believed by a verifier, always recomputable. Replay regenerating the same consequences is the standing invariant check.
 - **Wartefunktion** — the 2008 queue semantics (docs/history.md): players queue builds regardless of current resources; the queue waits until each becomes affordable, fetches the cost, then builds.
 - **Empire log** — the one totally ordered action log per Empire (`(tick, seq)`, `concerns: ID[]` tags); source of truth under event sourcing (ADR 0012).
 - **Session / sid** — 8-char nanoid cookie identifying a saved `{ sid, zeit, empire }` snapshot in `data/session/`.
@@ -45,7 +45,7 @@ Phlame's domain language, one line each. German loanwords are intentional.
 ## Universe (vision, 2.0+)
 
 - **Phingerprint** — a universe's identity: the content hash (canonical JSON, FNV-1a) of its Phormulae (ADR 0011, `Phormulae.phingerprint`). Same rules → same Phingerprint; any rule change → a new universe.
-- **Sigil** — deferred/reserved: an *immutable* universe handle (origin/lineage reference, or a short stable prefix of the genesis Phingerprint) for when a universe evolves its rules yet stays "the same" (ADR 0011).
+- **Sigil** — deferred/reserved: an _immutable_ universe handle (origin/lineage reference, or a short stable prefix of the genesis Phingerprint) for when a universe evolves its rules yet stays "the same" (ADR 0011).
 - **α (alpha) universe** — every (git) repo is its own universe.
 - **Ω (omega) universe** — accepts all compatible worlds/empires, even pre-cheated ones.
 - **β/γ universes** — more serious or distantly forked variants.

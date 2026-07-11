@@ -21,14 +21,14 @@ a new universe. (Non-cryptographic and 32-bit for now — a collision-cheap iden
 
 Transforming a save across rule sets — "timewarping" a log into another universe — is
 expected to be complicated to impossible and is explicitly **out of scope until after
-1.0**. The escape hatch always exists: any save can be *ejected into Ω*.
+1.0**. The escape hatch always exists: any save can be _ejected into Ω_.
 
 Trust model for now: **everything is Ω** — shared saves are unverified by definition.
 Universe signatures (allowing trusted membership in non-Ω universes) are a later idea,
 not a commitment.
 
-**Sigil** (deferred, name reserved): where the Phingerprint is *derived* and therefore
-*changes* when rules evolve, a Sigil would be an **immutable** universe handle — an
+**Sigil** (deferred, name reserved): where the Phingerprint is _derived_ and therefore
+_changes_ when rules evolve, a Sigil would be an **immutable** universe handle — an
 assigned origin/lineage reference (provenance, "Herkunftsreferenz") that survives balance
 patches, and/or a short stable prefix of the genesis Phingerprint used as a human-friendly
 id. Needed once universes are allowed to evolve their rules while staying "the same

@@ -9,7 +9,7 @@ Statuses: `accepted` — in effect; `revisit` — in effect, but questioned regu
 `superseded by XXXX` — replaced.
 
 New decisions: copy the format, take the next number, link it from this index.
-Reversing a decision gets a *new* ADR that supersedes the old one — don't rewrite history.
+Reversing a decision gets a _new_ ADR that supersedes the old one — don't rewrite history.
 
 ## Index
 

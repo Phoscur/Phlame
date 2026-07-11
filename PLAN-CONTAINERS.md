@@ -86,7 +86,7 @@ mounted socket, which is root-equivalent and would make the ban decorative. So:
   argv executor. Bash verbs stay as fallback.
 - **O1** — host-owned Phorge over streamable HTTP + token auth (Hyphe §7.2: identity
   must not be a self-asserted string). No Docker socket ever enters an agent
-  container. *Half landed 2026-07-11*: `server.http.ts` serves the stateless
+  container. _Half landed 2026-07-11_: `server.http.ts` serves the stateless
   streamable-HTTP transport on `127.0.0.1:4201/mcp` behind a constant-time bearer
   middleware (`auth.ts`, spec'd; token via `.env`, fail-closed); stdio and HTTP
   entries share `tools.ts`. **Still open**: the actual host-owned deployment — run
@@ -98,8 +98,8 @@ mounted socket, which is root-equivalent and would make the ban decorative. So:
 - **O2** — the ban: agents (Claude & co.) run in their own container, `phlame-game`
   inside with them, Phorge's URL as the only door out. Concurrency control moves
   into Phorge when more than one agent knocks (Hyphe §7.4).
-  *Infra started 2026-07-11 (C3 below); O1's host-owned deployment graduated from
-  "should" to hard prerequisite — see the O2 concretization.*
+  _Infra started 2026-07-11 (C3 below); O1's host-owned deployment graduated from
+  "should" to hard prerequisite — see the O2 concretization._
 
 Honest caveat (Hyphe §3.1/§7.1 applies until O1+): Phorge's verb table lives in the
 repo — agent-writable, reviewed via diff. The container is the blast-radius boundary,
@@ -107,16 +107,17 @@ the diff review is the intent boundary. O1's host-owned deployment (run from a
 git-clean checkout, not the working tree) is what actually closes it.
 
 **O2 Design Resolutions (2026-07-10)**:
+
 - **Pre-built Phorge**: Phorge must run from a compiled `dist/` or a clean checkout, not via `tsx` on the active working tree. The agent can modify `tools/phorge/**/*.ts` all it wants, but the running orchestrator ignores those changes until a human rebuilds and restarts it.
-- **Harden the run verbs**: If an agent modifies `package.json` (e.g. changing the `test` script) or `compose.test.dev.yml` in the workspace, a naïve `npm test` via compose could either execute arbitrary code in the runner container or escape to the host (via a malicious bind mount). Phorge must parse/execute these strictly or bypass `npm` scripts entirely (e.g. calling `vitest` directly). *Landed 2026-07-11*: run plans call `npx vitest/tsc/oxlint/eslint` directly; the two-step test/lint chains use a `sh -c '<constant>'` inside the disposable runner — compile-time constants from the closed table, the documented exception in plan.ts.
+- **Harden the run verbs**: If an agent modifies `package.json` (e.g. changing the `test` script) or `compose.test.dev.yml` in the workspace, a naïve `npm test` via compose could either execute arbitrary code in the runner container or escape to the host (via a malicious bind mount). Phorge must parse/execute these strictly or bypass `npm` scripts entirely (e.g. calling `vitest` directly). _Landed 2026-07-11_: run plans call `npx vitest/tsc/oxlint/eslint` directly; the two-step test/lint chains use a `sh -c '<constant>'` inside the disposable runner — compile-time constants from the closed table, the documented exception in plan.ts.
 - **Concurrency Limit & MCP "429"**: To prevent agents from melting the host, Phorge will enforce a strict concurrency limit (e.g. max 4 active runs). Since Phorge tools are invoked via MCP, hitting the limit won't return a raw HTTP 429; instead, the tool handler will return an explicit MCP error (`isError: true`) instructing the agent to wait.
-- **Worker Pools & Sleeping Containers**: Instead of spinning up ephemeral `phorge-<verb>-<nanoid>` containers via `run --rm` every time (which incurs startup/install penalties), we can transition to warm "sleeping" containers defined in `compose.test.yml` (e.g., a standing `playwright` service). Phorge will `docker compose exec` into them for instant test execution. *Landed 2026-07-11*: playwright sleeps (`sleep infinity` + `init`), exec verbs are ensured-up first (`planUp`, dev overlay — idempotent lazy warm-up; compose recreates on config drift, so an overlay-less container heals instead of silently testing baked source). Measured: e2e 12/12 in 11s, screenshot 7s warm.
+- **Worker Pools & Sleeping Containers**: Instead of spinning up ephemeral `phorge-<verb>-<nanoid>` containers via `run --rm` every time (which incurs startup/install penalties), we can transition to warm "sleeping" containers defined in `compose.test.yml` (e.g., a standing `playwright` service). Phorge will `docker compose exec` into them for instant test execution. _Landed 2026-07-11_: playwright sleeps (`sleep infinity` + `init`), exec verbs are ensured-up first (`planUp`, dev overlay — idempotent lazy warm-up; compose recreates on config drift, so an overlay-less container heals instead of silently testing baked source). Measured: e2e 12/12 in 11s, screenshot 7s warm.
 - **Local Fast Path**: The agent is encouraged to run `npm test` locally inside its own container for rapid TDD, only calling Phorge for heavy lifting (cross-browser e2e via the sleeping Playwright container) or guaranteed clean-room runs.
 
 **O2 concretization — the agent container (2026-07-11)**:
 
 - **Own image, own compose file.** Agents do NOT ride in the `runner`: the runner is
-  network-less and ephemeral *by design* (test code must not phone home), an agent
+  network-less and ephemeral _by design_ (test code must not phone home), an agent
   needs egress (LLM APIs) and lives long. Merging them would destroy the property the
   runner exists for. `Dockerfile.agent` — `node:24-bookworm-slim`, the second
   deliberate Alpine exception (prebuilt agent binaries lean glibc; Hyphe's agent image
@@ -128,13 +129,13 @@ git-clean checkout, not the working tree) is what actually closes it.
   `node_modules` shadowed by a named volume — the host tree carries win32 binaries.
   After a lockfile change the agent runs `npm ci` in-container (volume persists it).
 - **Config is code, credentials are data — never rw-mount host agent config.**
-  `~/.gemini`/`~/.claude` contain *host-executed configuration*: MCP server entries
+  `~/.gemini`/`~/.claude` contain _host-executed configuration_: MCP server entries
   and settings hooks are argv the HOST runs on next start — a rw mount hands the
   contained agent a container-escape channel. Default layout: container-private named
   volumes for `/root/.gemini` and `/root/.claude`, seeded by an in-container login
   (agy has a headless URL+code flow; claude via `claude setup-token` →
   `CLAUDE_CODE_OAUTH_TOKEN`). Open (first real session decides):
-  - [ ] test seeding from host credential *files* mounted `:ro` (config stays out)
+  - [ ] test seeding from host credential _files_ mounted `:ro` (config stays out)
   - [ ] verify agy's credential store in a keyring-less container actually falls back
         to files that land in the volume (docs say libsecret on Linux)
 - **agy cannot be pinned** — checked the installer 2026-07-11: the manifest is always
@@ -148,7 +149,7 @@ git-clean checkout, not the working tree) is what actually closes it.
   127.0.0.1-bound listener on Docker Desktop; a native-Linux host would need a
   bridge binding — not our host today). Token via `.env` → container env; MCP config
   for the in-container agent points at the HTTP transport, NOT the repo `.mcp.json`
-  stdio entries (those would spawn Phorge *inside* the container, where no Docker
+  stdio entries (those would spawn Phorge _inside_ the container, where no Docker
   lives — fails correctly, but noisily).
 - **O1 is a hard prerequisite now, not a should.** Practice check (2026-07-11):
   Claude — and with it the tsx-spawned stdio Phorge — gets restarted routinely.
@@ -201,7 +202,7 @@ git-clean checkout, not the working tree) is what actually closes it.
 ### C1 — CI switch (separate PR)
 
 - [ ] `playwright.yml` builds the images and runs `docker compose -f compose.test.yml
-    run --rm playwright npx playwright test` (no dev overlay — self-contained).
+run --rm playwright npx playwright test` (no dev overlay — self-contained).
 - [ ] `testCoverage.yml` likewise via `runner`.
 - [ ] Then: bare-host `e2e`/`ci` scripts become the exception, not the rule.
 
