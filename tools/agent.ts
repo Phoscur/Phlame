@@ -11,7 +11,8 @@ up.on('close', (code) => {
 
   // Automate generation of ~/.gemini/mcp_config.json inside the container
   // using its environment variables (which resolves the placeholder expansion limitation of agy).
-  const configCmd = 'mkdir -p ~/.gemini/config && echo \'{"mcpServers": {"phorge": {"url": "\'"$PHORGE_URL"\'", "headers": {"Authorization": "Bearer \'"$PHORGE_TOKEN"\'"}}}}\' > ~/.gemini/mcp_config.json && cp ~/.gemini/mcp_config.json ~/.gemini/config/mcp_config.json && mkdir -p ~/.gemini/antigravity-cli/implicit && cp -f ~/.gemini/antigravity-cli/implicit-host/*.pb ~/.gemini/antigravity-cli/implicit/ 2>/dev/null || true';
+  const configCmd =
+    'mkdir -p ~/.gemini/config && echo \'{"mcpServers": {"phorge": {"url": "\'"$PHORGE_URL"\'", "headers": {"Authorization": "Bearer \'"$PHORGE_TOKEN"\'"}}}}\' > ~/.gemini/mcp_config.json && cp ~/.gemini/mcp_config.json ~/.gemini/config/mcp_config.json && mkdir -p ~/.gemini/antigravity-cli/implicit && cp -f ~/.gemini/antigravity-cli/implicit-host/*.pb ~/.gemini/antigravity-cli/implicit/ 2>/dev/null || true';
   const setupConfig = spawn('docker', [
     'compose',
     '-f',
@@ -26,7 +27,9 @@ up.on('close', (code) => {
 
   setupConfig.on('close', (configCode) => {
     if (configCode !== 0) {
-      console.error('Warning: Failed to auto-generate ~/.gemini/config/mcp_config.json inside the agent container.');
+      console.error(
+        'Warning: Failed to auto-generate ~/.gemini/config/mcp_config.json inside the agent container.',
+      );
     }
 
     // Extract arguments passed to the script (e.g. `npm run agent -- claude` -> `claude`)
@@ -46,4 +49,3 @@ up.on('close', (code) => {
     });
   });
 });
-
