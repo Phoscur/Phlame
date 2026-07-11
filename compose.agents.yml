@@ -1,0 +1,68 @@
+# Agent containers (PLAN-CONTAINERS C3/O2): claude & agy sessions run in here, never
+# on the host. Interactive, long-lived-per-session — deliberately NOT part of
+# compose.test.yml (whose contract is "`run --rm` runners only, never `up`").
+#
+#   npm run agents:build            # build the image (rebuild after lockfile changes)
+#   npm run agent                   # bash in the container
+#   npm run agent -- claude         # a claude session
+#   npm run agent -- agy            # an agy session
+#
+# First session / after a lockfile change: `npm ci` inside the container — the
+# node_modules volume was seeded from the image at first creation and does NOT track
+# later image rebuilds (alternative: docker volume rm phlame_agent_node_modules).
+#
+# Trust model (see PLAN-CONTAINERS O2 concretization):
+# - The working tree is mounted rw — editing is the agent's job; the container wall is
+#   the blast-radius boundary, diff review is the intent boundary.
+# - NOTE: the repo mount includes `.env`. It may only ever hold what the agent is
+#   allowed to see (its own PHORGE_TOKEN). Host-only secrets (a GitHub token, PLAN.md
+#   open question 2) never go into the repo `.env` — they live with the host-owned
+#   Phorge deployment (O1).
+# - No Docker socket, ever. Phorge's HTTP endpoint is the only door out.
+# - Agent config/credentials live in container-private named volumes: host ~/.gemini /
+#   ~/.claude are host-EXECUTED configuration (MCP entries, settings hooks) — mounting
+#   them rw would hand the contained agent a write path onto the host. Login happens
+#   in-container (agy: headless URL+code flow; claude: CLAUDE_CODE_OAUTH_TOKEN below).
+# Own project name: the test stack (compose.test.yml) lives under the default
+# project `phlame` — sharing it would make compose treat each other's services as
+# orphans (and a stray `down --remove-orphans` here would reap test containers).
+name: phlame-agents
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    init: true
+    stdin_open: true
+    tty: true
+    environment:
+      # Host-owned Phorge (O1) — the only controlled channel back to Docker.
+      PHORGE_URL: http://host.docker.internal:4201/mcp
+      PHORGE_TOKEN: ${PHORGE_TOKEN:-}
+      # From `claude setup-token` (run on a trusted machine), pasted into .env —
+      # authenticates claude without sharing host config into the container.
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
+    extra_hosts:
+      # Docker Desktop ships host.docker.internal; this keeps native-Linux hosts
+      # working too (where Phorge would additionally need a non-loopback binding).
+      - host.docker.internal:host-gateway
+    volumes:
+      - .:/phlame
+      # Shadow the host's win32 node_modules with a Linux-private volume (seeded from
+      # the image on first creation — see header note about staleness).
+      - agent_node_modules:/phlame/node_modules
+      # Vite's cacheDir resolves to src/app/node_modules — same shadow trick as the
+      # dev overlay, or the first in-container `npm start`/vitest run dies on it.
+      - /phlame/src/app/node_modules
+      # Real saves stay physically unreachable (compose.test.yml invariant holds
+      # here too): shadow data/ with an ephemeral anonymous volume.
+      - /phlame/data
+      # Container-private agent state (see trust model above).
+      - agent_gemini:/root/.gemini
+      - agent_claude:/root/.claude
+
+volumes:
+  agent_node_modules:
+  agent_gemini:
+  agent_claude:
