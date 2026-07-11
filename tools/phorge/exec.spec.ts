@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { execCapture, tail } from './exec';
+import { execCapture, stripAnsi, tail } from './exec';
 
 // The current node binary: guaranteed present on host and in the runner image,
 // and spawnable without a shell on every platform.
@@ -43,6 +43,13 @@ describe('phorge executor', () => {
     });
     expect(result.timedOut).toBe(true);
     expect(result.code).not.toBe(0);
+  });
+});
+
+describe('stripAnsi', () => {
+  it('removes color codes and cursor moves, keeps the text', () => {
+    expect(stripAnsi('\x1b[32m✓\x1b[39m 98 passed \x1b[2K\x1b[1A')).toBe('✓ 98 passed ');
+    expect(stripAnsi('plain text')).toBe('plain text');
   });
 });
 

@@ -65,14 +65,25 @@ export function planRun(verb: RunVerb, runId: string): string[] {
     throw new Error(`Unknown verb: ${verb} (known: ${RUN_VERBS.join(', ')})`);
   }
 
+  // NO_COLOR: verdicts are read by agents, not terminals — kill the ANSI noise
+  // at the source (vitest/playwright/eslint all honor it).
+  const noColor = ['-e', 'NO_COLOR=1'] as const;
   if (verb === 'e2e' || verb === 'screenshot') {
     // Playwright is a sleeping container, execute inside the running service.
     // plan is [service, ...command]
     const [service, ...cmd] = plan;
-    return [...composeDev, 'exec', service, ...cmd];
+    return [...composeDev, 'exec', ...noColor, service, ...cmd];
   } else {
     // Runner is ephemeral, spin up a new named container.
-    return [...composeDev, 'run', '--rm', '--name', runContainerName(verb, runId), ...plan];
+    return [
+      ...composeDev,
+      'run',
+      '--rm',
+      '--name',
+      runContainerName(verb, runId),
+      ...noColor,
+      ...plan,
+    ];
   }
 }
 

@@ -15,7 +15,7 @@ import {
   SERVICES,
   type RunVerb,
 } from './plan';
-import { execDocker, tail, type ExecResult } from './exec';
+import { execDocker, stripAnsi, tail, type ExecResult } from './exec';
 
 /**
  * Phorge tool registry (PLAN-CONTAINERS O1): transport-agnostic tool
@@ -34,7 +34,11 @@ function fail(error: unknown) {
   };
 }
 
-function verdict(label: string, result: ExecResult, note = '') {
+/** Default verdicts are a tail — the outcome lives at the end; verbose opts into more. */
+const TAIL_CHARS = 4000;
+const VERBOSE_TAIL_CHARS = 50_000;
+
+function verdict(label: string, result: ExecResult, note = '', chars = TAIL_CHARS) {
   const flags = [
     result.timedOut ? 'TIMEOUT' : '',
     result.truncated ? 'output capped at 1MiB' : '',
@@ -42,7 +46,8 @@ function verdict(label: string, result: ExecResult, note = '') {
   ]
     .filter(Boolean)
     .join(', ');
-  const text = `${label}: exit ${result.code}${flags ? ` (${flags})` : ''}\n${tail(result.output)}`;
+  const output = tail(stripAnsi(result.output), chars);
+  const text = `${label}: exit ${result.code}${flags ? ` (${flags})` : ''}\n${output}`;
   return result.code === 0 ? ok(text) : { ...ok(text), isError: true };
 }
 
@@ -142,13 +147,19 @@ export function registerTools(server: McpServer): void {
     'run',
     {
       description:
-        'Run a fixed verb in the ephemeral containers (dev overlay: live source, no rebuild needed): test (vitest app+engine), tsc, lint (oxlint+eslint+prettier --check), e2e (playwright, 3 browsers), screenshot (chromium only, writes screenshots/home.png).',
-      inputSchema: { verb: z.enum(RUN_VERBS) },
+        'Run a fixed verb in the ephemeral containers (dev overlay: live source, no rebuild needed): test (vitest app+engine), tsc, lint (oxlint+eslint+prettier --check), e2e (playwright, 3 browsers), screenshot (chromium only, writes screenshots/home.png). Returns the output tail; pass verbose for the full (capped) output.',
+      inputSchema: {
+        verb: z.enum(RUN_VERBS),
+        verbose: z
+          .boolean()
+          .optional()
+          .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
+      },
     },
-    async ({ verb }) => {
+    async ({ verb, verbose }) => {
       try {
         const { result, note } = await execRun(verb);
-        return verdict(verb, result, note);
+        return verdict(verb, result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);
       }
