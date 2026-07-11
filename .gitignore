@@ -5,6 +5,8 @@
 # game state persistence
 /data
 
+/logs
+
 # compiled output
 dist
 tmp

@@ -1,15 +1,12 @@
 import { createServer } from 'node:http';
-import { Hono } from 'hono';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { bearerAuth } from './auth';
-import { registerTools } from './tools';
+import { createMcpApp } from './http-app';
 
 /**
  * Phorge — HTTP transport entry (PLAN-CONTAINERS O1). Host-owned, token-authed
  * endpoint that containerized agents reach without a Docker socket. The stdio
- * entry (server.ts) stays for host-side clients; both share tools.ts. The auth
- * middleware lives in auth.ts (spec'd there — this file is wiring only).
+ * entry (server.ts) stays for host-side clients; both share tools.ts. The app
+ * wiring (auth + stateless per-request transport) lives in http-app.ts, spec'd
+ * there — this file is the env guard + node listener only.
  *
  * Env:
  *   PHORGE_TOKEN  — required, bearer token for auth (fail-closed: missing = exit)
@@ -24,20 +21,7 @@ if (!PHORGE_TOKEN) {
 
 const port = Number(process.env.PHORGE_PORT) || 4201;
 
-const mcpServer = new McpServer({ name: 'phorge', version: '0.2.0' });
-registerTools(mcpServer);
-
-const transport = new WebStandardStreamableHTTPServerTransport({
-  // Stateless: Phorge tools are fire-and-forget compose commands; no session
-  // state to track. Eliminates session-mismatch 404s for reconnecting agents.
-  sessionIdGenerator: undefined,
-});
-await mcpServer.connect(transport);
-
-const app = new Hono();
-app.use('/mcp', bearerAuth(PHORGE_TOKEN));
-// Mount the MCP transport on /mcp — supports POST (requests) and GET (SSE stream)
-app.all('/mcp', (c) => transport.handleRequest(c.req.raw));
+const app = createMcpApp(PHORGE_TOKEN);
 
 // --- HTTP server (localhost only) --------------------------------------------
 
@@ -61,7 +45,13 @@ const server = createServer(async (req, res) => {
   const response = await app.fetch(request);
 
   res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
+  if (typeof (res as any).flushHeaders === 'function') {
+    (res as any).flushHeaders();
+  }
   if (response.body) {
+    if (response.headers.get('content-type')?.includes('text/event-stream')) {
+      res.write(':\n\n');
+    }
     const reader = response.body.getReader();
     for (;;) {
       const { done, value } = await reader.read();

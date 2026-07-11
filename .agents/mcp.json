@@ -5,7 +5,7 @@
       "args": ["tsx", "tools/mcp/server.ts"]
     },
     "phorge": {
-      "url": "http://127.0.0.1:4201/mcp",
+      "url": "${PHORGE_URL}",
       "headers": { "Authorization": "Bearer ${PHORGE_TOKEN}" }
     }
   }
