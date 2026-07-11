@@ -56,7 +56,9 @@ services:
       # working too (where Phorge would additionally need a non-loopback binding).
       - host.docker.internal:host-gateway
     volumes:
-      - .:/phlame
+      # The agent worktree (rw) — ${PHLAME_WORKTREE:-.} so the O1 deployment
+      # (phorge + compose from a clean checkout) still mounts the WORKTREE here.
+      - ${PHLAME_WORKTREE:-.}:/phlame
       # Shadow the host's win32 node_modules with a Linux-private volume (seeded from
       # the image on first creation — see header note about staleness).
       - agent_node_modules:/phlame/node_modules
