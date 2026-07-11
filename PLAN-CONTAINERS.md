@@ -95,6 +95,22 @@ mounted socket, which is root-equivalent and would make the ban decorative. So:
   verbs appear (PLAN.md open question 2: repo creation as game mechanic): a GitHub
   token next to an agent-writable verb table is an exfil channel — host-owned,
   git-clean checkout first, token never in an agent container.
+  _Sharpened 2026-07-11_ — the O1 invariant, made explicit:
+  - **The trust boundary is write access, not repo membership.** Phorge does NOT
+    need to become a separate project for safety: a second git-clean checkout of
+    this same repo (e.g. `C:\phorge-deploy\phlame`), run as a host service and
+    updated only by a human pull+restart, satisfies O1 fully. Conversely a
+    dedicated Phorge repo gains nothing on its own — `tsx` from any agent-writable
+    path voids the boundary regardless of repo layout.
+  - **The invariant covers everything the running instance executes OR
+    interprets**: not just `tools/phorge/**` but the verb/plan tables and the
+    **compose files**. A deployed Phorge that runs `docker compose -f` against the
+    agent worktree's `compose.test.yml` hands the agent a bind-mount escape
+    (`- /:/host`) despite the clean code. Compose YAML and verb tables load from
+    the clean checkout; the agent workspace enters only as a data mount, at
+    exactly the paths the clean compose files declare.
+  - **`PHORGE_TOKEN`/`.env` live with the deployment, never in the worktree** —
+    from day one, not just once GitHub-touching verbs raise the stakes.
 - **O2** — the ban: agents (Claude & co.) run in their own container, `phlame-game`
   inside with them, Phorge's URL as the only door out. Concurrency control moves
   into Phorge when more than one agent knocks (Hyphe §7.4).
@@ -108,7 +124,7 @@ git-clean checkout, not the working tree) is what actually closes it.
 
 **O2 Design Resolutions (2026-07-10)**:
 
-- **Pre-built Phorge**: Phorge must run from a compiled `dist/` or a clean checkout, not via `tsx` on the active working tree. The agent can modify `tools/phorge/**/*.ts` all it wants, but the running orchestrator ignores those changes until a human rebuilds and restarts it.
+- **Pre-built Phorge**: Phorge must run from a compiled `dist/` or a clean checkout, not via `tsx` on the active working tree. The agent can modify `tools/phorge/**/*.ts` all it wants, but the running orchestrator ignores those changes until a human rebuilds and restarts it. This extends beyond the TypeScript to compose files and verb tables — see the O1 invariant above.
 - **Harden the run verbs**: If an agent modifies `package.json` (e.g. changing the `test` script) or `compose.test.dev.yml` in the workspace, a naïve `npm test` via compose could either execute arbitrary code in the runner container or escape to the host (via a malicious bind mount). Phorge must parse/execute these strictly or bypass `npm` scripts entirely (e.g. calling `vitest` directly). _Landed 2026-07-11_: run plans call `npx vitest/tsc/oxlint/eslint` directly; the two-step test/lint chains use a `sh -c '<constant>'` inside the disposable runner — compile-time constants from the closed table, the documented exception in plan.ts.
 - **Concurrency Limit & MCP "429"**: To prevent agents from melting the host, Phorge will enforce a strict concurrency limit (e.g. max 4 active runs). Since Phorge tools are invoked via MCP, hitting the limit won't return a raw HTTP 429; instead, the tool handler will return an explicit MCP error (`isError: true`) instructing the agent to wait.
 - **Worker Pools & Sleeping Containers**: Instead of spinning up ephemeral `phorge-<verb>-<nanoid>` containers via `run --rm` every time (which incurs startup/install penalties), we can transition to warm "sleeping" containers defined in `compose.test.yml` (e.g., a standing `playwright` service). Phorge will `docker compose exec` into them for instant test execution. _Landed 2026-07-11_: playwright sleeps (`sleep infinity` + `init`), exec verbs are ensured-up first (`planUp`, dev overlay — idempotent lazy warm-up; compose recreates on config drift, so an overlay-less container heals instead of silently testing baked source). Measured: e2e 12/12 in 11s, screenshot 7s warm.
@@ -135,8 +151,8 @@ git-clean checkout, not the working tree) is what actually closes it.
   volumes for `/root/.gemini` and `/root/.claude`, seeded by an in-container login
   (agy has a headless URL+code flow; claude via `claude setup-token` →
   `CLAUDE_CODE_OAUTH_TOKEN`). Open (first real session decides):
-  - [ ] test seeding from host credential _files_ mounted `:ro` (config stays out)
-  - [ ] verify agy's credential store in a keyring-less container actually falls back
+  - [x] test seeding from host credential _files_ mounted `:ro` (config stays out)
+  - [x] verify agy's credential store in a keyring-less container actually falls back
         to files that land in the volume (docs say libsecret on Linux)
 - **agy cannot be pinned** — checked the installer 2026-07-11: the manifest is always
   latest (sha512-verified, but same-origin) and the binary **self-updates in the
@@ -184,6 +200,20 @@ git-clean checkout, not the working tree) is what actually closes it.
   nothing to resolve; in-process grep/head/tail pipe emulation — `tail()` on a
   verdict-oriented output is enough.
 
+**Extraction into its own project (decided 2026-07-11)**: a pure reuse decision,
+not a safety one — see the O1 invariant (repo boundary ≠ trust boundary). Phorge
+stays in this repo until a second project concretely adopts it; extracting earlier
+buys versioning and a second release cycle for nothing and loses the TDD proximity
+(specs test directly against this project's verb table). When that second project
+arrives, the natural cut is **phorge-core** (executor, MCP server, HTTP transport,
+auth, concurrency — the generic part carrying the Hyphe lessons) as its own
+package, with the closed verb manifest (verbs, argv, compose services) staying in
+each consuming repo. Caveat, so nobody mistakes the split for a security upgrade:
+a declarative per-project manifest is exactly as agent-writable as `plan.ts` is
+today — config is code. The deployed instance still reads it from a clean
+checkout; the deployment model is unchanged by extraction, which is precisely why
+it isn't worth pre-empting.
+
 ## Milestones
 
 ### C0 — Runner infra (this branch)
@@ -216,8 +246,7 @@ run --rm playwright npx playwright test` (no dev overlay — self-contained).
       HTTP from inside the container via `host.docker.internal` → 401 without / MCP
       initialize with the bearer token — Docker Desktop reaches the 127.0.0.1
       binding; node_modules volume seeds linux binaries from the image (vitest runs)
-- [ ] Credential seeding decided (`:ro` file mounts vs in-container login — see the
-      O2 concretization checkboxes)
+- [x] Credential seeding decided (`:ro` file/folder mounts used to share host credentials securely)
 - [ ] **Blocker for real use**: O1 host-owned Phorge (clean checkout/dist) before an
       agent container gets `PHORGE_TOKEN`
 - [ ] MCP wiring for in-container claude: HTTP phorge entry (repo `.mcp.json` still

@@ -36,6 +36,11 @@ services:
     init: true
     stdin_open: true
     tty: true
+    # Sleeping service (same pattern as the playwright runner): `up -d` keeps the
+    # container alive and visible in Docker Desktop; sessions go in via exec.
+    # Headless runs that should show up in the Desktop log tab pipe through
+    # `... | tee /proc/1/fd/1` (PID1's stdout is the container log).
+    command: sleep infinity
     environment:
       # Host-owned Phorge (O1) — the only controlled channel back to Docker.
       PHORGE_URL: http://host.docker.internal:4201/mcp
@@ -61,6 +66,10 @@ services:
       # Container-private agent state (see trust model above).
       - agent_gemini:/root/.gemini
       - agent_claude:/root/.claude
+      # Seed credentials by mounting host credential files read-only.
+      - ${USERPROFILE:-$HOME}/.gemini/antigravity-cli/implicit:/root/.gemini/antigravity-cli/implicit-host:ro
+      - ${USERPROFILE:-$HOME}/.claude/.credentials.json:/root/.claude/.credentials.json:ro
+      - ${USERPROFILE:-$HOME}/.claude.json:/root/.claude.json:ro
 
 volumes:
   agent_node_modules:

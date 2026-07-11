@@ -20,7 +20,7 @@
     "console": "tsx tools/console/main.ts",
     "mcp": "tsx tools/mcp/server.ts",
     "phorge": "tsx tools/phorge/server.ts",
-    "phorge:http": "tsx tools/phorge/server.http.ts",
+    "phorge:http": "esbuild tools/phorge/server.http.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/phorge/server.http.js && node --env-file=.env dist/phorge/server.http.js",
     "containers:build": "docker compose -f compose.test.yml build",
     "containers:down": "docker compose -f compose.test.yml down",
     "test:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm runner npm test",
@@ -29,7 +29,9 @@
     "e2e:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test",
     "screenshot:docker": "docker compose -f compose.test.yml -f compose.test.dev.yml run --rm playwright npx playwright test screenshot.spec.ts --project=chromium",
     "agents:build": "docker compose -f compose.agents.yml build",
-    "agent": "docker compose -f compose.agents.yml run --rm agent"
+    "agents:up": "docker compose -f compose.agents.yml up -d agent",
+    "agents:down": "docker compose -f compose.agents.yml down",
+    "agent": "tsx tools/agent.ts"
   },
   "private": true,
   "resolutions": {},
