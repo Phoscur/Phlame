@@ -98,16 +98,32 @@ fmt + lint + typecheck). Beta as of 2026-07 (v0.2.x — young, expect sharp edge
 The oxfmt reformat churn is acceptable on this branch — it already carries the
 Prettify commit.
 
-- [ ] Migrate: `vite-plus` + `@voidzero-dev/vite-plus-core` devDeps, npm overrides
-      alias `vite` → vite-plus-core, vitest pinned to the bundled version
-      (`vp migrate` first, manual fallback)
-- [ ] prettier → oxfmt as a **separate pure-reformat commit**; prettier(+eslint) deps
-      drop — CI only ever gated on oxlint anyway
-- [ ] Update package.json scripts, Phorge verb table (`tools/phorge/plan.ts` — that
-      diff is security-relevant, review it as such), CLAUDE.md commands, CI workflows
-- [ ] Watch: the standard-decorators esbuild pre-plugin (see Toolchain notes above,
-      oxc#9170) must survive the vite-plus core swap; engine's own `npx vitest` run
-      must keep resolving from the root install
+- [x] Migrated (2026-07-11): `vp migrate` + manual cleanup — `vite` aliased to
+      `@voidzero-dev/vite-plus-core@0.2.4` via overrides, vitest pinned 4.1.10
+      (identical to what we had; oxlint 1.72.0 too — a low-risk window). Two
+      migrate artifacts reverted by hand: the `devEngines` block (npm 11 on host
+      and in the node:24 images hard-fails on `onFail: download`) and a missing
+      `tslib` (importHelpers lost its accidental transitive provider — now a
+      direct devDep).
+- [x] prettier → oxfmt landed as pure-reformat commit; prettier + eslint deps and
+      configs dropped. oxfmt formats the WHOLE repo (md/json/yml included — wider
+      than the old prettier scope, accepted). Options live in the `fmt` block of
+      vite.config.ts (`--migrate=prettier` converted .prettierrc/.prettierignore;
+      `endOfLine: auto` unsupported → dropped). One idempotency hiccup: a file
+      needed a second `vp fmt` pass to satisfy `--check` — if that recurs, report
+      upstream.
+- [x] Scripts, Phorge verb table, CLAUDE.md, CI updated. Sharp edge found: the
+      `oxlint` bin that vite-plus ships is an IDE/LSP wrapper — linting goes
+      through `vp lint`, which does NOT auto-discover `.oxlintrc.json`; it needs
+      `-c .oxlintrc.json` explicitly (npm `lint` script + phorge lint verb do).
+      The file stays canonical because CI's fast-fail job runs standalone
+      `oxlint@1.72.0` against it — that pin now tracks the vite-plus bundle,
+      bump together.
+- [x] Verified (2026-07-11, containerized via phorge after image rebuild): test
+      12+19 files green, tsc clean, lint + fmt --check clean, e2e 12/12 across
+      three browsers — `vp dev` serves the app in the phlame service, the
+      standard-decorators esbuild pre-plugin survived the core swap, engine's
+      `npx vitest` keeps resolving from the root install.
 
 ## Side quest — MCP CLI (engine-ui reborn)
 
