@@ -42,9 +42,12 @@ agent then works in `.worktrees/<slug>` on branch `agent/<slug>` (instead of
 YOUR tree) and commits there — repeat dispatches with the same slug continue
 on the branch. **Collect**: review `git log agent/<slug>` and
 `git diff main...agent/<slug>`, merge, verify with `run(test|lint|tsc)`, then
-`git worktree remove .worktrees/<slug>` and delete the branch. Never take
-their report at face value; full transcripts land in the phorge deployment's
-`logs/agent-<slot>.log`. Browser automation NEVER runs
+clean up IN the container (`npm run agent -- git -C /phlame worktree remove
+/phlame/.worktrees/<slug>`; the registrations carry container paths, and a
+host-side `git worktree prune` would orphan EVERY active agent worktree) and
+delete the branch. After merging, `npx vp fmt` the touched files — autocrlf
+checks them out CRLF, oxfmt wants LF. Never take their report at face value;
+full transcripts land in the phorge deployment's `logs/agent-<slot>.log`. Browser automation NEVER runs
 ad hoc on the host — no generated one-off scripts; screenshots go through
 `tests/screenshot.spec.ts`. The game sandbox is the separate **phlame-game** MCP
 ([PLAN-MCP.md](./PLAN-MCP.md)).
