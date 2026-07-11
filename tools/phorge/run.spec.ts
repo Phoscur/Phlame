@@ -90,6 +90,44 @@ describe('phorge runner orchestration', () => {
     await expect(execRun('screenshot')).resolves.toMatchObject({ note: '' });
   });
 
+  it('ensures the agent is up before an agy run', async () => {
+    const { exec, calls } = scriptedExec(() => undefined);
+    const { execAgy } = createRunner(exec);
+    const { result, note } = await execAgy('say hi');
+    expect(result.code).toBe(0);
+    expect(note).toBe('');
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toContain('up');
+    expect(calls[0]).toContain('agent');
+    expect(calls[1]).toContain('agy');
+    expect(calls[1].at(-1)).toBe('say hi');
+  });
+
+  it('restarts the agent when an agy run times out', async () => {
+    const { exec, calls } = scriptedExec((argv) =>
+      argv.includes('agy') ? { timedOut: true, code: -1 } : undefined,
+    );
+    const { execAgy } = createRunner(exec);
+    const { note } = await execAgy('hang forever');
+    expect(note).toContain('agent restarted');
+    expect(calls[2]).toContain('restart');
+  });
+
+  it('limits agy to one concurrent run and frees the slot after', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    const exec: Exec = async (argv) => {
+      if (argv.includes('agy')) await gate;
+      return { code: 0, output: '', truncated: false, timedOut: false };
+    };
+    const { execAgy } = createRunner(exec);
+    const first = execAgy('one');
+    await expect(execAgy('two')).rejects.toThrow(/Max concurrency.*agy/);
+    release();
+    await first;
+    await expect(execAgy('three')).resolves.toMatchObject({ note: '' });
+  });
+
   it('pools runner and playwright separately', async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => (release = resolve));

@@ -11,6 +11,7 @@
 
 export const COMPOSE_FILE = 'compose.test.yml';
 export const DEV_OVERLAY = 'compose.test.dev.yml';
+export const COMPOSE_AGENTS = 'compose.agents.yml';
 
 /** run verbs execute in the ephemeral runners WITH the dev overlay (live source) */
 const composeDev = ['compose', '-f', COMPOSE_FILE, '-f', DEV_OVERLAY] as const;
@@ -125,6 +126,47 @@ export function planLogs(service: Service, tail: number): string[] {
   // clamp to a sane window — logs are a probe, not a dump
   const lines = Math.min(Math.max(Math.trunc(tail) || 50, 1), 500);
   return [...composeBase, 'logs', '--no-color', '--tail', String(lines), service];
+}
+
+/** agent-stack verbs address the agents compose project (sleeping `agent` service) */
+const composeAgents = ['compose', '-f', COMPOSE_AGENTS] as const;
+
+/**
+ * Idempotent warm-up for the agent container. Its start command runs
+ * tools/agent/setup.sh (agy MCP config from env, credential seeding), so a
+ * cold container comes up ready for the agy verb.
+ */
+export function planAgentUp(): string[] {
+  return [...composeAgents, 'up', '-d', 'agent'];
+}
+
+/**
+ * Headless agy prompt inside the agent container. The prompt is ONE argv
+ * element handed to `agy -p` — data for the LLM, inert for a shell (spawned
+ * shell:false end to end, like every plan here). The
+ * --dangerously-skip-permissions is deliberate and container-scoped: inside
+ * the agent container the container wall is the permission boundary
+ * (PLAN-CONTAINERS O2); the same flag on a host agy would be reckless.
+ */
+export function planAgy(prompt: string): string[] {
+  return [
+    ...composeAgents,
+    'exec',
+    '-T',
+    'agent',
+    'agy',
+    '--dangerously-skip-permissions',
+    '-p',
+    prompt,
+  ];
+}
+
+/**
+ * Reap a timed-out agy exec — same hole as the playwright exec verbs: killing
+ * the docker CLI client leaves agy running inside the sleeping container.
+ */
+export function planAgentRestart(): string[] {
+  return [...composeAgents, 'restart', 'agent'];
 }
 
 export function planPs(): string[] {

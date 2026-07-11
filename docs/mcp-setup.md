@@ -40,7 +40,7 @@ If you prefer to run Phorge in the background and write outputs/errors to log fi
 ./mcp.sh -d
 ```
 
-- Logs are written to [**`logs/phorge.log`**](file:///mnt/c/Users/phosc/Projects/phlame/logs/phorge.log) and `logs/phorge.err.log`.
+- Logs are written to `logs/phorge.log` and `logs/phorge.err.log`.
 - To follow the logs: `tail -f logs/phorge.log`
 - To stop: `npm run agents:down && kill $(cat logs/phorge.pid)`
 
@@ -50,7 +50,7 @@ If you prefer to run Phorge in the background and write outputs/errors to log fi
 .\mcp.ps1 -Detached
 ```
 
-- Logs are written to [**`logs/phorge.log`**](file:///mnt/c/Users/phosc/Projects/phlame/logs/phorge.log) and [**`logs/phorge.err.log`**](file:///mnt/c/Users/phosc/Projects/phlame/logs/phorge.err.log).
+- Logs are written to `logs/phorge.log` and `logs/phorge.err.log`.
 - To follow the logs: `Get-Content -Path logs/phorge.log, logs/phorge.err.log -Wait`
 - To stop: `npm run agents:down; Stop-Process -Id (Get-Content logs/phorge.pid) -Force`
 
@@ -70,3 +70,27 @@ Inside the container shell, the `agy` command is fully available:
 # Inside the container:
 agy
 ```
+
+The container's start command runs `tools/agent/setup.sh`: it generates agy's
+MCP config from the container env (agy does not expand `${VAR}` placeholders in
+config files) and copies the read-only-mounted host credentials into the
+container-private volume. A rotated `PHORGE_TOKEN` lands via
+`docker compose -f compose.agents.yml up -d --force-recreate agent`.
+
+## Headless agy runs
+
+Inside the container, agy runs non-interactively with permissions auto-approved:
+
+```bash
+agy --dangerously-skip-permissions -p "Call the phorge status tool"
+```
+
+`--dangerously-skip-permissions` is a deliberate, **container-scoped** choice:
+the container wall is the permission boundary (PLAN-CONTAINERS O2) — the agent
+may do anything inside, and nothing outside except talk to Phorge. Never run
+agy with this flag on the host.
+
+The same run is available as a **phorge MCP tool**: `agy(prompt)` — warm-up,
+one-at-a-time concurrency, 6-minute timeout, bounded output. That closes the
+loop both ways: agy-in-the-container calls phorge verbs, and any phorge client
+(e.g. Claude on the host) can dispatch a containerized agy run.

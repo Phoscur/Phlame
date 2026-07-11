@@ -40,7 +40,7 @@ function verdict(label: string, result: ExecResult, note = '', chars = TAIL_CHAR
 }
 
 // Orchestration (concurrency, warm-up, reaping) lives in run.ts — spec'd there.
-const { execRun } = createRunner();
+const { execRun, execAgy } = createRunner();
 
 export function registerTools(server: McpServer): void {
   server.registerTool(
@@ -79,6 +79,29 @@ export function registerTools(server: McpServer): void {
       try {
         const { result, note } = await execRun(verb);
         return verdict(verb, result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
+      } catch (error) {
+        return fail(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    'agy',
+    {
+      description:
+        'Run a headless agy (Antigravity CLI) prompt inside the agent container (compose.agents.yml) and return its answer. agy has the phorge MCP wired up in there, so it can run verbs itself. Permissions are auto-approved INSIDE the container only — the container wall is the boundary. One run at a time, 6-minute timeout; returns the output tail, pass verbose for more.',
+      inputSchema: {
+        prompt: z.string().min(1).describe('the task/question for the containerized agy run'),
+        verbose: z
+          .boolean()
+          .optional()
+          .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
+      },
+    },
+    async ({ prompt, verbose }) => {
+      try {
+        const { result, note } = await execAgy(prompt);
+        return verdict('agy', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);
       }
