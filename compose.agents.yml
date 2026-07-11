@@ -38,9 +38,12 @@ services:
     tty: true
     # Sleeping service (same pattern as the playwright runner): `up -d` keeps the
     # container alive and visible in Docker Desktop; sessions go in via exec.
-    # Headless runs that should show up in the Desktop log tab pipe through
+    # The start command runs the session setup (agy MCP config from env,
+    # credential seeding) so every entry path finds a configured agent —
+    # a token rotation lands via `up -d --force-recreate`. Headless runs that
+    # should show up in the Desktop log tab pipe through
     # `... | tee /proc/1/fd/1` (PID1's stdout is the container log).
-    command: sleep infinity
+    command: ['bash', '-c', '/phlame/tools/agent/setup.sh && exec sleep infinity']
     environment:
       # Host-owned Phorge (O1) — the only controlled channel back to Docker.
       PHORGE_URL: http://host.docker.internal:4201/mcp
@@ -66,10 +69,15 @@ services:
       # Container-private agent state (see trust model above).
       - agent_gemini:/root/.gemini
       - agent_claude:/root/.claude
-      # Seed credentials by mounting host credential files read-only.
+      # agy credential seed: host store mounted read-only, copied into the live
+      # volume by tools/agent/setup.sh on container start (agy has no headless
+      # token equivalent yet). NOTE the rotation hazard: if agy ever rotates
+      # these, host and container copies drift — watch the host login.
       - ${USERPROFILE:-$HOME}/.gemini/antigravity-cli/implicit:/root/.gemini/antigravity-cli/implicit-host:ro
-      - ${USERPROFILE:-$HOME}/.claude/.credentials.json:/root/.claude/.credentials.json:ro
-      - ${USERPROFILE:-$HOME}/.claude.json:/root/.claude.json:ro
+      # claude needs NO file seeding: CLAUDE_CODE_OAUTH_TOKEN (env above) is the
+      # subscription login in token form (`claude setup-token`, one-time).
+      # Sharing ~/.claude/.credentials.json instead would race the host on
+      # refresh-token rotation and EROFS on the container's refresh writes.
 
 volumes:
   agent_node_modules:

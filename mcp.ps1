@@ -2,15 +2,12 @@ param (
     [switch]$Detached
 )
 
-# 1. Kill any process running on port 4201
-Write-Host "Checking for running processes on port 4201..."
-$portActive = Get-NetTCPConnection -LocalPort 4201 -ErrorAction SilentlyContinue
-if ($portActive) {
-    Write-Host "Killing process on port 4201..."
-    $processId = $portActive.OwningProcess | Select-Object -Unique
-    foreach ($targetPid in $processId) {
-        Stop-Process -Id $targetPid -Force -ErrorAction SilentlyContinue
-    }
+# 1. Stop a previous detached phorge (pidfile only — never blind-kill a port)
+if (Test-Path logs/phorge.pid) {
+    $prevPid = Get-Content logs/phorge.pid
+    Write-Host "Stopping previous phorge (pid $prevPid)..."
+    Stop-Process -Id $prevPid -Force -ErrorAction SilentlyContinue
+    Remove-Item logs/phorge.pid -ErrorAction SilentlyContinue
 }
 
 # 2. Compile Phorge server
