@@ -92,9 +92,14 @@ mounted socket, which is root-equivalent and would make the ban decorative. So:
   container. _Half landed 2026-07-11_: `server.http.ts` serves the stateless
   streamable-HTTP transport on `127.0.0.1:4201/mcp` behind a constant-time bearer
   middleware (`auth.ts`, spec'd; token via `.env`, fail-closed); stdio and HTTP
-  entries share `tools.ts`. **Still open**: the actual host-owned deployment — run
-  from a git-clean checkout/compiled dist, not `tsx` on the agent-writable working
-  tree. O1 hardens from "should" to **prerequisite** the moment any GitHub-touching
+  entries share `tools.ts`. _Deployment landed 2026-07-11_: `${PHLAME_WORKTREE:-.}`
+  parametrizes every bind-mount source, compose project names are pinned, and
+  `tools/phorge/stack.ts` runs the whole stack from a git-clean sibling checkout
+  (`../phlame-phorge`) — verified live: verbs green through the deployed instance
+  while the runner demonstrably mounts the WORKTREE's `src`, with verb tables and
+  compose topology from the clean checkout. Update = human pull + restart
+  (docs/mcp-setup.md, "Host-owned deployment"). O1 hardened from "should" to
+  **prerequisite** the moment any GitHub-touching
   verbs appear (PLAN.md open question 2: repo creation as game mechanic): a GitHub
   token next to an agent-writable verb table is an exfil channel — host-owned,
   git-clean checkout first, token never in an agent container.
@@ -264,8 +269,12 @@ run --rm playwright npx playwright test` (no dev overlay — self-contained).
       host dispatch containerized agent runs. Session setup moved into the
       container start command (tools/agent/setup.sh), so the verb needs no
       wrapper to have run first.
-- [ ] **Blocker for real use**: O1 host-owned Phorge (clean checkout/dist) before an
-      agent container gets `PHORGE_TOKEN`
+- [x] **O1 blocker cleared (2026-07-11)**: Phorge deployed host-owned from the
+      git-clean `../phlame-phorge` checkout (esbuild bundle + deployment-owned
+      `.env`, `PHLAME_WORKTREE` pointing at the agent worktree). Discipline note:
+      the boundary only holds while Phorge is actually run from there — the
+      worktree entries (`phorge:stack`/`phorge:up`) stay for dev, don't hand an
+      agent container the token while one of those serves port 4201.
 - [ ] MCP wiring for in-container claude: HTTP phorge entry (repo `.mcp.json` still
       carries the host-side stdio entries)
 
