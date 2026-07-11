@@ -2,7 +2,16 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { planLogs, planPs, planBuild, planDown, RUN_VERBS, SERVICES } from './plan';
+import {
+  planLogs,
+  planPs,
+  planBuild,
+  planDown,
+  planAgentUp,
+  planAgyModels,
+  RUN_VERBS,
+  SERVICES,
+} from './plan';
 import { execDocker, stripAnsi, tail, type ExecResult } from './exec';
 import { createRunner } from './run';
 
@@ -90,18 +99,31 @@ export function registerTools(server: McpServer): void {
     'agy',
     {
       description:
-        'Run a headless agy (Antigravity CLI) prompt inside the agent container (compose.agents.yml) and return its answer. agy has the phorge MCP wired up in there, so it can run verbs itself. Permissions are auto-approved INSIDE the container only — the container wall is the boundary. One run at a time, 6-minute timeout; returns the output tail, pass verbose for more.',
+        'Run a headless agy (Antigravity CLI) prompt inside an agent container (compose.agents.yml) and return its answer. agy follows /phlame/AGENTS.md and has the phorge MCP wired up, so it can run verbs itself. Permissions are auto-approved INSIDE the container only — the container wall is the boundary. Two agent slots shared with claude, 6-minute timeout; returns the output tail, pass verbose for more.',
       inputSchema: {
         prompt: z.string().min(1).describe('the task/question for the containerized agy run'),
         verbose: z
           .boolean()
           .optional()
           .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
+        model: z
+          .enum([
+            'Gemini 3.5 Flash (Medium)',
+            'Gemini 3.5 Flash (High)',
+            'Gemini 3.5 Flash (Low)',
+            'Gemini 3.1 Pro (Low)',
+            'Gemini 3.1 Pro (High)',
+            'Claude Sonnet 4.6 (Thinking)',
+            'Claude Opus 4.6 (Thinking)',
+            'GPT-OSS 120B (Medium)',
+          ])
+          .optional()
+          .describe('the model to use (default: Gemini 3.1 Pro (High))'),
       },
     },
-    async ({ prompt, verbose }) => {
+    async ({ prompt, verbose, model }) => {
       try {
-        const { result, note } = await execAgent('agy', prompt);
+        const { result, note } = await execAgent('agy', prompt, model);
         return verdict('agy', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);
@@ -113,19 +135,48 @@ export function registerTools(server: McpServer): void {
     'claude',
     {
       description:
-        'Run a headless claude (Claude Code) prompt inside the agent container (compose.agents.yml) and return its answer. Same yolo mode as agy (permissions auto-approved INSIDE the container — the wall is the boundary); phorge is wired over HTTP (--strict-mcp-config, generated config). Shares the one-at-a-time agent slot with agy; 6-minute timeout; returns the output tail, pass verbose for more.',
+        'Run a headless claude (Claude Code) prompt inside an agent container (compose.agents.yml) and return its answer. Same yolo mode as agy (permissions auto-approved INSIDE the container — the wall is the boundary), follows /phlame/AGENTS.md; phorge is wired over HTTP (--strict-mcp-config, generated config). Two agent slots shared with agy; 6-minute timeout; returns the output tail, pass verbose for more.',
       inputSchema: {
         prompt: z.string().min(1).describe('the task/question for the containerized claude run'),
         verbose: z
           .boolean()
           .optional()
           .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
+        model: z
+          .string()
+          .optional()
+          .describe(
+            "the model to use: 'sonnet', 'opus', 'haiku' or a full model id (default: the account's default)",
+          ),
       },
     },
-    async ({ prompt, verbose }) => {
+    async ({ prompt, verbose, model }) => {
       try {
-        const { result, note } = await execAgent('claude', prompt);
+        const { result, note } = await execAgent('claude', prompt, model);
         return verdict('claude', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
+      } catch (error) {
+        return fail(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    'models',
+    {
+      description:
+        "List the models the containerized agents can run: agy's live list (`agy models`) plus claude's aliases. Use the exact labels/aliases as the `model` parameter of the agy/claude tools.",
+      inputSchema: {},
+    },
+    async () => {
+      try {
+        const up = await execDocker(planAgentUp());
+        if (up.code !== 0) {
+          return verdict('models', up, 'compose up -d agent failed');
+        }
+        const result = await execDocker(planAgyModels(), { timeoutMs: 60_000 });
+        const claudeNote =
+          "\nclaude models: 'sonnet' | 'opus' | 'haiku' or a full model id (e.g. claude-sonnet-5).";
+        return verdict('models', { ...result, output: result.output + claudeNote });
       } catch (error) {
         return fail(error);
       }

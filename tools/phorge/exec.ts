@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import { createWriteStream, mkdirSync, type WriteStream } from 'node:fs';
+import { dirname } from 'node:path';
 
 /**
  * Shell-free executor. argv elements are discrete arguments (shell:false),
@@ -20,6 +22,7 @@ export interface ExecResult {
 export interface ExecLimits {
   timeoutMs?: number;
   maxOutputBytes?: number;
+  logFile?: string;
 }
 
 const MAX_OUTPUT_BYTES = 1024 * 1024; // 1 MiB
@@ -33,9 +36,18 @@ export function execDocker(argv: string[], limits: ExecLimits = {}): Promise<Exe
 export function execCapture(
   file: string,
   argv: string[],
-  { timeoutMs = TIMEOUT_MS, maxOutputBytes = MAX_OUTPUT_BYTES }: ExecLimits = {},
+  { timeoutMs = TIMEOUT_MS, maxOutputBytes = MAX_OUTPUT_BYTES, logFile }: ExecLimits = {},
 ): Promise<ExecResult> {
   return new Promise((resolve, reject) => {
+    let logStream: WriteStream | undefined;
+    if (logFile) {
+      mkdirSync(dirname(logFile), { recursive: true });
+      logStream = createWriteStream(logFile, { flags: 'a' });
+      logStream.write(
+        `\n\n--- Exec Started at ${new Date().toISOString()} ---\n> ${file} ${argv.join(' ')}\n\n`,
+      );
+    }
+
     const child = spawn(file, argv, { shell: false, cwd: process.cwd() });
 
     const chunks: Buffer[] = [];
@@ -44,6 +56,9 @@ export function execCapture(
     let timedOut = false;
 
     const collect = (chunk: Buffer) => {
+      if (logStream) {
+        logStream.write(chunk);
+      }
       if (truncated) return;
       bytes += chunk.length;
       chunks.push(chunk);
@@ -66,8 +81,12 @@ export function execCapture(
     });
     child.on('close', (code) => {
       clearTimeout(timer);
+      if (logStream) {
+        logStream.write(`\n--- Exec Finished (Code: ${timedOut ? 'TIMEOUT' : code}) ---\n`);
+        logStream.end();
+      }
       resolve({
-        code: code ?? -1,
+        code: timedOut ? -1 : (code ?? -1),
         output: Buffer.concat(chunks).toString('utf8'),
         truncated,
         timedOut,

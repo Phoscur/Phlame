@@ -30,6 +30,8 @@ name: phlame-agents
 
 services:
   agent:
+    deploy:
+      replicas: 2
     build:
       context: .
       dockerfile: Dockerfile.agent

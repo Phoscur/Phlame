@@ -132,12 +132,22 @@ export function planLogs(service: Service, tail: number): string[] {
 const composeAgents = ['compose', '-f', COMPOSE_AGENTS] as const;
 
 /**
- * Deterministic: the project name is pinned (`name: phlame-agents`), single
- * replica. Agent prompts exec via plain `docker exec` (not compose exec) on
- * purpose: without -i stdin is CLOSED — compose exec keeps it open and claude
- * then stalls 3s "waiting for stdin" on every run.
+ * Deterministic: the project name is pinned (`name: phlame-agents`) and the
+ * replicas (compose `deploy.replicas`) are numbered — slot N is container
+ * `…-agent-N`. Agent prompts exec via plain `docker exec` (not compose exec)
+ * on purpose: without -i stdin is CLOSED — compose exec keeps it open and
+ * claude then stalls 3s "waiting for stdin" on every run.
  */
-export const AGENT_CONTAINER = 'phlame-agents-agent-1';
+export function getAgentContainer(slot: number): string {
+  return `phlame-agents-agent-${slot}`;
+}
+
+/**
+ * One line of situational awareness for claude (agy picks AGENTS.md up on its
+ * own) — the actual rules live in /phlame/AGENTS.md, versioned and reviewable.
+ */
+const CLAUDE_SYSTEM_PROMPT =
+  'You run headless inside the phlame agent container in yolo mode. Read /phlame/AGENTS.md first and obey it.';
 
 /**
  * Idempotent warm-up for the agent container. Its start command runs
@@ -156,8 +166,13 @@ export function planAgentUp(): string[] {
  * the agent container the container wall is the permission boundary
  * (PLAN-CONTAINERS O2); the same flag on a host agy would be reckless.
  */
-export function planAgy(prompt: string): string[] {
-  return ['exec', AGENT_CONTAINER, 'agy', '--dangerously-skip-permissions', '-p', prompt];
+export function planAgy(slot: number, prompt: string, model?: string): string[] {
+  const args = ['exec', getAgentContainer(slot), 'agy', '--dangerously-skip-permissions'];
+  if (model) {
+    args.push('--model', model);
+  }
+  args.push('-p', prompt);
+  return args;
 }
 
 /**
@@ -170,10 +185,10 @@ export function planAgy(prompt: string): string[] {
  * after -p by convention (some claude flags are variadic and would swallow a
  * trailing prompt).
  */
-export function planClaude(prompt: string): string[] {
-  return [
+export function planClaude(slot: number, prompt: string, model?: string): string[] {
+  const args = [
     'exec',
-    AGENT_CONTAINER,
+    getAgentContainer(slot),
     'claude',
     '-p',
     prompt,
@@ -181,15 +196,27 @@ export function planClaude(prompt: string): string[] {
     '--strict-mcp-config',
     '--mcp-config',
     '/root/.claude-phorge-mcp.json',
+    '--append-system-prompt',
+    CLAUDE_SYSTEM_PROMPT,
   ];
+  if (model) {
+    args.push('--model', model);
+  }
+  return args;
+}
+
+/** List agy's selectable models (read-only, no yolo flag needed). */
+export function planAgyModels(): string[] {
+  return ['exec', getAgentContainer(1), 'agy', 'models'];
 }
 
 /**
  * Reap a timed-out agent exec — same hole as the playwright exec verbs: killing
  * the docker CLI client leaves the agent running inside the sleeping container.
  */
-export function planAgentRestart(): string[] {
-  return [...composeAgents, 'restart', 'agent'];
+export function planAgentRestart(slot: number = 1): string[] {
+  // plain docker verb — the executor prepends `docker` itself
+  return ['restart', getAgentContainer(slot)];
 }
 
 export function planPs(): string[] {

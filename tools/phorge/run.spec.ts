@@ -114,20 +114,29 @@ describe('phorge runner orchestration', () => {
     expect(calls[2]).toContain('restart');
   });
 
-  it('agy and claude share the single agent slot', async () => {
+  it('agy and claude share the agent slot pool across distinct replicas', async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => (release = resolve));
+    const agentCalls: string[][] = [];
     const exec: Exec = async (argv) => {
-      if (argv.includes('agy')) await gate;
+      if (argv.includes('agy') || argv.includes('claude')) {
+        agentCalls.push(argv);
+        await gate;
+      }
       return { code: 0, output: '', truncated: false, timedOut: false };
     };
     const { execAgent } = createRunner(exec);
     const first = execAgent('agy', 'one');
-    // the OTHER cli is rejected too — same container, same slot
-    await expect(execAgent('claude', 'two')).rejects.toThrow(/Max concurrency.*agent container/);
+    const second = execAgent('claude', 'two');
+    // third parallel run exceeds the pool (MAX_AGENT_CONCURRENCY replicas)
+    await expect(execAgent('claude', 'three')).rejects.toThrow(/Max concurrency.*agent container/);
     release();
-    await first;
-    await expect(execAgent('claude', 'three')).resolves.toMatchObject({ note: '' });
+    await Promise.all([first, second]);
+    // the two parallel runs landed on DIFFERENT replica containers
+    const containers = agentCalls.map((argv) => argv[argv.indexOf('exec') + 1]);
+    expect(new Set(containers).size).toBe(2);
+    // a freed slot is reusable
+    await expect(execAgent('claude', 'four')).resolves.toMatchObject({ note: '' });
   });
 
   it('pools runner and playwright separately', async () => {

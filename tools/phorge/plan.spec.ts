@@ -6,8 +6,9 @@ import {
   planClaude,
   planAgentUp,
   planAgentRestart,
+  planAgyModels,
   COMPOSE_AGENTS,
-  AGENT_CONTAINER,
+  getAgentContainer,
   planUp,
   planRestart,
   planLogs,
@@ -91,31 +92,39 @@ describe('phorge verb table', () => {
 
   it('plans agy as a plain docker exec (stdin closed) with the prompt as one inert argv', () => {
     const hostile = 'run lint; $(rm -rf /) `evil` && echo pwned';
-    const argv = planAgy(hostile);
+    const argv = planAgy(1, hostile, 'Gemini 3.1 Pro (High)');
     // plain `docker exec` on the pinned container name — compose exec keeps
     // stdin open and stalls the CLIs; without -i it is closed.
-    expect(argv.slice(0, 2)).toEqual(['exec', AGENT_CONTAINER]);
+    expect(argv.slice(0, 2)).toEqual(['exec', getAgentContainer(1)]);
     expect(argv).not.toContain('-i');
     expect(argv).toContain('--dangerously-skip-permissions'); // container wall is the boundary
+    expect(argv).toContain('--model');
+    expect(argv).toContain('Gemini 3.1 Pro (High)');
     // The prompt stays ONE argv element — metacharacters never meet a shell.
     expect(argv.at(-1)).toBe(hostile);
     expect(argv.at(-2)).toBe('-p');
   });
 
   it('plans claude in the same yolo mode, prompt directly after -p', () => {
-    const argv = planClaude('call phorge status');
-    expect(argv.slice(0, 2)).toEqual(['exec', AGENT_CONTAINER]);
+    const argv = planClaude(2, 'call phorge status', 'sonnet');
+    expect(argv.slice(0, 2)).toEqual(['exec', getAgentContainer(2)]);
     expect(argv[argv.indexOf('-p') + 1]).toBe('call phorge status');
     // Yolo like agy — IS_SANDBOX=1 in compose.agents.yml lifts claude's
     // as-root refusal; the container wall is the permission boundary.
     expect(argv).toContain('--dangerously-skip-permissions');
     expect(argv).toContain('--strict-mcp-config'); // repo .mcp.json stdio entry cannot work in-container
     expect(argv).toContain('/root/.claude-phorge-mcp.json');
+    // situational awareness: the yolo rules live in AGENTS.md, versioned
+    expect(argv[argv.indexOf('--append-system-prompt') + 1]).toContain('AGENTS.md');
+    expect(argv[argv.indexOf('--model') + 1]).toBe('sonnet');
   });
 
-  it('plans agent warm-up and restart against the agents compose file', () => {
+  it('plans agent warm-up, restart and model listing', () => {
     expect(planAgentUp()).toEqual(['compose', '-f', COMPOSE_AGENTS, 'up', '-d', 'agent']);
-    expect(planAgentRestart()).toEqual(['compose', '-f', COMPOSE_AGENTS, 'restart', 'agent']);
+    // plain docker verb — the executor prepends `docker` itself (a leading
+    // 'docker' element would spawn `docker docker restart`)
+    expect(planAgentRestart(2)).toEqual(['restart', getAgentContainer(2)]);
+    expect(planAgyModels()).toEqual(['exec', getAgentContainer(1), 'agy', 'models']);
   });
 
   it('screenshot runs only the screenshot spec on chromium', () => {

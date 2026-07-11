@@ -150,10 +150,15 @@ the container wall is the permission boundary (PLAN-CONTAINERS O2) — the agent
 may do anything inside, and nothing outside except talk to Phorge. Never run
 agy with this flag on the host.
 
-The same run is available as a **phorge MCP tool**: `agy(prompt)` — warm-up,
-one-at-a-time concurrency, 6-minute timeout, bounded output. That closes the
-loop both ways: agy-in-the-container calls phorge verbs, and any phorge client
-(e.g. Claude on the host) can dispatch a containerized agy run.
+The same run is available as a **phorge MCP tool**: `agy(prompt, model?)` —
+warm-up, two agent slots (compose `deploy.replicas`, shared with claude, one
+run per replica), 6-minute timeout, bounded output; full transcripts in the
+phorge deployment's `logs/agent-<slot>.log`. The `models` tool lists the
+selectable models live (`agy models`). Both containerized agents follow
+[`AGENTS.md`](../AGENTS.md) — the yolo system prompt (agy picks it up natively,
+claude gets it via `--append-system-prompt`). That closes the loop both ways:
+agents in the container call phorge verbs, and any phorge client (e.g. Claude
+on the host as the conductor — see CLAUDE.md) dispatches containerized runs.
 
 ## Headless claude runs
 

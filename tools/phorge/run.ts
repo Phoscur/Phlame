@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
 import {
   planRun,
   planRm,
@@ -17,12 +18,12 @@ export type AgentCli = 'agy' | 'claude';
 
 export const MAX_RUNNER_CONCURRENCY = 4;
 export const MAX_PLAYWRIGHT_CONCURRENCY = 1;
-/** one agent run at a time — agy and claude share the same container */
-export const MAX_AGENT_CONCURRENCY = 1;
+/** one agent run at a time per replica — agy and claude share the pool */
+export const MAX_AGENT_CONCURRENCY = 2;
 /** agy's own print-mode timeout is 5min — give the verbs a minute of headroom */
 export const AGENT_TIMEOUT_MS = 6 * 60_000;
 
-const AGENT_PLANS: Record<AgentCli, (prompt: string) => string[]> = {
+const AGENT_PLANS: Record<AgentCli, (slot: number, prompt: string, model?: string) => string[]> = {
   agy: planAgy,
   claude: planClaude,
 };
@@ -36,7 +37,8 @@ const AGENT_PLANS: Record<AgentCli, (prompt: string) => string[]> = {
 export function createRunner(exec: Exec = execDocker) {
   let activeRunnerRuns = 0;
   let activePlaywrightRuns = 0;
-  let activeAgentRuns = 0;
+  // slot N ↔ container phlame-agents-agent-N (compose deploy.replicas)
+  const freeAgentSlots = new Set(Array.from({ length: MAX_AGENT_CONCURRENCY }, (_, i) => i + 1));
 
   /**
    * Reap after a timeout kill — which only reaches the docker CLI client. For
@@ -116,33 +118,38 @@ export function createRunner(exec: Exec = execDocker) {
   async function execAgent(
     cli: AgentCli,
     prompt: string,
+    model?: string,
   ): Promise<{ result: ExecResult; note: string }> {
-    if (activeAgentRuns >= MAX_AGENT_CONCURRENCY) {
+    if (freeAgentSlots.size === 0) {
       throw new Error(
         `Max concurrency reached for the agent container (limit: ${MAX_AGENT_CONCURRENCY}). Please wait.`,
       );
     }
-    activeAgentRuns++;
+    const slot = [...freeAgentSlots][0];
+    freeAgentSlots.delete(slot);
     try {
       const up = await exec(planAgentUp());
       if (up.code !== 0) {
         return { result: up, note: 'compose up -d agent failed' };
       }
-      const result = await exec(AGENT_PLANS[cli](prompt), { timeoutMs: AGENT_TIMEOUT_MS });
+      const result = await exec(AGENT_PLANS[cli](slot, prompt, model), {
+        timeoutMs: AGENT_TIMEOUT_MS,
+        logFile: join(process.cwd(), 'logs', `agent-${slot}.log`),
+      });
       if (!result.timedOut) {
         return { result, note: '' };
       }
       try {
-        await exec(planAgentRestart(), { timeoutMs: 60_000 });
+        await exec(planAgentRestart(slot), { timeoutMs: 60_000 });
         return { result, note: `agent restarted — timed-out ${cli} process reaped` };
       } catch {
         return {
           result,
-          note: `timed-out ${cli} NOT reaped — run: docker compose -f compose.agents.yml restart agent`,
+          note: `timed-out ${cli} NOT reaped — run: docker restart phlame-agents-agent-${slot}`,
         };
       }
     } finally {
-      activeAgentRuns--;
+      freeAgentSlots.add(slot);
     }
   }
 
