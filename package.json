@@ -14,7 +14,7 @@
     "play": "playwright test --ui",
     "e2e": "playwright test",
     "ci": "playwright test",
-    "lint": "vp lint && vp fmt --check",
+    "lint": "vp lint -c .oxlintrc.json && vp fmt --check",
     "tsc": "tsc -p tsconfig.spec.json --noEmit",
     "preview": "tsx src/server",
     "console": "tsx tools/console/main.ts",

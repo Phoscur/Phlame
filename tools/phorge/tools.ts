@@ -66,7 +66,7 @@ export function registerTools(server: McpServer): void {
     'run',
     {
       description:
-        'Run a fixed verb in the ephemeral containers (dev overlay: live source, no rebuild needed): test (vitest app+engine), tsc, lint (oxlint+eslint+prettier --check), e2e (playwright, 3 browsers), screenshot (chromium only, writes screenshots/home.png). Returns the output tail; pass verbose for the full (capped) output.',
+        'Run a fixed verb in the ephemeral containers (dev overlay: live source, no rebuild needed): test (vitest app+engine), tsc, lint (vp lint + vp fmt --check), e2e (playwright, 3 browsers), screenshot (chromium only, writes screenshots/home.png). Returns the output tail; pass verbose for the full (capped) output.',
       inputSchema: {
         verb: z.enum(RUN_VERBS),
         verbose: z
