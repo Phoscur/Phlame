@@ -100,24 +100,66 @@ describe('phorge HTTP auth', () => {
   });
 });
 
-describe('phorge HTTP transport (stateless, per-request)', () => {
+describe('phorge HTTP transport (stateful, session map)', () => {
   const TOKEN = 'test-secret-token-42';
 
-  // Regression: the stateless SDK transport throws "cannot be reused across
-  // requests" on the SECOND request if it's a module-level singleton. A single
-  // curl handshake never trips it; a real MCP client (initialize → tools/list →
-  // call) does. Two sequential initialize calls reproduce it without protocol
-  // subtleties — both must succeed against the real app wiring.
-  it('handles two sequential requests without reusing the transport', async () => {
+  // Regression 1: a singleton transport dies on the second client — the SDK
+  // allows exactly one session per transport instance. Two initializes must
+  // yield two DISTINCT sessions, both 200.
+  it('opens a distinct session per initialize', async () => {
     const app = createMcpApp(TOKEN);
 
     const first = await app.request('/mcp', initializeRequest(TOKEN));
     expect(first.status).toBe(200);
+    const firstSession = first.headers.get('mcp-session-id');
+    expect(firstSession).toBeTruthy();
 
     const second = await app.request('/mcp', initializeRequest(TOKEN));
     expect(second.status).toBe(200);
-    const body = await second.text();
-    expect(body).not.toMatch(/reused/i);
+    const secondSession = second.headers.get('mcp-session-id');
+    expect(secondSession).toBeTruthy();
+    expect(secondSession).not.toBe(firstSession);
+  });
+
+  // Regression 2: the real client flow — a follow-up request carrying the
+  // session id must reach the SAME transport (a fresh one would reject it).
+  it('routes follow-up requests to their session', async () => {
+    const app = createMcpApp(TOKEN);
+
+    const init = await app.request('/mcp', initializeRequest(TOKEN));
+    expect(init.status).toBe(200);
+    const sessionId = init.headers.get('mcp-session-id')!;
+
+    const list = await app.request('/mcp', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+        accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId,
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list' }),
+    });
+    expect(list.status).toBe(200);
+    const body = await list.text();
+    expect(body).toContain('"tools"');
+  });
+
+  // A stale session (e.g. after a Phorge restart) gets a 404 so the client
+  // re-initializes instead of hanging.
+  it('rejects unknown session ids with 404', async () => {
+    const app = createMcpApp(TOKEN);
+    const res = await app.request('/mcp', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+        accept: 'application/json, text/event-stream',
+        'mcp-session-id': 'no-such-session',
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'tools/list' }),
+    });
+    expect(res.status).toBe(404);
   });
 
   it('still enforces auth on the real transport endpoint', async () => {
