@@ -36,6 +36,18 @@ function fail(error: unknown) {
 const TAIL_CHARS = 4000;
 const VERBOSE_TAIL_CHARS = 50_000;
 
+/**
+ * The slug feeds a container path AND a git branch name (plan.ts
+ * agentWorktree) — the strict charset is the injection guard.
+ */
+const WORKTREE_SLUG = z
+  .string()
+  .regex(/^[a-z0-9][a-z0-9-]{0,38}$/)
+  .optional()
+  .describe(
+    'task slug: run in git worktree .worktrees/<slug> on branch agent/<slug> — created on first use, reused on repeat dispatches (commits accumulate). Collect on the host: git diff <base>...agent/<slug>, merge, git worktree remove .worktrees/<slug>',
+  );
+
 function verdict(label: string, result: ExecResult, note = '', chars = TAIL_CHARS) {
   const flags = [
     result.timedOut ? 'TIMEOUT' : '',
@@ -119,11 +131,12 @@ export function registerTools(server: McpServer): void {
           ])
           .optional()
           .describe('the model to use (default: Gemini 3.1 Pro (High))'),
+        worktree: WORKTREE_SLUG,
       },
     },
-    async ({ prompt, verbose, model }) => {
+    async ({ prompt, verbose, model, worktree }) => {
       try {
-        const { result, note } = await execAgent('agy', prompt, model);
+        const { result, note } = await execAgent('agy', prompt, model, worktree);
         return verdict('agy', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);
@@ -148,11 +161,12 @@ export function registerTools(server: McpServer): void {
           .describe(
             "the model to use: 'sonnet', 'opus', 'haiku' or a full model id (default: the account's default)",
           ),
+        worktree: WORKTREE_SLUG,
       },
     },
-    async ({ prompt, verbose, model }) => {
+    async ({ prompt, verbose, model, worktree }) => {
       try {
-        const { result, note } = await execAgent('claude', prompt, model);
+        const { result, note } = await execAgent('claude', prompt, model, worktree);
         return verdict('claude', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);

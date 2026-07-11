@@ -20,6 +20,24 @@ for the project itself; this file is about your situation.
 - Network egress exists for your own model API traffic. Use it for nothing
   else: no downloads, no uploads, no reaching for remotes.
 
+## Worktree mode
+
+If you were dispatched with a task worktree, your working directory is
+`/phlame/.worktrees/<slug>` on branch `agent/<slug>` — a separate checkout
+sharing the main repo's `.git`. In that mode:
+
+- **Commit small and often** on YOUR branch (capitalized imperative titles) —
+  the commits are how your work is collected and reviewed on the host. The
+  "commit only when tasked" rule below applies to the MAIN tree, not here.
+- Stay inside your worktree; never edit files under `/phlame` itself.
+- Verify with the local fast path (`npx vitest run <file>`, `npm run tsc`,
+  `npm run lint` — they resolve node_modules from the parent). The phorge
+  `run(...)` verbs test the MAIN worktree, not yours — don't use them to
+  verify your branch.
+- Leave the worktree in a committed state: uncommitted changes may be lost,
+  and the next dispatch (possibly a different agent) continues from your
+  last commit.
+
 ## Rules
 
 1. **Verify through phorge or local fast paths**: `run(test|tsc|lint)` for

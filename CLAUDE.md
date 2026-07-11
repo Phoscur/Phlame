@@ -35,11 +35,16 @@ container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
 **Conducting the yolo agents** (`agy`/`claude` verbs; they obey
 [AGENTS.md](./AGENTS.md)): dispatch **self-contained prompts** — file paths,
 acceptance criteria, whether to commit — sized to one coherent slice (~6-min
-budget, two parallel slots across both CLIs, they share YOUR worktree). Pick a
-model per run (`models` lists agy's; claude takes `sonnet|opus|haiku`): cheap
-for mechanical work, strong for design. Never take their report at face
-value — verify with `run(test|lint|tsc)` and read the `git diff`; full
-transcripts land in the phorge deployment's `logs/agent-<slot>.log`. Browser automation NEVER runs
+budget, two parallel slots across both CLIs). Pick a model per run (`models`
+lists agy's; claude takes `sonnet|opus|haiku`): cheap for mechanical work,
+strong for design. For anything beyond a question, pass a `worktree` slug: the
+agent then works in `.worktrees/<slug>` on branch `agent/<slug>` (instead of
+YOUR tree) and commits there — repeat dispatches with the same slug continue
+on the branch. **Collect**: review `git log agent/<slug>` and
+`git diff main...agent/<slug>`, merge, verify with `run(test|lint|tsc)`, then
+`git worktree remove .worktrees/<slug>` and delete the branch. Never take
+their report at face value; full transcripts land in the phorge deployment's
+`logs/agent-<slot>.log`. Browser automation NEVER runs
 ad hoc on the host — no generated one-off scripts; screenshots go through
 `tests/screenshot.spec.ts`. The game sandbox is the separate **phlame-game** MCP
 ([PLAN-MCP.md](./PLAN-MCP.md)).
