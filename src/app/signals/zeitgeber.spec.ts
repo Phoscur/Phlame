@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { Signal } from 'signal-polyfill';
 import { Zeitgeber } from './zeitgeber';
 import { effect } from './effect';

@@ -20,10 +20,9 @@ x-source-mounts: &source-mounts
   - ./public:/phlame/public:ro
   - ./vite.config.ts:/phlame/vite.config.ts:ro
   - ./playwright.config.ts:/phlame/playwright.config.ts:ro
-  # prettier configs are live (the lint verb runs `prettier --check` in here);
-  # oxlint/eslint configs stay baked — edit those, rebuild the image.
-  - ./.prettierrc:/phlame/.prettierrc:ro
-  - ./.prettierignore:/phlame/.prettierignore:ro
+  # lint/fmt configs are live (the lint verb runs `vp lint -c .oxlintrc.json` and
+  # `vp fmt --check` in here; fmt options live in vite.config.ts, mounted above).
+  - ./.oxlintrc.json:/phlame/.oxlintrc.json:ro
   - ./.editorconfig:/phlame/.editorconfig:ro
   - ./tsconfig.json:/phlame/tsconfig.json:ro
   - ./tsconfig.app.json:/phlame/tsconfig.app.json:ro

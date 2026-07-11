@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { createRunner, type Exec } from './run';
 import type { ExecResult } from './exec';
 

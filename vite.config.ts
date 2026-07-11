@@ -1,5 +1,5 @@
-/// <reference types='vitest/config' />
-import { defineConfig, type Plugin } from 'vite';
+/// <reference types='vite-plus' />
+import { defineConfig, type Plugin } from 'vite-plus';
 import tailwindcss from '@tailwindcss/vite';
 import devServer from '@hono/vite-dev-server';
 import { transform } from 'esbuild';
@@ -35,6 +35,22 @@ function esbuildDecorators(): Plugin {
 }
 
 export default defineConfig({
+  fmt: {
+    printWidth: 100,
+    singleQuote: true,
+    semi: true,
+    trailingComma: 'all',
+    sortPackageJson: false,
+    ignorePatterns: [
+      '/dist',
+      '/coverage',
+      '/playwright-report',
+      '/test-results',
+      '/screenshots',
+      '/data',
+      'package-lock.json',
+    ],
+  },
   root: 'src/app',
   publicDir: path.resolve('public'),
   cacheDir: './node_modules/.vite/.',
@@ -45,7 +61,6 @@ export default defineConfig({
       '@phlame/engine': path.resolve('engine/src/index.ts'),
     },
   },
-
 
   server: {
     port: 4200,

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { empireMiddleware } from './empire.middleware';
 import { EngineService } from './engine.server';

@@ -26,16 +26,18 @@ export type Service = (typeof SERVICES)[number];
 const RUN_PLANS: Record<RunVerb, string[]> = {
   test: ['runner', 'sh', '-c', 'npx vitest run && cd engine && npx vitest run'],
   tsc: ['runner', 'npx', 'tsc', '-p', 'tsconfig.spec.json', '--noEmit'],
-  // prettier is --check only: the dev overlay mounts source read-only, so the
-  // container verifies formatting, writing happens host-side while editing. The
-  // scope is the mounted dirs — everything else in the container is baked (stale).
-  // Both stages always run (`;`), but each failure still fails the verb: a bare
-  // `;` would report only the LAST exit code, letting green prettier mask red eslint.
+  // Vite+ tooling: `vp lint` wraps oxlint but does NOT auto-discover .oxlintrc.json
+  // (the file stays canonical — CI's standalone fast-fail oxlint reads it), so pass
+  // it via -c. `vp fmt` is --check only: the dev overlay mounts source read-only, so
+  // the container verifies formatting (options live in vite.config.ts `fmt`),
+  // writing happens host-side while editing. Both stages always run (`;`), but each
+  // failure still fails the verb: a bare `;` would report only the LAST exit code,
+  // letting a green format check mask red lint.
   lint: [
     'runner',
     'sh',
     '-c',
-    'npx oxlint && npx eslint; l=$?; npx prettier --check src engine/src tools tests; p=$?; exit $((l || p))',
+    'npx vp lint -c .oxlintrc.json; l=$?; npx vp fmt --check; f=$?; exit $((l || f))',
   ],
   e2e: ['playwright', 'npx', 'playwright', 'test'],
   screenshot: [

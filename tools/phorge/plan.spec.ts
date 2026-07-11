@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vite-plus/test';
 import {
   planRun,
   planRm,
@@ -80,7 +80,7 @@ describe('phorge verb table', () => {
   });
 
   it('lint chains the format check (read-only mounts: check, never write)', () => {
-    expect(planRun('lint', runId).at(-1)).toContain('prettier --check');
+    expect(planRun('lint', runId).at(-1)).toContain('vp fmt --check');
   });
 
   it('screenshot runs only the screenshot spec on chromium', () => {

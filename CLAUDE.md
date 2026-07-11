@@ -22,7 +22,8 @@ older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two part
 - `npm start` — dev server at http://localhost:4200
 - `npm test` — all unit tests once (app: jsdom, engine: node)
 - `npx vitest run <file>` — single test file; in `engine/`: `npx vitest --watch`
-- `npm run tsc` && `npm run lint` — typecheck + eslint (run both before considering work done)
+- `npm run tsc` && `npm run lint` — typecheck + lint/format check (Vite+: `vp lint` =
+  oxlint, `vp fmt --check` = oxfmt; run both before considering work done)
 - `npm run e2e` — Playwright; starts the dev server itself (reuses a running one locally)
 
 **Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)):
@@ -57,4 +58,5 @@ ad hoc on the host — no generated one-off scripts; screenshots go through
 - `data/` holds runtime save files (sessions, zeit.json) — never commit or hand-edit while
   the server runs; delete a session file to reset a broken session.
 - i18n: user-facing strings go through `src/app/i18n.ts` translations, not hardcoded text.
-- Prettier is configured (`.prettierrc`); match existing style, 100-char-ish lines.
+- Formatting via oxfmt (`npx vp fmt`; options in the `fmt` block of `vite.config.ts`,
+  lint rules in `.oxlintrc.json`); match existing style, 100-char-ish lines.
