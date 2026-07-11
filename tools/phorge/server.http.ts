@@ -1,14 +1,15 @@
 import { createServer } from 'node:http';
-import { timingSafeEqual } from 'node:crypto';
 import { Hono } from 'hono';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
+import { bearerAuth } from './auth';
 import { registerTools } from './tools';
 
 /**
  * Phorge — HTTP transport entry (PLAN-CONTAINERS O1). Host-owned, token-authed
  * endpoint that containerized agents reach without a Docker socket. The stdio
- * entry (server.ts) stays for host-side clients; both share tools.ts.
+ * entry (server.ts) stays for host-side clients; both share tools.ts. The auth
+ * middleware lives in auth.ts (spec'd there — this file is wiring only).
  *
  * Env:
  *   PHORGE_TOKEN  — required, bearer token for auth (fail-closed: missing = exit)
@@ -23,50 +24,6 @@ if (!PHORGE_TOKEN) {
 
 const port = Number(process.env.PHORGE_PORT) || 4201;
 
-// --- Bearer token auth -------------------------------------------------------
-
-const tokenBytes = Buffer.from(PHORGE_TOKEN, 'utf8');
-
-/**
- * Constant-time bearer token check. Returns true if the Authorization header
- * carries a valid `Bearer <token>`, false otherwise. Length differences are
- * caught before timingSafeEqual (which requires equal-length buffers).
- */
-export function verifyBearer(header: string | null | undefined): boolean {
-  if (!header?.startsWith('Bearer ')) return false;
-  const candidate = Buffer.from(header.slice(7), 'utf8');
-  if (candidate.length !== tokenBytes.length) return false;
-  return timingSafeEqual(candidate, tokenBytes);
-}
-
-// --- Hono app ----------------------------------------------------------------
-
-export function createApp(token?: string): Hono {
-  // Allow tests to inject a different token (they can't set process.env before
-  // the module-level guard). When called from the main block below, `token` is
-  // undefined and the module-level tokenBytes are used.
-  const expected = token ? Buffer.from(token, 'utf8') : tokenBytes;
-
-  const app = new Hono();
-
-  // Auth middleware — runs before the MCP transport handler
-  app.use('/mcp', async (c, next) => {
-    const auth = c.req.header('Authorization');
-    if (!auth?.startsWith('Bearer ')) {
-      return c.json({ error: 'missing or malformed Authorization header' }, 401);
-    }
-    const candidate = Buffer.from(auth.slice(7), 'utf8');
-    if (candidate.length !== expected.length || !timingSafeEqual(candidate, expected)) {
-      return c.json({ error: 'invalid token' }, 401);
-    }
-    await next();
-  });
-
-  return app;
-}
-
-// --- MCP transport -----------------------------------------------------------
-
 const mcpServer = new McpServer({ name: 'phorge', version: '0.2.0' });
 registerTools(mcpServer);
 
@@ -77,13 +34,10 @@ const transport = new WebStandardStreamableHTTPServerTransport({
 });
 await mcpServer.connect(transport);
 
-const app = createApp();
-
+const app = new Hono();
+app.use('/mcp', bearerAuth(PHORGE_TOKEN));
 // Mount the MCP transport on /mcp — supports POST (requests) and GET (SSE stream)
-app.all('/mcp', async (c) => {
-  const response = await transport.handleRequest(c.req.raw);
-  return response;
-});
+app.all('/mcp', (c) => transport.handleRequest(c.req.raw));
 
 // --- HTTP server (localhost only) --------------------------------------------
 
@@ -109,15 +63,12 @@ const server = createServer(async (req, res) => {
   res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
   if (response.body) {
     const reader = response.body.getReader();
-    const pump = async () => {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        res.write(value);
-      }
-      res.end();
-    };
-    await pump();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(value);
+    }
+    res.end();
   } else {
     res.end();
   }

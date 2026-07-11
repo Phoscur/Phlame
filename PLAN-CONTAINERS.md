@@ -79,17 +79,22 @@ containerized agent lives _in that container_ — it could only reach Docker via
 mounted socket, which is root-equivalent and would make the ban decorative. So:
 
 - **O0 (this branch, shipped 2026-07-10)** — Phorge as stdio MCP on the host;
-  Claude-on-host uses it today. Verb table and executor TDD'd (`plan.spec.ts` +
-  `exec.spec.ts`, 15 specs),
+  Claude-on-host uses it today. Verb table, executor, orchestration and HTTP auth
+  TDD'd (plan/exec/run/auth specs),
   `.mcp.json` registers both servers, `.claude/settings.json` allowlists them.
   Verified: stdio handshake, tools/list, and a live `status` call through the
   argv executor. Bash verbs stay as fallback.
-- **O1** — host-owned Phorge over streamable HTTP (`@hono/mcp` fits the stack) +
-  token auth (Hyphe §7.2: identity must not be a self-asserted string). No Docker
-  socket ever enters an agent container. O1 hardens from "should" to **prerequisite**
-  the moment any GitHub-touching verbs appear (PLAN.md open question 2: repo creation
-  as game mechanic): a GitHub token next to an agent-writable verb table is an exfil
-  channel — host-owned, git-clean checkout first, token never in an agent container.
+- **O1** — host-owned Phorge over streamable HTTP + token auth (Hyphe §7.2: identity
+  must not be a self-asserted string). No Docker socket ever enters an agent
+  container. *Half landed 2026-07-11*: `server.http.ts` serves the stateless
+  streamable-HTTP transport on `127.0.0.1:4201/mcp` behind a constant-time bearer
+  middleware (`auth.ts`, spec'd; token via `.env`, fail-closed); stdio and HTTP
+  entries share `tools.ts`. **Still open**: the actual host-owned deployment — run
+  from a git-clean checkout/compiled dist, not `tsx` on the agent-writable working
+  tree. O1 hardens from "should" to **prerequisite** the moment any GitHub-touching
+  verbs appear (PLAN.md open question 2: repo creation as game mechanic): a GitHub
+  token next to an agent-writable verb table is an exfil channel — host-owned,
+  git-clean checkout first, token never in an agent container.
 - **O2** — the ban: agents (Claude & co.) run in their own container, `phlame-game`
   inside with them, Phorge's URL as the only door out. Concurrency control moves
   into Phorge when more than one agent knocks (Hyphe §7.4).

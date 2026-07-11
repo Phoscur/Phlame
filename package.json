@@ -15,7 +15,7 @@
     "play": "playwright test --ui",
     "e2e": "playwright test",
     "ci": "playwright test",
-    "lint": "oxlint && eslint",
+    "lint": "oxlint && eslint && prettier --check src engine/src tools tests",
     "tsc": "tsc -p tsconfig.spec.json --noEmit",
     "preview": "tsx src/server",
     "console": "tsx tools/console/main.ts",
