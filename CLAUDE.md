@@ -29,8 +29,17 @@ older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two part
 **Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)):
 preferred interface is the **phorge** MCP (`status`, `run(test|tsc|lint|e2e|screenshot)`,
 `screenshot`, `agy(prompt)`/`claude(prompt)` — headless agent runs in the agent
-container —, `logs`, `build`, `down`); the npm `:docker` variants (`test:docker` etc.,
-first run: `npm run containers:build`) are the fallback. Browser automation NEVER runs
+container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
+(`test:docker` etc., first run: `npm run containers:build`) are the fallback.
+
+**Conducting the yolo agents** (`agy`/`claude` verbs; they obey
+[AGENTS.md](./AGENTS.md)): dispatch **self-contained prompts** — file paths,
+acceptance criteria, whether to commit — sized to one coherent slice (~6-min
+budget, two parallel slots across both CLIs, they share YOUR worktree). Pick a
+model per run (`models` lists agy's; claude takes `sonnet|opus|haiku`): cheap
+for mechanical work, strong for design. Never take their report at face
+value — verify with `run(test|lint|tsc)` and read the `git diff`; full
+transcripts land in the phorge deployment's `logs/agent-<slot>.log`. Browser automation NEVER runs
 ad hoc on the host — no generated one-off scripts; screenshots go through
 `tests/screenshot.spec.ts`. The game sandbox is the separate **phlame-game** MCP
 ([PLAN-MCP.md](./PLAN-MCP.md)).
