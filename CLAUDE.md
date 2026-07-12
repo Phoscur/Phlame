@@ -44,7 +44,9 @@ container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
 - **Worktree**: for anything beyond a question, pass a `worktree` slug — the agent then
   works in `.worktrees/<slug>` on branch `agent/<slug>` (instead of YOUR tree) and
   commits there; repeat dispatches with the same slug continue on the branch.
-- **Collect**: review `git log agent/<slug>` and `git diff master...agent/<slug>`,
+- **Collect**: first confirm the commits sit on `agent/<slug>` and YOUR branch didn't
+  move (a strayed agent commits to the main tree — it happened). Then review
+  `git log agent/<slug>` and `git diff master...agent/<slug>`,
   merge, verify with `run(test|lint|tsc)`, then clean up IN the container
   (`npm run agent -- git -C /phlame worktree remove /phlame/.worktrees/<slug>`;
   the registrations carry container paths, and a host-side `git worktree prune` would

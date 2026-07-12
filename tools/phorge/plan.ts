@@ -159,6 +159,23 @@ export function planAgentUp(): string[] {
 }
 
 /**
+ * Task-worktree preamble, prepended to the prompt whenever a workdir is set.
+ * `exec -w` alone is NOT enough: agy resolves its workspace by discovery, not
+ * cwd — a Gemini Flash run (2026-07-12) ignored the cwd, went hunting for the
+ * codebase and landed its commits on the MAIN tree's checked-out branch. It
+ * also never saw AGENTS.md (agy only auto-reads it from its workspace root).
+ * So the worktree is named in the prompt itself; belt and braces for claude.
+ */
+export function worktreePreamble(workdir: string): string {
+  const slug = workdir.split('/').pop();
+  return (
+    `Your task worktree is ${workdir} (branch agent/${slug}). Work ONLY inside ` +
+    `this directory and commit on its branch — never edit /phlame itself. ` +
+    `Read ${workdir}/AGENTS.md first and obey it.\n\n`
+  );
+}
+
+/**
  * Headless agy prompt inside the agent container. The prompt is ONE argv
  * element handed to `agy -p` — data for the LLM, inert for a shell (spawned
  * shell:false end to end, like every plan here). The
@@ -175,7 +192,7 @@ export function planAgy(slot: number, prompt: string, model?: string, workdir?: 
   if (model) {
     args.push('--model', model);
   }
-  args.push('-p', prompt);
+  args.push('-p', workdir ? worktreePreamble(workdir) + prompt : prompt);
   return args;
 }
 
@@ -203,7 +220,7 @@ export function planClaude(
     getAgentContainer(slot),
     'claude',
     '-p',
-    prompt,
+    workdir ? worktreePreamble(workdir) + prompt : prompt,
     '--dangerously-skip-permissions',
     '--strict-mcp-config',
     '--mcp-config',
