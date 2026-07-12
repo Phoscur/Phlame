@@ -18,13 +18,13 @@ Chromatic colors go through the **domain tokens** only. The raw palettes (`red-*
 `blue-*`, `orange-*`, `yellow-*`, …) exist in `styles.css` solely to feed these tokens —
 never use them directly in app markup.
 
-| Token classes                                                 | Meaning                            |
-| ------------------------------------------------------------- | ---------------------------------- |
-| `metallic`, `metallic-dark`                                   | metallic resource (icons, amounts) |
-| `crystalline`, `crystalline-dark`, `crystalline-light`       | crystalline resource (`-light` for text on dark) |
-| `liquid`, `liquid-dark`                                       | liquid resource                    |
-| `energy`, `energy-primary`, `energy-secondary`, `energy-dark` | energy                             |
-| `bg`                                                          | page background (`slate-950`)      |
+| Token classes                                                 | Meaning                                          |
+| ------------------------------------------------------------- | ------------------------------------------------ |
+| `metallic`, `metallic-dark`                                   | metallic resource (icons, amounts)               |
+| `crystalline`, `crystalline-dark`, `crystalline-light`        | crystalline resource (`-light` for text on dark) |
+| `liquid`, `liquid-dark`                                       | liquid resource                                  |
+| `energy`, `energy-primary`, `energy-secondary`, `energy-dark` | energy                                           |
+| `bg`                                                          | page background (`slate-950`)                    |
 
 Used as normal Tailwind color utilities: `text-crystalline`, `bg-liquid-dark`,
 `border-energy`, etc.

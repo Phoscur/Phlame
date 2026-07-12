@@ -20,8 +20,8 @@ test('queue build action', async ({ page }) => {
   // expect the queue to be empty (unqueued)
   await expect(page.locator('.buildingQueue li')).toHaveCount(0);
 
-  // expect the building list to show the new level
+  // expect the building list to show the new level (i18n display name, see e996c7a)
   await expect(
-    page.locator('.buildingList li').filter({ hasText: 'mine-metallic - Level 2' }),
+    page.locator('.buildingList li').filter({ hasText: 'Metal Mine — Level 2' }),
   ).toBeVisible();
 });
