@@ -82,8 +82,8 @@ function getNameFor(t: I18n, type: string) {
 
 export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
   const phelopments = planet.toJSON().phelopments;
-  // find queued update phelopment actions
-  const queue = planet.upcoming.filter((a) => a.type === ActionTypes.UPDATE);
+  // queued update phelopment commands with their FIFO start/completion estimates
+  const queue = planet.queue.filter((e) => e.action.type === ActionTypes.UPDATE);
 
   return (
     <>
@@ -119,22 +119,30 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
         </div>
         <div class="h-48" aria-hidden="true"></div>
         <ul class="buildingQueue space-y-2">
-          {queue.map((a) => {
-            const payload = a.consequence.payload as { phelopmentID: string; grade: 'up' | 'down' };
+          {queue.map(({ action, completeAt }) => {
+            const payload = action.consequence.payload as {
+              id: string;
+              phelopmentID: string;
+              grade: 'up' | 'down';
+            };
             const currentLevel =
               phelopments.find((p) => p.type === payload.phelopmentID)?.level ?? 0;
             const level = payload.grade === 'up' ? currentLevel + 1 : currentLevel - 1;
             return (
               <li
-                class={`${getColorClassFor(payload.phelopmentID)} flex items-center gap-3 rounded-lg px-3 py-2`}
+                class={`${getColorClassFor(payload.phelopmentID)} flex items-center gap-3 rounded-lg
+                  border-2 border-dashed border-gray-400/70 px-3 py-2`}
               >
                 {getIconFor(payload.phelopmentID)}
                 <span class="min-w-0 flex-1 truncate font-medium">
                   {getNameFor(t, payload.phelopmentID)} — {t('building.level')} {level} (
-                  {t('building.queue.eta', a.consequence.at)})
+                  {completeAt === Infinity
+                    ? t('building.queue.waiting')
+                    : t('building.queue.eta', completeAt)}
+                  )
                 </span>
                 <button
-                  data-action-id={a.consequence.payload.id}
+                  data-action-id={payload.id}
                   data-planet={planet.id}
                   class="phlame-cancel-btn inline-flex shrink-0 items-center whitespace-nowrap rounded-md px-3 py-2
                     text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"

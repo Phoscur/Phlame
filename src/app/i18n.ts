@@ -51,6 +51,9 @@ const basic = {
       'Logging out will disconnect the session. Currently there is no way to reconnect it!',
     'nav.home': 'Home',
     'nav.planet': 'Planet',
+    'session.lost.hint':
+      'Your session was not found on the server. Use Session → Logout to start a fresh one.',
+    'building.queue.waiting': 'waiting for resources',
     ...resources,
     ...resourcesSingular,
     ...buildings,
@@ -68,6 +71,9 @@ const basic = {
     'app.logout.description':
       'Session verlassen. Derzeit gibt es keinen Weg sich wieder zu verbinden!',
     'nav.home': 'Übersicht',
+    'session.lost.hint':
+      'Deine Session wurde auf dem Server nicht gefunden. Über Session → Logout kannst du eine neue starten.',
+    'building.queue.waiting': 'wartet auf Rohstoffe',
     'resource.unknown': 'Unbekannt',
     'resource.metallic': 'Metalle',
     'resource.crystalline': 'Kristalline',
