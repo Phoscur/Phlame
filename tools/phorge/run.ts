@@ -11,6 +11,7 @@ import {
   planAgentRestart,
   planWorktreeCheck,
   planWorktreeAdd,
+  planFmt,
   agentWorktree,
   type RunVerb,
 } from './plan';
@@ -25,6 +26,8 @@ export const MAX_PLAYWRIGHT_CONCURRENCY = 1;
 export const MAX_AGENT_CONCURRENCY = 2;
 /** agy's own print-mode timeout is 5min — give the verbs a minute of headroom */
 export const AGENT_TIMEOUT_MS = 6 * 60_000;
+/** oxfmt over the whole tree takes seconds — 2min is generous */
+export const FMT_TIMEOUT_MS = 2 * 60_000;
 
 const AGENT_PLANS: Record<
   AgentCli,
@@ -181,5 +184,29 @@ export function createRunner(exec: Exec = execDocker) {
     }
   }
 
-  return { execRun, execAgent };
+  /**
+   * Format in place — `vp fmt` exec'd into the agent container, the only rw
+   * mount of the tree (the run verbs stay read-only by design). Takes no
+   * agent slot: the exec is its own process and every replica shares the
+   * mount. A timed-out fmt is reported but NOT reaped — restarting the
+   * container would kill any agent run living in it.
+   */
+  async function execFmt(worktree?: string): Promise<{ result: ExecResult; note: string }> {
+    const up = await exec(planAgentUp());
+    if (up.code !== 0) {
+      return { result: up, note: 'compose up -d agent failed' };
+    }
+    const workdir = worktree ? agentWorktree(worktree).path : undefined;
+    const result = await exec(planFmt(workdir), { timeoutMs: FMT_TIMEOUT_MS });
+    const target = workdir ? `formatted ${workdir}` : '';
+    if (!result.timedOut) {
+      return { result, note: target };
+    }
+    return {
+      result,
+      note: `${target ? `${target}; ` : ''}timed-out fmt NOT reaped — a container restart would kill agent runs`,
+    };
+  }
+
+  return { execRun, execAgent, execFmt };
 }

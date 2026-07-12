@@ -30,10 +30,10 @@ const RUN_PLANS: Record<RunVerb, string[]> = {
   // Vite+ tooling: `vp lint` wraps oxlint but does NOT auto-discover .oxlintrc.json
   // (the file stays canonical — CI's standalone fast-fail oxlint reads it), so pass
   // it via -c. `vp fmt` is --check only: the dev overlay mounts source read-only, so
-  // the container verifies formatting (options live in vite.config.ts `fmt`),
-  // writing happens host-side while editing. Both stages always run (`;`), but each
-  // failure still fails the verb: a bare `;` would report only the LAST exit code,
-  // letting a green format check mask red lint.
+  // the container verifies formatting (options live in vite.config.ts `fmt`);
+  // writing goes through the fmt tool (planFmt — agent container, rw mount). Both
+  // stages always run (`;`), but each failure still fails the verb: a bare `;`
+  // would report only the LAST exit code, letting a green format check mask red lint.
   lint: [
     'runner',
     'sh',
@@ -254,6 +254,18 @@ export function planClaude(
 /** List agy's selectable models (read-only, no yolo flag needed). */
 export function planAgyModels(): string[] {
   return ['exec', getAgentContainer(1), 'agy', 'models'];
+}
+
+/**
+ * Format the tree in place (`vp fmt`, options in vite.config.ts). Deliberately
+ * NOT a run verb: the run verbs execute against read-only source mounts (the
+ * lint verb only checks), so the write path execs into the agent container —
+ * the one place the tree is mounted rw. Any replica sees the same mount;
+ * container 1 is the fixed pick (same as planAgyModels). Optional workdir
+ * targets a task worktree instead of the live tree.
+ */
+export function planFmt(workdir = '/phlame'): string[] {
+  return ['exec', '-e', 'NO_COLOR=1', '-w', workdir, getAgentContainer(1), 'npx', 'vp', 'fmt'];
 }
 
 /**

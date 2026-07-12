@@ -70,7 +70,9 @@ renamed **`phlame-game`** (tools/mcp, PLAN-MCP.md) — pure, host-independent, m
 run _inside_ an agent container.
 
 Discovery/probe/smoke are **tools, not scripts**: `status` (services, states, verb
-list), `run(test|tsc|lint|e2e|screenshot)`, `screenshot` (returns the PNG inline as
+list), `run(test|tsc|lint|e2e|screenshot)`, `fmt(worktree?)` (in-place `vp fmt`
+exec'd into the agent container — the run verbs' source mounts are read-only, so
+the write path lives behind the rw mount), `screenshot` (returns the PNG inline as
 MCP image content), `agy(prompt)` (headless Antigravity run in the agent container —
 the first verb with a free-text parameter: the prompt stays one argv element,
 shell-inert; `--dangerously-skip-permissions` is container-scoped by design, the

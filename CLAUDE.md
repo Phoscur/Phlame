@@ -30,8 +30,9 @@ older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two part
 
 **Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)):
 preferred interface is the **phorge** MCP (`status`, `run(test|tsc|lint|e2e|screenshot)`,
-`screenshot`, `agy(prompt)`/`claude(prompt)` — headless agent runs in the agent
-container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
+`fmt` — in-place formatting via the agent container's rw mount (run verbs mount
+source read-only) —, `screenshot`, `agy(prompt)`/`claude(prompt)` — headless agent
+runs in the agent container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
 (`test:docker` etc., first run: `npm run containers:build`) are the fallback.
 
 **Conducting the yolo agents** (`agy`/`claude` verbs; they obey
