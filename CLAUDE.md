@@ -48,8 +48,7 @@ container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
   merge, verify with `run(test|lint|tsc)`, then clean up IN the container
   (`npm run agent -- git -C /phlame worktree remove /phlame/.worktrees/<slug>`;
   the registrations carry container paths, and a host-side `git worktree prune` would
-  orphan EVERY active agent worktree) and delete the branch. After merging, `npx vp fmt`
-  the touched files — autocrlf checks them out CRLF, oxfmt wants LF.
+  orphan EVERY active agent worktree) and delete the branch.
 - **Verify their claims**: never take an agent's report at face value; full transcripts
   land in the phorge deployment's `logs/agent-<slot>.log`.
 
