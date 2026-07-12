@@ -60,12 +60,7 @@ export function createActionsRoute(engine: EngineService) {
 
     try {
       const tick = engine.time.tick;
-      const logEntry = empire.enqueue(
-        ActionTypes.UPDATE,
-        command.payload,
-        [entity],
-        tick,
-      );
+      const logEntry = empire.enqueue(ActionTypes.UPDATE, command.payload, [entity], tick);
 
       const sid = getCookie(c, 'sid');
       if (sid) {

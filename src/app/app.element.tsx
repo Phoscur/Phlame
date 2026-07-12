@@ -127,11 +127,11 @@ export class AppElement extends HTMLElement {
     return this.getElementsByTagName('game-ctx')[0] as HTMLElement;
   }
 
-  #handleGrade = (e: Event) => {
+  #handleGrade = async (e: Event) => {
     const detail = (e as CustomEvent).detail;
     try {
       this.#logger().log('Received grade event', detail);
-      this.#empire().queueGrade(detail.planetId, detail.type, detail.direction);
+      await this.#empire().queueGrade(detail.planetId, detail.type, detail.direction);
       const empire = this.#empire().current;
       render(gameToJSX(this.#i18n().translate, empire), this.game);
     } catch (err) {
@@ -143,6 +143,7 @@ export class AppElement extends HTMLElement {
     const detail = (e as CustomEvent).detail;
     try {
       this.#logger().log('Received cancel event', detail);
+      // TODO cancel must reach the server too (follow-up)
       this.#empire().cancelGrade(detail.planetId, detail.actionId);
       const empire = this.#empire().current;
       render(gameToJSX(this.#i18n().translate, empire), this.game);

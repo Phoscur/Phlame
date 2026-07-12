@@ -6,10 +6,9 @@ import {
   Phlame,
   type ID,
   ResourceTable,
-  ActionTypes,
   Empire,
 } from '@phlame/engine';
-import type { GenesisJSON } from '@phlame/engine';
+import type { GenesisJSON, LogEntryJSON } from '@phlame/engine';
 import { type PhelopmentIdentifier, defaultPhelopments, phormulae } from './phelopments';
 import {
   type ResourceIdentifier,
@@ -130,7 +129,7 @@ export class EmpireService {
     return this;
   }
 
-  queueGrade(planetId: ID, type: PhelopmentIdentifier, direction: 'up' | 'down') {
+  async queueGrade(planetId: ID, type: PhelopmentIdentifier, direction: 'up' | 'down') {
     const planet = this.getEntity(planetId);
     const { stock, phelopments } = planet.toJSON();
     const economy = this.#engine().createEconomy({ name: `${planet.id}`, stock, phelopments });
@@ -150,12 +149,30 @@ export class EmpireService {
       duration;
 
     const actionId = actionID();
-    // the command enters through the empire's trusted log (ADR 0012)
-    this.#current.enqueue(
-      ActionTypes.UPDATE,
-      { id: actionId, phelopmentID: type, grade: direction },
-      [planet],
-    );
+
+    const response = await fetch(`/empires/${this.#current.id}/entities/${planetId}/actions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'update',
+        payload: {
+          id: actionId,
+          phelopmentID: type,
+          grade: direction,
+        },
+      }),
+    });
+
+    if (response.status !== 201) {
+      const errText = await response.text();
+      throw new Error(errText);
+    }
+
+    const entry = (await response.json()) as LogEntryJSON;
+    this.#current.applyLog([entry], entry.tick);
+
     return { at, duration, actionId };
   }
 

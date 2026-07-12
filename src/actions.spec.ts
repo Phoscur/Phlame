@@ -101,7 +101,7 @@ describe('actionsRoute', () => {
       ActionTypes.UPDATE,
       command.payload,
       [mockEntity],
-      100
+      100,
     );
     expect(fakeEngine.saveSession).toHaveBeenCalledWith({
       sid: 'good-sid',
