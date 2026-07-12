@@ -136,6 +136,18 @@ describe('phorge verb table', () => {
     // the run itself starts INSIDE the worktree
     const argv = planClaude(1, 'do it', undefined, '/phlame/.worktrees/fix-foo');
     expect(argv.slice(0, 3)).toEqual(['exec', '-w', '/phlame/.worktrees/fix-foo']);
+    // cwd alone is ignored by discovery-happy CLIs (a Flash run strayed into
+    // /phlame) — the worktree must be named in the prompt itself, for both CLIs
+    const claudePrompt = argv[argv.indexOf('-p') + 1];
+    expect(claudePrompt).toContain('/phlame/.worktrees/fix-foo');
+    expect(claudePrompt).toContain('agent/fix-foo');
+    expect(claudePrompt.endsWith('do it')).toBe(true);
+    const agy = planAgy(1, 'do it', undefined, '/phlame/.worktrees/fix-foo');
+    const agyPrompt = agy[agy.indexOf('-p') + 1];
+    expect(agyPrompt).toContain('agent/fix-foo');
+    expect(agyPrompt.endsWith('do it')).toBe(true);
+    // without a worktree the prompt stays verbatim
+    expect(planAgy(1, 'just a question').at(-1)).toBe('just a question');
   });
 
   it('plans agent warm-up, restart and model listing', () => {
