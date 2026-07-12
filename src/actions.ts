@@ -1,39 +1,45 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { Action, ActionTypes, type ActionType } from '@phlame/engine';
-
-// in-memory store
-const entityActions = new Map<string, Action<ActionType>[]>();
-
-export const clearEntityActions = () => entityActions.clear();
+import { ActionTypes } from '@phlame/engine';
+import { getCookie } from 'hono/cookie';
+import type { EngineService } from './engine.server';
 
 export const actionSchema = z.object({
-  type: z.enum([ActionTypes.CREATE, ActionTypes.UPDATE]),
-  concerns: z.object({
+  type: z.literal('update'),
+  payload: z.object({
     id: z.string(),
-    type: z.string(),
-  }),
-  consequence: z.object({
-    at: z.number().int().nonnegative(),
-    type: z.enum([ActionTypes.CREATE, ActionTypes.UPDATE]),
-    // explicit key schema + value schema to satisfy linters/typings
-    payload: z.record(z.string(), z.unknown()),
+    phelopmentID: z.string(),
+    grade: z.enum(['up', 'down']),
   }),
 });
 
-export function createActionsRoute() {
+export function createActionsRoute(engine: EngineService) {
   const actionsRoute = new Hono();
 
-  // GET -> list actions for an entity
+  // GET -> list upcoming actions for an entity
   actionsRoute.get('/entities/:id/actions', (c) => {
     const id = c.req.param('id');
-    const actions = entityActions.get(id) ?? [];
-    return c.json(actions);
+    const empire = engine.empire;
+    try {
+      const entity = empire.entity(id);
+      const actions = entity.upcoming.map((a) => ({ ...a, concerns: a.concerns.id }));
+      return c.json(actions);
+    } catch (e: any) {
+      return c.json({ error: e.message }, 404);
+    }
   });
 
   // POST -> validate body explicitly, return 400 on invalid JSON/validation error
   actionsRoute.post('/entities/:id/actions', async (c) => {
     const id = c.req.param('id');
+    const empire = engine.empire;
+
+    let entity;
+    try {
+      entity = empire.entity(id);
+    } catch (e: any) {
+      return c.json({ error: e.message }, 404);
+    }
 
     let body: unknown;
     try {
@@ -50,17 +56,29 @@ export function createActionsRoute() {
       return c.json({ error: 'Validation failed', details: parsed.error.flatten() }, 400);
     }
 
-    const action = parsed.data as Action<ActionType>;
+    const command = parsed.data;
 
-    if (action.concerns.id !== id) {
-      return c.json({ error: 'concerns.id must match entity id' }, 400);
+    try {
+      const tick = engine.time.tick;
+      const logEntry = empire.enqueue(
+        ActionTypes.UPDATE,
+        command.payload,
+        [entity],
+        tick,
+      );
+
+      const sid = getCookie(c, 'sid');
+      if (sid) {
+        await engine.saveSession({ sid, empire });
+      }
+
+      return c.json(logEntry, 201);
+    } catch (e: any) {
+      if (e.message && e.message.includes('Queue is full')) {
+        return c.json({ error: e.message }, 409);
+      }
+      return c.json({ error: e.message || 'Unknown error' }, 500);
     }
-
-    const actions = entityActions.get(id) ?? [];
-    actions.push(action);
-    entityActions.set(id, actions);
-
-    return c.json({ ok: true });
   });
 
   return actionsRoute;

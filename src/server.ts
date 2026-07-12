@@ -68,7 +68,7 @@ createRoutes(app);
 const engineService = engineInjector.inject(EngineService);
 app.use('/empires/:empireId/*', empireMiddleware(engineService));
 // mounts GET/POST /empires/:empireId/entities/:id/actions
-app.route('/empires/:empireId', createActionsRoute());
+app.route('/empires/:empireId', createActionsRoute(engineService));
 
 if (isProd) {
   /*
