@@ -16,7 +16,9 @@ for the project itself; this file is about your situation.
   server (HTTP, preconfigured) is your only door out:
   `status`, `run(test|tsc|lint|e2e|screenshot)`, `screenshot`,
   `logs(service, tail)`, `build`, `down`. Do NOT call the `agy`/`claude`
-  verbs from inside — no recursive agent dispatch.
+  verbs from inside — no recursive agent dispatch. Don't call `fmt` either:
+  it targets the MAIN tree by default — you have the rw mount, run
+  `npx vp fmt` in YOUR tree instead.
 - Network egress exists for your own model API traffic. Use it for nothing
   else: no downloads, no uploads, no reaching for remotes.
 

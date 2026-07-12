@@ -9,6 +9,7 @@ import {
   planAgyModels,
   planWorktreeCheck,
   planWorktreeAdd,
+  planFmt,
   COMPOSE_AGENTS,
   getAgentContainer,
   planUp,
@@ -155,6 +156,24 @@ describe('phorge verb table', () => {
     expect(plain.at(-1)!.endsWith('just a question')).toBe(true);
     expect(plain.at(-1)).toContain('/phlame/AGENTS.md');
     expect(plain).not.toContain('--add-dir');
+  });
+
+  it('plans fmt as a write exec in the agent container — runner mounts are read-only', () => {
+    expect(planFmt()).toEqual([
+      'exec',
+      '-e',
+      'NO_COLOR=1',
+      '-w',
+      '/phlame',
+      getAgentContainer(1),
+      'npx',
+      'vp',
+      'fmt',
+    ]);
+    const scoped = planFmt('/phlame/.worktrees/fix-foo');
+    expect(scoped[scoped.indexOf('-w') + 1]).toBe('/phlame/.worktrees/fix-foo');
+    // write mode is the point — the check-only variant lives in the lint verb
+    expect(scoped).not.toContain('--check');
   });
 
   it('plans agent warm-up, restart and model listing', () => {

@@ -40,9 +40,11 @@ const VERBOSE_TAIL_CHARS = 50_000;
  * The slug feeds a container path AND a git branch name (plan.ts
  * agentWorktree) — the strict charset is the injection guard.
  */
+const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,38}$/;
+
 const WORKTREE_SLUG = z
   .string()
-  .regex(/^[a-z0-9][a-z0-9-]{0,38}$/)
+  .regex(SLUG_PATTERN)
   .optional()
   .describe(
     'task slug: run in git worktree .worktrees/<slug> on branch agent/<slug> — created on first use, reused on repeat dispatches (commits accumulate). Collect on the host: git diff <base>...agent/<slug>, merge, git worktree remove .worktrees/<slug>',
@@ -62,7 +64,7 @@ function verdict(label: string, result: ExecResult, note = '', chars = TAIL_CHAR
 }
 
 // Orchestration (concurrency, warm-up, reaping) lives in run.ts — spec'd there.
-const { execRun, execAgent } = createRunner();
+const { execRun, execAgent, execFmt } = createRunner();
 
 export function registerTools(server: McpServer): void {
   server.registerTool(
@@ -101,6 +103,31 @@ export function registerTools(server: McpServer): void {
       try {
         const { result, note } = await execRun(verb);
         return verdict(verb, result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
+      } catch (error) {
+        return fail(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    'fmt',
+    {
+      description:
+        'Format the tree in place (npx vp fmt; options in vite.config.ts). Runs in the agent container — the run verbs mount source read-only and their lint verb only checks; this is the containerized write path. Optional worktree slug formats an existing agent worktree instead of the live tree.',
+      inputSchema: {
+        worktree: z
+          .string()
+          .regex(SLUG_PATTERN)
+          .optional()
+          .describe(
+            'format the existing agent worktree .worktrees/<slug> instead of the live tree',
+          ),
+      },
+    },
+    async ({ worktree }) => {
+      try {
+        const { result, note } = await execFmt(worktree);
+        return verdict('fmt', result, note);
       } catch (error) {
         return fail(error);
       }

@@ -166,6 +166,32 @@ describe('phorge runner orchestration', () => {
     expect(calls.filter((argv) => argv.includes('worktree'))).toHaveLength(1);
   });
 
+  it('warms the agent container before fmt and names a worktree target in the note', async () => {
+    const { exec, calls } = scriptedExec(() => undefined);
+    const { execFmt } = createRunner(exec);
+    const plain = await execFmt();
+    expect(plain.result.code).toBe(0);
+    expect(plain.note).toBe('');
+    expect(calls[0]).toContain('up');
+    expect(calls[0]).toContain('agent');
+    expect(calls[1]).toContain('fmt');
+    expect(calls[1][calls[1].indexOf('-w') + 1]).toBe('/phlame');
+
+    const scoped = await execFmt('fix-foo');
+    expect(scoped.note).toContain('/phlame/.worktrees/fix-foo');
+    expect(calls[3][calls[3].indexOf('-w') + 1]).toBe('/phlame/.worktrees/fix-foo');
+  });
+
+  it('reports a timed-out fmt but does not reap — a restart would kill agent runs', async () => {
+    const { exec, calls } = scriptedExec((argv) =>
+      argv.includes('fmt') ? { timedOut: true, code: -1 } : undefined,
+    );
+    const { execFmt } = createRunner(exec);
+    const { note } = await execFmt();
+    expect(note).toContain('NOT reaped');
+    expect(calls.some((argv) => argv.includes('restart'))).toBe(false);
+  });
+
   it('pools runner and playwright separately', async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => (release = resolve));
