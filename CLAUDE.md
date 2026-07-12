@@ -26,6 +26,8 @@ older `phlame` monorepo it once lived in is retired as `phlame-legacy`. Two part
   oxlint, `vp fmt --check` = oxfmt; run both before considering work done)
 - `npm run e2e` — Playwright; starts the dev server itself (reuses a running one locally)
 
+## Agents
+
 **Agents run tests containerized** ([PLAN-CONTAINERS.md](./PLAN-CONTAINERS.md)):
 preferred interface is the **phorge** MCP (`status`, `run(test|tsc|lint|e2e|screenshot)`,
 `screenshot`, `agy(prompt)`/`claude(prompt)` — headless agent runs in the agent
@@ -33,24 +35,27 @@ container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
 (`test:docker` etc., first run: `npm run containers:build`) are the fallback.
 
 **Conducting the yolo agents** (`agy`/`claude` verbs; they obey
-[AGENTS.md](./AGENTS.md)): dispatch **self-contained prompts** — file paths,
-acceptance criteria, whether to commit — sized to one coherent slice (~6-min
-budget, two parallel slots across both CLIs). Pick a model per run (`models`
-lists agy's; claude takes `sonnet|opus|haiku`): cheap for mechanical work,
-strong for design. For anything beyond a question, pass a `worktree` slug: the
-agent then works in `.worktrees/<slug>` on branch `agent/<slug>` (instead of
-YOUR tree) and commits there — repeat dispatches with the same slug continue
-on the branch. **Collect**: review `git log agent/<slug>` and
-`git diff main...agent/<slug>`, merge, verify with `run(test|lint|tsc)`, then
-clean up IN the container (`npm run agent -- git -C /phlame worktree remove
-/phlame/.worktrees/<slug>`; the registrations carry container paths, and a
-host-side `git worktree prune` would orphan EVERY active agent worktree) and
-delete the branch. After merging, `npx vp fmt` the touched files — autocrlf
-checks them out CRLF, oxfmt wants LF. Never take their report at face value;
-full transcripts land in the phorge deployment's `logs/agent-<slot>.log`. Browser automation NEVER runs
-ad hoc on the host — no generated one-off scripts; screenshots go through
-`tests/screenshot.spec.ts`. The game sandbox is the separate **phlame-game** MCP
-([PLAN-MCP.md](./PLAN-MCP.md)).
+[AGENTS.md](./AGENTS.md)):
+
+- **Dispatch** self-contained prompts — file paths, acceptance criteria, whether to
+  commit — sized to one coherent slice (~6-min budget, two parallel slots across both
+  CLIs). Pick a model per run (`models` lists agy's; claude takes `sonnet|opus|haiku`):
+  cheap for mechanical work, strong for design.
+- **Worktree**: for anything beyond a question, pass a `worktree` slug — the agent then
+  works in `.worktrees/<slug>` on branch `agent/<slug>` (instead of YOUR tree) and
+  commits there; repeat dispatches with the same slug continue on the branch.
+- **Collect**: review `git log agent/<slug>` and `git diff master...agent/<slug>`,
+  merge, verify with `run(test|lint|tsc)`, then clean up IN the container
+  (`npm run agent -- git -C /phlame worktree remove /phlame/.worktrees/<slug>`;
+  the registrations carry container paths, and a host-side `git worktree prune` would
+  orphan EVERY active agent worktree) and delete the branch. After merging, `npx vp fmt`
+  the touched files — autocrlf checks them out CRLF, oxfmt wants LF.
+- **Verify their claims**: never take an agent's report at face value; full transcripts
+  land in the phorge deployment's `logs/agent-<slot>.log`.
+
+Browser automation NEVER runs ad hoc on the host — no generated one-off scripts;
+screenshots go through `tests/screenshot.spec.ts`. The game sandbox is the separate
+**phlame-game** MCP ([PLAN-MCP.md](./PLAN-MCP.md)).
 
 ## Hard rules
 
