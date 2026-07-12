@@ -8,8 +8,8 @@
 # Unlike heavier monorepo setups there is no "rebuild upstream dist first" caveat:
 # Phlame has no build step — Vite serves source and @phlame/engine resolves to
 # engine/src via alias, and `tsc --noEmit` writes nothing, so read-only mounts are
-# safe everywhere. Config files NOT listed here (eslint.config.js, .oxlintrc.json,
-# Dockerfiles) are baked — editing those needs an image rebuild.
+# safe everywhere. Config files NOT listed here (root package.json, Dockerfiles)
+# are baked — editing those needs an image rebuild.
 x-source-mounts: &source-mounts
   - ${PHLAME_WORKTREE:-.}/src:/phlame/src:ro
   # Vite's cacheDir resolves to src/app/node_modules (root-relative) — shadow it

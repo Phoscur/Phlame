@@ -1,5 +1,5 @@
 # Light test runner: Alpine, browser-less — vitest (app jsdom + engine node), tsc,
-# oxlint/eslint. Also serves as the `app` image (Vite/Hono dev server) in
+# vp lint/fmt (oxlint + oxfmt). Also serves as the `app` image (Vite/Hono dev server) in
 # compose.test.yml. Self-contained: deps AND source are baked in, so CI can run a
 # fresh checkout with zero host state; compose.test.dev.yml overlays live source
 # for local edit-rerun iteration. Concept adapted from Hyphe's runner

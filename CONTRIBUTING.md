@@ -23,7 +23,8 @@ Thanks for your interest! Phlame is a spare-time passion project under
   [ADR 0003](./docs/decisions/0003-int32-resource-arithmetic.md)/[0005](./docs/decisions/0005-immutable-value-objects.md)).
   Every engine module keeps its `*.spec.ts` sibling green and covering new behavior.
 - User-facing strings go through `src/app/i18n.ts`, not hardcoded.
-- Match existing style; Prettier is configured (`.prettierrc`).
+- Match existing style; formatting via oxfmt (`npx vp fmt`), linting via oxlint —
+  `npm run lint` checks both.
 - Update the docs you invalidate (CONTEXT.md, PLAN.md, glossary) in the same PR.
 
 ## Developing
