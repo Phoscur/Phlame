@@ -1,70 +1,154 @@
-import { describe, it, expect, beforeEach } from 'vite-plus/test';
+import { describe, it, expect, beforeEach, vi } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { createActionsRoute } from './actions';
 import { ActionTypes } from '@phlame/engine';
+import type { EngineService } from './engine.server';
 
-function createApp() {
+function createApp(fakeEngine: EngineService) {
   const app = new Hono();
-  app.route('/', createActionsRoute());
+  app.route('/', createActionsRoute(fakeEngine));
   return app;
 }
 
 describe('actionsRoute', () => {
   let app: ReturnType<typeof createApp>;
+  let fakeEngine: EngineService;
+  let mockEmpire: any;
+  let mockEntity: any;
 
   beforeEach(() => {
-    app = createApp();
+    mockEntity = {
+      id: '123',
+      upcoming: [],
+    };
+    mockEmpire = {
+      id: '42',
+      entity: vi.fn().mockImplementation((id: string) => {
+        if (id === '123') return mockEntity;
+        throw new Error(`Unknown entity: ${id}`);
+      }),
+      enqueue: vi.fn().mockReturnValue({
+        seq: 1,
+        tick: 100,
+        type: ActionTypes.UPDATE,
+        concerns: ['123'],
+        payload: { id: 'cmd-1', phelopmentID: 'farm', grade: 'up' },
+      }),
+    };
+    fakeEngine = {
+      empire: mockEmpire,
+      time: { tick: 100, timeMS: 1000 },
+      saveSession: vi.fn(),
+    } as unknown as EngineService;
+
+    app = createApp(fakeEngine);
   });
 
-  it('should return empty list initially', async () => {
+  it('GET should return empty list initially', async () => {
     const res = await app.request('/entities/123/actions');
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json).toEqual([]);
   });
 
-  it('should add an action and retrieve it', async () => {
-    const action = {
-      type: ActionTypes.CREATE,
-      concerns: { id: '123', type: 'monster' },
-      consequence: {
-        at: 0,
-        type: ActionTypes.CREATE,
-        payload: { hp: 10 },
+  it('GET should return mapped upcoming actions', async () => {
+    mockEntity.upcoming = [
+      {
+        type: ActionTypes.UPDATE,
+        concerns: { id: '123' },
+        consequence: { at: 10, type: ActionTypes.UPDATE, payload: {} },
       },
+    ];
+
+    const res = await app.request('/entities/123/actions');
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json).toEqual([
+      {
+        type: ActionTypes.UPDATE,
+        concerns: '123',
+        consequence: { at: 10, type: ActionTypes.UPDATE, payload: {} },
+      },
+    ]);
+  });
+
+  it('GET should return 404 for unknown entity', async () => {
+    const res = await app.request('/entities/999/actions');
+    expect(res.status).toBe(404);
+  });
+
+  it('POST should enqueue and return 201 log entry', async () => {
+    const command = {
+      type: 'update',
+      payload: { id: 'cmd-1', phelopmentID: 'farm', grade: 'up' },
     };
 
     const postRes = await app.request('/entities/123/actions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(action),
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: 'sid=good-sid',
+      },
+      body: JSON.stringify(command),
     });
 
-    expect(postRes.status).toBe(200);
+    expect(postRes.status).toBe(201);
+    const json = await postRes.json();
+    expect(json.seq).toBe(1);
+    expect(json.tick).toBe(100);
 
-    const getRes = await app.request('/entities/123/actions');
-    const json = await getRes.json();
-
-    expect(json).toEqual([action]);
+    expect(mockEmpire.enqueue).toHaveBeenCalledWith(
+      ActionTypes.UPDATE,
+      command.payload,
+      [mockEntity],
+      100
+    );
+    expect(fakeEngine.saveSession).toHaveBeenCalledWith({
+      sid: 'good-sid',
+      empire: mockEmpire,
+    });
   });
 
-  it('should reject if concerns.id mismatches', async () => {
-    const badAction = {
-      type: ActionTypes.CREATE,
-      concerns: { id: '999', type: 'monster' },
-      consequence: {
-        at: 0,
-        type: ActionTypes.CREATE,
-        payload: {},
-      },
+  it('POST should return 404 for unknown entity', async () => {
+    const command = {
+      type: 'update',
+      payload: { id: 'cmd-1', phelopmentID: 'farm', grade: 'up' },
     };
+    const res = await app.request('/entities/999/actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(command),
+    });
+    expect(res.status).toBe(404);
+  });
 
+  it('POST should return 400 for bad schema', async () => {
+    const badCommand = {
+      type: 'create', // wrong type
+      payload: { id: 'cmd-1' },
+    };
     const res = await app.request('/entities/123/actions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(badAction),
+      body: JSON.stringify(badCommand),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST should return 409 when queue is full', async () => {
+    mockEmpire.enqueue.mockImplementationOnce(() => {
+      throw new Error('Queue is full');
     });
 
-    expect(res.status).toBe(400);
+    const command = {
+      type: 'update',
+      payload: { id: 'cmd-1', phelopmentID: 'farm', grade: 'up' },
+    };
+    const res = await app.request('/entities/123/actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(command),
+    });
+    expect(res.status).toBe(409);
   });
 });
