@@ -22,7 +22,7 @@ export const empireMiddleware = (engine: EngineService) => {
 
     const loadCode = await engine.load(sid);
     if (loadCode !== 0) {
-      return c.json({ error: 'Session load failed' }, loadCode === 2 ? 404 : 401);
+      return c.json({ error: 'Session load failed' }, loadCode === 404 ? 404 : 401);
     }
 
     const currentEmpire = engine.empire;

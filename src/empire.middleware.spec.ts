@@ -5,7 +5,12 @@ import { EngineService } from './engine.server';
 
 const fakeEngine = {
   empire: { id: '42' },
-  load: async (sid: string) => (sid === 'good-sid' ? 0 : 2),
+  load: async (sid: string) => {
+    if (sid === 'good-sid') return 0;
+    if (sid === '404-sid') return 404;
+    if (sid === '401-sid') return 401;
+    return 1;
+  },
 } as unknown as EngineService;
 
 describe('empireMiddleware', () => {
@@ -30,15 +35,37 @@ describe('empireMiddleware', () => {
     expect(res.status).toBe(401);
   });
 
-  it('rejects invalid session', async () => {
+  it('rejects invalid session with 404 if load returns 404', async () => {
     const app = new Hono();
     app.use('/empires/:empireId/*', empireMiddleware(fakeEngine));
     app.get('/empires/:empireId/test', (c) => c.text('ok'));
 
     const res = await app.request('/empires/42/test', {
-      headers: { Cookie: 'sid=bad-sid' },
+      headers: { Cookie: 'sid=404-sid' },
     });
     expect(res.status).toBe(404);
+  });
+
+  it('rejects invalid session with 401 if load returns 401', async () => {
+    const app = new Hono();
+    app.use('/empires/:empireId/*', empireMiddleware(fakeEngine));
+    app.get('/empires/:empireId/test', (c) => c.text('ok'));
+
+    const res = await app.request('/empires/42/test', {
+      headers: { Cookie: 'sid=401-sid' },
+    });
+    expect(res.status).toBe(401);
+  });
+
+  it('rejects invalid session with 401 if load returns generic error', async () => {
+    const app = new Hono();
+    app.use('/empires/:empireId/*', empireMiddleware(fakeEngine));
+    app.get('/empires/:empireId/test', (c) => c.text('ok'));
+
+    const res = await app.request('/empires/42/test', {
+      headers: { Cookie: 'sid=other-sid' },
+    });
+    expect(res.status).toBe(401);
   });
 
   it('rejects mismatching empire id', async () => {
