@@ -95,12 +95,14 @@ describe('phorge runner orchestration', () => {
     const { execAgent } = createRunner(exec);
     const { result, note } = await execAgent('agy', 'say hi');
     expect(result.code).toBe(0);
-    expect(note).toBe('');
+    // the verdict names the transcript, so the conductor never hunts for it
+    expect(note).toBe('transcript logs/agent-1.log');
     expect(calls).toHaveLength(2);
     expect(calls[0]).toContain('up');
     expect(calls[0]).toContain('agent');
     expect(calls[1]).toContain('agy');
-    expect(calls[1].at(-1)).toBe('say hi');
+    // agy carries its preamble in the prompt; the task text stays at the end
+    expect(calls[1].at(-1)!.endsWith('say hi')).toBe(true);
   });
 
   it('restarts the agent when an agent run times out', async () => {
@@ -136,7 +138,8 @@ describe('phorge runner orchestration', () => {
     const containers = agentCalls.map((argv) => argv[argv.indexOf('exec') + 1]);
     expect(new Set(containers).size).toBe(2);
     // a freed slot is reusable
-    await expect(execAgent('claude', 'four')).resolves.toMatchObject({ note: '' });
+    const fourth = await execAgent('claude', 'four');
+    expect(fourth.note).toMatch(/^transcript logs\/agent-[12]\.log$/);
   });
 
   it('creates the task worktree on first use and reuses it after', async () => {

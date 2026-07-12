@@ -143,11 +143,15 @@ export function getAgentContainer(slot: number): string {
 }
 
 /**
- * One line of situational awareness for claude (agy picks AGENTS.md up on its
- * own) — the actual rules live in /phlame/AGENTS.md, versioned and reviewable.
+ * One line of situational awareness — the actual rules live in
+ * /phlame/AGENTS.md, versioned and reviewable. claude gets it as a real
+ * system prompt (--append-system-prompt); agy has no such flag (checked
+ * `agy --help`, 2026-07-12) and does NOT reliably auto-read AGENTS.md (its
+ * workspace comes from discovery, not cwd), so for agy the same line rides
+ * at the top of the prompt instead — see agyPreamble.
  */
-const CLAUDE_SYSTEM_PROMPT =
-  'You run headless inside the phlame agent container in yolo mode. Read /phlame/AGENTS.md first and obey it.';
+const YOLO_SITUATION = 'You run headless inside the phlame agent container in yolo mode. ';
+const CLAUDE_SYSTEM_PROMPT = `${YOLO_SITUATION}Read /phlame/AGENTS.md first and obey it.`;
 
 /**
  * Idempotent warm-up for the agent container. Its start command runs
@@ -175,6 +179,14 @@ export function worktreePreamble(workdir: string): string {
   );
 }
 
+/** agy's stand-in for a system prompt: situation + AGENTS.md pointer, worktree-aware. */
+export function agyPreamble(workdir?: string): string {
+  if (workdir) {
+    return YOLO_SITUATION + worktreePreamble(workdir);
+  }
+  return `${YOLO_SITUATION}Read /phlame/AGENTS.md first and obey it.\n\n`;
+}
+
 /**
  * Headless agy prompt inside the agent container. The prompt is ONE argv
  * element handed to `agy -p` — data for the LLM, inert for a shell (spawned
@@ -189,10 +201,15 @@ export function planAgy(slot: number, prompt: string, model?: string, workdir?: 
     args.push('-w', workdir);
   }
   args.push(getAgentContainer(slot), 'agy', '--dangerously-skip-permissions');
+  if (workdir) {
+    // Pin the workspace too: agy discovers its workspace instead of honoring
+    // the exec cwd — --add-dir points the discovery at the task worktree.
+    args.push('--add-dir', workdir);
+  }
   if (model) {
     args.push('--model', model);
   }
-  args.push('-p', workdir ? worktreePreamble(workdir) + prompt : prompt);
+  args.push('-p', agyPreamble(workdir) + prompt);
   return args;
 }
 
