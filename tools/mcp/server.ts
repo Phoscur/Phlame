@@ -118,15 +118,21 @@ server.registerTool(
       type: z.string().describe('phelopment type, e.g. mine-metallic'),
       direction: z.enum(['up', 'down']),
       planet: z.string().optional(),
+      at: z.number().int().nonnegative().optional().describe('optional past tick to timewarp the command to'),
     },
   },
-  ({ session: id, type, direction, planet }) => {
+  ({ session: id, type, direction, planet, at }) => {
     try {
-      const { id: actionId, at, duration, wait, cost } = session(id).grade(type, direction, planet);
+      const { id: actionId, at: queueAt, duration, wait, cost } = session(id).grade(
+        type, 
+        direction, 
+        planet,
+        at
+      );
       const waiting =
         wait === Infinity ? 'waiting for production' : wait > 0 ? `wait ~${wait} + ` : '';
       return ok(
-        `queued [${actionId}] ${type} ${direction}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
+        `queued [${actionId}] ${type} ${direction}grade: ~tick ${queueAt} (${waiting}${duration} ticks build, cost ${cost})`,
       );
     } catch (error) {
       return fail(error);

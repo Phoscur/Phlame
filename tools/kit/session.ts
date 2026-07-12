@@ -50,13 +50,15 @@ const SAVE_FOLDER = join('data', 'console');
 export class GameSession {
   private currentTick: TimeUnit;
   private engineFactory = new Injector().inject(EngineFactory);
+  public empire: EmpireEntity;
 
   constructor(
     readonly name: string,
     readonly genesis: GenesisJSON,
-    readonly empire: EmpireEntity,
+    empire: EmpireEntity,
     tick: TimeUnit = 0,
   ) {
+    this.empire = empire;
     this.currentTick = tick;
   }
 
@@ -134,6 +136,7 @@ export class GameSession {
     type: string,
     direction: 'up' | 'down',
     planetID?: string,
+    atTick?: TimeUnit,
   ): { id: string; at: TimeUnit; duration: TimeUnit; wait: TimeUnit; cost: string } {
     const planet = this.planet(planetID);
     const economy = this.economyView(planet);
@@ -148,8 +151,10 @@ export class GameSession {
     const duration =
       direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
     const wait = economy.ticksUntilAffordable(cost);
+    
+    const queueAt = atTick ?? this.currentTick;
     // display estimate only - actual start/completion are consequence echoes (ADR 0018)
-    const at = this.currentTick + (wait === Infinity ? duration : wait + duration);
+    const at = queueAt + (wait === Infinity ? duration : wait + duration);
     // ids are generated here at the tool boundary - the engine stays pure (ADR 0009)
     const id = actionID();
     // commands enter through the empire's trusted log (ADR 0012)
@@ -157,8 +162,15 @@ export class GameSession {
       ActionTypes.UPDATE,
       { id, phelopmentID: type, grade: direction },
       [planet],
-      this.currentTick,
+      queueAt,
     );
+    
+    if (queueAt < this.currentTick) {
+      // Timewarping into the past: re-derive the live state from genesis 
+      // to ensure costs are evaluated retroactively to maintain the M0 invariant.
+      this.empire = fromGenesis(this.genesis).applyLog(this.empire.log, this.currentTick);
+    }
+    
     return { id, at, duration, wait, cost: cost.prettyAmount };
   }
 

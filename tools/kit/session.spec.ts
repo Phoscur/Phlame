@@ -91,4 +91,20 @@ describe('GameSession (console/MCP kit)', () => {
     session.advance(47);
     expect(session.replayCheck().ok).toBe(true);
   });
+
+  it('timewarps a queue action into the past and maintains M0 invariant', () => {
+    const session = GameSession.create('Timewarp');
+    session.advance(10); // current tick is 10
+
+    // queue an action at tick 0 (timewarp)
+    session.grade('mine-metallic', 'up', undefined, 0);
+
+    // It should have rebuilt the empire to retroactively process the costs
+    const { ok } = session.replayCheck();
+    expect(ok).toBe(true);
+    
+    // The action queued at 0 takes 4 ticks, so at tick 10 it should already be finished (level 2)
+    const level = session.list().find((r) => r.type === 'mine-metallic')?.level;
+    expect(level).toBe(2);
+  });
 });

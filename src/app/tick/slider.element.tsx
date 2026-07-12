@@ -57,10 +57,15 @@ export class TickSliderElement extends HTMLElement {
 
     const range = this.getElementsByClassName('tickRange')[0] as HTMLInputElement;
     logger.log('TickRange LastTick', empire.current.lastTick);
-    range.min = `${empire.current.lastTick}`; // TODO get last action tick
+    
+    // allow timewarping backwards only until the last queued action
+    const lastActionTick = empire.current.log.length > 0
+      ? empire.current.log[empire.current.log.length - 1].tick
+      : 0;
+    range.min = `${lastActionTick}`;
     range.max = `${zeit.tick}`;
 
-    range.onchange = (event: Event) => {
+    range.oninput = (event: Event) => {
       const target = event.target as HTMLInputElement;
       zeit.hold(Number(target.value));
       this.onHold = true;

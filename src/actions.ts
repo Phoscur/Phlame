@@ -12,6 +12,7 @@ export const actionSchema = z.object({
     phelopmentID: z.string(),
     grade: z.enum(['up', 'down']),
   }),
+  at: z.number().optional(),
 });
 
 /**
@@ -65,8 +66,9 @@ export function createActionsRoute(engine: EngineService) {
     const command = parsed.data;
 
     try {
-      // the server is tick-authoritative (ADR 0012): at = the server Zeitgeber's tick
-      const tick = engine.time.tick;
+      // the server is tick-authoritative (ADR 0012): at = the server Zeitgeber's tick by default,
+      // but we allow explicit timewarping from the client's `at` parameter if present
+      const tick = command.at ?? engine.time.tick;
       const logEntry = empire.enqueue(ActionTypes.UPDATE, command.payload, [entity], tick);
 
       const sid = getCookie(c, 'sid');

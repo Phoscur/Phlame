@@ -30,8 +30,8 @@ flags:    --name <empire>   new empire name (default Sandbox)
 commands: s, state            show empire, stock, production, queue
           ls, list            phelopments with upgrade costs & build times
           t, tick <n>         advance n ticks (also in realtime: timewarp ahead)
-          up <type> [planet]  queue an upgrade (waits for costs, then builds)
-          down <type> [planet]  queue a downgrade
+          up <type> [planet] [at]  queue an upgrade (optionally in the past via [at])
+          down <type> [planet] [at]  queue a downgrade
           cancel <id> [planet]  remove a queued action (ids show in state)
           save [name]         save to data/console/<name>.json
           load <name>         load from data/console/<name>.json
@@ -119,16 +119,23 @@ for await (const line of rl) {
       case 'up':
       case 'down': {
         const type = args[0];
-        if (!type) throw new Error(`usage: ${command} <type> [planet]`);
-        const { id, at, duration, wait, cost } = session.grade(
+        if (!type) throw new Error(`usage: ${command} <type> [planet] [at]`);
+        const planetID = args[1];
+        const at = args[2] ? Number(args[2]) : undefined;
+        if (at !== undefined && (!Number.isInteger(at) || at < 0 || at > session.tick)) {
+          throw new Error(`[at] must be a positive integer <= current tick (${session.tick})`);
+        }
+        
+        const { id, at: actualAt, duration, wait, cost } = session.grade(
           type,
           command as 'up' | 'down',
-          args[1],
+          planetID,
+          at
         );
         const waiting =
           wait === Infinity ? 'waiting for production, ' : wait > 0 ? `wait ~${wait} + ` : '';
         console.log(
-          `queued [${id}] ${type} ${command}grade: ~tick ${at} (${waiting}${duration} ticks build, cost ${cost})`,
+          `queued [${id}] ${type} ${command}grade: ~tick ${actualAt} (${waiting}${duration} ticks build, cost ${cost})`,
         );
         break;
       }

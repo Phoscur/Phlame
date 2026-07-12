@@ -1,4 +1,5 @@
 import { inject, injectable } from '@joist/di';
+import { Zeitgeber } from '../signals/zeitgeber';
 import {
   Economy,
   type EmpireJSON,
@@ -94,6 +95,7 @@ export class Repository<T extends Entity> {
 @injectable()
 export class EmpireService {
   #engine = inject(EngineFactory);
+  #zeit = inject(Zeitgeber);
 
   #empires = new Repository<Empire<ResourceIdentifier, PhelopmentIdentifier>>();
   #entities = new Repository<Phlame<ResourceIdentifier, PhelopmentIdentifier>>();
@@ -162,6 +164,7 @@ export class EmpireService {
           phelopmentID: type,
           grade: direction,
         },
+        at: this.#zeit().tick,
       }),
     });
 
