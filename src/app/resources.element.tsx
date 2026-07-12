@@ -202,7 +202,7 @@ export class ResourcesElement extends HTMLElement {
     this.#cleanup = zeit.effect(() => {
       //if (zeit.holdingTick) return;
       const production = c.get();
-      this.#logger().log('Resources update:', production);
+      this.#logger().trace('Resources update:', production);
       this.update(production);
     });
   }

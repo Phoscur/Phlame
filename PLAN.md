@@ -187,6 +187,16 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       (2026-07) — deliberately NOT auto-regenerated: the save might be recoverable
       once session export/import exists. NOTE the SSR still shows the last loaded
       empire in that case (session bleed) — fix with the session middleware rework.
+  - [x] Action sync v1 (2026-07): grade commands POST to
+        `/empires/:eid/entities/:id/actions`; the server is tick-authoritative
+        (ADR 0012) — it enqueues into the session's empire, persists the snapshot
+        (the log serializes with it) and answers with the appended `LogEntryJSON`;
+        the client AWAITS that response and projects it via `applyLog` (decided:
+        no optimistic enqueue, no reconciliation — a tick is 10s). Handlers use the
+        per-request empire captured by the middleware/sessionHelper, never the
+        EngineService singleton (parallel requests swap it — was a live 403 race
+        in e2e, incl. cookie-less catch-all requests minting surplus sessions).
+        Cancel is still client-only (follow-up: refunds are M2 anyway).
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
       Queue capacity is ruled by `Phormulae.queueSlots` (a `constant` Phormula, 2026-07;
       enforced in `Phlame.add`) — NOTE: it counts _all_ open actions; differentiate per

@@ -14,7 +14,7 @@ export class EmpireElement extends HTMLElement {
     try {
       const id = this.attributes.getNamedItem('id')?.value ?? 'Unknown Empire';
       const entities = JSON.parse(this.attributes.getNamedItem('entities')?.value ?? '[]');
-      logger.log(`Empire[${id}] initializing...`, entities);
+      logger.trace(`Empire[${id}] initializing...`, entities);
       // TODO hydrate the command log (game.element.tsx renders no log attribute yet)
       engine.setupFromJSON({ id, entities, log: [] });
     } catch (ex) {
@@ -34,7 +34,7 @@ export class PhlameElement extends HTMLElement {
 
     try {
       const id = this.attributes.getNamedItem('id')?.value ?? 'Unknown Phlame';
-      logger.log(`Phlame[${id}] initializing...`);
+      logger.trace(`Phlame[${id}] initializing...`);
       service.setup(id);
     } catch (ex) {
       console.error(ex);

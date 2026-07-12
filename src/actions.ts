@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ActionTypes } from '@phlame/engine';
 import { getCookie } from 'hono/cookie';
 import type { EngineService } from './engine.server';
+import type { EmpireEnv } from './empire.middleware';
 
 export const actionSchema = z.object({
   type: z.literal('update'),
@@ -13,13 +14,18 @@ export const actionSchema = z.object({
   }),
 });
 
+/**
+ * Mounted behind the empireMiddleware, which loads the sid cookie's session and
+ * stashes its empire on the context - handlers never read the EngineService
+ * singleton, a parallel request may have swapped it (see empire.middleware.ts).
+ */
 export function createActionsRoute(engine: EngineService) {
-  const actionsRoute = new Hono();
+  const actionsRoute = new Hono<EmpireEnv>();
 
   // GET -> list upcoming actions for an entity
   actionsRoute.get('/entities/:id/actions', (c) => {
     const id = c.req.param('id');
-    const empire = engine.empire;
+    const empire = c.get('empire');
     try {
       const entity = empire.entity(id);
       const actions = entity.upcoming.map((a) => ({ ...a, concerns: a.concerns.id }));
@@ -32,7 +38,7 @@ export function createActionsRoute(engine: EngineService) {
   // POST -> validate body explicitly, return 400 on invalid JSON/validation error
   actionsRoute.post('/entities/:id/actions', async (c) => {
     const id = c.req.param('id');
-    const empire = engine.empire;
+    const empire = c.get('empire');
 
     let entity;
     try {
@@ -59,6 +65,7 @@ export function createActionsRoute(engine: EngineService) {
     const command = parsed.data;
 
     try {
+      // the server is tick-authoritative (ADR 0012): at = the server Zeitgeber's tick
       const tick = engine.time.tick;
       const logEntry = empire.enqueue(ActionTypes.UPDATE, command.payload, [entity], tick);
 

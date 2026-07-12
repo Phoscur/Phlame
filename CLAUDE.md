@@ -60,6 +60,10 @@ Browser automation NEVER runs ad hoc on the host — no generated one-off script
 screenshots go through `tests/screenshot.spec.ts`. The game sandbox is the separate
 **phlame-game** MCP ([PLAN-MCP.md](./PLAN-MCP.md)).
 
+**Stale-container gotcha**: the warm `phlame` dev service does NOT see host file edits
+(Windows bind mounts deliver no file events, vite never reloads server code) — after
+changing `src/` server code, run `down` first or `run(e2e)` verifies the OLD code.
+
 ## Hard rules
 
 - **No React, no framework.** `.tsx` here is Hono JSX (`jsxImportSource: hono/jsx`) on the
