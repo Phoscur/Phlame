@@ -21,6 +21,15 @@ function actionID(action: Action<ActionType>): string {
   return String(action.consequence.payload['id']);
 }
 
+/** FIFO queue estimate for one open command (display only - real transitions are echoes, ADR 0018) */
+export interface QueueEstimate {
+  action: Action<ActionType>;
+  /** tick the costs are (expected to be) fetched; Infinity when never affordable */
+  startAt: TimeUnit;
+  /** tick the grade (is expected to) apply; Infinity when never affordable */
+  completeAt: TimeUnit;
+}
+
 export class Phlame<
   ResourceType extends ResourceIdentifier,
   UnitType extends PhelopmentIdentifier,
@@ -71,6 +80,62 @@ export class Phlame<
       concerns: [this.id],
       payload: { action: actionID(action), event, phelopmentID, grade },
     });
+  }
+
+  /**
+   * Estimate start/completion ticks for the open queue by simulating the
+   * Wartefunktion ahead (pure - economy ops return new instances, nothing mutates).
+   * Estimates self-correct as ticks pass, exactly like update() will play them.
+   */
+  get queue(): QueueEstimate[] {
+    const estimates: QueueEstimate[] = [];
+    let eco = this.economy;
+    let tick = this.tick;
+    let blocked = false;
+    for (const action of this.upcoming) {
+      if (blocked) {
+        // FIFO: nothing behind an unaffordable command can start
+        estimates.push({ action, startAt: Infinity, completeAt: Infinity });
+        continue;
+      }
+      const payload = action.consequence.payload;
+      const phelopmentID = payload['phelopmentID'] as UnitType;
+      const grade = payload['grade'] as 'up' | 'down';
+      const phelopment = eco.phelopments.find((p) => p.type === phelopmentID);
+      if (!phelopment) {
+        // unknown target: update() will void it, the queue moves past it
+        continue;
+      }
+      const cost = grade === 'up' ? eco.upgradeCost(phelopment) : eco.downgradeCost(phelopment);
+      const duration = grade === 'up' ? eco.upgradeTime(phelopment) : eco.downgradeTime(phelopment);
+
+      const started = this.echoOf(actionID(action), 'started');
+      let startAt: TimeUnit;
+      if (started) {
+        startAt = started.at; // costs are already fetched in the live economy
+      } else {
+        const wait = eco.ticksUntilAffordable(cost);
+        if (wait === Infinity) {
+          estimates.push({ action, startAt: Infinity, completeAt: Infinity });
+          blocked = true;
+          continue;
+        }
+        startAt = tick + wait;
+        if (wait > 0) {
+          eco = eco.tick(wait);
+          tick = startAt;
+        }
+        eco = eco.fetch(cost);
+      }
+      const completeAt = startAt + duration;
+      estimates.push({ action, startAt, completeAt });
+      if (completeAt > tick) {
+        eco = eco.tick(completeAt - tick);
+        tick = completeAt;
+      }
+      eco = grade === 'up' ? eco.upgrade(phelopmentID) : eco.downgrade(phelopmentID);
+    }
+    return estimates;
   }
 
   get lastTick(): TimeUnit {

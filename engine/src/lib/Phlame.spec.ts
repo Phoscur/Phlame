@@ -1,7 +1,8 @@
 import { Action, ActionType, ActionTypes, ActionFactory } from './Action';
 
 import examples, { Types } from './resources/examples';
-import { stock, phelopments, defaultPhelopments, phlame, phormulae } from './examples';
+import { stock, emptyStock, phelopments, defaultPhelopments, phlame, phormulae } from './examples';
+import { Phelopment } from './Phelopment';
 import { ResourceCollection } from './resources/ResourceCollection';
 import { Stock } from './resources/Stock';
 import { Phlame } from './Phlame';
@@ -150,6 +151,51 @@ describe('Phlame Entity', () => {
     expect(actions[0].consequence.payload['startedAt']).to.eql(undefined);
     expect(consequences.find((c) => c.id === 'wartefunktion:started')?.at).to.eql(5);
     expect(consequences.find((c) => c.id === 'wartefunktion:completed')?.at).to.eql(9);
+  });
+
+  it('should estimate queue start/completion ticks (FIFO simulation, display only)', () => {
+    const eco = new Economy('Eco', stock, defaultPhelopments, phormulae);
+    const estimating = new Phlame('Estimating', eco);
+    const factory = new ActionFactory();
+    // same setup as the Wartefunktion test: 5 ticks of waiting, then 4 ticks of building
+    estimating.add(factory.updatePhelopment(4, estimating, 1, 'up', 'first'));
+
+    const [first] = estimating.queue;
+    expect(first.startAt).to.eql(5);
+    expect(first.completeAt).to.eql(9);
+
+    // once started, the estimate pins to the consequence echo instead of re-simulating
+    estimating.update(6);
+    const [running] = estimating.queue;
+    expect(running.startAt).to.eql(5);
+    expect(running.completeAt).to.eql(9);
+
+    // a second command queues FIFO behind the first
+    estimating.add(factory.updatePhelopment(8, estimating, 1, 'up', 'second'));
+    const [, second] = estimating.queue;
+    expect(second.startAt).to.be.at.least(running.completeAt);
+    expect(second.completeAt).to.be.greaterThan(second.startAt);
+
+    // estimating must not fast-forward the entity itself
+    expect(estimating.lastTick).to.eql(6);
+    // and playing it out matches the estimate
+    estimating.update(9);
+    expect(estimating.toJSON().phelopments.find((p) => p.type === 1)?.level).to.eql(2);
+  });
+
+  it('should estimate never-affordable commands as Infinity and block the queue behind them', () => {
+    // a halted mine (speed 0) produces nothing - the upgrade cost can never be fetched
+    const eco = new Economy('Eco', emptyStock, [new Phelopment(1, 1, 0)], phormulae);
+    const stuck = new Phlame('Stuck', eco);
+    const factory = new ActionFactory();
+    stuck.add(factory.updatePhelopment(4, stuck, 1, 'up', 'never'));
+    stuck.add(factory.updatePhelopment(8, stuck, 1, 'up', 'behind'));
+
+    const [first, second] = stuck.queue;
+    expect(first.startAt).to.eql(Infinity);
+    expect(first.completeAt).to.eql(Infinity);
+    expect(second.startAt).to.eql(Infinity);
+    expect(second.completeAt).to.eql(Infinity);
   });
 
   it('should refuse to queue beyond the Phormulae-ruled slots', () => {
