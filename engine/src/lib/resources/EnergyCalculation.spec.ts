@@ -85,6 +85,26 @@ describe('EnergyCalculation (extended ResourceCalculation) ValueObject', () => {
     );
   });
 
+  it('should keep a negative energy total on deficit and degrade production (ADR 0004)', () => {
+    const { t3 } = examples;
+    const stock = new Stock(ResourceCollection.fromArray([t3]));
+    // one producer (+50 energy) vs six tumblers (-10 energy each): net -10
+    const prosumers = new ProsumerCollection<Types>([
+      new Prosumer('EnergyProducer', processes.energy),
+      ...Array.from({ length: 6 }, () => new Prosumer('Tumbler', processes.tumbles)),
+    ]);
+    const energyCalculation = EnergyCalculation.newStock(stock, prosumers);
+
+    // the deficit must survive as a negative number - not be clamped to zero
+    expect(energyCalculation.productionTable[0]).to.eql(['energy', -10, 50]);
+    expect(energyCalculation.prettyEnergy).to.eql(['-10/50 energy']);
+
+    // balanceFactor on deficit: (produced / (deficit + produced)) ** rebalancingExponent
+    expect(prosumers.isUnbalanced).to.be.true;
+    expect(energyCalculation.balanceFactor).to.be.closeTo((50 / 60) ** 1.1, 1e-12);
+    expect(energyCalculation.productionEntries).to.include('Degraded to 82%');
+  });
+
   it('should calculate remaining time units', () => {
     const { t3, s3 } = examples;
     const resources = ResourceCollection.fromArray([t3, s3]);

@@ -1,59 +1,176 @@
-import { energy, EnergyResource, EnergyTypes } from './examples';
+import examples, { Types, processes } from './examples';
+import { ResourceCollection } from './ResourceCollection';
+import { Stock } from './Stock';
+import { ResourceCalculation } from './ResourceCalculation';
+import { ResourceProcess, type TimeUnit } from './ResourceProcess';
+import { ResourceProcessCollection } from './ResourceProcessCollection';
+import { Prosumer } from './Prosumer';
+import { EnergyCalculation } from './EnergyCalculation';
+import { ProsumerCollection } from './ProsumerCollection';
 
-describe('Energy Resource ValueObject', () => {
+describe('EnergyCalculation (extended ResourceCalculation) ValueObject', () => {
   it('should be console printable', () => {
-    const { e0 } = energy;
-    expect(e0.toString()).to.eql(`Energy[0${EnergyTypes.Electricity}]`);
+    const { t3, s3, b1 } = examples;
+    const resources = ResourceCollection.fromArray([t3, s3]);
+    const resourceProcesses = ResourceProcessCollection.fromArray([
+      new ResourceProcess(t3, 1),
+      new ResourceProcess(s3, -1),
+      new ResourceProcess(b1.zero, 0),
+    ]);
+    const stock = new Stock(resources);
+    const prosumers = new ProsumerCollection<Types>([
+      new Prosumer('EnergyProducer', processes.energy),
+      new Prosumer('EnergyProducer', processes.energy),
+      new Prosumer('EnergyProducer', processes.energy),
+    ]);
+    const resourceCalculation = new ResourceCalculation(stock, resourceProcesses);
+    const energyCalculation = new EnergyCalculation(resourceCalculation, prosumers);
+    expect(energyCalculation.productionEntries).to.eql([
+      '150/150 energy',
+      '3tumbles(0, Infinity): +1',
+      '3salties(0, Infinity): -1',
+      '0blubbs(0, Infinity): 0',
+    ]);
+    expect(energyCalculation.productionTable).to.eql([
+      ['energy', 150, 150],
+      ['tumbles', 1, 3, Infinity, 0],
+      ['salties', -1, 3, Infinity, 0],
+      ['blubbs', 0, 0, Infinity, 0],
+    ]);
+    expect(energyCalculation.prettyProsumers).to.eql([
+      'Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])',
+      'Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])',
+      'Prosumer(EnergyProducer, 100%, ResourceProcessCollection[0energy+50])',
+    ]);
+    expect(energyCalculation.toString()).to.eql(
+      'Processing energy&resources: 150/150 energy, 3tumbles(0, Infinity): +1, 3salties(0, Infinity): -1, 0blubbs(0, Infinity): 0',
+    );
   });
 
-  it('should be serializable', () => {
-    const serialized = { type: 'energy', amount: 10 };
-    const { e10 } = energy;
-    expect(e10.toJSON()).to.eql(serialized);
+  it('should calculate with time units', () => {
+    const { t3, s3 } = examples;
+    const resources = ResourceCollection.fromArray([t3, s3]);
+    const resourceProcesses = ResourceProcessCollection.fromArray([
+      new ResourceProcess(t3, 1),
+      new ResourceProcess(s3, -1),
+    ]);
+    const stock = new Stock(resources);
+    const resourceCalculation = new ResourceCalculation(stock, resourceProcesses);
+    const prosumers = new ProsumerCollection<Types>([
+      new Prosumer('EnergyProducer', processes.energy),
+    ]);
+    const energyCalculation = new EnergyCalculation(resourceCalculation, prosumers);
+    const timeUnits: TimeUnit = 1;
+
+    const oneSecondLater = energyCalculation.calculate(timeUnits);
+    expect(oneSecondLater.toString()).to.eql(
+      'Processing energy&resources: 50/50 energy, 4tumbles(0, Infinity): +1, 2salties(0, Infinity): -1',
+    );
+
+    const anotherSecondLater = oneSecondLater.calculate(timeUnits);
+    expect(anotherSecondLater.toString()).to.eql(
+      'Processing energy&resources: 50/50 energy, 5tumbles(0, Infinity): +1, 1salties(0, Infinity): -1',
+    );
+
+    const emptySalties = anotherSecondLater.calculate(timeUnits);
+    expect(emptySalties.toString()).to.eql(
+      'Processing energy&resources: 50/50 energy, 6tumbles(0, Infinity): +1, 0salties(0, Infinity): -1',
+    );
+
+    // Continuing with negative rate wont substract any more, because resources can't be negative
+    // At this point we need to recalculate all processes (with adapted rates) especially for energy outage
+    const emptySaltiesStill = emptySalties.calculate(timeUnits);
+    expect(emptySaltiesStill.toString()).to.eql(
+      'Processing energy&resources: 50/50 energy, 7tumbles(0, Infinity): +1, 0salties(0, Infinity): -1',
+    );
   });
 
-  it('is int32 and immutable, very similar to a Resource but never infinite', () => {
-    const { e0, e10 } = energy;
+  it('should keep a negative energy total on deficit and degrade production (ADR 0004)', () => {
+    const { t3 } = examples;
+    const stock = new Stock(ResourceCollection.fromArray([t3]));
+    // one producer (+50 energy) vs six tumblers (-10 energy each): net -10
+    const prosumers = new ProsumerCollection<Types>([
+      new Prosumer('EnergyProducer', processes.energy),
+      ...Array.from({ length: 6 }, () => new Prosumer('Tumbler', processes.tumbles)),
+    ]);
+    const energyCalculation = EnergyCalculation.newStock(stock, prosumers);
 
-    expect(e0.add(e10)).to.be.eql(e10);
-    expect(e10.subtract(e0)).to.be.eql(e10);
-    expect(e10.infinite.times(3)).to.be.eql(e10.zero);
+    // the deficit must survive as a negative number - not be clamped to zero
+    expect(energyCalculation.productionTable[0]).to.eql(['energy', -10, 50]);
+    expect(energyCalculation.prettyEnergy).to.eql(['-10/50 energy']);
+
+    // balanceFactor on deficit: (produced / (deficit + produced)) ** rebalancingExponent
+    expect(prosumers.isUnbalanced).to.be.true;
+    expect(energyCalculation.balanceFactor).to.be.closeTo((50 / 60) ** 1.1, 1e-12);
+    expect(energyCalculation.productionEntries).to.include('Degraded to 82%');
   });
 
-  it('should compare energy amounts', () => {
-    const { em10, e0, e10, h0 } = energy;
-    const e10a = new EnergyResource(10);
-    expect(e10.equals(e10a)).to.be.true;
-    expect(e0.equals(e10)).to.be.false;
-
-    expect(e0.equals(h0)).to.be.false;
-
-    expect(() => {
-      e10.isMoreOrEquals(h0);
-    }).to.throw(TypeError);
-    expect(() => {
-      e0.isLessOrEquals(h0);
-    }).to.throw(TypeError);
-
-    expect(e0.isLessOrEquals(e10)).to.be.true;
-    expect(em10.isLessOrEquals(e10)).to.be.true;
-    expect(e10.isMoreOrEquals(e0)).to.be.true;
+  it('should calculate remaining time units', () => {
+    const { t3, s3 } = examples;
+    const resources = ResourceCollection.fromArray([t3, s3]);
+    const resourceProcesses = ResourceProcessCollection.fromArray([
+      new ResourceProcess(t3, 1),
+      new ResourceProcess(s3, -1),
+    ]);
+    const stock = new Stock(resources);
+    const resourceCalculation = new ResourceCalculation(stock, resourceProcesses);
+    const prosumers = new ProsumerCollection<Types>([]);
+    const energyCalculation = new EnergyCalculation(resourceCalculation, prosumers);
+    const timeUnits: TimeUnit = 3;
+    expect(energyCalculation.validFor).to.be.equal(timeUnits);
   });
 
-  it('should add and subtract energy amounts', () => {
-    const { em10, e0, e10, h0, h10 } = energy;
-    expect(e0.add(e10)).to.be.eql(e10);
-    expect(e0.infinite.add(e10)).to.be.eql(e0.infinite);
-    expect(e0.add(e0.infinite)).to.be.eql(e0.infinite);
-    expect(e0.addAmount(10)).to.be.eql(e10);
-    expect(e10.subtract(e0)).to.be.eql(e10);
-    expect(e0.subtract(e10)).to.be.eql(em10);
+  it('should know how many time units can be calculated within the current limits', () => {
+    const { t3, t5, s3 } = examples;
+    const resources = ResourceCollection.fromArray([t3, s3]);
+    const resourceProcesses = ResourceProcessCollection.fromArray([
+      new ResourceProcess(t5, 2),
+      new ResourceProcess(s3, -1),
+    ]);
 
-    expect(() => {
-      e0.add(h10);
-    }).to.throw(TypeError);
-    expect(() => {
-      e0.subtract(h0);
-    }).to.throw(TypeError);
+    const resourceLimits = ResourceCollection.fromArray([t5, s3]);
+    const limitedStock = new Stock(resources, resourceLimits);
+    const limitedResourceCalculation = new ResourceCalculation(limitedStock, resourceProcesses);
+    const prosumers = new ProsumerCollection<Types>([new Prosumer('Plant', resourceProcesses, 1)]);
+    const energyCalculation = new EnergyCalculation(limitedResourceCalculation, prosumers);
+    const limitedTimeUnits: TimeUnit = 1;
+    expect(energyCalculation.validFor).to.be.equal(limitedTimeUnits);
+    // console.log(`${energyCalculation}:\n${energyCalculation.productionTable}`);
+  });
+
+  it('should know when it is over limits', () => {
+    const { t3, t5, s3 } = examples;
+    const resources = ResourceCollection.fromArray([t3, s3]);
+    const resourceProcesses = ResourceProcessCollection.fromArray([
+      new ResourceProcess(t5, 2.5), // 0.8
+      new ResourceProcess(s3, -1), // 3
+    ]);
+
+    const resourceLimits = ResourceCollection.fromArray([t5, s3]);
+    const limitedStock = new Stock(resources, resourceLimits);
+    const limitedResourceCalculation = new ResourceCalculation(limitedStock, resourceProcesses);
+    const prosumers = new ProsumerCollection<Types>([]);
+    const energyCalculation = new EnergyCalculation(limitedResourceCalculation, prosumers);
+
+    const limitedTimeUnits: TimeUnit = 0; // Actually 0.8, but that's not an integer
+    expect(energyCalculation.validFor).to.be.equal(limitedTimeUnits);
+  });
+
+  it('should know when it is under limits', () => {
+    const { t3, t5, s3 } = examples;
+    const resources = ResourceCollection.fromArray([t3, s3]);
+    const resourceProcesses = ResourceProcessCollection.fromArray([
+      new ResourceProcess(t5, 0.5), // 2 (1*2=5-3)
+      new ResourceProcess(s3, -1), // 3
+    ]);
+
+    const resourceLimits = ResourceCollection.fromArray([t5, s3]);
+    const limitedStock = new Stock(resources, resourceLimits);
+    const limitedResourceCalculation = new ResourceCalculation(limitedStock, resourceProcesses);
+    const prosumers = new ProsumerCollection<Types>([]);
+    const energyCalculation = new EnergyCalculation(limitedResourceCalculation, prosumers);
+
+    const limitedTimeUnits: TimeUnit = 2;
+    expect(energyCalculation.validFor).to.be.equal(limitedTimeUnits);
   });
 });

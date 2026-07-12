@@ -233,7 +233,12 @@ Answered so far: rules versioning + time authority/trust → [ADR 0011](docs/dec
 (universe = rules hash, everything Ω, saves may break pre-1.0); balancing → fresh, away
 from UGamela (see M2); total order / aggregate root → [ADR 0012](docs/decisions/0012-empire-owns-the-log.md)
 (Empire owns the log, "everything is a Phlame" as intent, ownership changes only via
-entity re-creation).
+entity re-creation); Energy/Resource merge → [ADR 0004](docs/decisions/0004-resource-energy-separate.md)
+revisited & confirmed (2026-07-12 discovery dry-run, the agent-worktree warm-up: merge
+fights back — constructor clamp blocks composition, class-identity `isEnergy` forces a
+flag; dedup-for-its-own-sake, separation stands; evidence on `agent/energy-merge`, and
+the dry-run exposed that the specs never pinned negative Energy amounts directly —
+being fixed as a follow-up task).
 
 1. **Content location**: where do balancing/prosumption tables live long-term — code
    (`buildings.ts`) or data (`phlame-data` repo)? Must end up canonical + hashable
@@ -256,9 +261,7 @@ entity re-creation).
    ticks, on save-share?
 5. **Old siblings**: `phlame-server`, `phlame-ui`, `engine-ui`, `peer-server`, `proxy` —
    archive them explicitly (README note in parent) or keep any alive for 2.0?
-6. **Energy/Resource merge** (ADR 0004 `revisit`): does the actions work touch enough of
-   the resource layer to justify doing the simplification first?
-7. **i18n scope**: de/en only for 1.0?
+6. **i18n scope**: de/en only for 1.0?
 
 ## Icebox (unsorted ideas, no commitment)
 
