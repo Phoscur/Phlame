@@ -5,10 +5,19 @@ import { Language, useTranslations } from './app/i18n';
 import { EngineService } from './engine.server';
 import { Injector } from '@joist/di';
 
-const AppRoot: FC<AppProps> = ({ t, title, empire, tick, timeMS, language, environment }) => (
+const AppRoot: FC<AppProps> = ({
+  t,
+  title,
+  empire,
+  tick,
+  timeMS,
+  language,
+  environment,
+  sessionLost,
+}) => (
   <>
     <app-root lang={language}>
-      {App({ t, title, empire, tick, timeMS, language, environment })}
+      {App({ t, title, empire, tick, timeMS, language, environment, sessionLost })}
     </app-root>
   </>
 );
@@ -19,7 +28,13 @@ export class GameRenderer {
 
   constructor(public readonly environment: string) {}
 
-  render(i: Injector, htmlFrame: string, title: string, language: Language): string {
+  render(
+    i: Injector,
+    htmlFrame: string,
+    title: string,
+    language: Language,
+    sessionLost = false,
+  ): string {
     const t = useTranslations(language);
 
     const engine = i.inject(EngineService);
@@ -42,6 +57,7 @@ export class GameRenderer {
           timeMS,
           language,
           environment: this.environment,
+          sessionLost,
         }),
       ),
     );

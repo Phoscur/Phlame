@@ -25,7 +25,8 @@ const html = async () =>
 const engineInjector = await startup(environment);
 
 // TODO? session middleware app.use('/*')
-async function sessionHelper(engine: EngineService, ctx: Context) {
+/** @returns error code from loading the session (0 = ok) */
+async function sessionHelper(engine: EngineService, ctx: Context): Promise<number> {
   const save = (sid: string, eid: string) => {
     setCookie(ctx, 'sid', sid);
     setCookie(ctx, 'empire', eid);
@@ -34,16 +35,11 @@ async function sessionHelper(engine: EngineService, ctx: Context) {
   if (!sid) {
     const session = await engine.generateSession();
     save(session.sid, `${session.empire.id}`);
-  } else {
-    await engine.load(sid);
-    // const eid = getCookie(c, 'empire');
-    /*try {    } catch (e) {
-      console.error('Failed to load session, generating a new one', e);
-      return;
-      const session = await engine.generateSession();
-      save(session.sid, `${session.empire.id}`);
-    }*/
+    return 0;
   }
+  // a failed load is NOT silently replaced: the sid may point to a real save the player
+  // wants back (session export is the plan) - the GUI shows a hint towards Session -> Logout
+  return engine.load(sid);
 }
 
 const app = new Hono()
@@ -93,9 +89,11 @@ if (isProd) {
   app.get('/*', async (c) => {
     const engine = engineInjector.inject(EngineService);
     const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
-    await sessionHelper(engine, c);
+    const code = await sessionHelper(engine, c);
     const index = await html();
-    return c.html(game.render(engineInjector, index, `Phlame [${game.environment}]`, lang));
+    return c.html(
+      game.render(engineInjector, index, `Phlame [${game.environment}]`, lang, code !== 0),
+    );
   });
 }
 export default app;

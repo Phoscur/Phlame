@@ -24,9 +24,20 @@ export interface AppProps {
   timeMS: number;
   language: Language;
   environment: string;
+  /** the sid cookie points to a session the server could not load (stale/corrupt) */
+  sessionLost?: boolean;
 }
 
-export function App({ t, title, empire, tick, timeMS, language, environment }: AppProps) {
+export function App({
+  t,
+  title,
+  empire,
+  tick,
+  timeMS,
+  language,
+  environment,
+  sessionLost,
+}: AppProps) {
   return (
     <>
       <div class="wrapper">
@@ -38,6 +49,11 @@ export function App({ t, title, empire, tick, timeMS, language, environment }: A
             <app-session class="grid" />
             <ph-tick-slider />
           </div>
+          {sessionLost && (
+            <div class="mx-auto mt-4 max-w-xl rounded-lg bg-slate-900 px-4 py-3 text-sm text-gray-300 ring-1 ring-energy">
+              {t('session.lost.hint')}
+            </div>
+          )}
           <div class="container mx-auto py-8">
             <div class="text-center mb-6">
               <h1 class="text-2xl font-bold" environment={environment}>
