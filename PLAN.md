@@ -183,10 +183,22 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       file/localStorage backends behind one interface. Supersedes parts of ADR 0008.
       The console kit already saves `{genesis, empire}` with the log inside and
       restores replay-verified (2026-07); the app's `PersistedSession` follows.
+      A stale/corrupt `sid` cookie now renders a hint towards Session → Logout
+      (2026-07) — deliberately NOT auto-regenerated: the save might be recoverable
+      once session export/import exists. NOTE the SSR still shows the last loaded
+      empire in that case (session bleed) — fix with the session middleware rework.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
       Queue capacity is ruled by `Phormulae.queueSlots` (a `constant` Phormula, 2026-07;
       enforced in `Phlame.add`) — NOTE: it counts _all_ open actions; differentiate per
       queue kind once non-build actions exist (transports, M2).
+  - [x] Correct completion ETA (2026-07): `Phlame.queue` simulates the Wartefunktion
+        ahead (pure) and yields `startAt`/`completeAt` per open command (`Infinity` =
+        never affordable, FIFO-blocking); the queue row shows `completeAt` instead of
+        the misleading orderedAt, styled distinctly (dashed border) from building rows.
+  - [ ] Remaining-ticks countdown: rows re-render every tick, so
+        `completeAt - lastTick` is the remaining count — show "N ticks" (i18n slot,
+        maybe real time via `msPerTick`) and a progress bar from `startAt → completeAt`;
+        "waiting" state (not started) should read differently from "building".
 
 ## Milestone 2 — Gameplay depth
 
