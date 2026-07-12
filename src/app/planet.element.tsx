@@ -13,53 +13,57 @@ import { resourcesToJSX } from './resources.element';
 import { PhlameEntity } from './engine';
 import { ActionTypes } from '@phlame/engine';
 
+// constrain the fixed 90x90 SVGs to row height (class beats the width/height attributes)
+const iconSize = 'h-10 w-10 shrink-0';
+
 function getIconFor(type: string) {
   if (type === 'mine-metallic')
     return (
       <>
-        <MetallicIcon />
-        <MineIcon />
+        <MetallicIcon className={iconSize} />
+        <MineIcon className={iconSize} />
       </>
     );
   if (type === 'mine-crystalline')
     return (
       <>
-        <CrystallineIcon className="text-crystalline-dark" />
-        <MineIcon />
+        <CrystallineIcon className={`${iconSize} text-crystalline-dark`} />
+        <MineIcon className={iconSize} />
       </>
     );
   if (type === 'synthesizer-liquid')
     return (
       <>
-        <BubblesIcon />
-        <MineIcon />
+        <BubblesIcon className={iconSize} />
+        <MineIcon className={iconSize} />
       </>
     );
   if (type === 'plant-solar')
     return (
       <>
-        <EnergyIcon className="text-energy-dark" />
-        <PowerPlantSolarIcon className="text-energy-primary" />
+        <EnergyIcon className={`${iconSize} text-energy-dark`} />
+        <PowerPlantSolarIcon className={`${iconSize} text-energy-primary`} />
       </>
     );
   if (type === 'plant-fusion')
     return (
       <>
-        <EnergyIcon className="text-energy-dark" />
-        <PowerPlantFusionIcon className="text-energy-primary" />
+        <EnergyIcon className={`${iconSize} text-energy-dark`} />
+        <PowerPlantFusionIcon className={`${iconSize} text-energy-primary`} />
       </>
     );
   if (type === 'silo-metallic' || type === 'silo-crystalline' || type === 'tank-liquid')
-    return <SiloIcon />;
-  return <MineIcon />;
+    return <SiloIcon className={iconSize} />;
+  return <MineIcon className={iconSize} />;
 }
 
+// slightly translucent backgrounds let the planet image shine through the rows
 function getColorClassFor(type: string) {
-  if (type.includes('metallic')) return 'bg-metallic-dark text-metallic';
-  if (type.includes('crystalline')) return 'bg-crystalline-dark text-crystalline';
-  if (type.includes('liquid')) return 'bg-liquid-dark text-liquid';
-  if (type.includes('plant')) return 'bg-energy-dark text-energy';
-  return 'bg-gray-800 text-gray-400';
+  if (type.includes('metallic')) return 'bg-metallic-dark/90 text-metallic';
+  if (type.includes('crystalline')) return 'bg-crystalline-dark/90 text-crystalline-light';
+  if (type.includes('liquid')) return 'bg-liquid-dark/90 text-liquid';
+  if (type.includes('plant')) return 'bg-energy-dark/90 text-energy-secondary';
+  return 'bg-gray-800/90 text-gray-400';
 }
 
 export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
@@ -72,7 +76,7 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
       <div class="bg-gray-800 p-4 rounded-lg bg-cover bg-[url('/dall-e-planet.png')]">
         <div class="flex justify-between">
           <div class="min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-gray-500 sm:truncate sm:text-3xl sm:tracking-tight">
+            <h2 class="text-2xl font-bold leading-7 text-gray-300 sm:truncate sm:text-3xl sm:tracking-tight">
               Planet
             </h2>
             <div>
@@ -99,22 +103,26 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
             </ph-resources>
           </div>
         </div>
-        <br class="mb-[200px]" />
-        <ul class="buildingQueue">
+        <div class="h-48" aria-hidden="true"></div>
+        <ul class="buildingQueue space-y-2">
           {queue.map((a) => {
             const payload = a.consequence.payload as { phelopmentID: string; grade: 'up' | 'down' };
             const currentLevel =
               phelopments.find((p) => p.type === payload.phelopmentID)?.level ?? 0;
             const level = payload.grade === 'up' ? currentLevel + 1 : currentLevel - 1;
             return (
-              <li class={`${getColorClassFor(payload.phelopmentID)} flex flex-columns`}>
+              <li
+                class={`${getColorClassFor(payload.phelopmentID)} flex items-center gap-3 rounded-lg px-3 py-2`}
+              >
                 {getIconFor(payload.phelopmentID)}
-                {t('building.level')} {level} (at tick {a.consequence.at})
+                <span class="min-w-0 flex-1 truncate font-medium">
+                  {t('building.level')} {level} (at tick {a.consequence.at})
+                </span>
                 <button
                   data-action-id={a.consequence.payload.id}
                   data-planet={planet.id}
-                  class="phlame-cancel-btn inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-                    shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+                  class="phlame-cancel-btn inline-flex shrink-0 items-center whitespace-nowrap rounded-md px-3 py-2
+                    text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
                 >
                   {t('app.cancel')}
                 </button>
@@ -122,31 +130,35 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
             );
           })}
         </ul>
-        <ul class="buildingList">
+        <ul class="buildingList mt-2 space-y-2">
           {phelopments.map((p) => (
-            <li class={`${getColorClassFor(p.type)} flex flex-columns`}>
+            <li class={`${getColorClassFor(p.type)} flex items-center gap-3 rounded-lg px-3 py-2`}>
               {getIconFor(p.type)}
-              {p.type} - {t('building.level')} {p.level}
-              <button
-                data-type={p.type}
-                data-direction="up"
-                data-planet={planet.id}
-                class="phlame-grade-btn inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-                  shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
-              >
-                {p.level === 0 ? t('building.action.build') : t('building.action.upgrade')}
-              </button>
-              {p.level > 0 && (
+              <span class="min-w-0 flex-1 truncate font-medium">
+                {p.type} — {t('building.level')} {p.level}
+              </span>
+              <span class="flex shrink-0 gap-2">
                 <button
                   data-type={p.type}
-                  data-direction="down"
+                  data-direction="up"
                   data-planet={planet.id}
-                  class="phlame-grade-btn inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-                    shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+                  class="phlame-grade-btn inline-flex items-center whitespace-nowrap rounded-md px-3 py-2
+                    text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
                 >
-                  {p.level === 1 ? t('building.action.destroy') : t('building.action.downgrade')}
+                  {p.level === 0 ? t('building.action.build') : t('building.action.upgrade')}
                 </button>
-              )}
+                {p.level > 0 && (
+                  <button
+                    data-type={p.type}
+                    data-direction="down"
+                    data-planet={planet.id}
+                    class="phlame-grade-btn inline-flex items-center whitespace-nowrap rounded-md px-3 py-2
+                      text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+                  >
+                    {p.level === 1 ? t('building.action.destroy') : t('building.action.downgrade')}
+                  </button>
+                )}
+              </span>
             </li>
           ))}
         </ul>
