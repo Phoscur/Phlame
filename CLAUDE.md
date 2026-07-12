@@ -69,8 +69,9 @@ screenshots go through `tests/screenshot.spec.ts`. The game sandbox is the separ
   Don't introduce float amounts or "fix" the `| 0` casts.
 - **DI via `@joist/di`**: services are `@injectable()` classes with `inject()`; wire client
   elements through context elements, server through the `Injector` in `engine.server.ts`.
-- Commits: small, focused, title starts with a capitalized imperative verb
-  (`Add`, `Fix`, `Refactor`, `Update` — see git log).
+- Commits: small, focused, **frequent** — every coherent green slice (tsc + lint +
+  tests) is its own commit; don't batch a session into one. Title starts with a
+  capitalized imperative verb (`Add`, `Fix`, `Refactor`, `Update` — see git log).
 
 ## Gotchas
 

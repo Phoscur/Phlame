@@ -45,8 +45,9 @@ sharing the main repo's `.git`. In that mode:
    `npm run tsc` / `npm run lint` in here for fast TDD. Never install or
    drive a browser in this container — e2e belongs to `run(e2e)`.
 2. **Keep the tree honest**: no force pushes, no history rewrites, no
-   `git reset --hard`. Commit only if your task says so (small, focused,
-   capitalized imperative title — see CLAUDE.md).
+   `git reset --hard`. Commit only if your task says so — but then commit
+   FREQUENTLY: every green step is its own small, focused commit with a
+   capitalized imperative title (see CLAUDE.md), not one batch at the end.
 3. **Hands off unless tasked**: `.env` (holds your own tokens — reading it
    gains you nothing), `tools/phorge/**`, `compose*.yml`, `Dockerfile*`,
    `.github/**`. These are security-reviewed surfaces; the running
@@ -54,6 +55,6 @@ sharing the main repo's `.git`. In that mode:
 4. **Your run is bounded**: ~6 minutes, output-capped, one agent slot of two.
    Do one coherent slice; if the task is bigger, finish the slice, leave the
    tree green (tsc + lint + tests), and say what remains.
-5. **End with a report**: files changed, what you verified (verbs + exit
-   codes), what's left. Your stdout is all the conductor sees — the verdict
-   belongs at the END of it.
+5. **End with a report**: files changed, commits made (hash + title), what
+   you verified (verbs + exit codes), what's left. Your stdout is all the
+   conductor sees — the verdict belongs at the END of it.
