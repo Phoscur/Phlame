@@ -60,8 +60,8 @@ interface ResourceProps {
 export const resourceMetallicToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
-      class="min-w-16 bg-gray-700 text-gray-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500 tracking-tight"
+      class="min-w-16 bg-metallic-dark text-metallic inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-metallic tracking-tight"
     >
       <MetallicIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
       <span class="resource-amount font-mono">{abbreviateAmount(t, amount, rate)}</span>
@@ -72,10 +72,10 @@ export const resourceMetallicToJSX: FC<ResourceProps> = ({ t, amount, rate }) =>
 export const resourceCrystallineToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
-      class="min-w-16 bg-red-950 text-red-400 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-red-700 hover:bg-red-800 tracking-wide"
+      class="min-w-16 bg-crystalline-dark text-crystalline-light inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-crystalline tracking-wide"
     >
-      <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-950" />
+      <CrystallineIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-crystalline-dark" />
       <span class="resource-amount font-mono">{abbreviateAmount(t, amount, rate)}</span>
       <span class="resource-rate hidden">{rate}</span>
     </span>
@@ -84,8 +84,8 @@ export const resourceCrystallineToJSX: FC<ResourceProps> = ({ t, amount, rate })
 export const resourceBubblesToJSX: FC<ResourceProps> = ({ t, amount, rate }) => (
   <>
     <span
-      class="min-w-16 bg-blue-950 text-blue-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-      shadow-sm ring-1 ring-inset ring-blue-500 hover:bg-blue-800"
+      class="min-w-16 bg-liquid-dark text-liquid inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+      shadow-sm ring-1 ring-inset ring-liquid"
     >
       <BubblesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
       <span class="resource-amount font-mono">{abbreviateAmount(t, amount, rate)}</span>
@@ -99,10 +99,10 @@ export const resourceEnergyToJSX: FC<ResourceProps> = ({ amount, rate }) => {
   return (
     <>
       <span
-        class="bg-orange-950 text-orange-500 inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
-              shadow-sm ring-1 ring-inset ring-orange-500 hover:bg-orange-800"
+        class="bg-energy-dark text-energy-secondary inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold
+              shadow-sm ring-1 ring-inset ring-energy"
       >
-        <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-orange-950" />
+        <EnergyIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-energy-dark" />
         <span class="energy-rate">{rate}</span>/<span class="energy-limit">{limit}</span>
       </span>
     </>
