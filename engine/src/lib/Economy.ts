@@ -61,7 +61,6 @@ export class Economy<
     const prosumption = this.phormulae.prosumptionFor(phelopment.type);
     const energyTypes = this.phormulae.energyTypes;
     const processes = Object.keys(prosumption).map((type) => {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const phormula = prosumption[type as ResourceType]!; // keys are never undefined
       const rate = phormula.at(phelopment.level);
       // energy isn't stocked (balanced, not stored) - build its placeholder from the
@@ -72,7 +71,6 @@ export class Economy<
         : stock.has(type as ResourceType);
       // limit production for an optionally maximal stock
       // also for energy a zero resource resource can be created implicitly
-      // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
       const max = (stock.max.getByType(type as ResourceType) as Resource<ResourceType>) ?? stocked;
       return new ResourceProcess<ResourceType>(rate > 0 ? max : stocked, rate);
     });

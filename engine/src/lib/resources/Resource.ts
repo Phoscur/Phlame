@@ -75,7 +75,6 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
     return new Resource(this.type, amount);
   }
 
-  /* eslint-disable-next-line @typescript-eslint/class-literal-property-style */
   get isEnergy(): boolean {
     // Energy implements this with a lookup by type
     return false;
@@ -87,14 +86,10 @@ export class Resource<Type extends ResourceIdentifier> implements ComparableReso
 
   get infinite(): Resource<Type> {
     // copy, and bypass in32|0 parsing (would be Infinity|0 = 0)
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
     const inf = Object.create(this);
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     inf.type = this.type;
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     inf.amount = Number.POSITIVE_INFINITY;
     // TODO we only need this once per type, optimise by caching?
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return inf;
   }
 
