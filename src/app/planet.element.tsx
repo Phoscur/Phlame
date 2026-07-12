@@ -31,21 +31,22 @@ function getIconFor(type: string) {
         <MineIcon className={iconSize} />
       </>
     );
-  if (type === 'synthesizer-liquid')
+  if (type === 'mine-liquid')
     return (
       <>
         <BubblesIcon className={iconSize} />
         <MineIcon className={iconSize} />
       </>
     );
-  if (type === 'plant-solar')
+  if (type === 'power-solar')
     return (
       <>
         <EnergyIcon className={`${iconSize} text-energy-dark`} />
         <PowerPlantSolarIcon className={`${iconSize} text-energy-primary`} />
       </>
     );
-  if (type === 'plant-fusion')
+  // not live yet — future phelopments per the M0 reference in engine/phelopments.ts
+  if (type === 'power-fusion')
     return (
       <>
         <EnergyIcon className={`${iconSize} text-energy-dark`} />
@@ -59,11 +60,24 @@ function getIconFor(type: string) {
 
 // slightly translucent backgrounds let the planet image shine through the rows
 function getColorClassFor(type: string) {
+  if (type.startsWith('power')) return 'bg-energy-dark/90 text-energy-secondary';
   if (type.includes('metallic')) return 'bg-metallic-dark/90 text-metallic';
   if (type.includes('crystalline')) return 'bg-crystalline-dark/90 text-crystalline-light';
   if (type.includes('liquid')) return 'bg-liquid-dark/90 text-liquid';
-  if (type.includes('plant')) return 'bg-energy-dark/90 text-energy-secondary';
   return 'bg-gray-800/90 text-gray-400';
+}
+
+const phelopmentNames = {
+  'mine-metallic': 'building.mine-metallic',
+  'mine-crystalline': 'building.mine-crystalline',
+  'mine-liquid': 'building.mine-liquid',
+  'power-solar': 'building.power-solar',
+  'power-fusion': 'building.power-fusion',
+} as const;
+
+function getNameFor(t: I18n, type: string) {
+  const key = phelopmentNames[type as keyof typeof phelopmentNames];
+  return key ? t(key) : t('building.missing');
 }
 
 export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
@@ -116,7 +130,8 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
               >
                 {getIconFor(payload.phelopmentID)}
                 <span class="min-w-0 flex-1 truncate font-medium">
-                  {t('building.level')} {level} (at tick {a.consequence.at})
+                  {getNameFor(t, payload.phelopmentID)} — {t('building.level')} {level} (
+                  {t('building.queue.eta', a.consequence.at)})
                 </span>
                 <button
                   data-action-id={a.consequence.payload.id}
@@ -135,7 +150,7 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
             <li class={`${getColorClassFor(p.type)} flex items-center gap-3 rounded-lg px-3 py-2`}>
               {getIconFor(p.type)}
               <span class="min-w-0 flex-1 truncate font-medium">
-                {p.type} — {t('building.level')} {p.level}
+                {getNameFor(t, p.type)} — {t('building.level')} {p.level}
               </span>
               <span class="flex shrink-0 gap-2">
                 <button
