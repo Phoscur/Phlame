@@ -37,7 +37,7 @@ export class TickSliderElement extends HTMLElement {
   #logger = inject(Debug);
   #zeit = inject(Zeitgeber);
   #empire = inject(EmpireService);
-  #cleanup = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
+  #cleanup = () => {};
   onHold = false;
 
   connectedCallback() {

@@ -114,7 +114,6 @@ export function getLangFromUrl(url: URL) {
   return defaultLang;
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 type Tail<T extends any[]> = T extends [any, ...infer R] ? R : never;
 
 export type I18n = <Key extends Entry>(
@@ -128,11 +127,9 @@ export function useTranslations(lang: Language = defaultLang): I18n {
   return function t(key, ...slots) {
     const translations = index[lang] as TranslationIndex;
     let f = translations[key];
-    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     if (FALLBACK_LANGUAGE && !f) {
       f = (index[FALLBACK_LANGUAGE] as TranslationIndex)[key];
     }
-    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     if (!f) {
       throw new Error('Missing ' + lang + ' translation for: ' + key);
     }

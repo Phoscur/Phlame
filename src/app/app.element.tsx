@@ -100,11 +100,10 @@ export class AppElement extends HTMLElement {
   #i18n = inject(TranslationProvider);
   #empire = inject(EmpireService);
   #zeit = inject(Zeitgeber);
-  #cleanup = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
+  #cleanup = () => {};
 
   get environment() {
     // well it's not unnecessary for testing
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return this.getElementsByTagName('h1')[0]?.attributes.getNamedItem('environment')?.value ?? '';
   }
 

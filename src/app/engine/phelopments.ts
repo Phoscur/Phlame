@@ -116,7 +116,6 @@ export class PhelopmentFactory {
     level,
     speed,
   }: PhelopmentJSON<PhelopmentIdentifier>): Phelopment<Resources, PhelopmentIdentifier> {
-    // eslint-disable-next-line  @typescript-eslint/no-unnecessary-condition
     return phelopments[type] ? phelopments[type](level, speed) : phelopments.null(level, speed);
   }
 }
