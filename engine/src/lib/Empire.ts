@@ -70,6 +70,7 @@ export class Empire<
     concerns: Phlame<ResourceType, PhelopmentType>[],
     at: TimeUnit = this.lastTick,
   ): LogEntryJSON {
+    this.update(at);
     const entry: LogEntryJSON = {
       seq: this.seq,
       tick: at,

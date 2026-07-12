@@ -119,14 +119,22 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
         </div>
         <div class="h-48" aria-hidden="true"></div>
         <ul class="buildingQueue space-y-2">
-          {queue.map(({ action, completeAt }) => {
+          {queue.map(({ action, completeAt }, index) => {
             const payload = action.consequence.payload as {
               id: string;
               phelopmentID: string;
               grade: 'up' | 'down';
             };
-            const currentLevel =
+            let currentLevel =
               phelopments.find((p) => p.type === payload.phelopmentID)?.level ?? 0;
+            
+            for (let i = 0; i < index; i++) {
+              const prev = queue[i].action.consequence.payload as typeof payload;
+              if (prev.phelopmentID === payload.phelopmentID) {
+                currentLevel += prev.grade === 'up' ? 1 : -1;
+              }
+            }
+            
             const level = payload.grade === 'up' ? currentLevel + 1 : currentLevel - 1;
             return (
               <li
