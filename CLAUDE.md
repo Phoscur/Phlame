@@ -48,9 +48,10 @@ container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
   move (a strayed agent commits to the main tree — it happened). Then review
   `git log agent/<slug>` and `git diff master...agent/<slug>`,
   merge, verify with `run(test|lint|tsc)`, then clean up IN the container
-  (`npm run agent -- git -C /phlame worktree remove /phlame/.worktrees/<slug>`;
-  the registrations carry container paths, and a host-side `git worktree prune` would
-  orphan EVERY active agent worktree) and delete the branch.
+  (`npm run agent -- git -C /phlame worktree remove /phlame/.worktrees/<slug>` — from
+  PowerShell, NOT Git Bash, which mangles `/phlame` into a `C:/Program Files/Git/...`
+  path; the registrations carry container paths, and a host-side `git worktree prune`
+  would orphan EVERY active agent worktree) and delete the branch.
 - **Verify their claims**: never take an agent's report at face value; full transcripts
   land in the phorge deployment's `logs/agent-<slot>.log`.
 
@@ -85,3 +86,6 @@ screenshots go through `tests/screenshot.spec.ts`. The game sandbox is the separ
 - i18n: user-facing strings go through `src/app/i18n.ts` translations, not hardcoded text.
 - Formatting via oxfmt (`npx vp fmt`; options in the `fmt` block of `vite.config.ts`,
   lint rules in `.oxlintrc.json`); match existing style, 100-char-ish lines.
+- Lint suppressions are a last resort; a kept `oxlint-disable` always carries its WHY
+  in the same comment (`-- reason`). Note oxlint also honors legacy `eslint-disable`
+  comments — don't add new ones.
