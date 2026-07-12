@@ -183,7 +183,7 @@ export class ResourcesElement extends HTMLElement {
   //#i18n = inject(TranslationProvider);
   #zeit = inject(Zeitgeber);
   #economy = inject(EconomyService);
-  #cleanup = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
+  #cleanup = () => {};
 
   get resourcesElements(): HTMLCollection {
     return this.getElementsByTagName('ph-resource');
