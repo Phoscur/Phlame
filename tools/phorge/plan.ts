@@ -9,6 +9,8 @@
  * Pattern adapted from Hyphe's orchestrate plan.ts (argv tables, TDD without Docker).
  */
 
+import type { ResolvedSpec } from './specs';
+
 export const COMPOSE_FILE = 'compose.test.yml';
 export const DEV_OVERLAY = 'compose.test.dev.yml';
 export const COMPOSE_AGENTS = 'compose.agents.yml';
@@ -68,26 +70,80 @@ export function planRun(verb: RunVerb, runId: string): string[] {
     throw new Error(`Unknown verb: ${verb} (known: ${RUN_VERBS.join(', ')})`);
   }
 
-  // NO_COLOR: verdicts are read by agents, not terminals — kill the ANSI noise
-  // at the source (vitest/playwright/oxlint all honor it).
-  const noColor = ['-e', 'NO_COLOR=1'] as const;
+  // Verdicts are read by agents, not terminals — kill the ANSI noise at the source.
   if (verb === 'e2e' || verb === 'screenshot') {
     // Playwright is a sleeping container, execute inside the running service.
-    // plan is [service, ...command]
+    // The mcr.microsoft.com/playwright base image bakes FORCE_COLOR=1; overriding
+    // it to 0 disables color (playwright honors it) WITHOUT the NO_COLOR/FORCE_COLOR
+    // conflict Node warns about when both are set — so we override rather than pile
+    // NO_COLOR on top. plan is [service, ...command].
     const [service, ...cmd] = plan;
-    return [...composeDev, 'exec', ...noColor, service, ...cmd];
+    return [...composeDev, 'exec', '-e', 'FORCE_COLOR=0', service, ...cmd];
   } else {
-    // Runner is ephemeral, spin up a new named container.
+    // Runner is ephemeral, spin up a new named container. Its image bakes no
+    // FORCE_COLOR, so NO_COLOR=1 (honored by vitest/oxlint) is unambiguous here.
     return [
       ...composeDev,
       'run',
       '--rm',
       '--name',
       runContainerName(verb, runId),
-      ...noColor,
+      '-e',
+      'NO_COLOR=1',
       ...plan,
     ];
   }
+}
+
+/**
+ * Single-spec runs: `run(test|e2e, file)`. The file is validated upstream by
+ * resolveSpec (specs.ts) — set membership in the discovered spec list, never a
+ * pattern over a command string — so by the time it reaches this table it IS
+ * one of the repo's spec paths. One command per run, so no `sh -c` needed.
+ */
+export function specContainerName(runId: string): string {
+  return `phorge-spec-${runId}`;
+}
+
+export function planSpec(runId: string, spec: ResolvedSpec): string[] {
+  if (spec.kind === 'e2e') {
+    // A single-spec run pins chromium: the full `run(e2e)` fans across all three
+    // browsers, but debugging one spec wants one fast browser, not a 3× loop.
+    return [
+      ...composeDev,
+      'exec',
+      '-e',
+      'FORCE_COLOR=0',
+      'playwright',
+      'npx',
+      'playwright',
+      'test',
+      spec.path,
+      '--project=chromium',
+    ];
+  }
+  // engine specs run from /phlame/engine with the engine-relative path
+  const workdir = spec.kind === 'engine' ? ['-w', '/phlame/engine'] : [];
+  const path = spec.kind === 'engine' ? spec.path.replace(/^engine\//, '') : spec.path;
+  return [
+    ...composeDev,
+    'run',
+    '--rm',
+    '--name',
+    specContainerName(runId),
+    '-e',
+    'NO_COLOR=1',
+    ...workdir,
+    'runner',
+    'npx',
+    'vitest',
+    'run',
+    path,
+  ];
+}
+
+export function planSpecRm(runId: string): string[] {
+  return ['rm', '-f', specContainerName(runId)];
 }
 
 /** Reap the orphaned run container after a timeout kill (plain docker, not compose). */

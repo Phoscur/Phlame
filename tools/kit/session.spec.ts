@@ -102,7 +102,7 @@ describe('GameSession (console/MCP kit)', () => {
     // It should have rebuilt the empire to retroactively process the costs
     const { ok } = session.replayCheck();
     expect(ok).toBe(true);
-    
+
     // The action queued at 0 takes 4 ticks, so at tick 10 it should already be finished (level 2)
     const level = session.list().find((r) => r.type === 'mine-metallic')?.level;
     expect(level).toBe(2);

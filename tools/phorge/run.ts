@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import {
   planRun,
   planRm,
+  planSpec,
+  planSpecRm,
   planUp,
   planRestart,
   planAgentUp,
@@ -15,9 +17,11 @@ import {
   agentWorktree,
   type RunVerb,
 } from './plan';
+import { listSpecs, resolveSpec, type SpecList } from './specs';
 import { execDocker, type ExecLimits, type ExecResult } from './exec';
 
 export type Exec = (argv: string[], limits?: ExecLimits) => Promise<ExecResult>;
+export type Discover = () => Promise<SpecList>;
 export type AgentCli = 'agy' | 'claude';
 
 export const MAX_RUNNER_CONCURRENCY = 4;
@@ -43,7 +47,7 @@ const AGENT_PLANS: Record<
  * intricate phorge logic — is testable without Docker (run.spec.ts); the
  * counters live in the closure, one pool per runner instance.
  */
-export function createRunner(exec: Exec = execDocker) {
+export function createRunner(exec: Exec = execDocker, discover: Discover = listSpecs) {
   let activeRunnerRuns = 0;
   let activePlaywrightRuns = 0;
   // slot N ↔ container phlame-agents-agent-N (compose deploy.replicas)
@@ -55,8 +59,8 @@ export function createRunner(exec: Exec = execDocker) {
    * (playwright) the test process keeps running inside the sleeping container,
    * so the service is restarted to end it.
    */
-  async function reap(verb: RunVerb, runId: string): Promise<string> {
-    if (verb === 'e2e' || verb === 'screenshot') {
+  async function reap(isPlaywright: boolean, rmArgv: string[]): Promise<string> {
+    if (isPlaywright) {
       try {
         await exec(planRestart('playwright'), { timeoutMs: 60_000 });
         return 'playwright restarted — timed-out test process reaped';
@@ -64,12 +68,11 @@ export function createRunner(exec: Exec = execDocker) {
         return 'timed-out test process NOT reaped — run: docker compose -f compose.test.yml restart playwright';
       }
     }
-    const rmPlan = planRm(verb, runId);
     try {
-      await exec(rmPlan, { timeoutMs: 30_000 });
+      await exec(rmArgv, { timeoutMs: 30_000 });
       return 'orphaned run container removed';
     } catch {
-      return `orphaned run container NOT removed — docker rm -f ${rmPlan.at(-1)}`;
+      return `orphaned run container NOT removed — docker rm -f ${rmArgv.at(-1)}`;
     }
   }
 
@@ -77,10 +80,21 @@ export function createRunner(exec: Exec = execDocker) {
    * Execute a run verb with concurrency limits. Playwright verbs run via `exec`
    * in the sleeping container — ensured up (idempotent, heals config drift)
    * first, so a cold stack warms itself instead of failing with "service is
-   * not running".
+   * not running". An optional `file` (test|e2e only) narrows the run to one
+   * spec — resolved by set membership against the discovered spec list
+   * (specs.ts), so only real spec paths ever reach the plan table.
    */
-  async function execRun(verb: RunVerb): Promise<{ result: ExecResult; note: string }> {
-    const isPlaywright = verb === 'e2e' || verb === 'screenshot';
+  async function execRun(
+    verb: RunVerb,
+    file?: string,
+  ): Promise<{ result: ExecResult; note: string }> {
+    if (file && verb !== 'test' && verb !== 'e2e') {
+      throw new Error(`file is only valid for the test and e2e verbs, not '${verb}'`);
+    }
+    const spec = file
+      ? resolveSpec(file, await discover(), verb === 'e2e' ? 'e2e' : 'test')
+      : undefined;
+    const isPlaywright = spec ? spec.kind === 'e2e' : verb === 'e2e' || verb === 'screenshot';
 
     if (isPlaywright) {
       if (activePlaywrightRuns >= MAX_PLAYWRIGHT_CONCURRENCY) {
@@ -106,11 +120,16 @@ export function createRunner(exec: Exec = execDocker) {
         }
       }
       const runId = randomUUID().slice(0, 8);
-      const result = await exec(planRun(verb, runId));
+      const result = await exec(spec ? planSpec(runId, spec) : planRun(verb, runId));
+      // name the resolved spec in the verdict — a suffix-matched `plan.spec.ts`
+      // should show what actually ran
+      const note = spec ? `spec ${spec.path}` : '';
       if (!result.timedOut) {
-        return { result, note: '' };
+        return { result, note };
       }
-      return { result, note: await reap(verb, runId) };
+      const rmArgv = spec ? planSpecRm(runId) : planRm(verb, runId);
+      const reaped = await reap(isPlaywright, rmArgv);
+      return { result, note: note ? `${note}; ${reaped}` : reaped };
     } finally {
       if (isPlaywright) activePlaywrightRuns--;
       else activeRunnerRuns--;

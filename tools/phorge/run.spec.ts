@@ -90,6 +90,49 @@ describe('phorge runner orchestration', () => {
     await expect(execRun('screenshot')).resolves.toMatchObject({ note: '' });
   });
 
+  it('runs a single vitest spec in the runner pool and names it in the note', async () => {
+    const discover = async () => ({
+      app: ['tools/phorge/plan.spec.ts'],
+      engine: ['engine/src/index.spec.ts'],
+      e2e: ['tests/build.spec.ts'],
+    });
+    const { exec, calls } = scriptedExec(() => undefined);
+    const { execRun } = createRunner(exec, discover);
+    // suffix match resolves to the full path; the note says what actually ran
+    const { note } = await execRun('test', 'plan.spec.ts');
+    expect(note).toBe('spec tools/phorge/plan.spec.ts');
+    expect(calls).toHaveLength(1); // runner path: no warm-up
+    expect(calls[0]).toContain('vitest');
+    expect(calls[0]).toContain('tools/phorge/plan.spec.ts');
+    // e2e spec goes through the playwright path: warm-up + exec
+    const { note: e2eNote } = await execRun('e2e', 'build.spec.ts');
+    expect(e2eNote).toBe('spec tests/build.spec.ts');
+    expect(calls[1]).toContain('up');
+    expect(calls[2]).toContain('exec');
+  });
+
+  it('rejects file on non-test verbs and unknown specs before anything runs', async () => {
+    const discover = async () => ({ app: ['src/a.spec.ts'], engine: [], e2e: [] });
+    const { exec, calls } = scriptedExec(() => undefined);
+    const { execRun } = createRunner(exec, discover);
+    await expect(execRun('lint', 'src/a.spec.ts')).rejects.toThrow(/only valid for/);
+    await expect(execRun('test', 'nope.spec.ts')).rejects.toThrow(/known: src\/a\.spec\.ts/);
+    expect(calls).toHaveLength(0); // nothing was executed
+  });
+
+  it('reaps a timed-out single spec via its own container name', async () => {
+    const discover = async () => ({ app: ['src/a.spec.ts'], engine: [], e2e: [] });
+    const { exec, calls } = scriptedExec((argv) =>
+      argv.includes('vitest') ? { timedOut: true, code: -1 } : undefined,
+    );
+    const { execRun } = createRunner(exec, discover);
+    const { note } = await execRun('test', 'src/a.spec.ts');
+    expect(note).toContain('spec src/a.spec.ts');
+    expect(note).toContain('orphaned run container removed');
+    const name = calls[0][calls[0].indexOf('--name') + 1];
+    expect(calls[1]).toEqual(['rm', '-f', name]);
+  });
+
   it('ensures the agent is up before an agent run', async () => {
     const { exec, calls } = scriptedExec(() => undefined);
     const { execAgent } = createRunner(exec);
