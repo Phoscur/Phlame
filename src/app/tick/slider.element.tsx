@@ -13,10 +13,7 @@ export const Slider = () => (
         value="100"
         class="tickRange w-full h-2 mt-10 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
       />
-      <label
-        for="tick-range"
-        class="block text-center mt-2 text-sm font-medium text-gray-900 dark:text-white"
-      >
+      <div class="block text-center mt-2 text-sm font-medium text-gray-900 dark:text-white">
         <span class="tick font-bold text-4xl p-4" style="transition: --tick 1s">
           [-1]
         </span>
@@ -26,7 +23,16 @@ export const Slider = () => (
         >
           PlayPause
         </button>
-      </label>
+        <label class="inline-flex items-center cursor-pointer ml-6">
+          <input
+            type="checkbox"
+            class="unrestrictedToggle w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+            Timewarp to Genesis
+          </span>
+        </label>
+      </div>
     </div>
   </>
 );
@@ -56,21 +62,41 @@ export class TickSliderElement extends HTMLElement {
     };
 
     const range = this.getElementsByClassName('tickRange')[0] as HTMLInputElement;
-    logger.log('TickRange LastTick', empire.current.lastTick);
-    
-    // allow timewarping backwards only until the last queued action
-    const lastActionTick = empire.current.log.length > 0
-      ? empire.current.log[empire.current.log.length - 1].tick
-      : 0;
-    range.min = `${lastActionTick}`;
+    const unrestrictedToggle = this.getElementsByClassName(
+      'unrestrictedToggle',
+    )[0] as HTMLInputElement;
+
+    const updateMin = () => {
+      const logLength = empire.current.log.length;
+
+      if (unrestrictedToggle.checked) {
+        range.min = '0';
+      } else {
+        // allow timewarping backwards only until the last queued action
+        const lastActionTick = logLength > 0 ? empire.current.log[logLength - 1].tick : 0;
+
+        range.min = `${lastActionTick}`;
+
+        // If they toggle strict mode back on and their current slider value is now too low, pull them forward
+        if (Number(range.value) < Number(range.min)) {
+          range.value = range.min;
+          if (this.onHold) {
+            zeit.hold(Number(range.value));
+          }
+        }
+      }
+    };
+
+    unrestrictedToggle.onchange = () => updateMin();
+    updateMin();
     range.max = `${zeit.tick}`;
 
     range.oninput = (event: Event) => {
+      updateMin();
       const target = event.target as HTMLInputElement;
       zeit.hold(Number(target.value));
       this.onHold = true;
       //setTick(Number(target.value));
-      logger.log('TickRange', target.value, '(paused)');
     };
 
     const playPause = this.getElementsByClassName('playPause')[0] as HTMLButtonElement;
@@ -83,6 +109,7 @@ export class TickSliderElement extends HTMLElement {
     };
 
     const destroyTick = zeit.effect(() => {
+      updateMin();
       setTick(zeit.tick);
       if (!this.onHold) range.max = `${zeit.tick}`;
       range.value = `${zeit.tick}`;

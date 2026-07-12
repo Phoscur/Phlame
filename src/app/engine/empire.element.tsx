@@ -13,10 +13,12 @@ export class EmpireElement extends HTMLElement {
 
     try {
       const id = this.attributes.getNamedItem('id')?.value ?? 'Unknown Empire';
-      const entities = JSON.parse(this.attributes.getNamedItem('entities')?.value ?? '[]');
+      const entitiesStr = this.attributes.getNamedItem('entities')?.value ?? '[]';
+      const logStr = this.attributes.getNamedItem('log')?.value ?? '[]';
+      const entities = JSON.parse(entitiesStr);
+      const log = JSON.parse(logStr);
       logger.trace(`Empire[${id}] initializing...`, entities);
-      // TODO hydrate the command log (game.element.tsx renders no log attribute yet)
-      engine.setupFromJSON({ id, entities, log: [] });
+      engine.setupFromJSON({ id, entities, log });
     } catch (ex) {
       console.error(ex);
     }

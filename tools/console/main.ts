@@ -125,13 +125,14 @@ for await (const line of rl) {
         if (at !== undefined && (!Number.isInteger(at) || at < 0 || at > session.tick)) {
           throw new Error(`[at] must be a positive integer <= current tick (${session.tick})`);
         }
-        
-        const { id, at: actualAt, duration, wait, cost } = session.grade(
-          type,
-          command as 'up' | 'down',
-          planetID,
-          at
-        );
+
+        const {
+          id,
+          at: actualAt,
+          duration,
+          wait,
+          cost,
+        } = session.grade(type, command as 'up' | 'down', planetID, at);
         const waiting =
           wait === Infinity ? 'waiting for production, ' : wait > 0 ? `wait ~${wait} + ` : '';
         console.log(

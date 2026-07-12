@@ -125,16 +125,15 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
               phelopmentID: string;
               grade: 'up' | 'down';
             };
-            let currentLevel =
-              phelopments.find((p) => p.type === payload.phelopmentID)?.level ?? 0;
-            
+            let currentLevel = phelopments.find((p) => p.type === payload.phelopmentID)?.level ?? 0;
+
             for (let i = 0; i < index; i++) {
               const prev = queue[i].action.consequence.payload as typeof payload;
               if (prev.phelopmentID === payload.phelopmentID) {
                 currentLevel += prev.grade === 'up' ? 1 : -1;
               }
             }
-            
+
             const level = payload.grade === 'up' ? currentLevel + 1 : currentLevel - 1;
             return (
               <li
@@ -162,36 +161,59 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
           })}
         </ul>
         <ul class="buildingList mt-2 space-y-2">
-          {phelopments.map((p) => (
-            <li class={`${getColorClassFor(p.type)} flex items-center gap-3 rounded-lg px-3 py-2`}>
-              {getIconFor(p.type)}
-              <span class="min-w-0 flex-1 truncate font-medium">
-                {getNameFor(t, p.type)} — {t('building.level')} {p.level}
-              </span>
-              <span class="flex shrink-0 gap-2">
-                <button
-                  data-type={p.type}
-                  data-direction="up"
-                  data-planet={planet.id}
-                  class="phlame-grade-btn inline-flex items-center whitespace-nowrap rounded-md px-3 py-2
-                    text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
-                >
-                  {p.level === 0 ? t('building.action.build') : t('building.action.upgrade')}
-                </button>
-                {p.level > 0 && (
+          {phelopments.map((p) => {
+            const queuedUpgrades = queue.filter(
+              (q) =>
+                q.action.consequence.payload.phelopmentID === p.type &&
+                q.action.consequence.payload.grade === 'up',
+            ).length;
+            const queuedDowngrades = queue.filter(
+              (q) =>
+                q.action.consequence.payload.phelopmentID === p.type &&
+                q.action.consequence.payload.grade === 'down',
+            ).length;
+            const effectiveLevel = p.level + queuedUpgrades - queuedDowngrades;
+
+            return (
+              <li
+                class={`${getColorClassFor(p.type)} flex items-center gap-3 rounded-lg px-3 py-2`}
+              >
+                {getIconFor(p.type)}
+                <span class="min-w-0 flex-1 truncate font-medium">
+                  {getNameFor(t, p.type)} — {t('building.level')} {p.level}
+                  {effectiveLevel !== p.level && (
+                    <span class="ml-2 text-sm text-gray-500 opacity-75">(→ {effectiveLevel})</span>
+                  )}
+                </span>
+                <span class="flex shrink-0 gap-2">
                   <button
                     data-type={p.type}
-                    data-direction="down"
+                    data-direction="up"
                     data-planet={planet.id}
                     class="phlame-grade-btn inline-flex items-center whitespace-nowrap rounded-md px-3 py-2
                       text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
                   >
-                    {p.level === 1 ? t('building.action.destroy') : t('building.action.downgrade')}
+                    {effectiveLevel === 0
+                      ? t('building.action.build')
+                      : t('building.action.upgrade')}
                   </button>
-                )}
-              </span>
-            </li>
-          ))}
+                  {effectiveLevel > 0 && (
+                    <button
+                      data-type={p.type}
+                      data-direction="down"
+                      data-planet={planet.id}
+                      class="phlame-grade-btn inline-flex items-center whitespace-nowrap rounded-md px-3 py-2
+                      text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-400 hover:bg-gray-500"
+                    >
+                      {effectiveLevel === 1
+                        ? t('building.action.destroy')
+                        : t('building.action.downgrade')}
+                    </button>
+                  )}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </>

@@ -10,7 +10,11 @@ import { planetToJSX } from './planet.element';
 
 export const gameToJSX = (t: I18n, empire: Empire<ResourceIdentifier, PhelopmentIdentifier>) => (
   <>
-    <empire-ctx id={empire.id} entities={JSON.stringify(empire.toJSON().entities)}>
+    <empire-ctx
+      id={empire.id}
+      entities={JSON.stringify(empire.toJSON().entities)}
+      log={JSON.stringify(empire.toJSON().log)}
+    >
       {/*<div class="hidden md:grid-cols-2 md:grid-cols-3">force md:grid-cols-x to be available</div>*/}
       <div
         class={`grid grid-cols-1 md:grid-cols-${
