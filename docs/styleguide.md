@@ -21,7 +21,7 @@ never use them directly in app markup.
 | Token classes                                                 | Meaning                            |
 | ------------------------------------------------------------- | ---------------------------------- |
 | `metallic`, `metallic-dark`                                   | metallic resource (icons, amounts) |
-| `crystalline`, `crystalline-dark`                             | crystalline resource               |
+| `crystalline`, `crystalline-dark`, `crystalline-light`       | crystalline resource (`-light` for text on dark) |
 | `liquid`, `liquid-dark`                                       | liquid resource                    |
 | `energy`, `energy-primary`, `energy-secondary`, `energy-dark` | energy                             |
 | `bg`                                                          | page background (`slate-950`)      |
