@@ -220,4 +220,27 @@ describe('Phlame Entity', () => {
     'should have env properties - e.g. base temperature and amounts of resources to start from',
   );
   // idea: use parts of the ID for random data
+  it('should not throw 409 if previous items finished', () => {
+    const eco = new Economy('Eco', stock, defaultPhelopments, phormulae);
+    const crowded = new Phlame('Crowded', eco);
+    const factory = new ActionFactory();
+
+    for (let i = 0; i < 5; i++) {
+      crowded.add(factory.updatePhelopment(0, crowded, 1, 'up', `q${i}`));
+    }
+
+    crowded.update(0);
+    expect(crowded.upcoming.length).toBe(5);
+
+    // Now wait for 1000000 ticks
+    crowded.update(1000000);
+
+    // Should be empty
+    expect(crowded.upcoming.length).toBe(0);
+
+    // Should not throw!
+    expect(() =>
+      crowded.add(factory.updatePhelopment(1000000, crowded, 1, 'up', 'overflow')),
+    ).not.toThrow();
+  });
 });
