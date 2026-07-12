@@ -34,7 +34,8 @@ describe('phorge executor', () => {
     expect(result.truncated).toBe(true);
     expect(result.timedOut).toBe(false);
     // collection stops at the overflowing chunk, so the capture stays bounded
-    expect(result.output.length).toBeLessThan(16 * 1024 + 4096 + 1);
+    // The OS pipe buffer or Node.js can coalesce chunks, so the overshoot can be up to 64KiB.
+    expect(result.output.length).toBeLessThan(16 * 1024 + 65536 + 1);
   });
 
   it('kills the process on timeout', async () => {
