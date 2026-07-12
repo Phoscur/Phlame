@@ -69,7 +69,7 @@ export function planRun(verb: RunVerb, runId: string): string[] {
   }
 
   // NO_COLOR: verdicts are read by agents, not terminals — kill the ANSI noise
-  // at the source (vitest/playwright/eslint all honor it).
+  // at the source (vitest/playwright/oxlint all honor it).
   const noColor = ['-e', 'NO_COLOR=1'] as const;
   if (verb === 'e2e' || verb === 'screenshot') {
     // Playwright is a sleeping container, execute inside the running service.

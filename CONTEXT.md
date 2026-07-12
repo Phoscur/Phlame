@@ -60,7 +60,7 @@ diagrams), [docs/glossary.md](docs/glossary.md) (domain terms), and
 - `npm test` — unit tests (app via jsdom, then engine lib)
 - `npm run test-engine` — engine lib tests in watch mode
 - `npm run e2e` / `npm run play` — Playwright; the `webServer` config starts/reuses the dev server (`ci` = same, CI never reuses)
-- `npm run lint`, `npm run tsc` — eslint / typecheck
+- `npm run lint`, `npm run tsc` — oxlint + oxfmt check (Vite+ `vp`) / typecheck
 - `npm run build` + `NODE_ENV=production npm run preview` — prod build, served with tsx on port 4000
 
 ## Status / direction
