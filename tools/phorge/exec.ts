@@ -105,6 +105,6 @@ export function tail(output: string, chars = 4000): string {
  * (plan.ts) is the first line of defense; this catches tools that ignore it.
  */
 export function stripAnsi(output: string): string {
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex
   return output.replace(/\x1b\[[0-9;]*[A-Za-z]/g, '');
 }
