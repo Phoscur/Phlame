@@ -103,7 +103,9 @@ describe('phorge verb table', () => {
     expect(argv).toContain('--model');
     expect(argv).toContain('Gemini 3.1 Pro (High)');
     // The prompt stays ONE argv element — metacharacters never meet a shell.
-    expect(argv.at(-1)).toBe(hostile);
+    // agy has no system-prompt flag, so the AGENTS.md preamble rides in it.
+    expect(argv.at(-1)!.endsWith(hostile)).toBe(true);
+    expect(argv.at(-1)).toContain('/phlame/AGENTS.md');
     expect(argv.at(-2)).toBe('-p');
   });
 
@@ -146,8 +148,13 @@ describe('phorge verb table', () => {
     const agyPrompt = agy[agy.indexOf('-p') + 1];
     expect(agyPrompt).toContain('agent/fix-foo');
     expect(agyPrompt.endsWith('do it')).toBe(true);
-    // without a worktree the prompt stays verbatim
-    expect(planAgy(1, 'just a question').at(-1)).toBe('just a question');
+    // agy's workspace discovery gets pinned to the worktree as well
+    expect(agy[agy.indexOf('--add-dir') + 1]).toBe('/phlame/.worktrees/fix-foo');
+    // without a worktree agy still gets its preamble, pointing at the main tree
+    const plain = planAgy(1, 'just a question');
+    expect(plain.at(-1)!.endsWith('just a question')).toBe(true);
+    expect(plain.at(-1)).toContain('/phlame/AGENTS.md');
+    expect(plain).not.toContain('--add-dir');
   });
 
   it('plans agent warm-up, restart and model listing', () => {

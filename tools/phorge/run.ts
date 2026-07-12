@@ -156,6 +156,10 @@ export function createRunner(exec: Exec = execDocker) {
         }
         workdir = agentWorktree(worktree).path;
       }
+      // Name slot and transcript in the verdict — the conductor should never
+      // have to guess which agent log served a run.
+      const transcript = `transcript logs/agent-${slot}.log`;
+      note = note ? `${note}; ${transcript}` : transcript;
       const result = await exec(AGENT_PLANS[cli](slot, prompt, model, workdir), {
         timeoutMs: AGENT_TIMEOUT_MS,
         logFile: join(process.cwd(), 'logs', `agent-${slot}.log`),
