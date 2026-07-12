@@ -31,6 +31,12 @@ const buildings = {
   'building.plant': 'Plant',
   'building.mine': 'Mine',
   'building.silo': 'Silo',
+  // display names for the live PhelopmentIdentifiers (engine/phelopments.ts)
+  'building.mine-metallic': 'Metal Mine',
+  'building.mine-crystalline': 'Crystal Mine',
+  'building.mine-liquid': 'Liquid Synthesizer',
+  'building.power-solar': 'Solar Plant',
+  'building.power-fusion': 'Fusion Plant',
 } as const;
 
 export type BuildingEntry = keyof typeof buildings;
@@ -70,6 +76,17 @@ const basic = {
     'resource.metallic.singular': 'Metall',
     'resource.crystalline.singular': 'Kristall',
     'resource.liquid.singular': 'Gas',
+    'building.missing': 'Fehlt',
+    'building.mine-metallic': 'Metallmine',
+    'building.mine-crystalline': 'Kristallmine',
+    'building.mine-liquid': 'Gas-Synthetisierer',
+    'building.power-solar': 'Solarkraftwerk',
+    'building.power-fusion': 'Fusionskraftwerk',
+    'building.level': 'Stufe',
+    'building.action.build': 'Bauen',
+    'building.action.upgrade': 'Ausbauen',
+    'building.action.downgrade': 'Rückbauen',
+    'building.action.destroy': 'Abreißen',
   },
 } as const;
 
@@ -86,8 +103,11 @@ const composite = {
         : `${amount} ${t[resource]}`,
     'building.action.research': (t: BasicIndex, building: BuildingEntry = 'building.missing') =>
       `Research ${t[building]}`,
+    'building.queue.eta': (_t: BasicIndex, tick = 0) => `at tick ${tick}`,
   },
-  de: {},
+  de: {
+    'building.queue.eta': (_t: BasicIndex, tick = 0) => `bei Tick ${tick}`,
+  },
 } as const;
 
 type EntriesSlotsIndex = (typeof composite)[typeof defaultLang];
