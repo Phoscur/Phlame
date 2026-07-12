@@ -1,4 +1,3 @@
-/* eslint class-methods-use-this: "off" */
 import type { ResourceIdentifier } from './Resource';
 import { Resource } from './Resource';
 import { ResourceProcess, TimeUnit } from './ResourceProcess';
@@ -41,7 +40,6 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
     if (processCollections.length < 2) {
       return processCollections[0] ?? ResourceProcessCollection.fromArray([]);
     }
-    // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
     const last = processCollections.pop() as ResourceProcessCollection<Types>; // Just checked it to be not undefined!
     return processCollections.reduce((reduced, processCollection) => {
       return reduced.add(processCollection);
@@ -53,7 +51,6 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
   }
 
   get asArray(): ResourceProcess<Types>[] {
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return Object.values(this.entries);
   }
 
@@ -104,7 +101,6 @@ export class ResourceProcessCollection<Types extends ResourceIdentifier> {
     mappingFunction: (resource: ResourceProcess<Types>, type: Types) => GenericReturn | undefined,
   ): GenericReturn[] {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const entry = this.entries[type] as ResourceProcess<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
       if (typeof result === 'undefined') {

@@ -46,7 +46,6 @@ export class ResourceCollection<Types extends ResourceIdentifier> {
   }
 
   get asArray(): ComparableResource<Types>[] {
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return Object.values(this.entries);
   }
 
@@ -79,7 +78,6 @@ export class ResourceCollection<Types extends ResourceIdentifier> {
     ) => GenericReturn | undefined,
   ): GenericReturn[] {
     return this.types.reduce<GenericReturn[]>((entries: GenericReturn[], type: Types) => {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       const entry = this.entries[type] as ComparableResource<Types>; // Can't cover an undefined typecheck in unit tests as it cannot be undefined
       const result = mappingFunction(entry, type);
       if (typeof result === 'undefined') {

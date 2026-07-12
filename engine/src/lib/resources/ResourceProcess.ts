@@ -78,7 +78,7 @@ export class ResourceProcess<Type extends ResourceIdentifier> {
         : // lowest limit for negative rate, overwrites infinity
           !this.limit.isInfinite && !resourceProcess.limit.isInfinite
           ? addedLimits // add, else take non infinite
-          : (!oldLimit.isInfinite && oldLimit) || this.limit; // eslint-disable-line  @typescript-eslint/no-unnecessary-condition
+          : (!oldLimit.isInfinite && oldLimit) || this.limit;
     return new ResourceProcess(limit, rate);
   }
 

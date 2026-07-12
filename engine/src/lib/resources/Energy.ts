@@ -34,7 +34,6 @@ export class Energy<
     return new Energy(this.type, amount);
   }
 
-  // eslint-disable-next-line @typescript-eslint/class-literal-property-style
   get isEnergy(): boolean {
     // an Energy instance is energy by construction - no registry lookup needed (ADR 0014)
     return true;
@@ -46,13 +45,9 @@ export class Energy<
 
   get infinite(): Energy<Type> {
     // copy, and bypass int32|0 parsing (would be Infinity|0 = 0)
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
     const inf = Object.create(this);
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     inf.type = this.type;
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     inf.amount = Energy.MAX_VALUE;
-    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return */
     return inf;
   }
 
