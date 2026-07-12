@@ -1,11 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vite-plus/test';
 import { Hono } from 'hono';
 import { createActionsRoute } from './actions';
+import type { EmpireEnv } from './empire.middleware';
 import { ActionTypes } from '@phlame/engine';
 import type { EngineService } from './engine.server';
 
-function createApp(fakeEngine: EngineService) {
-  const app = new Hono();
+// the route runs behind empireMiddleware, which stashes the session's empire on the
+// context (see empire.middleware.ts) - fake that here
+function createApp(fakeEngine: EngineService, empire: unknown) {
+  const app = new Hono<EmpireEnv>();
+  app.use(async (c, next) => {
+    c.set('empire', empire as EmpireEnv['Variables']['empire']);
+    await next();
+  });
   app.route('/', createActionsRoute(fakeEngine));
   return app;
 }
@@ -35,13 +42,14 @@ describe('actionsRoute', () => {
         payload: { id: 'cmd-1', phelopmentID: 'farm', grade: 'up' },
       }),
     };
+    // deliberately NO `empire` property: handlers must use the context capture,
+    // never the EngineService singleton (parallel requests swap it)
     fakeEngine = {
-      empire: mockEmpire,
       time: { tick: 100, timeMS: 1000 },
       saveSession: vi.fn(),
     } as unknown as EngineService;
 
-    app = createApp(fakeEngine);
+    app = createApp(fakeEngine, mockEmpire);
   });
 
   it('GET should return empty list initially', async () => {

@@ -83,32 +83,41 @@ export class EngineService {
   }
 
   /**
+   * Load a session and return its empire DIRECTLY - callers must hold on to the
+   * returned reference: the EmpireService singleton's `current` can be swapped by a
+   * parallel request at any await point (session middleware rework pending, PLAN M1).
+   * @throws NotFoundError|SessionCorruptError (`code` 404/401, see data.server.ts)
+   */
+  async loadEmpire(sid: string): Promise<EmpireEntity> {
+    const logger = this.#logger();
+    const zeit = this.#zeit();
+    const persistence = this.#persistence();
+    const session = await persistence.loadSession(sid);
+    const {
+      zeit: { timeMS, tick },
+      empire,
+    } = session;
+    logger.log('Loading session:', sid);
+    logger.log(timeMS, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
+    logger.log(zeit.timeMS, 'Current tick:', zeit.tick);
+    /* if (tick && tick !== zeit.tick) {
+      zeit.stop();
+      // TODO catch up ticks with actions
+      zeit.start(time, tick);
+    }*/
+    return this.#empire().setupFromJSON(empire).current;
+  }
+
+  /**
    * @param sid SessionID
    * @returns error code
    */
   async load(sid: string): Promise<number> {
-    const logger = this.#logger();
-    const zeit = this.#zeit();
-    const persistence = this.#persistence();
     try {
-      const session = await persistence.loadSession(sid);
-      const {
-        zeit: { timeMS, tick },
-        empire,
-      } = session;
-      logger.log('Loading session:', sid);
-      logger.log(timeMS, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
-      logger.log(zeit.timeMS, 'Current tick:', zeit.tick);
-      /* if (tick && tick !== zeit.tick) {
-        zeit.stop();
-        // TODO catch up ticks with actions
-        zeit.start(time, tick);
-      }*/
-      this.#empire().setupFromJSON(empire);
-
+      await this.loadEmpire(sid);
       return 0;
     } catch (e: any) {
-      logger.log('Error loading session', sid, e?.code, e);
+      this.#logger().log('Error loading session', sid, e?.code, e);
       return e?.code ?? 1;
     }
   }

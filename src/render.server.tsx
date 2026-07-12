@@ -34,12 +34,15 @@ export class GameRenderer {
     title: string,
     language: Language,
     sessionLost = false,
+    sessionEmpire?: AppProps['empire'],
   ): string {
     const t = useTranslations(language);
 
     const engine = i.inject(EngineService);
     const { timeMS, tick } = engine.time;
-    const empire = engine.empire;
+    // the singleton empire is only the fallback (prod static render, failed loads) -
+    // request handlers pass their own session's empire (parallel requests swap the singleton)
+    const empire = sessionEmpire ?? engine.empire;
     // TODO? empire.update(zeit.tick)
     /* for (const entity of empire.entities) {
       entity.update(tick);

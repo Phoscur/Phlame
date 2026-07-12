@@ -5,11 +5,20 @@ export class Debug {
     // noop, uncomment to get ALL debug logs
     // console.log(...values);
   }
+  // high-frequency, per-tick messages (TICKer, resource/entity updates); muted by default
+  trace(..._values: any[]) {
+    // noop
+  }
 }
 
 export class ConsoleDebug extends Debug {
+  // flip to true to also get the per-tick trace flood
+  verbose = false;
   log(...values: any[]) {
     console.log(...values);
+  }
+  trace(...values: any[]) {
+    if (this.verbose) console.log(...values);
   }
 }
 

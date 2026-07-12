@@ -7,6 +7,7 @@ import './html.element.server';
 import { defaultLang, Language } from './app/i18n';
 import { GameRenderer } from './render.server';
 import { EngineService, startup } from './engine.server';
+import type { EmpireEntity } from './app/engine';
 import { empireMiddleware } from './empire.middleware';
 import { createActionsRoute } from './actions';
 import { StatusCode } from 'hono/utils/http-status';
@@ -25,21 +26,38 @@ const html = async () =>
 const engineInjector = await startup(environment);
 
 // TODO? session middleware app.use('/*')
-/** @returns error code from loading the session (0 = ok) */
-async function sessionHelper(engine: EngineService, ctx: Context): Promise<number> {
+/**
+ * Resolves the request's own session. The returned empire reference MUST be used for
+ * the render - parallel requests swap the EngineService singleton at any await point.
+ * @returns error code (0 = ok) and the loaded/generated empire (undefined on failure)
+ */
+async function sessionHelper(
+  engine: EngineService,
+  ctx: Context,
+): Promise<{ code: number; empire?: EmpireEntity }> {
   const save = (sid: string, eid: string) => {
     setCookie(ctx, 'sid', sid);
     setCookie(ctx, 'empire', eid);
   };
   const sid = getCookie(ctx, 'sid');
   if (!sid) {
+    // only the game root mints a session: the catch-all also serves favicon & friends,
+    // and a parallel cookie-less request would overwrite the fresh sid cookie (403 races)
+    if (ctx.req.path !== '/') {
+      return { code: 0 };
+    }
     const session = await engine.generateSession();
     save(session.sid, `${session.empire.id}`);
-    return 0;
+    return { code: 0, empire: session.empire };
   }
   // a failed load is NOT silently replaced: the sid may point to a real save the player
   // wants back (session export is the plan) - the GUI shows a hint towards Session -> Logout
-  return engine.load(sid);
+  try {
+    return { code: 0, empire: await engine.loadEmpire(sid) };
+  } catch (e: any) {
+    console.error('Error loading session', sid, e?.code, e);
+    return { code: e?.code ?? 1 };
+  }
 }
 
 const app = new Hono()
@@ -89,10 +107,10 @@ if (isProd) {
   app.get('/*', async (c) => {
     const engine = engineInjector.inject(EngineService);
     const lang = (getCookie(c, 'lang') as Language | undefined) ?? defaultLang;
-    const code = await sessionHelper(engine, c);
+    const { code, empire } = await sessionHelper(engine, c);
     const index = await html();
     return c.html(
-      game.render(engineInjector, index, `Phlame [${game.environment}]`, lang, code !== 0),
+      game.render(engineInjector, index, `Phlame [${game.environment}]`, lang, code !== 0, empire),
     );
   });
 }

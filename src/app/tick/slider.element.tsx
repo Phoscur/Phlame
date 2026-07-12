@@ -81,7 +81,7 @@ export class TickSliderElement extends HTMLElement {
       setTick(zeit.tick);
       if (!this.onHold) range.max = `${zeit.tick}`;
       range.value = `${zeit.tick}`;
-      logger.log('TICKer', zeit.tick);
+      logger.trace('TICKer', zeit.tick);
     });
     this.#cleanup = () => {
       destroyTick();
