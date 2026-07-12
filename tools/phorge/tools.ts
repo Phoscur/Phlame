@@ -90,18 +90,24 @@ export function registerTools(server: McpServer): void {
     'run',
     {
       description:
-        'Run a fixed verb in the ephemeral containers (dev overlay: live source, no rebuild needed): test (vitest app+engine), tsc, lint (vp lint + vp fmt --check), e2e (playwright, 3 browsers), screenshot (chromium only, writes screenshots/home.png). Returns the output tail; pass verbose for the full (capped) output.',
+        'Run a fixed verb in the ephemeral containers (dev overlay: live source, no rebuild needed): test (vitest app+engine), tsc, lint (vp lint + vp fmt --check), e2e (playwright, 3 browsers), screenshot (chromium only, writes screenshots/home.png). test and e2e take an optional file to run a single spec. Returns the output tail; pass verbose for the full (capped) output.',
       inputSchema: {
         verb: z.enum(RUN_VERBS),
+        file: z
+          .string()
+          .optional()
+          .describe(
+            'single spec file for verb test (vitest, e.g. tools/phorge/plan.spec.ts — a unique basename like plan.spec.ts works too) or e2e (playwright, under tests/ — a single e2e spec runs on chromium only, vs. all three browsers for the full e2e verb). Validated against the discovered spec list; a miss returns the known specs.',
+          ),
         verbose: z
           .boolean()
           .optional()
           .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
       },
     },
-    async ({ verb, verbose }) => {
+    async ({ verb, file, verbose }) => {
       try {
-        const { result, note } = await execRun(verb);
+        const { result, note } = await execRun(verb, file);
         return verdict(verb, result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
       } catch (error) {
         return fail(error);

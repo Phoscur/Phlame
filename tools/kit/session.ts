@@ -151,7 +151,7 @@ export class GameSession {
     const duration =
       direction === 'up' ? economy.upgradeTime(phelopment) : economy.downgradeTime(phelopment);
     const wait = economy.ticksUntilAffordable(cost);
-    
+
     const queueAt = atTick ?? this.currentTick;
     // display estimate only - actual start/completion are consequence echoes (ADR 0018)
     const at = queueAt + (wait === Infinity ? duration : wait + duration);
@@ -164,13 +164,13 @@ export class GameSession {
       [planet],
       queueAt,
     );
-    
+
     if (queueAt < this.currentTick) {
-      // Timewarping into the past: re-derive the live state from genesis 
+      // Timewarping into the past: re-derive the live state from genesis
       // to ensure costs are evaluated retroactively to maintain the M0 invariant.
       this.empire = fromGenesis(this.genesis).applyLog(this.empire.log, this.currentTick);
     }
-    
+
     return { id, at, duration, wait, cost: cost.prettyAmount };
   }
 

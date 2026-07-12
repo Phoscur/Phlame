@@ -70,7 +70,12 @@ renamed **`phlame-game`** (tools/mcp, PLAN-MCP.md) — pure, host-independent, m
 run _inside_ an agent container.
 
 Discovery/probe/smoke are **tools, not scripts**: `status` (services, states, verb
-list), `run(test|tsc|lint|e2e|screenshot)`, `fmt(worktree?)` (in-place `vp fmt`
+list), `run(test|tsc|lint|e2e|screenshot, file?)` — `file` narrows test/e2e to one
+spec and is the template for parameterized verbs: validated **structurally** (set
+membership in the discovered `*.spec.ts` list, specs.ts; a unique basename works, a
+miss returns the known specs), never a regex over a command string — identifiers
+like the worktree slug get charset shape checks, commands stay a closed table.
+`fmt(worktree?)` (in-place `vp fmt`
 exec'd into the agent container — the run verbs' source mounts are read-only, so
 the write path lives behind the rw mount), `screenshot` (returns the PNG inline as
 MCP image content), `agy(prompt)` (headless Antigravity run in the agent container —

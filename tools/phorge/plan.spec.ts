@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vite-plus/test';
 import {
   planRun,
   planRm,
+  planSpec,
+  planSpecRm,
+  specContainerName,
   planAgy,
   planClaude,
   planAgentUp,
@@ -47,7 +50,7 @@ describe('phorge verb table', () => {
     for (const verb of ['e2e', 'screenshot'] as const) {
       const argv = planRun(verb, runId);
       expect(argv.slice(0, 5)).toEqual(['compose', '-f', COMPOSE_FILE, '-f', DEV_OVERLAY]);
-      expect(argv.slice(5, 9)).toEqual(['exec', '-e', 'NO_COLOR=1', 'playwright']);
+      expect(argv.slice(5, 9)).toEqual(['exec', '-e', 'FORCE_COLOR=0', 'playwright']);
     }
   });
 
@@ -188,6 +191,31 @@ describe('phorge verb table', () => {
     const argv = planRun('screenshot', runId);
     expect(argv).toContain('screenshot.spec.ts');
     expect(argv).toContain('--project=chromium');
+  });
+
+  it('plans single specs shell-free: app in the runner, engine with workdir, e2e via exec', () => {
+    const app = planSpec(runId, { kind: 'app', path: 'tools/phorge/plan.spec.ts' });
+    expect(app.slice(5, 11)).toEqual([
+      'run',
+      '--rm',
+      '--name',
+      specContainerName(runId),
+      '-e',
+      'NO_COLOR=1',
+    ]);
+    expect(app.slice(-4)).toEqual(['npx', 'vitest', 'run', 'tools/phorge/plan.spec.ts']);
+    expect(app).not.toContain('sh'); // one command per run — no shell chain needed
+
+    const engine = planSpec(runId, { kind: 'engine', path: 'engine/src/lib/Empire.spec.ts' });
+    expect(engine[engine.indexOf('-w') + 1]).toBe('/phlame/engine');
+    expect(engine.at(-1)).toBe('src/lib/Empire.spec.ts'); // engine-relative
+
+    const e2e = planSpec(runId, { kind: 'e2e', path: 'tests/build.spec.ts' });
+    expect(e2e.slice(5, 9)).toEqual(['exec', '-e', 'FORCE_COLOR=0', 'playwright']);
+    // single-spec e2e pins chromium — one fast browser, not the 3× fan-out
+    expect(e2e.slice(-3)).toEqual(['test', 'tests/build.spec.ts', '--project=chromium']);
+
+    expect(planSpecRm(runId)).toEqual(['rm', '-f', specContainerName(runId)]);
   });
 
   it('rejects unknown verbs, naming the known ones', () => {
