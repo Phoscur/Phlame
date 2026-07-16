@@ -9,7 +9,7 @@
 # picked up by recreating the container (docker compose up -d --force-recreate).
 set -eu
 
-mkdir -p ~/.gemini/config ~/.gemini/antigravity-cli/implicit
+mkdir -p ~/.gemini/config
 
 # Git identity + trust for agent commits (task worktrees under
 # /phlame/.worktrees/<slug> are separate working dirs — the Dockerfile's
@@ -32,8 +32,6 @@ EOF
 # volume and an already-migrated one agree.
 cp ~/.gemini/mcp_config.json ~/.gemini/config/mcp_config.json
 
-# Copy the ro-mounted host credential seed into agy's live store (rw).
-cp -f ~/.gemini/antigravity-cli/implicit-host/*.pb ~/.gemini/antigravity-cli/implicit/ 2>/dev/null || true
 
 # claude: authenticates via CLAUDE_CODE_OAUTH_TOKEN (env) — no files needed.
 # The repo .mcp.json carries the HOST-side stdio phorge entry, which cannot work
@@ -76,4 +74,4 @@ cat > /phlame/opencode.jsonc <<EOF
 }
 EOF
 
-echo "[agent-setup] agy + claude + opencode mcp configs generated, credentials seeded"
+echo "[agent-setup] agy + claude + opencode mcp configs generated"

@@ -164,7 +164,7 @@ git-clean checkout, not the working tree) is what actually closes it.
   and settings hooks are argv the HOST runs on next start — a rw mount hands the
   contained agent a container-escape channel. Default layout: container-private named
   volumes for `/root/.gemini` and `/root/.claude`, seeded by an in-container login
-  (agy has a headless URL+code flow; claude via `claude setup-token` →
+  (agy: one-time npm run agent -- agy URL+code per volume, own refresh lineage, no race with the host; claude via `claude setup-token` →
   `CLAUDE_CODE_OAUTH_TOKEN`). Open (first real session decides):
   - [x] test seeding from host credential _files_ mounted `:ro` (config stays out)
   - [x] verify agy's credential store in a keyring-less container actually falls back

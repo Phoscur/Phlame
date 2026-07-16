@@ -22,7 +22,7 @@
 # - Agent config/credentials live in container-private named volumes: host ~/.gemini /
 #   ~/.claude are host-EXECUTED configuration (MCP entries, settings hooks) — mounting
 #   them rw would hand the contained agent a write path onto the host. Login happens
-#   in-container (agy: headless URL+code flow; claude: CLAUDE_CODE_OAUTH_TOKEN below).
+#   in-container (agy: one-time npm run agent -- agy URL+code per volume, own refresh lineage, no race with the host; claude: CLAUDE_CODE_OAUTH_TOKEN below).
 # Own project name: the test stack (compose.test.yml) lives under the default
 # project `phlame` — sharing it would make compose treat each other's services as
 # orphans (and a stray `down --remove-orphans` here would reap test containers).
@@ -81,11 +81,7 @@ services:
       # Container-private agent state (see trust model above).
       - agent_gemini:/root/.gemini
       - agent_claude:/root/.claude
-      # agy credential seed: host store mounted read-only, copied into the live
-      # volume by tools/agent/setup.sh on container start (agy has no headless
-      # token equivalent yet). NOTE the rotation hazard: if agy ever rotates
-      # these, host and container copies drift — watch the host login.
-      - ${USERPROFILE:-$HOME}/.gemini/antigravity-cli/implicit:/root/.gemini/antigravity-cli/implicit-host:ro
+
       # claude needs NO file seeding: CLAUDE_CODE_OAUTH_TOKEN (env above) is the
       # subscription login in token form (`claude setup-token`, one-time).
       # Sharing ~/.claude/.credentials.json instead would race the host on
