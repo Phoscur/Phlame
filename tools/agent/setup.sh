@@ -58,4 +58,22 @@ if [ ! -f ~/.claude.json ]; then
   echo '{"projects":{"/phlame":{"hasTrustDialogAccepted":true}}}' > ~/.claude.json
 fi
 
-echo "[agent-setup] agy + claude mcp configs generated, credentials seeded"
+# opencode: the project-level opencode.jsonc carries a stdio phorge entry that
+# cannot work behind the container wall (no Docker here). Overwrite it with the
+# HTTP endpoint — the host file is ephemeral on the rw mount; the user's
+# canonical copy is versioned and restorable.
+cat > /phlame/opencode.jsonc <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "phorge": {
+      "type": "remote",
+      "url": "${PHORGE_URL}",
+      "headers": { "Authorization": "Bearer ${PHORGE_TOKEN}" },
+      "enabled": true
+    }
+  }
+}
+EOF
+
+echo "[agent-setup] agy + claude + opencode mcp configs generated, credentials seeded"

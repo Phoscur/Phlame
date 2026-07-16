@@ -53,10 +53,14 @@ services:
       # From `claude setup-token` (run on a trusted machine), pasted into .env —
       # authenticates claude without sharing host config into the container.
       CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
-      # Claude's official container escape hatch: it refuses
+      # claude's official container escape hatch: it refuses
       # --dangerously-skip-permissions as root UNLESS this is set. Deliberate —
       # yolo mode is the point in here, the container wall is the boundary.
       IS_SANDBOX: 1
+      # opencode provider keys — pass through whatever your litellm/proxy serves.
+      # The opencode run verb uses -m provider/model; the key must match the provider.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     extra_hosts:
       # Docker Desktop ships host.docker.internal; this keeps native-Linux hosts
       # working too (where Phorge would additionally need a non-loopback binding).

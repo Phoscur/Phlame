@@ -208,6 +208,36 @@ export function registerTools(server: McpServer): void {
   );
 
   server.registerTool(
+    'opencode',
+    {
+      description:
+        'Run a headless opencode prompt inside an agent container (compose.agents.yml) and return its answer. yolo mode (--auto), phorge wired via generated opencode.jsonc. Two agent slots shared with agy/claude; 6-minute timeout; returns the output tail, pass verbose for more.',
+      inputSchema: {
+        prompt: z.string().min(1).describe('the task/question for the containerized opencode run'),
+        verbose: z
+          .boolean()
+          .optional()
+          .describe(`full output up to ${VERBOSE_TAIL_CHARS} chars instead of the default tail`),
+        model: z
+          .string()
+          .optional()
+          .describe(
+            "the model to use in provider/model format (e.g. 'anthropic/claude-sonnet-4-20250514')",
+          ),
+        worktree: WORKTREE_SLUG,
+      },
+    },
+    async ({ prompt, verbose, model, worktree }) => {
+      try {
+        const { result, note } = await execAgent('opencode', prompt, model, worktree);
+        return verdict('opencode', result, note, verbose ? VERBOSE_TAIL_CHARS : TAIL_CHARS);
+      } catch (error) {
+        return fail(error);
+      }
+    },
+  );
+
+  server.registerTool(
     'models',
     {
       description:
