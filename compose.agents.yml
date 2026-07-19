@@ -22,7 +22,7 @@
 # - Agent config/credentials live in container-private named volumes: host ~/.gemini /
 #   ~/.claude are host-EXECUTED configuration (MCP entries, settings hooks) — mounting
 #   them rw would hand the contained agent a write path onto the host. Login happens
-#   in-container (agy: headless URL+code flow; claude: CLAUDE_CODE_OAUTH_TOKEN below).
+#   in-container (agy: one-time npm run agent -- agy URL+code per volume, own refresh lineage, no race with the host; claude: CLAUDE_CODE_OAUTH_TOKEN below).
 # Own project name: the test stack (compose.test.yml) lives under the default
 # project `phlame` — sharing it would make compose treat each other's services as
 # orphans (and a stray `down --remove-orphans` here would reap test containers).
@@ -53,10 +53,14 @@ services:
       # From `claude setup-token` (run on a trusted machine), pasted into .env —
       # authenticates claude without sharing host config into the container.
       CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
-      # Claude's official container escape hatch: it refuses
+      # claude's official container escape hatch: it refuses
       # --dangerously-skip-permissions as root UNLESS this is set. Deliberate —
       # yolo mode is the point in here, the container wall is the boundary.
       IS_SANDBOX: 1
+      # opencode provider keys — pass through whatever your litellm/proxy serves.
+      # The opencode run verb uses -m provider/model; the key must match the provider.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     extra_hosts:
       # Docker Desktop ships host.docker.internal; this keeps native-Linux hosts
       # working too (where Phorge would additionally need a non-loopback binding).
@@ -77,11 +81,7 @@ services:
       # Container-private agent state (see trust model above).
       - agent_gemini:/root/.gemini
       - agent_claude:/root/.claude
-      # agy credential seed: host store mounted read-only, copied into the live
-      # volume by tools/agent/setup.sh on container start (agy has no headless
-      # token equivalent yet). NOTE the rotation hazard: if agy ever rotates
-      # these, host and container copies drift — watch the host login.
-      - ${USERPROFILE:-$HOME}/.gemini/antigravity-cli/implicit:/root/.gemini/antigravity-cli/implicit-host:ro
+
       # claude needs NO file seeding: CLAUDE_CODE_OAUTH_TOKEN (env above) is the
       # subscription login in token form (`claude setup-token`, one-time).
       # Sharing ~/.claude/.credentials.json instead would race the host on

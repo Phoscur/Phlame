@@ -37,6 +37,12 @@ ARG CLAUDE_CODE_VERSION=latest
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
     && claude --version
 
+# opencode — pinnable via build-arg, same pattern as claude-code:
+#   docker compose -f compose.agents.yml build --build-arg OPENCODE_VERSION=x.y.z
+ARG OPENCODE_VERSION=latest
+RUN npm install -g opencode-ai@${OPENCODE_VERSION} \
+    && opencode --version
+
 # Interactive by default; agents are started explicitly, e.g.
 #   docker compose -f compose.agents.yml run --rm agent claude
 CMD ["bash"]

@@ -164,7 +164,7 @@ git-clean checkout, not the working tree) is what actually closes it.
   and settings hooks are argv the HOST runs on next start — a rw mount hands the
   contained agent a container-escape channel. Default layout: container-private named
   volumes for `/root/.gemini` and `/root/.claude`, seeded by an in-container login
-  (agy has a headless URL+code flow; claude via `claude setup-token` →
+  (agy: one-time npm run agent -- agy URL+code per volume, own refresh lineage, no race with the host; claude via `claude setup-token` →
   `CLAUDE_CODE_OAUTH_TOKEN`). Open (first real session decides):
   - [x] test seeding from host credential _files_ mounted `:ro` (config stays out)
   - [x] verify agy's credential store in a keyring-less container actually falls back
@@ -228,6 +228,21 @@ a declarative per-project manifest is exactly as agent-writable as `plan.ts` is
 today — config is code. The deployed instance still reads it from a clean
 checkout; the deployment model is unchanged by extraction, which is precisely why
 it isn't worth pre-empting.
+
+**Endpoint sharpened (2026-07-17, with hyphe PLAN-PHORGE §3.6)**: the second
+project arrived (hyphe ported phorge, smoke passed), and with it the insight that
+the agent-dispatch half was never game tooling. Once the hyphe-owned
+**multi-tenant** phorge deployment serves the phlame tenant end to end (criterion:
+one agent dispatched into a phlame worktree, collected, merged), phlame sheds the
+`agy`/`claude`/`opencode`/`models`/`fmt` verbs, the agent stack
+(`Dockerfile.agent`, `compose.agents.yml`, `tools/agent/`) and its copy of the
+phorge server code. What stays HERE is what belongs to the game repo: the verb
+**manifest** (run-verb table over `compose.test.yml`, Dockerfiles, AGENTS.md — how
+to verify THIS repo is repo knowledge, and CI needs it anyway) and the pure
+`phlame-game` MCP. Side benefit for the public repo: private-ops agent infra
+leaves the open-source surface; contributors keep the plain npm/docker paths,
+which never depended on phorge. Until that criterion is met, phlame:4201 keeps
+all its verbs — nothing gets deleted transitionally.
 
 ## Milestones
 
