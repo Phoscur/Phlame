@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "phorge": {
+      "type": "local",
+      "command": ["npx", "tsx", "tools/phorge/server.ts"],
+      "enabled": true,
+    },
+  },
+}

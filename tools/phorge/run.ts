@@ -10,6 +10,7 @@ import {
   planAgentUp,
   planAgy,
   planClaude,
+  planOpencode,
   planAgentRestart,
   planWorktreeCheck,
   planWorktreeAdd,
@@ -22,7 +23,7 @@ import { execDocker, type ExecLimits, type ExecResult } from './exec';
 
 export type Exec = (argv: string[], limits?: ExecLimits) => Promise<ExecResult>;
 export type Discover = () => Promise<SpecList>;
-export type AgentCli = 'agy' | 'claude';
+export type AgentCli = 'agy' | 'claude' | 'opencode';
 
 export const MAX_RUNNER_CONCURRENCY = 4;
 export const MAX_PLAYWRIGHT_CONCURRENCY = 1;
@@ -39,6 +40,7 @@ const AGENT_PLANS: Record<
 > = {
   agy: planAgy,
   claude: planClaude,
+  opencode: planOpencode,
 };
 
 /**
