@@ -100,10 +100,22 @@ export class EmpireService {
   #empires = new Repository<Empire<ResourceIdentifier, PhelopmentIdentifier>>();
   #entities = new Repository<Phlame<ResourceIdentifier, PhelopmentIdentifier>>();
   #jsonBackup?: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>;
+  /** the empire's tick when its snapshot was loaded - the floor of the frontier */
+  #loadedTick = 0;
 
   #current = emptyEmpire('Preset', 'defaultPhlame');
   get current() {
     return this.#current;
+  }
+
+  /**
+   * The observed frontier (ADR 0020): commands may be backdated down to this tick and
+   * no further. Tracked apart from lastTick because client entities fast-forward every
+   * tick, while the server's lazy empire only ever reached the loaded snapshot's tick
+   * or the last ordered one - that is what the server enforces.
+   */
+  get frontier(): number {
+    return this.#current.log.reduce((max, e) => Math.max(max, e.tick), this.#loadedTick);
   }
 
   getEntity(id: ID): Phlame<ResourceIdentifier, PhelopmentIdentifier> {
@@ -111,7 +123,13 @@ export class EmpireService {
   }
 
   setupFromJSON(json: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>) {
-    this.#jsonBackup = json;
+    if (this.#jsonBackup?.id !== json.id) {
+      // the first snapshot of an empire is the server's: the backup a rebuild restores
+      // from, its tick the floor of the frontier. Client re-renders re-hydrate the same
+      // empire from its fast-forwarded state (empire-ctx reconnects) and move neither.
+      this.#jsonBackup = json;
+      this.#loadedTick = json.entities.reduce((max, e) => Math.max(max, e.tick), 0);
+    }
     const factory = this.#engine();
     const empire = factory.createEmpire(json);
     return this.setup(empire);
@@ -174,9 +192,26 @@ export class EmpireService {
     }
 
     const entry = (await response.json()) as LogEntryJSON;
-    this.#current.applyLog([entry], entry.tick);
+    this.#project(entry);
 
     return { at, duration, actionId };
+  }
+
+  /**
+   * Project a server-appended log entry into the client empire. Entities here are
+   * fast-forwarded to the present every tick, so a backdated command cannot land in
+   * place: the empire is rebuilt from the loaded snapshot plus everything ordered
+   * since - the snapshot is only a cache of the log (ADR 0002/0012).
+   */
+  #project(entry: LogEntryJSON) {
+    const present = this.#current.lastTick;
+    if (entry.tick >= present || !this.#jsonBackup) {
+      this.#current.applyLog([entry], entry.tick);
+      return;
+    }
+    const since = this.#current.log.slice(this.#jsonBackup.log.length);
+    this.restoreFromBackup();
+    this.#current.applyLog([...since, entry], present);
   }
 
   cancelGrade(planetId: ID, actionId: string) {

@@ -23,15 +23,6 @@ export const Slider = () => (
         >
           PlayPause
         </button>
-        <label class="inline-flex items-center cursor-pointer ml-6">
-          <input
-            type="checkbox"
-            class="unrestrictedToggle w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-          />
-          <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-            Timewarp to Genesis
-          </span>
-        </label>
       </div>
     </div>
   </>
@@ -62,32 +53,19 @@ export class TickSliderElement extends HTMLElement {
     };
 
     const range = this.getElementsByClassName('tickRange')[0] as HTMLInputElement;
-    const unrestrictedToggle = this.getElementsByClassName(
-      'unrestrictedToggle',
-    )[0] as HTMLInputElement;
 
     const updateMin = () => {
-      const logLength = empire.current.log.length;
-
-      if (unrestrictedToggle.checked) {
-        range.min = '0';
-      } else {
-        // allow timewarping backwards only until the last queued action
-        const lastActionTick = logLength > 0 ? empire.current.log[logLength - 1].tick : 0;
-
-        range.min = `${lastActionTick}`;
-
-        // If they toggle strict mode back on and their current slider value is now too low, pull them forward
-        if (Number(range.value) < Number(range.min)) {
-          range.value = range.min;
-          if (this.onHold) {
-            zeit.hold(Number(range.value));
-          }
+      // timewarping backwards stops at the observed frontier (ADR 0020) - the server
+      // refuses anything earlier, so the slider does not offer it
+      range.min = `${empire.frontier}`;
+      if (Number(range.value) < Number(range.min)) {
+        range.value = range.min;
+        if (this.onHold) {
+          zeit.hold(Number(range.value));
         }
       }
     };
 
-    unrestrictedToggle.onchange = () => updateMin();
     updateMin();
     range.max = `${zeit.tick}`;
 
