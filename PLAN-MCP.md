@@ -55,11 +55,12 @@ API smell worth fixing instead (the review already surfaced one: ADR 0014).
   MCP-0**: sessions are process-volatile (stdio restarts lose them), and
   `EmpireJSON` + tick already round-trip — `dump_session`/`restore_session` are nearly
   free insurance for long runs. The agent owns its saves.
-- **Timewarp lab.** The sandbox deliberately accepts actions in the past: state is then
-  re-derived by replay from genesis. That's the whole point — a laboratory for the
-  ADR 0011/0012 semantics (replay, collisions, o.d. catch-up) that production stays
-  strict about. Full past-queuing matures with the empire log (MCP-2); until then the
-  sandbox is advance-only.
+- **Timewarp lab.** The sandbox deliberately accepts actions in the past
+  (`GameSession.rebase`, ADR 0020): the command is slotted into the log at its tick and
+  the state re-derived from genesis. That's the whole point — a laboratory for
+  retroactive collisions (later echoes may move, cancelled commands resurrect) that
+  production refuses: `Empire.enqueue` guards the observed frontier, the app only
+  backdates into the unobserved window.
 - **advance_ticks v0 is a stopgap**: Empire has no `update()` yet — the wrapper iterates
   entities (`Phlame.update` each) and is explicitly marked provisional; it delegates to
   the empire-level replay orchestration the moment M1 lands (ADR 0012). Watch that the
