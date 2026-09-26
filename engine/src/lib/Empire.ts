@@ -46,8 +46,9 @@ export class Empire<
     }, 0);
   }
 
+  /** next command number - strictly monotonic even after a rebase reordered the rows (ADR 0020) */
   get seq(): number {
-    return this.log.length ? this.log[this.log.length - 1].seq + 1 : 0;
+    return this.log.reduce((next, entry) => (entry.seq >= next ? entry.seq + 1 : next), 0);
   }
 
   entity(id: ID): Phlame<ResourceType, PhelopmentType> {
@@ -62,7 +63,9 @@ export class Empire<
    * Append a command to the trusted log and project it into the concerned entities'
    * queues (Phlame.actions is the projection, ADR 0012). The action's consequence.at
    * is the orderedAt tick - one meaning, deterministically replayable.
-   * @throws when a concerned queue is full (Phormulae rule)
+   * Backdating is allowed into the unobserved window only (ADR 0020): `at` may not lie
+   * below the observed frontier (lastTick), so ticks in the log never decrease.
+   * @throws when a concerned queue is full (Phormulae rule) or `at` is observed already
    */
   enqueue(
     type: ActionType,
@@ -70,6 +73,12 @@ export class Empire<
     concerns: Phlame<ResourceType, PhelopmentType>[],
     at: TimeUnit = this.lastTick,
   ): LogEntryJSON {
+    if (!Number.isInteger(at)) {
+      throw new Error(`Cannot enqueue at tick ${at}: not an integer`);
+    }
+    if (at < this.lastTick) {
+      throw new Error(`Cannot backdate to tick ${at}: tick ${this.lastTick} is observed`);
+    }
     this.update(at);
     const entry: LogEntryJSON = {
       seq: this.seq,

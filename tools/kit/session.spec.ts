@@ -106,5 +106,12 @@ describe('GameSession (console/MCP kit)', () => {
     // The action queued at 0 takes 4 ticks, so at tick 10 it should already be finished (level 2)
     const level = session.list().find((r) => r.type === 'mine-metallic')?.level;
     expect(level).toBe(2);
+
+    // the rebase reordered the rows by tick - command numbering stays strictly
+    // monotonic regardless (ADR 0012), so a rebased log is still a total order
+    session.grade('power-solar', 'up');
+    const seqs = session.empire.log.map((e) => e.seq);
+    expect(new Set(seqs).size).toBe(seqs.length);
+    expect(session.replayCheck().ok).toBe(true);
   });
 });
