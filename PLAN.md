@@ -125,6 +125,29 @@ Prettify commit.
       standard-decorators esbuild pre-plugin survived the core swap, engine's
       `npx vitest` keeps resolving from the root install.
 
+### Vite+ 1.0 (opened 2026-09-29, branch `agent/vite-plus-1`)
+
+vite-plus 1.0.0 (2026-09-28) is rc.1 promoted without code changes. It bundles vite 8.3.1,
+vitest 5.0.1 (a major), oxlint 1.85.0 and oxfmt 0.70.0, and its CLI needs Node
+`^24.11.0` on our line. Sources:
+[release notes](https://github.com/voidzero-dev/vite-plus/releases/tag/v1.0.0),
+[Vitest 5 migration](https://vitest.dev/guide/migration).
+
+- [x] Pins moved together: `vite-plus` 1.0.0, `vite` →
+      `@voidzero-dev/vite-plus-core@1.0.0` in devDependencies and `overrides`,
+      `vitest`, `@vitest/coverage-v8`, `@vitest/ui` 5.0.1 (vitest also in `overrides`),
+      CI's standalone oxlint pin 1.72.0 → 1.85.0. The lockfile resolves one vite and
+      one vitest; `engine/`'s `npx vitest` resolves the root 5.0.1.
+- [x] Measured on the host before any code change: `vp fmt --check` clean (no oxfmt
+      churn), `npm run tsc` clean, app 13 files / 97 passed + 1 todo and engine 19 files
+      / 104 passed + 1 todo, the same counts as master.
+- [ ] Lint fallout: oxlint 1.85 newly reports `no-unused-vars` on the `_` parameter at
+      `src/app/engine/resources.ts:96` (1.72 did not). CI runs `--deny-warnings`, so
+      the fast-fail job stays red until this is fixed.
+- [ ] Containerized proof: rebuild the runner and playwright images (the `npm ci`
+      layer keys on the lockfile), then `run(test|tsc|lint)` and `run(e2e)` — `vp dev`
+      on the new core, with the esbuild decorators pre-plugin, is unexercised so far.
+
 ## Side quest — MCP CLI (engine-ui reborn)
 
 Detailed plan: [PLAN-MCP.md](./PLAN-MCP.md) — prerequisites: rules-as-data (ADR 0014),
