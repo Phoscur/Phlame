@@ -40,16 +40,19 @@ test('slider and server clamp backdating to the observed frontier', async ({ pag
   await expect(page.getByRole('heading', { name: 'Planet', exact: true })).toBeVisible();
   const born = await frontier(page);
 
-  // an order at the present moves nothing below it (the fake clock runs ahead of the
-  // server, which clamps the order to its own tick - the frontier stays at birth)
+  // an order at the present lands on the server's tick (the fake clock runs ahead, the
+  // server clamps) - the frontier moves there: birth, or a tick later if real time crossed
+  // a tick boundary since the page loaded (firefox is slow enough for that)
   await page.getByRole('button', { name: 'Upgrade' }).first().click();
   await expect(page.locator('.buildingQueue li').filter({ hasText: 'Level 2' })).toBeVisible();
-  expect(await frontier(page)).toBe(born);
+  const ordered = await frontier(page);
+  expect(ordered).toBeGreaterThanOrEqual(born);
+  expect(ordered).toBeLessThanOrEqual(born + 1);
 
   // Fast forward by 50 seconds (5 ticks): the slider still offers nothing below the frontier
   await page.clock.fastForward(50000);
   const slider = page.locator('.tickRange');
-  await expect(slider).toHaveAttribute('min', `${born}`);
+  await expect(slider).toHaveAttribute('min', `${ordered}`);
 
   // and the server refuses what the slider does not offer (409, ADR 0020)
   const empire = await page.locator('empire-ctx').getAttribute('id');
@@ -58,7 +61,7 @@ test('slider and server clamp backdating to the observed frontier', async ({ pag
     data: {
       type: 'update',
       payload: { id: 'backdated', phelopmentID: 'mine-metallic', grade: 'up' },
-      at: born - 1,
+      at: ordered - 1,
     },
   });
   expect(res.status()).toBe(409);

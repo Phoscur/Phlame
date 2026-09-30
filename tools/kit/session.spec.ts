@@ -68,9 +68,12 @@ describe('GameSession (console/MCP kit)', () => {
     session.advance(10);
 
     const save = session.toJSON();
-    expect(save.phingerprint).toBe(phormulae.phingerprint);
+    expect(save.version).toBe(2);
+    expect(save.universe).toBe(phormulae.phingerprint);
+    expect(save.settings.timewarp).toBe(true);
 
     const restored = GameSession.fromJSON(save);
+    // name and tick are derived on load: the genesis names the empire, the snapshot its tick
     expect(restored.tick).toBe(10);
     expect(restored.state()).toContain('Saver');
     // the save is genesis + command log with the snapshot as cache (ADR 0012/0018) -
@@ -78,7 +81,7 @@ describe('GameSession (console/MCP kit)', () => {
     expect(save.genesis.universe).toBe(phormulae.phingerprint);
     expect(restored.replayCheck().ok).toBe(true);
 
-    expect(() => GameSession.fromJSON({ ...save, phingerprint: 'deadbeef' })).toThrow(
+    expect(() => GameSession.fromJSON({ ...save, universe: 'deadbeef' })).toThrow(
       'Phingerprint mismatch',
     );
   });

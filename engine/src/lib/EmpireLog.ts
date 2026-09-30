@@ -1,13 +1,18 @@
-import type { TimeUnit } from './resources';
+import type { ResourceIdentifier, TimeUnit } from './resources';
+import type { PhelopmentIdentifier } from './Phelopment';
 import type { ActionType, EventType, ID } from './Action';
+import type { EmpireJSON } from './Empire';
 
 /**
- * The M0 save/log schema (ADR 0012 + 0018) - defined here so persistence and the
- * empire-log implementation (M1) grow into one shape instead of inventing three.
+ * The save/log schema (ADR 0012 + 0018) - defined here so persistence, the kit and the
+ * app carry one shape instead of inventing three.
  *
- * A shared save is `genesis + actions` under a universe Phingerprint (ADR 0011);
- * consequences are the verifiable echo (ADR 0018): serialized while saves are
- * snapshot-based (open builds are state!), recomputable once saves are genesis + log.
+ * A save is `genesis + empire` under a universe Phingerprint (ADR 0011): the empire's
+ * command log IS the authoritative history (`empire.log`), the snapshot its cache, and
+ * consequences live inside the entities as the verifiable echo (ADR 0018) - so
+ * `replay(genesis, empire.log)` must reproduce `empire`. No duplicate fields, no
+ * save-level tick: entities carry their own (`empire.lastTick`), global time stays in
+ * data/zeit.json.
  */
 
 /**
@@ -53,13 +58,29 @@ export interface ConsequenceJSON {
 }
 
 /**
- * The complete shareable empire save (target shape, implemented with M1's empire log)
+ * Game settings that travel with a save but are NOT universe rules: they change how the
+ * player interacts, not how the economy computes, so they are deliberately outside the
+ * Phingerprint (ADR 0011) - a different `timewarp` setting is the same universe.
  */
-export interface EmpireLogJSON {
+export interface SaveSettingsJSON {
+  /** the player's timewarp-slider setting (backdating into the unobserved window, ADR 0020) */
+  timewarp: boolean;
+}
+
+/**
+ * The complete empire save (v2): every persisted empire carries its genesis so
+ * `replay(genesis, empire.log)` can verify the snapshot (ADR 0012/0020). `actions` IS
+ * `empire.log`; consequences are recomputed from it, they are not stored separately.
+ */
+export interface SaveJSON<
+  ResourceType extends ResourceIdentifier,
+  PhelopmentType extends PhelopmentIdentifier,
+> {
+  /** save-format version - loaders refuse anything but 2 (no v1 migration, ADR 0011) */
+  version: 2;
   /** `Phormulae.phingerprint` - replay is only defined within a matching universe */
   universe: string;
   genesis: GenesisJSON;
-  actions: LogEntryJSON[];
-  /** the echo - strippable from shared saves, required while saves are snapshot-based */
-  consequences: ConsequenceJSON[];
+  settings: SaveSettingsJSON;
+  empire: EmpireJSON<ResourceType, PhelopmentType>;
 }

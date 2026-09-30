@@ -34,7 +34,7 @@ describe('Data session ID validation', () => {
   });
 
   it('rejects saving a session with an invalid sid', async () => {
-    const session = { sid: traversal, zeit: Data.zeroTime, empire: {} } as PersistedSession;
+    const session = { sid: traversal, save: {} } as unknown as PersistedSession;
     await expect(data.saveSession(session)).rejects.toMatchObject({ code: 404 });
   });
 });
