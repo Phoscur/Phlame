@@ -14,7 +14,8 @@ export function isValidSID(sid: string): boolean {
 class NotFoundError extends Error {
   public readonly code = 404;
 }
-class SessionCorruptError extends Error {
+/** exported so the engine can reject a non-v2 or replay-mismatched save with the same 401 */
+export class SessionCorruptError extends Error {
   public readonly code = 401;
 }
 

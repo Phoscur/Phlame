@@ -1,14 +1,16 @@
 import { injectable, inject, Injector } from '@joist/di';
-import type { EmpireJSON } from '@phlame/engine';
+import type { GenesisJSON, SaveJSON, SaveSettingsJSON } from '@phlame/engine';
 import { Zeit, Zeitgeber } from './app/signals/zeitgeber';
 import { ConsoleDebug, Debug } from './app/debug.element';
-import { Data, NanoID } from './data.server';
+import { Data, NanoID, SessionCorruptError } from './data.server';
 import { empireID, phlameID } from './app/engine/ids';
 import {
   PhelopmentIdentifier,
   EmpireEntity,
   EmpireService,
-  emptyEmpire,
+  fromGenesis,
+  genesisFor,
+  phormulae,
   ResourceIdentifier,
 } from './app/engine';
 
@@ -16,12 +18,20 @@ type SID = NanoID;
 
 export interface Session {
   sid: SID;
+  /** the deterministic birth kept with the session so saveSession can persist it (ADR 0012) */
+  genesis: GenesisJSON;
+  settings: SaveSettingsJSON;
   empire: EmpireEntity;
+}
+/** the immutable-per-session save metadata captured at load, so saveSession need only the empire */
+interface SessionMeta {
+  genesis: GenesisJSON;
+  settings: SaveSettingsJSON;
 }
 export interface PersistedSession {
   sid: SID;
-  zeit: Zeit;
-  empire: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>;
+  /** the whole v2 save: genesis + empire under the universe Phingerprint (ADR 0011/0020) */
+  save: SaveJSON<ResourceIdentifier, PhelopmentIdentifier>;
 }
 @injectable({
   providers: [
@@ -49,6 +59,10 @@ export class EngineService {
   #zeit = inject(Zeitgeber);
   #persistence = inject(Data);
   #empire = inject(EmpireService);
+  /** the runtime environment (set in start()); gates the dev-only verify-on-load */
+  #environment = 'dev';
+  /** genesis + settings captured per sid at load/birth, so a save can carry them (ADR 0012) */
+  #sessions = new Map<SID, SessionMeta>();
 
   get time(): Zeit {
     const { tick, timeMS } = this.#zeit();
@@ -67,6 +81,7 @@ export class EngineService {
    * @returns {boolean} isFirstStart
    */
   async start(environment: string) {
+    this.#environment = environment;
     const logger = this.#logger();
     const zeit = this.#zeit();
     const persistence = this.#persistence();
@@ -90,22 +105,17 @@ export class EngineService {
    */
   async loadEmpire(sid: string): Promise<EmpireEntity> {
     const logger = this.#logger();
-    const zeit = this.#zeit();
     const persistence = this.#persistence();
-    const session = await persistence.loadSession(sid);
-    const {
-      zeit: { timeMS, tick },
-      empire,
-    } = session;
+    const { save } = await persistence.loadSession(sid);
+    // v2 only: a v1 file (`{ sid, zeit, empire }`) has no `version`/genesis and its birth
+    // tick is unrecoverable, so it cannot be replayed - ADR 0011 lets pre-1.0 saves break.
+    if (save?.version !== 2 || save.universe !== phormulae.phingerprint) {
+      throw new SessionCorruptError(`Session ${sid} is not a v2 save for this universe`);
+    }
     logger.log('Loading session:', sid);
-    logger.log(timeMS, 'Loading tick:', tick, `(${zeit.tick - tick} o.d.)`);
-    logger.log(zeit.timeMS, 'Current tick:', zeit.tick);
-    /* if (tick && tick !== zeit.tick) {
-      zeit.stop();
-      // TODO catch up ticks with actions
-      zeit.start(time, tick);
-    }*/
-    return this.#empire().setupFromJSON(empire).current;
+    const empire = this.#empire().setupFromJSON(save.empire).current;
+    this.#sessions.set(sid, { genesis: save.genesis, settings: save.settings });
+    return empire;
   }
 
   /**
@@ -128,26 +138,44 @@ export class EngineService {
     const sid = persistence.generateID();
     // empire and planet share the session's stem, typed by prefix (see ids.ts)
     const session = this.createSession(sid, empireID(sid), phlameID(sid), zeit.tick);
+    this.#sessions.set(sid, { genesis: session.genesis, settings: session.settings });
     await this.saveSession(session);
     this.#empire().setup(session.empire);
     return session;
   }
 
-  async saveSession(session: Session) {
+  /**
+   * Persist the empire as its v2 save. Genesis + settings come from the per-sid meta
+   * captured at load/birth, so callers behind the middleware pass only their captured
+   * empire (see empire.middleware.ts) without threading immutable birth data through.
+   */
+  async saveSession({ sid, empire }: { sid: SID; empire: EmpireEntity }) {
     const persistence = this.#persistence();
-    const { time: zeit } = this;
+    const meta = this.#sessions.get(sid);
+    if (!meta) {
+      throw new Error(`Cannot save session ${sid}: not loaded or generated`);
+    }
     await persistence.saveSession({
-      sid: session.sid,
-      zeit,
-      empire: session.empire.toJSON(),
+      sid,
+      save: {
+        version: 2,
+        universe: phormulae.phingerprint,
+        genesis: meta.genesis,
+        settings: meta.settings,
+        empire: empire.toJSON(),
+      },
     });
-    this.#logger().log(zeit.timeMS, 'Saved session:', session.sid);
+    this.#logger().log(this.time.timeMS, 'Saved session:', sid);
   }
 
   createSession(sid: string, eid: string, pid: string, tick?: number): Session {
-    const empire = emptyEmpire(eid, pid, tick);
+    // deterministic birth (ADR 0012): the genesis derives the empire, both persisted together
+    const genesis = genesisFor(eid, [pid], tick);
+    const empire = fromGenesis(genesis);
     return {
       sid,
+      genesis,
+      settings: { timewarp: false },
       empire,
     };
   }
