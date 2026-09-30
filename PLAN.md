@@ -213,6 +213,39 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       (2026-07) — deliberately NOT auto-regenerated: the save might be recoverable
       once session export/import exists. NOTE the SSR still shows the last loaded
       empire in that case (session bleed) — fix with the session middleware rework.
+      Laid out 2026-09 (with [ADR 0020](docs/decisions/0020-timewarp-unobserved-window.md)),
+      each a green slice of its own:
+  - [ ] P0 — one save shape: `SaveJSON { version: 2, universe, genesis, settings,
+empire }` unifies `EmpireLogJSON`, the kit's `SessionSave` and
+        `PersistedSession`; `actions` IS `empire.log`, the snapshot stays (O(1) load,
+        open builds are state, ADR 0018) and is verifiable instead of trusted. No
+        save-level tick — entities carry theirs, global time stays `zeit.json`.
+        `settings.timewarp` is the player's slider toggle: **the slider is a game
+        feature**, its setting lives in the save (survives export), not in the
+        Phingerprint and not in the env mode; `ph-tick-slider` renders only when on.
+  - [ ] P1 — `SaveStore { load, save, exists }` with a zod schema at the boundary
+        (replaces the late "corrupt = 401"); file backend = today's `Data` trimmed,
+        localStorage backend new (M3 groundwork).
+  - [ ] P2 — server: session = save, birth = `genesisFor` + `fromGenesis` (drops
+        `emptyEmpire`); replay-verify on load in dev/test only (the middleware loads
+        per request — a full replay per hit does not scale, prod trusts its cache
+        until compaction); `sessionHelper` → session middleware for all routes (fixes
+        the session bleed). **No v1 migration**: the birth tick is not recoverable
+        (`zeit` in a v1 save is the last save time) — old sessions hit the Logout
+        hint, ADR 0011 allows pre-1.0 saves to break.
+  - [ ] P3a — genesis reaches the client (`empire-ctx` attribute, kept with the first
+        snapshot like the frontier): `EmpireService.verify()` in the browser, and the
+        **truthful scrubber** — on `hold(T)` render `fromGenesis(genesis).applyLog(log
+≤ T, T)` as a view, `current` untouched; scrubber floor = `genesis.tick`,
+        order floor stays the frontier (grade buttons disabled below it, not clamped).
+  - [ ] P3b — the genesis extension as gameplay (single-player only, ADR 0020):
+        ordering below the frontier with the timewarp setting on is a **rebase**,
+        two-phase — precalculate `fromGenesis(genesis).applyLog([...log, entry])`
+        on the client, show the diff (every echo that moves, resources that vanish),
+        accept explicitly, then the server re-derives the same state (deterministic,
+        no snapshot transfer). Prerequisite: cancel becomes a log entry (a rebase
+        resurrects client-only cancels). Never below a `sealed` tick — in shared
+        universes the import tick seals the imported past (open question 4).
   - [x] Action sync v1 (2026-07): grade commands POST to
         `/empires/:eid/entities/:id/actions`; the server is tick-authoritative
         (ADR 0012) — it enqueues into the session's empire, persists the snapshot
@@ -325,6 +358,10 @@ checkpoint).
    checkpoint today; an explicit persisted `sealed` tick generalizes it
    (`frontier = max(lastTick, sealed)`, same guard) — the open part is _when_ it
    advances (compaction, export, 2.0 cross-empire observation), not what it means.
+   For shared universes it is an import question: from which tick may an imported
+   empire's actions start, if imports are allowed at all — the import tick seals the
+   single-player past (rebases included), so history from before is never rebased
+   again there.
 5. **Old siblings**: `phlame-server`, `phlame-ui`, `engine-ui`, `peer-server`, `proxy` —
    archive them explicitly (README note in parent) or keep any alive for 2.0?
 6. **i18n scope**: de/en only for 1.0?

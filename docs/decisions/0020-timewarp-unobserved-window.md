@@ -44,16 +44,24 @@ been displayed — echoes are "never believed" (ADR 0018), but the UI had shown 
   fast-forward every tick while the server's empire is lazy. The slider's floor is the
   frontier. Corollary: the server must stay lazy on reads (no `update` on render), or
   the window closes — that is deliberate, not an omission.
-- **Rebase is sandbox-only.** The kit's timewarp lab slots a backdated command into
-  the log at its tick and re-derives the state from genesis (`GameSession.rebase`) —
-  replay ≡ live by construction, retroactive collisions are the experiment.
+- **Rebase is single-player only — "sandbox" in both senses.** Today it lives in the
+  kit's timewarp lab: a backdated command is slotted into the log at its tick and the
+  state re-derived from genesis (`GameSession.rebase`) — replay ≡ live by
+  construction, retroactive collisions are the experiment. It becomes a game feature
+  (the timewarp slider's genesis extension, behind the player's timewarp setting)
+  once the save carries the genesis (persistence v2) — **two-phase**: the change is
+  precalculated first, the re-derived state and every echo that moves are shown as a
+  diff, and only an explicit accept makes it history. Nothing rewrites in place.
   `Empire.seq` numbers from the highest seq, so a rebased log stays a total order and
   rebases remain _detectable_ as tick/seq inversions (the 2.0 "timewarp detection"
   hook, for free).
 - **The frontier is the 1.0 checkpoint.** Explicit checkpoints — log compaction,
   share/export sealing its past, cross-empire observation in 2.0 — generalize it as
   `frontier = max(lastTick, sealed)`: the same guard fed by a persisted `sealed` tick.
-  Not defined until something advances it (persistence v2, open question 4).
+  For shared universes that is an _import_ question: from which tick may an imported
+  empire's actions start? The import tick seals everything before it — a single-player
+  past, rebases included, is history there and never subject to rebase again. Not
+  defined until something advances it (persistence v2, open question 4).
 
 ## Consequences
 
@@ -64,8 +72,9 @@ been displayed — echoes are "never believed" (ADR 0018), but the UI had shown 
   (`Zeitgeber.hold` moves the label, never the state). A truthful scrubber is
   `fromGenesis(genesis).applyLog(log, t)` — pure and cheap once the client has the
   genesis (persistence v2). Until then the label lies knowingly.
-- `cancel` is client-only and not a log entry, so a sandbox rebase resurrects
-  cancelled commands. Cancel becomes a command with the server-side cancel follow-up
-  (PLAN M1).
+- `cancel` is client-only and not a log entry, so a rebase — which re-derives from the
+  log alone — resurrects cancelled commands. Cancel becomes a command with the
+  server-side cancel follow-up (PLAN M1); a hard prerequisite before rebase is a
+  feature.
 - `at` in the action schema is optional, integer, non-negative. ADR 0002's
   "timewarping" sentence means this window.
