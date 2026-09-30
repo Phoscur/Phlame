@@ -56,11 +56,15 @@ if [ ! -f ~/.claude.json ]; then
   echo '{"projects":{"/phlame":{"hasTrustDialogAccepted":true}}}' > ~/.claude.json
 fi
 
-# opencode: the project-level opencode.jsonc carries a stdio phorge entry that
-# cannot work behind the container wall (no Docker here). Overwrite it with the
-# HTTP endpoint — the host file is ephemeral on the rw mount; the user's
-# canonical copy is versioned and restorable.
-cat > /phlame/opencode.jsonc <<EOF
+# opencode: global config lives in ~/.config/opencode/opencode.json (container home).
+# Never write into /phlame/ — opencode.jsonc is tracked in the repo and writing secrets
+# there leaves the working tree dirty. The generated config sets mcp.phorge to the HTTP
+# remote endpoint; opencode loads this file by default (no OPENCODE_CONFIG needed).
+# Config sources merge, but PROJECT config wins over global config — so the tracked
+# opencode.jsonc deliberately declares no phorge entry, leaving this generated one in
+# effect.
+mkdir -p ~/.config/opencode
+cat > ~/.config/opencode/opencode.json <<EOF
 {
   "\$schema": "https://opencode.ai/config.json",
   "mcp": {
