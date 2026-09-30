@@ -115,6 +115,15 @@ export class EngineService {
     logger.log('Loading session:', sid);
     const empire = this.#empire().setupFromJSON(save.empire).current;
     this.#sessions.set(sid, { genesis: save.genesis, settings: save.settings });
+    // dev/test only: prove the snapshot IS the replay of its log from genesis (M0 invariant,
+    // ADR 0012). Production skips it - the middleware loads per request and a full replay per
+    // hit does not scale (log compaction comes later).
+    if (!this.#environment.startsWith('prod')) {
+      const replayed = fromGenesis(save.genesis).applyLog(save.empire.log, empire.lastTick);
+      if (JSON.stringify(replayed.toJSON()) !== JSON.stringify(empire.toJSON())) {
+        throw new SessionCorruptError(`Session ${sid}: replay mismatch`);
+      }
+    }
     return empire;
   }
 
