@@ -12,7 +12,8 @@ export const actionSchema = z.object({
     phelopmentID: z.string(),
     grade: z.enum(['up', 'down']),
   }),
-  at: z.number().optional(),
+  // the tick to order at - backdating into the unobserved window only (ADR 0020)
+  at: z.number().int().nonnegative().optional(),
 });
 
 /**
@@ -66,9 +67,12 @@ export function createActionsRoute(engine: EngineService) {
     const command = parsed.data;
 
     try {
-      // the server is tick-authoritative (ADR 0012): at = the server Zeitgeber's tick by default,
-      // but we allow explicit timewarping from the client's `at` parameter if present
-      const tick = command.at ?? engine.time.tick;
+      // the server is tick-authoritative (ADR 0012): nothing is ordered ahead of its
+      // Zeitgeber (a client clock running ahead is clamped to the server's now), while
+      // backdating is the client's call - the engine refuses anything below the empire's
+      // observed frontier (ADR 0020)
+      const now = engine.time.tick;
+      const tick = Math.min(command.at ?? now, now);
       const logEntry = empire.enqueue(ActionTypes.UPDATE, command.payload, [entity], tick);
 
       const sid = getCookie(c, 'sid');
@@ -78,7 +82,10 @@ export function createActionsRoute(engine: EngineService) {
 
       return c.json(logEntry, 201);
     } catch (e: any) {
-      if (e.message && e.message.includes('Queue is full')) {
+      if (
+        e.message &&
+        (e.message.includes('Queue is full') || e.message.includes('Cannot backdate'))
+      ) {
         return c.json({ error: e.message }, 409);
       }
       return c.json({ error: e.message || 'Unknown error' }, 500);

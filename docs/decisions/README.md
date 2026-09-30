@@ -32,3 +32,4 @@ Reversing a decision gets a _new_ ADR that supersedes the old one — don't rewr
 - [0017 — Keep Tailwind 4, style via domain tokens](0017-keep-tailwind-domain-tokens.md) `accepted`
 - [0018 — Actions and consequences are separate logs](0018-actions-and-consequences.md) `accepted`
 - [0019 — Entity ids are strings](0019-string-ids.md) `accepted`
+- [0020 — Timewarp: backdating into the unobserved window](0020-timewarp-unobserved-window.md) `accepted`

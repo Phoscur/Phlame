@@ -222,7 +222,19 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
         per-request empire captured by the middleware/sessionHelper, never the
         EngineService singleton (parallel requests swap it — was a live 403 race
         in e2e, incl. cookie-less catch-all requests minting surplus sessions).
-        Cancel is still client-only (follow-up: refunds are M2 anyway).
+        Cancel is still client-only (follow-up: refunds are M2 anyway — and a
+        sandbox rebase resurrects cancelled commands until cancel is a log entry).
+  - [x] Timewarp v1 (2026-09, [ADR 0020](docs/decisions/0020-timewarp-unobserved-window.md)):
+        the slider backdates orders into the unobserved window above the empire's
+        `lastTick` (`Empire.enqueue` refuses anything below, the route clamps to the
+        server's tick, 409 on refusal); the client rebuilds from the loaded snapshot +
+        log so a backdated order shows its true state (e2e `timewarp.spec`). The
+        "Timewarp to Genesis" toggle is gone; the kit keeps the rebase as sandbox
+        god mode (`GameSession.rebase`). Debt paid on the way: `Empire.seq` numbered
+        from the last row, duplicate seqs after a rebase. Left knowingly: the held
+        label shows the present economy — the truthful scrubber
+        (`fromGenesis(g).applyLog(log, t)`) needs the genesis client-side (persistence
+        v2), and old sessions that used the genesis toggle will fail replay then.
 - [ ] UI: queue display, cancel, time-remaining (Zeitgeber `passed` helps).
       Queue capacity is ruled by `Phormulae.queueSlots` (a `constant` Phormula, 2026-07;
       enforced in `Phlame.add`) — NOTE: it counts _all_ open actions; differentiate per
@@ -286,7 +298,10 @@ revisited & confirmed (2026-07-12 discovery dry-run, the agent-worktree warm-up:
 fights back — constructor clamp blocks composition, class-identity `isEnergy` forces a
 flag; dedup-for-its-own-sake, separation stands; evidence on `agent/energy-merge`, and
 the dry-run exposed that the specs never pinned negative Energy amounts directly —
-being fixed as a follow-up task).
+being fixed as a follow-up task); timewarp semantics → [ADR 0020](docs/decisions/0020-timewarp-unobserved-window.md)
+(2026-09: backdating only into the unobserved window above the empire's `lastTick`,
+the server clamps to its own tick, rebase is sandbox-only, the frontier is the 1.0
+checkpoint).
 
 1. **Content location**: where do balancing/prosumption tables live long-term — code
    (`buildings.ts`) or data (`phlame-data` repo)? Must end up canonical + hashable
@@ -306,7 +321,10 @@ being fixed as a follow-up task).
    the Empire's own economy) — confirm against reality when M2 starts: one research
    queue or several? research points as a resource or plain cost deduction?
 4. **Action log compaction**: when do checkpoints truncate the log — per session, per N
-   ticks, on save-share?
+   ticks, on save-share? Scoped by ADR 0020: the observed frontier is the only
+   checkpoint today; an explicit persisted `sealed` tick generalizes it
+   (`frontier = max(lastTick, sealed)`, same guard) — the open part is _when_ it
+   advances (compaction, export, 2.0 cross-empire observation), not what it means.
 5. **Old siblings**: `phlame-server`, `phlame-ui`, `engine-ui`, `peer-server`, `proxy` —
    archive them explicitly (README note in parent) or keep any alive for 2.0?
 6. **i18n scope**: de/en only for 1.0?

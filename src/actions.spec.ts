@@ -159,4 +159,52 @@ describe('actionsRoute', () => {
     });
     expect(res.status).toBe(409);
   });
+
+  const post = (at: unknown) =>
+    app.request('/entities/123/actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'update',
+        payload: { id: 'cmd-1', phelopmentID: 'farm', grade: 'up' },
+        at,
+      }),
+    });
+
+  it('POST orders at a backdated client tick - the engine guards the frontier (ADR 0020)', async () => {
+    const res = await post(90);
+    expect(res.status).toBe(201);
+    expect(mockEmpire.enqueue).toHaveBeenCalledWith(
+      ActionTypes.UPDATE,
+      expect.anything(),
+      [mockEntity],
+      90,
+    );
+  });
+
+  it('POST clamps a client tick ahead of the server timeline to the server tick', async () => {
+    const res = await post(150);
+    expect(res.status).toBe(201);
+    expect(mockEmpire.enqueue).toHaveBeenCalledWith(
+      ActionTypes.UPDATE,
+      expect.anything(),
+      [mockEntity],
+      100,
+    );
+  });
+
+  it('POST should return 400 for a tick that is not a whole, positive number', async () => {
+    expect((await post(99.5)).status).toBe(400);
+    expect((await post(-1)).status).toBe(400);
+    expect(mockEmpire.enqueue).not.toHaveBeenCalled();
+  });
+
+  it('POST should return 409 when the empire refuses to backdate', async () => {
+    mockEmpire.enqueue.mockImplementationOnce(() => {
+      throw new Error('Cannot backdate to tick 50: tick 80 is observed');
+    });
+    const res = await post(50);
+    expect(res.status).toBe(409);
+    expect((await res.json()).error).toContain('Cannot backdate');
+  });
 });

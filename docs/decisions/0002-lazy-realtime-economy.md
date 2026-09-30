@@ -23,6 +23,8 @@ rates stay valid before a stock runs empty/full), applying the recalculation str
   rates are per-tick integers, not per-frame floats (see ADR 0003).
 - Client and server run the exact same calculation; the engine stays isomorphic and pure.
 - Actions with future consequences ("timewarping") must be replayed when catching up —
-  the planned action queue builds on this (roadmap; `Action.ts` is still an interface).
+  the build queue does exactly that. Orders may be placed anywhere in the _unobserved
+  window_ between an empire's `lastTick` and now, never below it
+  ([ADR 0020](0020-timewarp-unobserved-window.md)).
 - Cheating by clock manipulation is a known concern, addressed later via shared snapshots
   (2.0 roadmap), not by trusting wall time.

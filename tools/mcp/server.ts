@@ -123,7 +123,9 @@ server.registerTool(
         .int()
         .nonnegative()
         .optional()
-        .describe('optional past tick to timewarp the command to'),
+        .describe(
+          'optional past tick to backdate the command to - sandbox rebase: the state is re-derived from genesis, later echoes may change (ADR 0020)',
+        ),
     },
   },
   ({ session: id, type, direction, planet, at }) => {

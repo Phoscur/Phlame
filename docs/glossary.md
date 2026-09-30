@@ -9,9 +9,11 @@ Phlame's domain language, one line each. German loanwords are intentional.
 - **Zeitgeist** — the Zeitgeber's private bundle of Signal states (tick, timeMS, iteration, hold).
 - **Tick** — the game's time unit; default 10s wall time (`msPerTick`). All rates are per tick.
 - **Iteration** — the Zeitgeber's inner heartbeat (~334ms) used for smooth UI (progress toward next tick), not for game logic.
-- **hold / Zeitleiste** — freezing the Zeitgeber at a chosen tick for time-travel debugging; UI: TickSlider with play/pause.
+- **hold / Zeitleiste** — freezing the Zeitgeber at a chosen tick for time-travel debugging and for ordering into the past; UI: TickSlider with play/pause. The label moves, the state does not (ADR 0020).
 - **o.d.** — "overdue": ticks elapsed between last persisted Zeit and now, caught up at startup (log shorthand).
 - **lazy realtime** — nothing simulates in the background; state fast-forwards from `lastTick` on demand (ADR 0002).
+- **frontier** — the observed frontier: an empire's `lastTick`, below which nothing can be ordered anymore. Client-side tracked as `EmpireService.frontier` (the loaded snapshot's tick, then the last ordered tick).
+- **timewarp / backdating** — ordering at a tick between the frontier and now, the unobserved window (ADR 0020). The kit's sandbox goes further and _rebases_: re-derives the state from genesis with a command slotted into the past.
 
 ## Economy (engine library)
 

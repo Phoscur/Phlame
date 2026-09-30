@@ -8,6 +8,7 @@ import {
   type ActionType,
   type EmpireJSON,
   type GenesisJSON,
+  type LogEntryJSON,
   type TimeUnit,
 } from '@phlame/engine';
 // deliberately NOT the app barrel (it exports DOM custom elements) - config modules only
@@ -157,21 +158,34 @@ export class GameSession {
     const at = queueAt + (wait === Infinity ? duration : wait + duration);
     // ids are generated here at the tool boundary - the engine stays pure (ADR 0009)
     const id = actionID();
-    // commands enter through the empire's trusted log (ADR 0012)
-    this.empire.enqueue(
-      ActionTypes.UPDATE,
-      { id, phelopmentID: type, grade: direction },
-      [planet],
-      queueAt,
-    );
-
-    if (queueAt < this.currentTick) {
-      // Timewarping into the past: re-derive the live state from genesis
-      // to ensure costs are evaluated retroactively to maintain the M0 invariant.
-      this.empire = fromGenesis(this.genesis).applyLog(this.empire.log, this.currentTick);
+    const payload = { id, phelopmentID: type, grade: direction };
+    if (queueAt < this.empire.lastTick) {
+      // sandbox god mode (ADR 0020): the engine refuses to backdate below the observed
+      // frontier, the lab rebases instead - the command is slotted into the log at its
+      // tick and the live state re-derived from genesis, so replay ≡ live still holds.
+      // Retroactive costs may rewrite later echoes: that IS the experiment.
+      this.rebase({
+        seq: this.empire.seq,
+        tick: queueAt,
+        type: ActionTypes.UPDATE,
+        concerns: [planet.id],
+        payload,
+      });
+    } else {
+      // commands enter through the empire's trusted log (ADR 0012)
+      this.empire.enqueue(ActionTypes.UPDATE, payload, [planet], queueAt);
     }
 
     return { id, at, duration, wait, cost: cost.prettyAmount };
+  }
+
+  /**
+   * Slot a command into the past and re-derive the live state from genesis + log.
+   * Sandbox-only (ADR 0020): production never rewrites observed time.
+   */
+  rebase(entry: LogEntryJSON): this {
+    this.empire = fromGenesis(this.genesis).applyLog([...this.empire.log, entry], this.currentTick);
+    return this;
   }
 
   /** Remove a queued action by its id; false if nothing was queued under it */

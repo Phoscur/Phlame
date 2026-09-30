@@ -28,8 +28,9 @@ export class EngineFactory {
   createEmpire(
     json: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>,
   ): Empire<ResourceIdentifier, PhelopmentIdentifier> {
-    // the log is data only here - its projections are already inside entities[].actions
-    return new Empire(json.id, this.createEntities(json.entities), json.log ?? []);
+    // the log is data only here - its projections are already inside entities[].actions;
+    // copied, so a loaded snapshot stays a pristine backup while the empire's log grows
+    return new Empire(json.id, this.createEntities(json.entities), [...(json.log ?? [])]);
   }
 
   createEntities(
