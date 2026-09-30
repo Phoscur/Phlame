@@ -6,9 +6,9 @@ import {
   Economy,
   type Action,
   type ActionType,
-  type EmpireJSON,
   type GenesisJSON,
   type LogEntryJSON,
+  type SaveJSON,
   type TimeUnit,
 } from '@phlame/engine';
 // deliberately NOT the app barrel (it exports DOM custom elements) - config modules only
@@ -22,15 +22,8 @@ import { fromGenesis, genesisFor } from '../../src/app/engine/services';
 import { actionID } from '../../src/app/engine/ids';
 import { EngineFactory, type EmpireEntity, type PhlameEntity } from '../../src/app/engine/factory';
 
-export interface SessionSave {
-  name: string;
-  tick: TimeUnit;
-  /** universe identity (ADR 0011) - refuses to load under different rules */
-  phingerprint: string;
-  /** genesis + empire.log is the authoritative save; the snapshot is its cache (ADR 0012/0018) */
-  genesis: GenesisJSON;
-  empire: EmpireJSON<ResourceIdentifier, PhelopmentIdentifier>;
-}
+/** the kit's concrete v2 save: genesis + empire, replay-verifiable (ADR 0012/0018) */
+export type SessionSave = SaveJSON<ResourceIdentifier, PhelopmentIdentifier>;
 
 export interface PhelopmentRow {
   type: PhelopmentIdentifier;
@@ -69,19 +62,16 @@ export class GameSession {
   }
 
   static fromJSON(save: SessionSave): GameSession {
-    if (save.phingerprint !== phormulae.phingerprint) {
+    if (save.universe !== phormulae.phingerprint) {
       throw new Error(
-        `Phingerprint mismatch: save is from universe ${save.phingerprint}, ` +
+        `Phingerprint mismatch: save is from universe ${save.universe}, ` +
           `current rules are ${phormulae.phingerprint} (ADR 0011 - different rules, different universe)`,
       );
     }
     const factory = new Injector().inject(EngineFactory);
-    return new GameSession(
-      `${save.name}`,
-      save.genesis,
-      factory.createEmpire(save.empire),
-      save.tick,
-    );
+    const empire = factory.createEmpire(save.empire);
+    // name and tick are derived: the genesis names the empire, the snapshot carries its tick
+    return new GameSession(`${save.genesis.empire}`, save.genesis, empire, empire.lastTick);
   }
 
   get tick(): TimeUnit {
@@ -257,10 +247,11 @@ export class GameSession {
 
   toJSON(): SessionSave {
     return {
-      name: this.name,
-      tick: this.currentTick,
-      phingerprint: this.phingerprint,
+      version: 2,
+      universe: this.phingerprint,
       genesis: this.genesis,
+      // the sandbox lab lives in the unobserved window (GameSession.rebase) - timewarp on
+      settings: { timewarp: true },
       empire: this.empire.toJSON(),
     };
   }
@@ -268,7 +259,7 @@ export class GameSession {
   async save(name = this.name): Promise<string> {
     await mkdir(SAVE_FOLDER, { recursive: true });
     const file = join(SAVE_FOLDER, `${sanitize(name)}.json`);
-    await writeFile(file, JSON.stringify({ ...this.toJSON(), name }, null, 2));
+    await writeFile(file, JSON.stringify(this.toJSON(), null, 2));
     return file;
   }
 
