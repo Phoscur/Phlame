@@ -141,12 +141,15 @@ vitest 5.0.1 (a major), oxlint 1.85.0 and oxfmt 0.70.0, and its CLI needs Node
 - [x] Measured on the host before any code change: `vp fmt --check` clean (no oxfmt
       churn), `npm run tsc` clean, app 13 files / 97 passed + 1 todo and engine 19 files
       / 104 passed + 1 todo, the same counts as master.
-- [ ] Lint fallout: oxlint 1.85 newly reports `no-unused-vars` on the `_` parameter at
+- [x] Lint fallout: oxlint 1.85 newly reports `no-unused-vars` on the `_` parameter at
       `src/app/engine/resources.ts:96` (1.72 did not). CI runs `--deny-warnings`, so
-      the fast-fail job stays red until this is fixed.
-- [ ] Containerized proof: rebuild the runner and playwright images (the `npm ci`
+      the fast-fail job stays red until this is fixed. Fixed by dropping the parameter:
+      `resources.null` is now nullary.
+- [x] Containerized proof: rebuild the runner and playwright images (the `npm ci`
       layer keys on the lockfile), then `run(test|tsc|lint)` and `run(e2e)` — `vp dev`
       on the new core, with the esbuild decorators pre-plugin, is unexercised so far.
+      Rebuilt 2026-09-30: lint 0 warnings, tsc clean, app 97 + 1 todo / engine 104 +
+      1 todo, e2e 18/18 across chromium, firefox and webkit.
 
 ## Side quest — MCP CLI (engine-ui reborn)
 
