@@ -306,6 +306,11 @@ run --rm playwright npx playwright test` (no dev overlay — self-contained).
       refusal of --dangerously-skip-permissions); agent verbs exec via plain
       `docker exec` (compose exec keeps stdin open — claude stalls 3s per run).
       Verified: claude calls phorge `status`/`run(tsc)` from inside.
+- [x] Generated agent configs live in the container home (2026-09, #82): setup.sh
+      never writes into the repo mount anymore (opencode's config moved from the
+      tracked `/phlame/opencode.jsonc` to `~/.config/opencode/opencode.json`), and the
+      `opencode` verb passes `OPENCODE_CONFIG` explicitly so the generated HTTP entry
+      wins over the repo's stdio entry.
 
 ### C2 — Later / on demand
 

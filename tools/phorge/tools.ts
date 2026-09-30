@@ -211,7 +211,7 @@ export function registerTools(server: McpServer): void {
     'opencode',
     {
       description:
-        'Run a headless opencode prompt inside an agent container (compose.agents.yml) and return its answer. yolo mode (--auto), phorge wired via generated opencode.jsonc. Two agent slots shared with agy/claude; 6-minute timeout; returns the output tail, pass verbose for more.',
+        'Run a headless opencode prompt inside an agent container (compose.agents.yml) and return its answer. yolo mode (--auto), phorge wired via a generated opencode config in the container home (~/.config/opencode/opencode.json). Two agent slots shared with agy/claude; 6-minute timeout; returns the output tail, pass verbose for more.',
       inputSchema: {
         prompt: z.string().min(1).describe('the task/question for the containerized opencode run'),
         verbose: z
