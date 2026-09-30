@@ -189,6 +189,35 @@ every run.
 
 ---
 
+## Host-side opencode
+
+If you run `opencode` directly on the host (not the containerized headless
+verb above), add the stdio phorge entry to your **global** config,
+`~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "phorge": {
+      "type": "local",
+      "command": ["npx", "tsx", "tools/phorge/server.ts"],
+      "enabled": true
+    }
+  }
+}
+```
+
+It does not live in the tracked `opencode.jsonc` at the repo root: opencode
+merges config sources, but **project config has the highest precedence** —
+a repo-level entry would win over any environment-specific one, and the
+right transport differs per environment anyway (stdio on the host, HTTP
+behind the container wall for the agent container — see "Headless claude
+runs" above). Putting it in your global config keeps the repo file
+environment-agnostic while still getting phorge wired up locally.
+
+---
+
 ## Host-owned deployment (O1)
 
 Running Phorge with `tsx`/`npm` from the agent worktree is fine for

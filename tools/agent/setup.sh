@@ -59,8 +59,10 @@ fi
 # opencode: global config lives in ~/.config/opencode/opencode.json (container home).
 # Never write into /phlame/ — opencode.jsonc is tracked in the repo and writing secrets
 # there leaves the working tree dirty. The generated config sets mcp.phorge to the HTTP
-# remote endpoint; planOpencode in tools/phorge/plan.ts sets OPENCODE_CONFIG to point at
-# this file to ensure it takes precedence over any repo-level stdio entry.
+# remote endpoint; opencode loads this file by default (no OPENCODE_CONFIG needed).
+# Config sources merge, but PROJECT config wins over global config — so the tracked
+# opencode.jsonc deliberately declares no phorge entry, leaving this generated one in
+# effect.
 mkdir -p ~/.config/opencode
 cat > ~/.config/opencode/opencode.json <<EOF
 {
