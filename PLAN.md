@@ -215,24 +215,30 @@ empire middleware, e2e `build.spec` — plus a red test pinning a real energy-li
       empire in that case (session bleed) — fix with the session middleware rework.
       Laid out 2026-09 (with [ADR 0020](docs/decisions/0020-timewarp-unobserved-window.md)),
       each a green slice of its own:
-  - [ ] P0 — one save shape: `SaveJSON { version: 2, universe, genesis, settings,
-empire }` unifies `EmpireLogJSON`, the kit's `SessionSave` and
-        `PersistedSession`; `actions` IS `empire.log`, the snapshot stays (O(1) load,
-        open builds are state, ADR 0018) and is verifiable instead of trusted. No
-        save-level tick — entities carry theirs, global time stays `zeit.json`.
-        `settings.timewarp` is the player's slider toggle: **the slider is a game
-        feature**, its setting lives in the save (survives export), not in the
-        Phingerprint and not in the env mode; `ph-tick-slider` renders only when on.
+  - [x] P0 — one save shape (**landed 2026-10**, #88): `SaveJSON { version: 2,
+universe, genesis, settings, empire }` unifies `EmpireLogJSON`, the kit's
+        `SessionSave` and `PersistedSession`; `actions` IS `empire.log`, the snapshot
+        stays (O(1) load, open builds are state, ADR 0018) and is verifiable instead of
+        trusted. No save-level tick — entities carry theirs, global time stays
+        `zeit.json`. Sessions are born through `genesisFor` + `fromGenesis`, genesis +
+        settings are captured per sid at load/birth, and **dev/test verify every loaded
+        session against its replay** (`replay mismatch` → 401). **No v1 migration**: the
+        birth tick is not recoverable (`zeit` in a v1 save was the last save time) — old
+        sessions hit the Logout hint, ADR 0011 allows pre-1.0 saves to break.
+  - [ ] P0b — the timewarp setting's UI: `settings.timewarp` is the player's slider
+        toggle (**the slider is a game feature**, its setting lives in the save, not in
+        the Phingerprint and not in the env mode — `false` for new sessions since P0);
+        a settings route behind the empire middleware, a checkbox in the session
+        dropdown (i18n), `ph-tick-slider` renders only when on; e2e flips it on first.
   - [ ] P1 — `SaveStore { load, save, exists }` with a zod schema at the boundary
         (replaces the late "corrupt = 401"); file backend = today's `Data` trimmed,
         localStorage backend new (M3 groundwork).
-  - [ ] P2 — server: session = save, birth = `genesisFor` + `fromGenesis` (drops
-        `emptyEmpire`); replay-verify on load in dev/test only (the middleware loads
-        per request — a full replay per hit does not scale, prod trusts its cache
-        until compaction); `sessionHelper` → session middleware for all routes (fixes
-        the session bleed). **No v1 migration**: the birth tick is not recoverable
-        (`zeit` in a v1 save is the last save time) — old sessions hit the Logout
-        hint, ADR 0011 allows pre-1.0 saves to break.
+  - [ ] P2 — server: `sessionHelper` → session middleware for all routes (fixes the
+        session bleed on a stale cookie). The rest of this slice (genesis birth,
+        verify-on-load in dev/test, no v1 migration) landed with P0. Prod keeps
+        trusting its cache: the middleware loads per request, a full replay per hit
+        does not scale until compaction exists — and the per-sid genesis/settings map
+        in `EngineService` grows for the process lifetime, both fine until then.
   - [ ] P3a — genesis reaches the client (`empire-ctx` attribute, kept with the first
         snapshot like the frontier): `EmpireService.verify()` in the browser, and the
         **truthful scrubber** — on `hold(T)` render `fromGenesis(genesis).applyLog(log
