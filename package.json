@@ -41,7 +41,7 @@
   "resolutions": {},
   "devDependencies": {
     "@hono/vite-dev-server": "^0.26.0",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/vite": "^4.3.2",
     "@types/node": "^24.0.13",
