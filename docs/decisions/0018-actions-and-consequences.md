@@ -37,6 +37,11 @@ Derived definitions:
   with the stored ones is the M0 invariant check, for free on every load.
 - **sharing/compaction**: `consequences[]` may be stripped from shared saves and rotated
   freely; `actions[]` only ever grows (until empire-log compaction, ADR 0012/PLAN).
+  Since the v2 save (2026-10, PLAN M1 persistence v2 P0) the echoes live inside each
+  entity of the snapshot, not in a separate array — so "stripped" means the share
+  format carries **no snapshot at all**: `{ universe, genesis, log }`, rebuilt on import
+  (the snapshot is a cache, ADR 0012). Whether an export ships the cache alongside for
+  O(1) load is the M3 export decision; nothing forecloses either.
 
 ## Consequences
 
@@ -44,6 +49,9 @@ Derived definitions:
   are state, not cache — a running build's `started` tick is not recoverable from the
   stock snapshot. They must be serialized until saves become genesis + full log (M1);
   only then do they degrade to a pure derivation. Do not strip them earlier.
+  **Reached 2026-10**: every save carries its genesis and the dev/test server verifies
+  `replay(genesis, log)` against the snapshot — regenerated echoes included — on every
+  load. The replay self-test is no longer an intent, it runs.
 - Full chronology views ("planet history") need a merge of both arrays over `at`
   (+ tiebreak) — the price of separation.
 - The migration must _replace_ the payload mutations entirely, not add alongside
