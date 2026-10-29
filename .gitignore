@@ -10,6 +10,9 @@
 # agent task worktrees (phorge agy/claude verbs, worktree parameter)
 /.worktrees
 
+# phorge-rust's host data and record store on this host (docs/mcp-setup.md)
+/.phorge-rust
+
 # compiled output
 dist
 tmp
