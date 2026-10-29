@@ -5,6 +5,18 @@
       "args": ["tsx", "tools/mcp/server.ts"]
     },
     "phorge": {
+      "command": "${PHORGE_RUST_BIN:-phorge-rust}",
+      "args": ["mcp"],
+      "env": {
+        "PHORGE_LADDER": "${PHORGE_RUST_HOST:-.phorge-rust}/ladder.json",
+        "PHORGE_RECORDS": "${PHORGE_RUST_HOST:-.phorge-rust}/records.jsonl",
+        "PHORGE_CHECKS": "${PHORGE_RUST_HOST:-.phorge-rust}/checks.json",
+        "PHORGE_SLOTS": "${PHORGE_RUST_HOST:-.phorge-rust}/slots.json",
+        "PHORGE_WINDOW": "${PHORGE_RUST_HOST:-.phorge-rust}/window.json",
+        "PHORGE_ENGINES": "agy"
+      }
+    },
+    "phorge-ts": {
       "command": "npx",
       "args": ["tsx", "tools/phorge/server.ts"]
     }

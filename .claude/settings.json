@@ -10,6 +10,7 @@
       "Bash(docker compose -f compose.test.yml *)",
       "Bash(npm run agents:build*)",
       "mcp__phorge",
+      "mcp__phorge-ts",
       "mcp__phlame-game"
     ]
   }

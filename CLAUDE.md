@@ -33,7 +33,10 @@ preferred interface is the **phorge** MCP (`status`, `run(test|tsc|lint|e2e|scre
 `fmt` — in-place formatting via the agent container's rw mount (run verbs mount
 source read-only) —, `screenshot`, `agy(prompt)`/`claude(prompt)` — headless agent
 runs in the agent container —, `models`, `logs`, `build`, `down`); the npm `:docker` variants
-(`test:docker` etc., first run: `npm run containers:build`) are the fallback.
+(`test:docker` etc., first run: `npm run containers:build`) are the fallback. On the host,
+`.mcp.json`'s `phorge` is phorge-rust (`run`, `agent`, `show`, `models`) and `phorge-ts` the
+TypeScript phorge with every verb above; [docs/mcp-setup.md](./docs/mcp-setup.md) says how
+to install the first.
 
 **Conducting the yolo agents** (`agy`/`claude` verbs; they obey
 [AGENTS.md](./AGENTS.md)):

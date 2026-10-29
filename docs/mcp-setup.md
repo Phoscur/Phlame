@@ -10,6 +10,46 @@ This guide describes how to run the Phorge MCP HTTP server and the agent contain
 
 ---
 
+## phorge-rust, the host's stdio phorge
+
+The repo `.mcp.json` names two phorges for host-side stdio clients such as Claude Code on the
+host:
+
+- **`phorge`** is [phorge-rust](https://github.com/Phoscur/phorge-rust) v0.1.0, the Rust
+  rebuild of phorge, run on its `profiles/phlame/` host data. It serves `run` (`test`,
+  `test-file`, `tsc`, `lint`, `e2e`, `screenshot`), `agent` (agy on the two agent replicas),
+  `show`, `models` and `orient`.
+- **`phorge-ts`** is this repository's TypeScript phorge (`tools/phorge/`), unchanged. It is
+  the fallback: it serves what phorge-rust does not (`status`, `fmt`, `logs`, `build`,
+  `down`, `claude(prompt)`), and everything when phorge-rust is not installed or refuses to
+  boot. A `phorge` that fails to start shows as failed in `/mcp`; `phorge-ts` keeps serving.
+
+The agent container is not affected: its generated config still reaches the TypeScript phorge
+over HTTP on port 4201.
+
+Setting it up on a host, once:
+
+1. **The binary.** From the v0.1.0 release (on Phoscur/phorge-rust or Chlorophos/Phrust), take
+   `phorge-0.1.0-x86_64-windows-msvc.exe` for Windows, or `phorge-0.1.0-x86_64-linux-musl`
+   (`-aarch64-linux-musl` on arm64) for WSL and Linux. Check it against the release's
+   `SHA256SUMS`, then put it on `PATH` as `phorge-rust` (`phorge-rust.exe`), or set
+   `PHORGE_RUST_BIN` to its absolute path.
+2. **The host data.** Copy the four files of `profiles/phlame/` from the same tag into
+   `.phorge-rust/` here (gitignored), or into the directory `PHORGE_RUST_HOST` names. Edit
+   two things for this host:
+   - each check's `dir`, the absolute path of the checkout whose compose files the checks run
+     (the profile says `/opt/phlame`);
+   - the slots' `target`s, which must be `phlame-agents-agent-1` and `phlame-agents-agent-2`,
+     the names compose gives the two replicas.
+3. **The record store** is `records.jsonl` in that directory, made by the first record.
+
+`${VAR:-default}` in `.mcp.json` is Claude Code's own expansion, so neither variable has to be
+set. The checks start with `env` to set `PHLAME_WORKTREE`, so a native Windows host needs an
+`env` on `PATH` (Git for Windows' `usr\bin` has one) until phorge-rust's Phlame package (D6)
+reworks the profile; until then, run checks through `phorge-ts` there.
+
+---
+
 ## The two .env files
 
 There is one `.env` per phorge location — same template (`.env.dist`),
