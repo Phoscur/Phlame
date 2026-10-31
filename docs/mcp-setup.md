@@ -29,14 +29,19 @@ over HTTP on port 4201.
 
 Setting it up on a host, once:
 
-1. **The binary.** From the v0.1.0 release (on Phoscur/phorge-rust or Chlorophos/Phrust), take
-   `phorge-0.1.0-x86_64-windows-msvc.exe` for Windows, or `phorge-0.1.0-x86_64-linux-musl`
+1. **The binary.** From the v0.1.0 release on Phoscur/phorge-rust, take
+   `phorge-0.1.0-x86_64-windows-gnu.exe` for Windows, or `phorge-0.1.0-x86_64-linux-musl`
    (`-aarch64-linux-musl` on arm64) for WSL and Linux. Check it against the release's
    `SHA256SUMS`, then put it on `PATH` as `phorge-rust` (`phorge-rust.exe`), or set
-   `PHORGE_RUST_BIN` to its absolute path.
-2. **The host data.** Copy the four files of `profiles/phlame/` from the same tag into
-   `.phorge-rust/` here (gitignored), or into the directory `PHORGE_RUST_HOST` names. Edit
-   two things for this host:
+   `PHORGE_RUST_BIN` to its absolute path. On Phenros, Defender's machine-learning heuristic
+   quarantined an unsigned phorge-rust exe once (2026-10-31); the Linux build in WSL avoids it.
+   A dispatch on a worktree needs v0.2.0 or later: v0.1.0 writes the worktree's `.git` with the
+   host's path, which the agent container cannot follow (phorge-rust PR 337).
+2. **The host data.** Copy the files of `profiles/phlame/` from the same tag into
+   `.phorge-rust/` here (gitignored), or into the directory `PHORGE_RUST_HOST` names: the four
+   `.mcp.json` names, and `workers.json`, which only a claude worker needs. In v0.1.0's
+   `ladder.json`, write `Gemini 3.8 Flash (Medium)` for the model: the agy in the agent image no
+   longer offers the 3.5 Flash it names (phorge-rust PR 338). Edit two things for this host:
    - each check's `dir`, the absolute path of the checkout whose compose files the checks run
      (the profile says `/opt/phlame`);
    - the slots' `target`s, which must be `phlame-agents-agent-1` and `phlame-agents-agent-2`,
