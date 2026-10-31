@@ -135,6 +135,13 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
             }
 
             const level = payload.grade === 'up' ? currentLevel + 1 : currentLevel - 1;
+            const remaining = completeAt === Infinity ? Infinity : completeAt - planet.lastTick;
+            const etaText =
+              remaining === Infinity
+                ? t('building.queue.waiting')
+                : remaining <= 0
+                  ? t('building.queue.completing')
+                  : t('building.queue.remaining', remaining);
             return (
               <li
                 class={`${getColorClassFor(payload.phelopmentID)} flex items-center gap-3 rounded-lg
@@ -142,11 +149,7 @@ export const planetToJSX = (t: I18n, planet: PhlameEntity) => {
               >
                 {getIconFor(payload.phelopmentID)}
                 <span class="min-w-0 flex-1 truncate font-medium">
-                  {getNameFor(t, payload.phelopmentID)} — {t('building.level')} {level} (
-                  {completeAt === Infinity
-                    ? t('building.queue.waiting')
-                    : t('building.queue.eta', completeAt)}
-                  )
+                  {getNameFor(t, payload.phelopmentID)} — {t('building.level')} {level} ({etaText})
                 </span>
                 <button
                   data-action-id={payload.id}

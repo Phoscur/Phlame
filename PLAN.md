@@ -286,6 +286,12 @@ universe, genesis, settings, empire }` unifies `EmpireLogJSON`, the kit's
         `completeAt - lastTick` is the remaining count — show "N ticks" (i18n slot,
         maybe real time via `msPerTick`) and a progress bar from `startAt → completeAt`;
         "waiting" state (not started) should read differently from "building".
+    - [x] "N ticks" (2026-10-31): a queued row reads `(in N ticks)`, `(completing)` at 0
+          or less, `(waiting for resources)` for `Infinity`; `building.queue.remaining`
+          and `building.queue.completing` in en/de, `building.queue.eta` retired. The
+          first change a worker wrote through phorge-rust (agy Gemini 3.8 Flash).
+    - [ ] Still open: the progress bar, real time via `msPerTick`, and "waiting" (not
+          started) reading differently from "building" for an affordable row.
 
 ## Milestone 2 — Gameplay depth
 
