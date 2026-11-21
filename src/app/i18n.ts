@@ -54,6 +54,7 @@ const basic = {
     'session.lost.hint':
       'Your session was not found on the server. Use Session → Logout to start a fresh one.',
     'building.queue.waiting': 'waiting for resources',
+    'building.queue.completing': 'completing',
     ...resources,
     ...resourcesSingular,
     ...buildings,
@@ -74,6 +75,7 @@ const basic = {
     'session.lost.hint':
       'Deine Session wurde auf dem Server nicht gefunden. Über Session → Logout kannst du eine neue starten.',
     'building.queue.waiting': 'wartet auf Rohstoffe',
+    'building.queue.completing': 'wird fertig',
     'resource.unknown': 'Unbekannt',
     'resource.metallic': 'Metalle',
     'resource.crystalline': 'Kristalline',
@@ -109,10 +111,12 @@ const composite = {
         : `${amount} ${t[resource]}`,
     'building.action.research': (t: BasicIndex, building: BuildingEntry = 'building.missing') =>
       `Research ${t[building]}`,
-    'building.queue.eta': (_t: BasicIndex, tick = 0) => `at tick ${tick}`,
+    'building.queue.remaining': (_t: BasicIndex, ticks = 0) =>
+      ticks === 1 ? 'in 1 tick' : `in ${ticks} ticks`,
   },
   de: {
-    'building.queue.eta': (_t: BasicIndex, tick = 0) => `bei Tick ${tick}`,
+    'building.queue.remaining': (_t: BasicIndex, ticks = 0) =>
+      ticks === 1 ? 'in 1 Tick' : `in ${ticks} Ticks`,
   },
 } as const;
 
